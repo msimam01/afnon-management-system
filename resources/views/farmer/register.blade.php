@@ -65,6 +65,7 @@
         </div>
     </nav>
 
+    
     <main class="max-w-4xl mx-auto py-24 px-4 sm:px-6 lg:px-8">
         <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-6">
             <div class="mb-8">
