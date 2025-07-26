@@ -20,7 +20,7 @@ class TenantLoginController extends Controller
             'password' => 'required|string',
         ]);
 
-        if (Auth::attempt($request->only('email', 'password'), $request->filled('remember'))) {
+        if (Auth::guard('web')->attempt($request->only('email', 'password'), $request->filled('remember'))) {
             $user = Auth::user();
 
             // Redirect based on role
