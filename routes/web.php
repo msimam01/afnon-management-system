@@ -86,3 +86,4 @@ Route::get('/farmer/register', fn() => view('farmer.register'))->name('farmer-re
 
 
 require __DIR__ . '/auth.php';
+require __DIR__ . '/tenant.php';

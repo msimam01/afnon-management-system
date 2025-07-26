@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
+use App\Http\Controllers\Auth\TenantLoginController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,13 +19,17 @@ use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 |
 */
 
+// use App\Http\Controllers\Auth\TenantLoginController;
+
 Route::middleware([
     'web',
-    InitializeTenancyByDomain::class,
-    PreventAccessFromCentralDomains::class,
+    'auth',
+    \Stancl\Tenancy\Middleware\InitializeTenancyByDomain::class,
+    \Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains::class,
 ])->group(function () {
-    Route::get('/', function () {
-        return 'This is your multi-tenant application. The id of the current tenant is ' . tenant('id');
-    });
-});
+    // Show login form
+    Route::get('/login', [TenantLoginController::class, 'showLoginForm'])->name('tenant.login');
 
+    // Handle login POST
+    Route::post('/login', [TenantLoginController::class, 'login'])->name('tenant.login.submit');
+});
