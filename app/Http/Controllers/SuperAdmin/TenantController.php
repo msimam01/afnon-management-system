@@ -9,6 +9,7 @@ use App\Models\SuperAdmin\Tenant;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
+use Devrabiul\ToastMagic\Facades\ToastMagic;
 
 class TenantController extends Controller
 {
@@ -65,8 +66,8 @@ class TenantController extends Controller
         $admin->assignRole('admin');
 
         tenancy()->end(); // switch back to central
-
-        return redirect()->route('superadmin.tenants')->with('success', 'Tenant created and admin seeded!');
+        ToastMagic::success('Tenant created and admin seeded!');
+        return redirect()->route('superadmin.tenants.index')->with('success', 'Tenant created and admin seeded!');
     }
 
 
