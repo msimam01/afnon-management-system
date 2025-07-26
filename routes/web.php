@@ -7,6 +7,8 @@ use App\Http\Controllers\Agent\DashboardController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Farmer\DashboardController as FarmerDashboard;
 use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboard;
+use App\Http\Controllers\SuperAdmin\TenantController;
+use App\Http\Controllers\MonetaryReturnController;
 
 /*
 |--------------------------------------------------------------------------
@@ -43,6 +45,9 @@ Route::middleware(['auth', 'role:super-admin'])->prefix('super-admin')->name('su
     Route::get('/settings', fn() => view('super-admin.settings'))->name('settings');
     Route::get('/roles', fn() => view('super-admin.roles'))->name('roles');
     Route::get('/activity-logs', fn() => view('super-admin.audit-logs'))->name('activity-logs');
+    Route::get('/tenants', [TenantController::class, 'index'])->name('tenants.index');
+    Route::get('/tenants/create', [TenantController::class, 'create'])->name('tenants.create');
+    Route::post('/tenants', [TenantController::class, 'store'])->name('tenants.store');
 });
 
 
@@ -57,11 +62,16 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/farmers', fn() => view('admin.farmers'))->name('farmers');
     Route::get('/returns', fn() => view('admin.return'))->name('returns');
     Route::get('/reports', fn() => view('admin.reports'))->name('reports');
+    Route::get('/receipts', [MonetaryReturnController::class, 'index'])->name('receipts');
+    Route::get('/receipts/{id}', [MonetaryReturnController::class, 'show'])->name('eceipts.show');
+    Route::post('/receipts/{id}/verify', [MonetaryReturnController::class, 'verify'])->name('receipts.verify');
+    Route::post('/receipts/{id}/reject', [MonetaryReturnController::class, 'reject'])->name('receipts.reject');
 });
 
 // FARMER
 Route::middleware(['auth', 'role:farmer'])->prefix('farmer')->name('farmer.')->group(function () {
     Route::get('/dashboard', [FarmerDashboard::class, 'index'])->name('dashboard');
+    Route::get('/application', fn() => view('farmer.application'))->name('application');
 });
 
 Route::prefix('agent')->name('agent.')->group(function () {

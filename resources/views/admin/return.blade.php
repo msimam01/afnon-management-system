@@ -77,63 +77,113 @@
             </div>
         </div>
     </div>
-    <div id="returnModal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
-        <div class="bg-white dark:bg-gray-800 w-full max-w-3xl rounded-lg shadow-lg p-6 overflow-y-auto max-h-[90vh]">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Verify Return Submission</h3>
-                <button onclick="closeReturnModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
+    <!-- Return Verification Modal -->
+<div id="returnModal"
+    class="hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center px-4 sm:px-0">
+    <div class="bg-white dark:bg-gray-800 w-full max-w-4xl rounded-xl shadow-xl p-6 sm:p-8 overflow-y-auto max-h-[90vh]">
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-6">
-                <div>
-                    <h4 class="font-medium text-gray-900 dark:text-white mb-2">Return Details</h4>
-                    <p class="text-gray-700 dark:text-white"><strong>Farmer:</strong> Mary Adams</p>
-                    <p class="text-gray-700 dark:text-white"><strong>Agent:</strong> Mike Wilson</p>
-                    <p class="text-gray-700 dark:text-white"><strong>Commodity:</strong> Maize</p>
-                    <p class="text-gray-700 dark:text-white"><strong>Submitted:</strong> Mar 10, 2024</p>
-                    <p class="text-gray-700 dark:text-white"><strong>Expected Return:</strong> 30 bags</p>
-                </div>
-                <div>
-                    <h4 class="font-medium text-gray-900 dark:text-white mb-2">Agent Comments</h4>
-                    <p class="text-gray-700 dark:text-white italic">"Farmer returned clean, properly packed maize.
-                        Verified by ID."</p>
-                </div>
-            </div>
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-6 border-b pb-4 border-gray-200 dark:border-gray-600">
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white">Verify Commodity Return</h3>
+            <button onclick="closeReturnModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
 
-            <!-- Photo Previews -->
-            <div class="grid grid-cols-2 gap-4 mb-4">
-                <div>
-                    <p class="text-sm mb-1 text-gray-600 dark:text-gray-400">Return Commodity Image</p>
-                    <img src="/uploads/maize.jpg" alt="Returned Commodity"
-                        class="rounded-lg w-full h-40 object-cover border border-gray-300 dark:border-gray-600" />
-                </div>
-                <div>
-                    <p class="text-sm mb-1 text-gray-600 dark:text-gray-400">Farmer + ID Proof</p>
-                    <img src="/uploads/farmer-id.jpg" alt="Farmer ID"
-                        class="rounded-lg w-full h-40 object-cover border border-gray-300 dark:border-gray-600" />
-                </div>
+        <!-- Info Sections -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border">
+                <h4 class="font-semibold text-gray-800 dark:text-white mb-2">Farmer & Application Info</h4>
+                <ul class="text-sm text-gray-700 dark:text-gray-300 space-y-1" id="return-farmer-info">
+                    <li><strong>Name:</strong> Mary Adams</li>
+                    <li><strong>Phone:</strong> 08012345678</li>
+                    <li><strong>Cluster:</strong> Cluster A</li>
+                    <li><strong>Season:</strong> 2024 Dry Season</li>
+                    <li><strong>Farm Size:</strong> 5.2 hectares</li>
+                </ul>
             </div>
-
-            <!-- Optional rejection note -->
-            <div class="mb-4">
-                <label for="rejectionNote"
-                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Rejection Reason
-                    (optional)</label>
-                <textarea id="rejectionNote" rows="2"
-                    class="w-full px-3 py-2 rounded-md border dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    placeholder="Explain if rejected..."></textarea>
-            </div>
-
-            <div class="flex justify-end space-x-3">
-                <button onclick="approveReturn()"
-                    class="bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700">Approve</button>
-                <button onclick="rejectReturn()"
-                    class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700">Reject</button>
+            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border">
+                <h4 class="font-semibold text-gray-800 dark:text-white mb-2">Return Details</h4>
+                <ul class="text-sm text-gray-700 dark:text-gray-300 space-y-1">
+                    <li><strong>Agent:</strong> Mike Wilson</li>
+                    <li><strong>Commodity:</strong> Maize</li>
+                    <li><strong>Submitted:</strong> Mar 10, 2024</li>
+                    <li><strong>Expected Return:</strong> 30 bags</li>
+                    <li><strong>Returned Quantity:</strong> 28 bags</li>
+                </ul>
             </div>
         </div>
+
+        <!-- Commodity Breakdown Table -->
+        <div class="mb-6">
+            <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Return Breakdown</h4>
+            <div class="overflow-x-auto">
+                <table
+                    class="w-full text-sm border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden">
+                    <thead class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-white">
+                        <tr>
+                            <th class="px-4 py-2 text-left">Commodity</th>
+                            <th class="px-4 py-2 text-left">Expected</th>
+                            <th class="px-4 py-2 text-left">Returned</th>
+                            <th class="px-4 py-2 text-left">Unit</th>
+                            <th class="px-4 py-2 text-left">Value</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white dark:bg-gray-800 text-gray-800 dark:text-white" id="return-breakdown-body">
+                        <tr>
+                            <td class="px-4 py-2">Maize</td>
+                            <td class="px-4 py-2">30</td>
+                            <td class="px-4 py-2">28</td>
+                            <td class="px-4 py-2">bags</td>
+                            <td class="px-4 py-2">₦112,000</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Agent Note -->
+        <div class="mb-4">
+            <h4 class="text-sm font-semibold text-gray-800 dark:text-white mb-1">Agent Comment</h4>
+            <p class="text-sm text-gray-700 dark:text-gray-300 italic">"Farmer returned clean, properly packed maize.
+                Verified by ID."</p>
+        </div>
+
+        <!-- Image Previews -->
+        <div class="grid grid-cols-2 gap-4 mb-6">
+            <div>
+                <p class="text-sm mb-1 text-gray-600 dark:text-gray-400">Returned Commodity Image</p>
+                <img src="/uploads/maize.jpg" alt="Returned Commodity"
+                    class="rounded-lg w-full h-40 object-cover border border-gray-300 dark:border-gray-600" />
+            </div>
+            <div>
+                <p class="text-sm mb-1 text-gray-600 dark:text-gray-400">Farmer with ID</p>
+                <img src="/uploads/farmer-id.jpg" alt="Farmer ID"
+                    class="rounded-lg w-full h-40 object-cover border border-gray-300 dark:border-gray-600" />
+            </div>
+        </div>
+
+        <!-- Rejection Note -->
+        <div class="mb-6">
+            <label for="rejectionNote"
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Rejection Note
+                (optional)</label>
+            <textarea id="rejectionNote" rows="2"
+                class="w-full px-3 py-2 rounded-md border dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                placeholder="Reason for rejection..."></textarea>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex justify-end space-x-3">
+            <button onclick="approveReturn()"
+                class="bg-emerald-600 text-white px-5 py-2 rounded-md hover:bg-emerald-700 transition">Approve</button>
+            <button onclick="rejectReturn()"
+                class="bg-red-600 text-white px-5 py-2 rounded-md hover:bg-red-700 transition">Reject</button>
+        </div>
     </div>
+</div>
+
 @endsection

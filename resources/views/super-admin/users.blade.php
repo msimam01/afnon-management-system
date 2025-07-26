@@ -1,127 +1,50 @@
 @extends('layouts.layout')
 
 @section('content')
+
     <!-- Users Section -->
-    <div id="users-section" class="w-full min-h-screen px-4 py-6 bg-gray-50 dark:bg-gray-900">
+    <div id="users-section" class="...">
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <div class="flex justify-between items-center mb-6">
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Manage All Users</h3>
-                <button onclick="openUserModal()"
-                    class="bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                    Add New User
-                </button>
-
+                <h3 class="text-lg font-medium ...">Manage All Users</h3>
+                <button onclick="openUserModal()" class="bg-emerald-600...">Add New User</button>
             </div>
 
-            <!-- User Type Tabs -->
-            <div class="border-b border-gray-200 dark:border-gray-700 mb-6">
+            <!-- Tabs -->
+            <div class="border-b mb-4">
                 <nav class="-mb-px flex space-x-8">
-                    <button
-                        class="user-tab active border-emerald-500 text-emerald-600 dark:text-emerald-400 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm"
-                        data-tab="admins">
-                        Admins
-                    </button>
-                    <button
-                        class="user-tab border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm"
-                        data-tab="agents">
-                        Agents
-                    </button>
-                    <button
-                        class="user-tab border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm"
-                        data-tab="farmers">
-                        Farmers
-                    </button>
+                    <button class="user-tab active" data-tab="admins">Admins</button>
+                    <button class="user-tab" data-tab="agents">Agents</button>
+                    <button class="user-tab" data-tab="farmers">Farmers</button>
                 </nav>
             </div>
 
-            <!-- Users Table -->
-            <div class="overflow-x-auto">
-                <!-- Controls -->
-                <div class="flex flex-wrap justify-between items-center mb-4 gap-4">
-                    <!-- Search -->
-                    <input type="text" placeholder="Search users..."
-                        class="w-full md:w-1/3 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-sm text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500">
-
-                    <!-- Filter Dropdown -->
-                    <select
-                        class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-sm text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500">
-                        <option value="">Filter by Status</option>
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                    </select>
-                </div>
-
-                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                    <thead class="bg-gray-50 dark:bg-gray-700">
-                        <tr>
-
-                            <!-- Table Head (add checkbox) -->
-                            <th class="px-6 py-3">
-                                <input type="checkbox" class="form-checkbox rounded text-emerald-600 dark:bg-gray-700">
-                            </th>
-
-                            <th
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                User</th>
-                            <th
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                Role</th>
-                            <th
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                Zone/Location</th>
-                            <th
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                Status</th>
-                            <th
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                        <tr>
-                            <!-- Table Row (add matching checkbox) -->
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <input type="checkbox" class="form-checkbox rounded text-emerald-600 dark:bg-gray-700">
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 h-10 w-10">
-                                        <div
-                                            class="h-10 w-10 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center">
-                                            <span class="text-sm font-medium text-purple-700 dark:text-purple-300">SJ</span>
-                                        </div>
-                                    </div>
-                                    <div class="ml-4">
-                                        <div class="text-sm font-medium text-gray-900 dark:text-white">Sarah
-                                            Johnson</div>
-                                        <div class="text-sm text-gray-500 dark:text-gray-400">sarah@necas.gov.ng
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">Admin
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">North
-                                Central Zone</td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <select
-                                    class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 focus:outline-none">
-                                    <option>Active</option>
-                                    <option>Inactive</option>
-                                </select>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                <button
-                                    class="text-emerald-600 dark:text-emerald-400 hover:text-emerald-900 dark:hover:text-emerald-300 mr-3">Edit</button>
-                                <button
-                                    class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300">Delete</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+            <!-- Bulk Controls -->
+            <div class="flex mb-4 gap-2 items-center">
+                <button id="bulk-activate" class="px-3 py-1 bg-green-500 text-white rounded">Activate</button>
+                <button id="bulk-deactivate" class="px-3 py-1 bg-yellow-500 text-white rounded">Deactivate</button>
+                <button id="bulk-delete" class="px-3 py-1 bg-red-500 text-white rounded">Delete</button>
             </div>
+
+            <table id="usersTable" class="display stripe hover" style="width:100%">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="select-all"></th>
+                        <th>User</th>
+                        <th>Role</th>
+                        <th>State</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- populate via server-side or static rows -->
+                </tbody>
+            </table>
         </div>
     </div>
+
+
     <!-- User Modal -->
     <div id="userModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
         <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-lg w-full max-w-lg">
@@ -156,4 +79,56 @@
             </form>
         </div>
     </div>
+    <script>
+        $(document).ready(function(){
+  const table = $('#usersTable').DataTable({
+    dom: 'Bfrtip',
+    buttons: [
+      { extend: 'csvHtml5', text: 'Export CSV', exportOptions: { modifier: { selected: true } } },
+      { extend: 'excelHtml5', text: 'Export Excel', exportOptions: { modifier: { selected: true } } }
+    ],
+    select: { style: 'multi', selector: 'td:first-child input' },
+    columnDefs: [
+      { orderable: false, className: 'select-checkbox', targets: 0 },
+      { targets: 5, orderable: false }
+    ],
+    order: [[1, 'asc']]
+  });
+
+  $('#select-all').on('click', function(){
+    const rows = table.rows({ page: 'current' }).nodes();
+    $('input[type="checkbox"]', rows).prop('checked', this.checked);
+    if(this.checked) table.rows({ page: 'current' }).select();
+    else table.rows({ page: 'current' }).deselect();
+  });
+
+  $('#usersTable tbody').on('change', 'input[type="checkbox"]', function(){
+    const $row = $(this).closest('tr');
+    if(this.checked){
+      table.row($row).select();
+    } else {
+      table.row($row).deselect();
+    }
+  });
+
+  // Bulk actions
+  $('#bulk-activate, #bulk-deactivate, #bulk-delete').on('click', function(){
+    const action = this.id.split('-')[1];
+    const rows = table.rows({ selected: true }).data();
+    if(!rows.length) return alert('No users selected.');
+    if(!confirm(`Confirm ${action} ${rows.length} user(s)?`)) return;
+    // call AJAX to backend with action & list of user IDs
+    // then table.rows({ selected: true }).remove().draw(false);
+  });
+
+  // Tabs filter
+  $('.user-tab').on('click', function(){
+    $('.user-tab').removeClass('active');
+    $(this).addClass('active');
+    const role = $(this).data('tab');
+    table.column(2).search(role).draw();
+  });
+});
+
+    </script>
 @endsection

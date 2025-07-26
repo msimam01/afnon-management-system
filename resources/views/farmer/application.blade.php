@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NECAS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                fontFamily: {
+                    'sans': ['Inter', 'system-ui', 'sans-serif'],
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50 dark:bg-gray-900 font-sans transition-colors duration-200">
+    <!-- Fixed Navbar -->
+    <nav
+        class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 fixed top-0 left-0 right-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center">
+                    <button onclick="history.back()"
+                        class="mr-4 p-2 rounded-md text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7">
+                            </path>
+                        </svg>
+                    </button>
+                    <div class="h-8 w-8 bg-emerald-600 rounded-full flex items-center justify-center">
+                        <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4">
+                            </path>
+                        </svg>
+                    </div>
+                    <h1 class="ml-3 text-xl font-bold text-gray-900 dark:text-white">North East Commodity Distribution
+                        Associations (NECAS)</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <!-- Dark Mode Toggle -->
+                    <button id="darkModeToggle"
+                        class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                        <svg id="sunIcon" class="h-5 w-5 hidden dark:block" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z">
+                            </path>
+                        </svg>
+                        <svg id="moonIcon" class="h-5 w-5 block dark:hidden" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z">
+                            </path>
+                        </svg>
+                    </button>
+                    <a href="{{ route('farmer.dashboard') }}"
+                        class="text-emerald-600 hover:text-emerald-500 font-medium">Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-4xl mx-auto py-24 px-4 sm:px-6 lg:px-8">
+        <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-6">
+            <center>
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Apply for Seasonal Loan</h2>
+                    <p class="mt-2 text-gray-600 dark:text-gray-400">Submit your application for agricultural commodity support
+                    </p>
+                </div>
+            </center>
+
+            <!-- Already Applied Notice -->
+            <div id="alreadyAppliedNotice"
+                class="hidden bg-yellow-50 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-200 px-4 py-3 rounded-md border border-yellow-200 dark:border-yellow-700 mb-6">
+                <strong>Note:</strong> You have already applied for the 2024 Dry Season using Farm 1. You cannot apply
+                again for this season.
+            </div>
+
+            <form class="space-y-6" id="applicationForm">
+                <!-- Season Selection -->
+                <div>
+                    <label for="season" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Select
+                        Season
+                        *</label>
+                    <select id="season" name="season" required
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        <option value="">Choose a season</option>
+                        <option value="2024-dry">2024 Dry Season (Open)</option>
+                        <option value="2024-wet" disabled>2024 Wet Season (Closed)</option>
+                    </select>
+                </div>
+
+                <!-- Select Farm -->
+                <div>
+                    <label for="farm" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Select Farm
+                        *</label>
+                    <select id="farm" name="farm" required
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        <option value="">Choose a farm</option>
+                        <option value="farm-1">Farm 1 (5.2 hectares - Ikeja)</option>
+                        <option value="farm-2">Farm 2 (3.8 hectares - Ikorodu)</option>
+                    </select>
+                    <button type="button" onclick="openFarmModal()"
+                        class="mt-2 text-sm text-emerald-600 hover:underline">
+                        + Add a New Farm
+                    </button>
+
+                </div>
+
+                <!-- Farm Info Display (Static example) -->
+                <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-3">Your Farm Information</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Farm Size:</span>
+                            <p class="text-sm text-gray-900 dark:text-white">5.2 hectares</p>
+                        </div>
+                        <div>
+                            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Location:</span>
+                            <p class="text-sm text-gray-900 dark:text-white">Ikeja, Lagos</p>
+                        </div>
+                        <div>
+                            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Cluster:</span>
+                            <p class="text-sm text-gray-900 dark:text-white">Cluster A</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Available Commodities -->
+                <div id="commoditiesSection" class="hidden">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Available Commodities (Dry
+                        Season)</h3>
+                    <div class="grid grid-cols-1 gap-4">
+                        <div
+                            class="border border-gray-200 dark:border-gray-600 rounded-lg p-4 bg-white dark:bg-gray-700">
+                            <div class="flex items-center mb-3">
+                                <input type="checkbox" id="maize-seeds" name="commodities" value="maize-seeds" checked
+                                    disabled
+                                    class="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 dark:border-gray-600 rounded">
+                                <label for="maize-seeds"
+                                    class="ml-3 text-sm font-medium text-gray-700 dark:text-gray-300">Rice
+                                    Seeds</label>
+                            </div>
+                            {{-- <div class="text-sm text-gray-600 dark:text-gray-400">
+                                <p>Calculated quantity based on your farm size (5.2 hectares):</p>
+                                <p class="font-medium text-emerald-600 dark:text-emerald-400 text-lg">5 bags (25kg each)
+                                </p>
+                                <p class="text-xs text-gray-500 dark:text-gray-500 mt-1">Rate: 1 bag per hectare
+                                    (rounded down)</p>
+                                <div
+                                    class="mt-2 p-2 bg-yellow-50 dark:bg-yellow-900 rounded border border-yellow-200 dark:border-yellow-700">
+                                    <p class="text-xs text-yellow-800 dark:text-yellow-200">
+                                        <strong>Note:</strong> This is the only commodity available during dry season.
+                                        Quantity is automatically calculated.
+                                    </p>
+                                </div>
+                            </div> --}}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Application Type (Loan only) -->
+                {{-- <div id="applicationTypeSection" class="hidden">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Application Type</h3>
+                    <div class="flex items-center">
+                        <input type="radio" id="loan" name="applicationType" value="loan" checked disabled
+                            class="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 dark:border-gray-600">
+                        <label for="loan" class="ml-3 text-sm font-medium text-gray-700 dark:text-gray-300">Loan (Return
+                            commodity or pay equivalent)</label>
+                    </div>
+                </div> --}}
+
+                <!-- Additional Information -->
+                <div>
+                    <label for="additionalInfo"
+                        class="block text-sm font-medium text-gray-700 dark:text-gray-300">Additional
+                        Information</label>
+                    <textarea id="additionalInfo" name="additionalInfo" rows="3"
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        placeholder="Any additional information about your application..."></textarea>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex justify-end space-x-4">
+                    <button type="button" onclick="history.back()"
+                        class="bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300 py-2 px-6 rounded-md hover:bg-gray-400 dark:hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 font-medium transition-colors">
+                        Cancel
+                    </button>
+                    <!-- Replace this submit button -->
+                    <button type="button" onclick="openPreviewModal()"
+                        class="bg-emerald-600 text-white py-2 px-6 rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 font-medium transition-colors">
+                        Preview & Submit
+                    </button>
+
+                </div>
+            </form>
+        </div>
+    </main>
+
+
+    <!-- Preview Modal -->
+    <div id="previewModal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white dark:bg-gray-800 w-full max-w-lg rounded-lg shadow-lg p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Confirm Your Application</h3>
+                <button onclick="closePreviewModal()"
+                    class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="space-y-3 text-sm text-gray-700 dark:text-gray-300 mb-4">
+                <p><strong>Season:</strong> <span id="previewSeason">-</span></p>
+                <p><strong>Farm:</strong> <span id="previewFarm">-</span></p>
+                <p><strong>Commodity:</strong> Maize Seeds</p>
+                <p><strong>Quantity:</strong> 5 bags (calculated)</p>
+                <p><strong>Application Type:</strong> Loan</p>
+                <p><strong>Additional Info:</strong> <span id="previewInfo">-</span></p>
+            </div>
+
+            <div class="flex justify-end space-x-3">
+                <button onclick="closePreviewModal()"
+                    class="bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-md hover:bg-gray-400 dark:hover:bg-gray-500">
+                    Cancel
+                </button>
+                <button onclick="submitApplication()"
+                    class="bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700">
+                    Submit Application
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- Add Farm Modal -->
+    <div id="farmModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white dark:bg-gray-800 w-full max-w-md p-6 rounded-lg shadow-lg">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Add New Farm</h3>
+                <button onclick="closeFarmModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <form id="farmForm" onsubmit="addFarm(event)">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Farm Size
+                            (hectares)</label>
+                        <input type="number" step="0.1" min="0" required
+                            class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Location</label>
+                        <input type="text" required
+                            class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Cluster</label>
+                        <input type="text" required
+                            class="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+                </div>
+                <div class="flex justify-end mt-6">
+                    <button type="submit"
+                        class="bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700">
+                        Save Farm
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-4 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <p class="text-center text-sm text-gray-500 dark:text-gray-400">
+                © 2024 NECAS. All rights reserved.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        function openFarmModal() {
+            document.getElementById('farmModal').classList.remove('hidden');
+        }
+
+        function closeFarmModal() {
+            document.getElementById('farmModal').classList.add('hidden');
+        }
+
+        // Fake create farm logic (for demo)
+        function addFarm(e) {
+            e.preventDefault();
+            const inputs = e.target.querySelectorAll('input');
+            const size = inputs[0].value;
+            const location = inputs[1].value;
+            const cluster = inputs[2].value;
+
+            const newOption = document.createElement('option');
+            newOption.value = `farm-${Date.now()}`;
+            newOption.textContent = `New Farm (${size} hectares - ${location})`;
+            newOption.selected = true;
+
+            const farmSelect = document.getElementById('farm');
+            farmSelect.appendChild(newOption);
+
+            closeFarmModal();
+        }
+
+        // Dark mode functionality
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const html = document.documentElement;
+
+        // Check for saved theme preference
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        if (savedTheme === 'dark') {
+            html.classList.add('dark');
+        }
+
+        darkModeToggle.addEventListener('click', () => {
+            html.classList.toggle('dark');
+            const isDark = html.classList.contains('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        });
+
+        // Show commodities section when season is selected
+        document.getElementById('season').addEventListener('change', function() {
+            const commoditiesSection = document.getElementById('commoditiesSection');
+            const applicationTypeSection = document.getElementById('applicationTypeSection');
+
+            if (this.value) {
+                commoditiesSection.classList.remove('hidden');
+                applicationTypeSection.classList.remove('hidden');
+            } else {
+                commoditiesSection.classList.add('hidden');
+                applicationTypeSection.classList.add('hidden');
+            }
+        });
+
+        // Form submission
+        document.getElementById('applicationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const season = document.getElementById('season').value;
+            const commodities = Array.from(document.querySelectorAll('input[name="commodities"]:checked')).map(cb =>
+                cb.value);
+            const applicationType = document.querySelector('input[name="applicationType"]:checked')?.value;
+
+            if (!season) {
+                alert('Please select a season');
+                return;
+            }
+
+            if (commodities.length === 0) {
+                alert('Please select at least one commodity');
+                return;
+            }
+
+            if (!applicationType) {
+                alert('Please select application type (Grant or Loan)');
+                return;
+            }
+
+            alert('Application submitted successfully! You will receive an SMS notification once it is processed.');
+            window.location.href = 'farmer-dashboard.html';
+        });
+        document.getElementById('season')?.addEventListener('change', function() {
+            const selected = this.value;
+            const commodities = document.getElementById('commoditiesSection');
+            const appType = document.getElementById('applicationTypeSection');
+
+            if (selected === '2024-dry') {
+                commodities.classList.remove('hidden');
+                appType.classList.remove('hidden');
+            } else {
+                commodities.classList.add('hidden');
+                appType.classList.add('hidden');
+            }
+        });
+
+        // (Future backend integration example)
+        const alreadyApplied = false; // This should come from backend
+        if (alreadyApplied) {
+            document.getElementById('applicationForm').classList.add('hidden');
+            document.getElementById('alreadyAppliedNotice').classList.remove('hidden');
+        }
+
+        function openPreviewModal() {
+            const season = document.getElementById('season')?.selectedOptions[0]?.textContent || '-';
+            const farm = document.getElementById('farm')?.selectedOptions[0]?.textContent || '-';
+            const info = document.getElementById('additionalInfo')?.value || 'None';
+
+            document.getElementById('previewSeason').textContent = season;
+            document.getElementById('previewFarm').textContent = farm;
+            document.getElementById('previewInfo').textContent = info;
+
+            document.getElementById('previewModal').classList.remove('hidden');
+        }
+
+        function closePreviewModal() {
+            document.getElementById('previewModal').classList.add('hidden');
+        }
+
+        function submitApplication() {
+            document.getElementById('applicationForm').submit();
+        }
+    </script>
+</body>
+
+</html>

@@ -11,8 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('farmers', function (Blueprint $table) {
+        Schema::create('return_centers', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
+            $table->string('state');
+            $table->string('lga');
+            $table->string('location_details')->nullable();
             $table->timestamps();
         });
     }
@@ -22,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('farmers');
+        Schema::dropIfExists('return_centers');
     }
 };

@@ -61,13 +61,18 @@ class RoleSeeder extends Seeder
         );
         $agent->assignRole('agent');
 
-        // Permission::create(['name' => 'approve application']);
-        // Permission::create(['name' => 'verify return']);
-        // Permission::create(['name' => 'create collection center']);
+        // Create or get permissions safely
+        $manageUsers = Permission::firstOrCreate(['name' => 'manage_users']);
+        $manageSeasons = Permission::firstOrCreate(['name' => 'manage_seasons']);
+        $verifyReturns = Permission::firstOrCreate(['name' => 'verify_returns']);
+        $manageFarmers = Permission::firstOrCreate(['name' => 'manage_farmers']);
+        $verifyCollection = Permission::firstOrCreate(['name' => 'verify_collection']);
 
-        // $superAdmin->givePermissionTo(Permission::all());
-        // $admin->givePermissionTo(['approve application', 'verify return']);
-        // $agent->givePermissionTo(['verify return']);
+
+        $superAdmin->givePermissionTo(Permission::all());
+        $admin->givePermissionTo([$verifyReturns, $manageFarmers, $manageUsers]);
+        $agent->givePermissionTo([$verifyCollection]);
+        $farmer->givePermissionTo([]); // No specific permission
     }
     }
 

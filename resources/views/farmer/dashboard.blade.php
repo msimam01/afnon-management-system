@@ -80,7 +80,7 @@
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-8">
             <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Quick Actions</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <a href="farmer-application.html" class="bg-emerald-50 dark:bg-emerald-900 hover:bg-emerald-100 dark:hover:bg-emerald-800 p-4 rounded-lg border border-emerald-200 dark:border-emerald-700 transition-colors">
+                <a href="{{ route('farmer.application') }}" class="bg-emerald-50 dark:bg-emerald-900 hover:bg-emerald-100 dark:hover:bg-emerald-800 p-4 rounded-lg border border-emerald-200 dark:border-emerald-700 transition-colors">
                     <div class="flex items-center">
                         <svg class="h-8 w-8 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>

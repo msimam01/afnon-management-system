@@ -11,8 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('applications', function (Blueprint $table) {
+        Schema::create('commodity_market_prices', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('commodity_id')->constrained();
+            $table->decimal('current_price', 12, 2);
             $table->timestamps();
         });
     }
@@ -22,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('applications');
+        Schema::dropIfExists('commodity_market_prices');
     }
 };

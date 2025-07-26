@@ -83,7 +83,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
                         </svg>
                     </div>
-                    <h1 class="ml-3 text-xl font-bold text-gray-900 dark:text-white">North East Commodity Distribution Associations (NECAS)</h1>
+                    <h1 class="ml-3 text-xl font-bold text-gray-900 dark:text-white">AFNON</h1>
                 </div>
                 <div class="flex items-center space-x-4">
                     <!-- Dark Mode Toggle -->
@@ -166,9 +166,9 @@
                 <div class="text-center">
                     <p class="text-sm text-gray-600 dark:text-gray-400">
                         Don't have an account?
-                        <a href="{{ route('farmer-register') }}" class="font-medium text-emerald-600 hover:text-emerald-500">
-                            Register as Farmer
-                        </a>
+                        <span class="font-medium text-emerald-600 hover:text-emerald-500">
+                            Please contact administrator
+                        </span>
                     </p>
                 </div>
             </form>

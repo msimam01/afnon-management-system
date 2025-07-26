@@ -2,60 +2,48 @@
 
 @section('content')
     <div id="seasons-section" class="w-full min-h-screen px-4 py-6 bg-gray-50 dark:bg-gray-900">
+        <!-- Season Overview -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
             <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
                 <h3 class="text-lg font-medium text-gray-900 dark:text-white">Global Season Management</h3>
                 <button onclick="openSeasonModal()"
-                    class="bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
+                    class="bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500">
                     Create New Season
                 </button>
             </div>
-            <div class="p-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
-                        <div class="flex justify-between items-start mb-3">
-                            <h4 class="font-medium text-gray-900 dark:text-white">2024 Dry Season</h4>
-                            <span
-                                class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200">Open</span>
-                        </div>
-                        <div class="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                            <p>Start Date: January 1, 2024</p>
-                            <p>End Date: June 30, 2024</p>
-                            <p>Commodity: Maize Seeds</p>
-                            <p>Total Budget: ₦2.5B</p>
-                        </div>
-                        <div class="flex space-x-2">
-                            <button onclick="openEditSeasonModal()"
-                                class="text-emerald-600 dark:text-emerald-400 hover:text-emerald-900 dark:hover:text-emerald-300 text-sm">Edit</button>
-                            <button
-                                class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 text-sm">Close</button>
-                        </div>
+
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Repeat for each season -->
+                <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
+                    <div class="flex justify-between items-start mb-3">
+                        <h4 class="font-medium text-gray-900 dark:text-white">2024 Dry Season</h4>
+                        <span
+                            class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200">Open</span>
                     </div>
-                    <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
-                        <div class="flex justify-between items-start mb-3">
-                            <h4 class="font-medium text-gray-900 dark:text-white">2024 Wet Season</h4>
-                            <span
-                                class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">Closed</span>
-                        </div>
-                        <div class="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                            <p>Start Date: July 1, 2024</p>
-                            <p>End Date: December 31, 2024</p>
-                            <p>Commodity: Rice Seeds</p>
-                            <p>Total Budget: ₦1.8B</p>
-                        </div>
-                        <div class="flex space-x-2">
-                            <button
-                                class="text-emerald-600 dark:text-emerald-400 hover:text-emerald-900 dark:hover:text-emerald-300 text-sm">Edit</button>
-                            <button
-                                class="text-emerald-600 dark:text-emerald-400 hover:text-emerald-900 dark:hover:text-emerald-300 text-sm">Open</button>
-                        </div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                        <p><strong>Start:</strong> Jan 1, 2024</p>
+                        <p><strong>End:</strong> June 30, 2024</p>
+                        <p><strong>Return Deadline:</strong> July 30, 2024</p>
+                        <p><strong>Commodities:</strong> Maize, Urea, Herbicide</p>
+                        <p><strong>Budget:</strong> ₦2.5B</p>
+                        <p><strong>Insurance:</strong> 2%</p>
+                    </div>
+                    <div class="mt-3 flex space-x-3">
+                        <button onclick="openEditSeasonModal()"
+                            class="text-emerald-600 hover:underline text-sm">Edit</button>
+                        <button class="text-red-600 hover:underline text-sm">Close</button>
                     </div>
                 </div>
+
+                <!-- Additional Season Cards -->
+                <!-- ... -->
             </div>
         </div>
+
+        <!-- Quota Distribution by State -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow mt-10">
             <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Tenant Quota Distribution</h3>
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">State-wise Quota Allocation</h3>
                 <select id="seasonSelect"
                     class="text-sm px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                     <option value="2024_dry_maize">2024 Dry Season - Maize</option>
@@ -63,61 +51,33 @@
                 </select>
             </div>
 
-            <div class="p-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-                    <!-- Tenant Card -->
-                    <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-4 bg-white dark:bg-gray-800">
-                        <h4 class="text-md font-semibold text-gray-900 dark:text-white mb-2">North Central Zone
-                        </h4>
-                        <div class="space-y-2 text-sm">
-                            <div class="flex justify-between">
-                                <span class="text-gray-600 dark:text-gray-400">Allocated:</span>
-                                <span class="font-medium text-blue-600 dark:text-blue-400">7,500 bags</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-gray-600 dark:text-gray-400">Distributed:</span>
-                                <span class="font-medium text-green-600 dark:text-green-400">5,500 bags</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-gray-600 dark:text-gray-400">Remaining:</span>
-                                <span class="font-medium text-yellow-600 dark:text-yellow-400">2,000 bags</span>
-                            </div>
-                        </div>
-                        <button class="mt-4 w-full text-sm text-emerald-600 dark:text-emerald-400 hover:underline"
-                            onclick="adjustQuota('north-central')">Adjust Allocation</button>
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Repeat for each state -->
+                <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-4 bg-white dark:bg-gray-800">
+                    <h4 class="text-md font-semibold text-gray-900 dark:text-white mb-2">Kaduna</h4>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between"><span
+                                class="text-gray-600 dark:text-gray-400">Allocated:</span><span
+                                class="font-medium text-blue-600 dark:text-blue-400">7,500 bags</span></div>
+                        <div class="flex justify-between"><span
+                                class="text-gray-600 dark:text-gray-400">Distributed:</span><span
+                                class="font-medium text-green-600 dark:text-green-400">5,500 bags</span></div>
+                        <div class="flex justify-between"><span
+                                class="text-gray-600 dark:text-gray-400">Remaining:</span><span
+                                class="font-medium text-yellow-600 dark:text-yellow-400">2,000 bags</span></div>
                     </div>
-
-                    <!-- Repeat cards for other tenants -->
-                    <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-4 bg-white dark:bg-gray-800">
-                        <h4 class="text-md font-semibold text-gray-900 dark:text-white mb-2">North East Zone
-                        </h4>
-                        <div class="space-y-2 text-sm">
-                            <div class="flex justify-between"><span
-                                    class="text-gray-600 dark:text-gray-400">Allocated:</span><span
-                                    class="font-medium text-blue-600 dark:text-blue-400">9,000 bags</span></div>
-                            <div class="flex justify-between"><span
-                                    class="text-gray-600 dark:text-gray-400">Distributed:</span><span
-                                    class="font-medium text-green-600 dark:text-green-400">6,400 bags</span>
-                            </div>
-                            <div class="flex justify-between"><span
-                                    class="text-gray-600 dark:text-gray-400">Remaining:</span><span
-                                    class="font-medium text-yellow-600 dark:text-yellow-400">2,600 bags</span>
-                            </div>
-                        </div>
-                        <button class="mt-4 w-full text-sm text-emerald-600 dark:text-emerald-400 hover:underline"
-                            onclick="adjustQuota('north-east')">Adjust Allocation</button>
-                    </div>
-
-                    <!-- Add more tenant cards as needed -->
-
+                    <button class="mt-4 w-full text-sm text-emerald-600 dark:text-emerald-400 hover:underline"
+                        onclick="adjustQuota('kaduna')">Adjust Allocation</button>
                 </div>
+
+                <!-- More state cards (Kano, Sokoto, etc.) -->
             </div>
         </div>
+
+        <!-- Distribution Tracking -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow mt-10">
             <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Distribution Tracking (By Tenant)
-                </h3>
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Distribution Tracking by State</h3>
                 <select id="seasonSelectTrack"
                     class="text-sm px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                     <option value="2024_dry">2024 Dry Season</option>
@@ -126,31 +86,29 @@
             </div>
 
             <div class="p-6 space-y-8">
-                <!-- One section per tenant -->
+                <!-- Tracking Card per state -->
                 <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-4 bg-white dark:bg-gray-800">
-                    <h4 class="text-md font-semibold text-gray-900 dark:text-white mb-3">North Central Zone</h4>
+                    <h4 class="text-md font-semibold text-gray-900 dark:text-white mb-3">Kano</h4>
                     <div class="space-y-3 text-sm">
                         <div class="flex justify-between">
                             <span class="text-gray-600 dark:text-gray-400">Maize Seeds:</span>
-                            <span class="font-medium text-green-600 dark:text-green-400">Distributed 5,500 /
-                                Allocated 7,500</span>
+                            <span class="font-medium text-green-600 dark:text-green-400">Distributed 6,200 / Allocated
+                                8,000</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-600 dark:text-gray-400">Rice Seeds:</span>
-                            <span class="font-medium text-green-600 dark:text-green-400">Distributed 2,200 /
-                                Allocated 3,000</span>
+                            <span class="text-gray-600 dark:text-gray-400">Urea Fertilizer:</span>
+                            <span class="font-medium text-green-600 dark:text-green-400">Distributed 3,000 / Allocated
+                                4,500</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Repeat for other tenants -->
-                <!-- ... -->
+                <!-- More state tracking cards -->
             </div>
         </div>
-
-
     </div>
-    <!-- Add Season Modal -->
+
+    <!-- Season Creation Modal -->
     <div id="seasonModal"
         class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-start justify-center overflow-y-auto">
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-5xl mt-20 mx-4 p-6 relative">
@@ -162,7 +120,7 @@
             </div>
 
             <form id="seasonForm" class="space-y-6">
-                <!-- Step 1: General Info -->
+                <!-- Step 1 -->
                 <div id="step1">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
@@ -176,14 +134,14 @@
                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300">Commodities *</label>
                             <select id="commodities" multiple required
                                 class="mt-1 block w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
-                                <!-- Dynamically filled -->
+                                <!-- JS will populate this -->
                             </select>
                             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Hold Ctrl or Cmd to select multiple
                             </p>
                         </div>
                         <div>
-                            <label for="startDate"
-                                class="block text-sm font-medium text-gray-700 dark:text-gray-300">Start Date *</label>
+                            <label for="startDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Start
+                                Date *</label>
                             <input type="date" id="startDate" required
                                 class="mt-1 w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
                         </div>
@@ -191,6 +149,28 @@
                             <label for="endDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300">End
                                 Date *</label>
                             <input type="date" id="endDate" required
+                                class="mt-1 w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
+                        </div>
+                        <div>
+                            <label for="returnDeadline"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300">Return Deadline
+                                *</label>
+                            <input type="date" id="returnDeadline" required
+                                class="mt-1 w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
+                        </div>
+                        <div>
+                            <label for="insuranceRate"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300">Insurance Rate (%)
+                                *</label>
+                            <input type="number" id="insuranceRate" min="0" max="100" step="0.1"
+                                value="2" required
+                                class="mt-1 w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="reminderDays"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300">Reminder Days After
+                                Deadline *</label>
+                            <input type="number" id="reminderDays" min="1" value="7" required
                                 class="mt-1 w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
                         </div>
                         <div class="md:col-span-2">
@@ -202,18 +182,18 @@
                     </div>
                 </div>
 
-                <!-- Step 2: Quota Allocation -->
+                <!-- Step 2 -->
                 <div id="step2" class="hidden">
                     <h4 class="text-md font-semibold text-gray-900 dark:text-white mb-4">Allocate Commodity Quotas per
                         Tenant</h4>
                     <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">Available stock is shown beside each
                         commodity.</div>
                     <div id="allocationContainer" class="space-y-6 max-h-[60vh] overflow-y-auto pr-2">
-                        <!-- Dynamically filled via JS -->
+                        <!-- JS fills this -->
                     </div>
                 </div>
 
-                <!-- Step Buttons -->
+                <!-- Buttons -->
                 <div class="flex justify-between pt-4">
                     <button type="button" id="backBtn"
                         class="hidden px-4 py-2 rounded-md text-sm bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
@@ -228,6 +208,7 @@
             </form>
         </div>
     </div>
+
     <!-- Edit Season Modal -->
     <div id="editSeasonModal"
         class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center px-4">
@@ -376,34 +357,55 @@
             document.getElementById('quotaModal').classList.add('hidden');
         }
 
-        document.getElementById('adjustQuotaForm').addEventListener('submit', function (e) {
+        document.getElementById('adjustQuotaForm').addEventListener('submit', function(e) {
             e.preventDefault();
             // save quota to backend
             alert("Quota updated!");
             closeQuotaModal();
         });
         const availableCommodities = {
-            maize: { name: "Maize Seeds", stock: 12000 },
-            rice: { name: "Rice Seeds", stock: 8000 }
+            maize: {
+                name: "Maize Seeds",
+                stock: 12000
+            },
+            rice: {
+                name: "Rice Seeds",
+                stock: 8000
+            },
+            npk: {
+                name: "NPK Fertilizer",
+                stock: 15000
+            },
+            urea: {
+                name: "Urea Fertilizer",
+                stock: 10000
+            },
+            herbicide: {
+                name: "Herbicide",
+                stock: 6000
+            },
+            insecticide: {
+                name: "Insecticide",
+                stock: 7000
+            }
         };
 
         const tenants = [
             "North Central", "North East", "North West", "South South", "South East", "South West"
         ];
 
-        let allocationMap = {}; // { commodity: remainingStock }
+        let allocationMap = {};
 
         function openSeasonModal() {
             document.getElementById('seasonModal').classList.remove('hidden');
             goToStep(1);
-
-            const commoditySelect = document.getElementById('commodities');
-            commoditySelect.innerHTML = "";
+            const select = document.getElementById('commodities');
+            select.innerHTML = '';
             for (const key in availableCommodities) {
-                const opt = document.createElement("option");
+                const opt = document.createElement('option');
                 opt.value = key;
                 opt.textContent = availableCommodities[key].name;
-                commoditySelect.appendChild(opt);
+                select.appendChild(opt);
             }
         }
 
@@ -420,29 +422,25 @@
         }
 
         function handleNextStep() {
-            const selectedCommodities = Array.from(document.getElementById('commodities').selectedOptions).map(opt => opt.value);
-            if (!selectedCommodities.length) {
-                alert("Please select at least one commodity.");
-                return;
-            }
+            const selected = Array.from(document.getElementById('commodities').selectedOptions).map(opt => opt.value);
+            if (!selected.length) return alert("Select at least one commodity.");
 
             allocationMap = {};
-            selectedCommodities.forEach(c => allocationMap[c] = availableCommodities[c].stock);
+            selected.forEach(c => allocationMap[c] = availableCommodities[c].stock);
 
-            const container = document.getElementById("allocationContainer");
-            container.innerHTML = "";
+            const container = document.getElementById('allocationContainer');
+            container.innerHTML = '';
 
             tenants.forEach(tenant => {
-                const block = document.createElement("div");
-                block.className = "border-b border-gray-200 dark:border-gray-700 pb-4";
-
+                const block = document.createElement('div');
+                block.className = 'border-b border-gray-200 dark:border-gray-700 pb-4';
                 const title = `<h5 class="text-sm font-semibold text-gray-800 dark:text-white mb-2">${tenant}</h5>`;
-                const rows = selectedCommodities.map(commodityKey => {
+                const rows = selected.map(commodityKey => {
                     const commodity = availableCommodities[commodityKey];
                     return `
         <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-2 items-center">
           <div><span class="text-sm text-gray-700 dark:text-gray-300">${commodity.name}</span></div>
-          <div class="text-xs text-gray-500 dark:text-gray-400">Stock: <span id="stock-${commodityKey}" class="font-medium">${allocationMap[commodityKey]}</span> bags</div>
+          <div class="text-xs text-gray-500 dark:text-gray-400">Stock: <span id="stock-${commodityKey}" class="font-medium">${allocationMap[commodityKey]}</span></div>
           <div>
             <input type="number" min="0" value="0"
               data-tenant="${tenant}" data-commodity="${commodityKey}"
@@ -451,8 +449,7 @@
           </div>
         </div>
       `;
-                }).join("");
-
+                }).join('');
                 block.innerHTML = title + rows;
                 container.appendChild(block);
             });
@@ -464,11 +461,7 @@
             const commodity = input.dataset.commodity;
             const allInputs = document.querySelectorAll(`input[data-commodity="${commodity}"]`);
             let totalAllocated = 0;
-
-            allInputs.forEach(inp => {
-                totalAllocated += parseInt(inp.value || "0");
-            });
-
+            allInputs.forEach(inp => totalAllocated += parseInt(inp.value || 0));
             const remaining = Math.max(0, availableCommodities[commodity].stock - totalAllocated);
             allocationMap[commodity] = remaining;
             document.getElementById(`stock-${commodity}`).textContent = remaining;
@@ -504,7 +497,5 @@
             const isDark = html.classList.contains('dark');
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
         });
-
-
     </script>
 @endsection

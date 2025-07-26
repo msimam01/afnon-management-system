@@ -11,8 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('agents', function (Blueprint $table) {
+        Schema::create('return_verification_logs', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('return_id')->constrained('commodity_returns');
+            $table->foreignId('admin_id')->constrained('users');
+            $table->enum('action', ['approved', 'rejected']);
+            $table->text('note')->nullable();
             $table->timestamps();
         });
     }
@@ -22,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('agents');
+        Schema::dropIfExists('return_verification_logs');
     }
 };
