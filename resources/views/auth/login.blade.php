@@ -5,9 +5,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NECAS Management Software - Login</title>
+    <title>AFNON Management Software - Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    {!! ToastMagic::styles() !!}
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -68,10 +69,10 @@
                 <h2 class="mt-6 text-center text-3xl font-bold text-gray-900 dark:text-white">Sign in to your account
                 </h2>
                 <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-                    Access the NECAS Grant & Loan Management System
+                    Access the AFNON Loan Management System
                 </p>
             </div>
-            <form class="mt-8 space-y-6" action="{{ route('login') }}" method="POST">
+            <form class="mt-8 space-y-6" action="/central/login" method="POST">
                 @csrf
                 <div class="space-y-4">
                     <div>
@@ -149,6 +150,7 @@
         });
 
     </script>
+    {!! ToastMagic::scripts() !!}
 </body>
 
 </html>

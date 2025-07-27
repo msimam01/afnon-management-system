@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 use Stancl\Tenancy\Database\Models\Domain;
 // use Stancl\Tenancy\Database\Models\Tenant;
-use App\Models\SuperAdmin\Tenant;
+// use App\Models\SuperAdmin\Tenant;
 
 return [
-    'tenant_model' => Tenant::class,
+    'tenant_model' => App\Models\SuperAdmin\Tenant::class,
     'id_generator' => Stancl\Tenancy\UUIDGenerator::class,
 
     'domain_model' => Domain::class,
@@ -19,8 +19,11 @@ return [
      */
     'central_domains' => [
         env('CENTRAL_DOMAIN'),
+        'localhost',      // your local dev domain
+        '127.0.0.1',
+        'afnon.test',
     ],
-    
+
 
     /**
      * Tenancy bootstrappers are executed when tenancy is initialized.

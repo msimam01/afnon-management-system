@@ -5,9 +5,13 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Devrabiul\ToastMagic\Facades\ToastMagic;
 
 class CustomLoginController extends Controller
 {
+    public function create() {
+        return view('auth.login');
+    }
     public function store(Request $request)
     {
         $credentials = $request->validate([
@@ -32,7 +36,7 @@ class CustomLoginController extends Controller
 
             return redirect('/dashboard');
         }
-
+        ToastMagic::error('The provided credentials are incorrect.');
         return back()->withErrors([
             'email' => 'The provided credentials are incorrect.',
         ]);

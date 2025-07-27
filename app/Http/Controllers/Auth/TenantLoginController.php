@@ -5,12 +5,13 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Devrabiul\ToastMagic\Facades\ToastMagic;
 
 class TenantLoginController extends Controller
 {
     public function showLoginForm()
     {
-        return view('auth.tenant-login'); // create this blade file
+        return view('auth.tenant-login'); // 
     }
 
     public function login(Request $request)
@@ -35,9 +36,9 @@ class TenantLoginController extends Controller
                 return redirect()->route('tenant.login')->withErrors(['access' => 'Unauthorized role.']);
             }
         }
-
+        ToastMagic::error('The provided credentials are incorrect.');
         return back()->withErrors([
-            'email' => 'Invalid credentials.',
+            'email' => 'The provided credentials are incorrect.',
         ]);
     }
 

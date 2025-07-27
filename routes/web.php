@@ -52,21 +52,21 @@ Route::middleware(['auth', 'role:super-admin'])->prefix('super-admin')->name('su
 
 
 // ADMIN
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
-    Route::get('/seasons', fn() => view('admin.seasons'))->name('seasons');
-    Route::get('/collection/centers', fn() => view('admin.centers'))->name('centers');
-    Route::get('/applications', fn() => view('admin.applications'))->name('applications');
-    Route::get('/agents', fn() => view('admin.agents'))->name('agents');
-    Route::get('/commodities', fn() => view('admin.commodity'))->name('commodities');
-    Route::get('/farmers', fn() => view('admin.farmers'))->name('farmers');
-    Route::get('/returns', fn() => view('admin.return'))->name('returns');
-    Route::get('/reports', fn() => view('admin.reports'))->name('reports');
-    Route::get('/receipts', [MonetaryReturnController::class, 'index'])->name('receipts');
-    Route::get('/receipts/{id}', [MonetaryReturnController::class, 'show'])->name('eceipts.show');
-    Route::post('/receipts/{id}/verify', [MonetaryReturnController::class, 'verify'])->name('receipts.verify');
-    Route::post('/receipts/{id}/reject', [MonetaryReturnController::class, 'reject'])->name('receipts.reject');
-});
+// Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+//     Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
+//     Route::get('/seasons', fn() => view('admin.seasons'))->name('seasons');
+//     Route::get('/collection/centers', fn() => view('admin.centers'))->name('centers');
+//     Route::get('/applications', fn() => view('admin.applications'))->name('applications');
+//     Route::get('/agents', fn() => view('admin.agents'))->name('agents');
+//     Route::get('/commodities', fn() => view('admin.commodity'))->name('commodities');
+//     Route::get('/farmers', fn() => view('admin.farmers'))->name('farmers');
+//     Route::get('/returns', fn() => view('admin.return'))->name('returns');
+//     Route::get('/reports', fn() => view('admin.reports'))->name('reports');
+//     Route::get('/receipts', [MonetaryReturnController::class, 'index'])->name('receipts');
+//     Route::get('/receipts/{id}', [MonetaryReturnController::class, 'show'])->name('eceipts.show');
+//     Route::post('/receipts/{id}/verify', [MonetaryReturnController::class, 'verify'])->name('receipts.verify');
+//     Route::post('/receipts/{id}/reject', [MonetaryReturnController::class, 'reject'])->name('receipts.reject');
+// });
 
 // FARMER
 Route::middleware(['auth', 'role:farmer'])->prefix('farmer')->name('farmer.')->group(function () {
@@ -86,4 +86,3 @@ Route::get('/farmer/register', fn() => view('farmer.register'))->name('farmer-re
 
 
 require __DIR__ . '/auth.php';
-require __DIR__ . '/tenant.php';

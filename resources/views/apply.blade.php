@@ -58,7 +58,7 @@
                             </path>
                         </svg>
                     </button>
-                    <a href="{{ route('login') }}" class="text-emerald-600 hover:text-emerald-500 font-medium">Back to
+                    <a href="/central/login" class="text-emerald-600 hover:text-emerald-500 font-medium">Back to
                         Login</a>
                 </div>
             </div>

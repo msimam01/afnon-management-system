@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 use Devrabiul\ToastMagic\Facades\ToastMagic;
+use App\Jobs\CreateTenantJob;
 
 class TenantController extends Controller
 {
@@ -37,37 +38,27 @@ class TenantController extends Controller
 
         $host = parse_url($request->domain, PHP_URL_HOST);
 
-        $tenant = Tenant::create([
-            'id' => $request->id,
-            'data' => [
-                'name' => $request->name,
-            ],
-        ]);
+        try {
+            $tenant = Tenant::create([
+                'id' => $request->id,
+                'data' => [
+                    'name' => $request->name,
+                ],
+            ]);
 
-        $tenant->domains()->create([
-            'domain' => $host,
-        ]);
+            $tenant->domains()->create([
+                'domain' => $host,
+            ]);
 
-        // 3. Switch context to this tenant
-        tenancy()->initialize($tenant);
-
-        // 4. Create default admin user for this tenant
-        $admin = User::create([
-            'name' => 'Admin',
-            'email' => 'admin@' . $tenant->id . '.com',
-            'password' => Hash::make('password'), // Or generate a random one
-        ]);
-
-        // 5. Create 'admin' role if not exists, then assign it
-        if (!Role::where('name', 'admin')->exists()) {
-            Role::create(['name' => 'admin']);
+            // 🚀 Dispatch background job
+            CreateTenantJob::dispatch($tenant);
+            ToastMagic::info('Tenant creation started in background. You will be notified when ready.');
+            return redirect()->route('superadmin.tenants.index');
+        } catch (\Throwable $e) {
+            \Log::error('Tenant creation error: ' . $e->getMessage());
+            ToastMagic::error('Something went wrong while creating the tenant. Please check logs.');
+            return redirect()->back()->withInput();
         }
-
-        $admin->assignRole('admin');
-
-        tenancy()->end(); // switch back to central
-        ToastMagic::success('Tenant created and admin seeded!');
-        return redirect()->route('superadmin.tenants.index')->with('success', 'Tenant created and admin seeded!');
     }
 
 

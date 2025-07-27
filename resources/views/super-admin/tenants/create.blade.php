@@ -4,7 +4,7 @@
 <div class="max-w-3xl mx-auto mt-10 p-6 bg-white dark:bg-gray-800 shadow rounded-lg">
     <h2 class="text-2xl font-semibold text-gray-800 dark:text-white mb-4">➕ Create New Tenant</h2>
 
-    <form method="POST" action="{{ route('superadmin.tenants.store') }}" class="space-y-6">
+    <form id="tenantForm" method="POST" action="{{ route('superadmin.tenants.store') }}" class="space-y-6">
         @csrf
 
         <div>
@@ -29,10 +29,18 @@
         </div>
 
         <div class="flex justify-end">
-            <button type="submit"
+            <button onclick="startLoader()"
                 class="bg-emerald-600 text-white px-6 py-2 rounded-md hover:bg-emerald-700 transition">🚀 Create
                 Tenant</button>
         </div>
     </form>
 </div>
+<script>
+    function startLoader() {
+        ToastMagic.info("Creating tenant... please wait");
+        setTimeout(() => {
+            document.getElementById('tenantForm').submit();
+        }, 500);
+    }
+</script>
 @endsection

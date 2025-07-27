@@ -36,20 +36,20 @@ Route::middleware(['web', InitializeTenancyByDomain::class, PreventAccessFromCen
     });
 
 // Protected tenant routes (must be logged in)
-Route::middleware(['web', InitializeTenancyByDomain::class, PreventAccessFromCentralDomains::class, 'auth'])
-    ->group(function () {
+Route::middleware(['web', InitializeTenancyByDomain::class, PreventAccessFromCentralDomains::class, 'auth', 'role:admin', 'tenant'])
+    ->prefix('admin')->name('admin.')->group(function () {
         // Route::get('/admin/dashboard', [AdminDashboard::class, 'index'])->name('admin.dashboard');
-        Route::get('/admin/dashboard', [AdminDashboard::class, 'index'])->name('admin.dashboard');
-        Route::get('/admin/seasons', fn() => view('admin.seasons'))->name('admin.seasons');
-        Route::get('/admin/collection/centers', fn() => view('admin.centers'))->name('admin.centers');
-        Route::get('/admin/applications', fn() => view('admin.applications'))->name('admin.applications');
-        Route::get('/admin/agents', fn() => view('admin.agents'))->name('admin.agents');
-        Route::get('/admin/commodities', fn() => view('admin.commodity'))->name('admin.commodities');
-        Route::get('/admin/farmers', fn() => view('admin.farmers'))->name('admin.farmers');
-        Route::get('/admin/returns', fn() => view('admin.return'))->name('admin.returns');
-        Route::get('/admin/reports', fn() => view('admin.reports'))->name('admin.reports');
-        Route::get('/admin/receipts', [MonetaryReturnController::class, 'index'])->name('admin.receipts');
-        Route::get('/admin/receipts/{id}', [MonetaryReturnController::class, 'show'])->name('admin.eceipts.show');
-        Route::post('/admin/receipts/{id}/verify', [MonetaryReturnController::class, 'verify'])->name('admin.receipts.verify');
-        Route::post('/admin/receipts/{id}/reject', [MonetaryReturnController::class, 'reject'])->name('admin.receipts.reject');
+        Route::get('dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
+        Route::get('seasons', fn() => view('admin.seasons'))->name('seasons');
+        Route::get('collection/centers', fn() => view('admin.centers'))->name('centers');
+        Route::get('applications', fn() => view('admin.applications'))->name('applications');
+        Route::get('agents', fn() => view('admin.agents'))->name('agents');
+        Route::get('commodities', fn() => view('admin.commodity'))->name('commodities');
+        Route::get('farmers', fn() => view('admin.farmers'))->name('farmers');
+        Route::get('returns', fn() => view('admin.return'))->name('returns');
+        Route::get('reports', fn() => view('admin.reports'))->name('reports');
+        Route::get('receipts', [MonetaryReturnController::class, 'index'])->name('receipts');
+        Route::get('receipts/{id}', [MonetaryReturnController::class, 'show'])->name('eceipts.show');
+        Route::post('receipts/{id}/verify', [MonetaryReturnController::class, 'verify'])->name('receipts.verify');
+        Route::post('receipts/{id}/reject', [MonetaryReturnController::class, 'reject'])->name('receipts.reject');
     });

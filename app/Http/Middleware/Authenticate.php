@@ -22,7 +22,7 @@ class Authenticate extends Middleware
     }
 
     // Fallback for central domain
-    return route('login');
+    return route('central.login');
 }
 
 }
