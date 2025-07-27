@@ -61,11 +61,6 @@
                         Tenant Login
                     </a>
                 @endif
-                <div class="text-sm mt-4 text-gray-500">
-                    Tenant Mode: {{ tenancy()->initialized ? 'YES' : 'NO' }} <br>
-                    Domain: {{ request()->getHost() }}
-                </div>
-                
 
             </div>
         </div>

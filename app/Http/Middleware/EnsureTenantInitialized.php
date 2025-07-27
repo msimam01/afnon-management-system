@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Stancl\Tenancy\Exceptions\TenantCouldNotBeIdentifiedOnDomainException;
+use Stancl\Tenancy\Resolvers\DomainTenantResolver;
 
 class EnsureTenantInitialized
 {
@@ -16,8 +17,15 @@ class EnsureTenantInitialized
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!tenant()) {
-            abort(403, 'Tenant not initialized.');
+        try {
+            // If domain is not a central domain, try initializing tenancy
+            if (!in_array($request->getHost(), config('tenancy.central_domains'))) {
+                tenancy()->initialize(
+                    app(DomainTenantResolver::class)->resolve($request)
+                );
+            }
+        } catch (TenantCouldNotBeIdentifiedOnDomainException $e) {
+            // Do not crash the app if domain isn't a tenant — fallback to central
         }
 
         return $next($request);

@@ -1,44 +1,32 @@
 <?php
 
-declare(strict_types=1);
-
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Farmer\DashboardController as FarmerDashboard;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
+use App\Http\Controllers\Agent\DashboardController as AgentDashboard;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
-use App\Http\Controllers\Auth\TenantLoginController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\Agent\DashboardController;
-use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
-use App\Http\Controllers\Farmer\DashboardController as FarmerDashboard;
-use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboard;
-use App\Http\Controllers\SuperAdmin\TenantController;
-use App\Http\Controllers\MonetaryReturnController;
 
-/*
-|--------------------------------------------------------------------------
-| Tenant Routes
-|--------------------------------------------------------------------------
-|
-| Here you can register the tenant routes for your application.
-| These routes are loaded by the TenantRouteServiceProvider.
-|
-| Feel free to customize them however you want. Good luck!
-|
-*/
+// Apply tenancy middleware
+Route::middleware([
+    'web',
+    InitializeTenancyByDomain::class,
+    PreventAccessFromCentralDomains::class,
+])->group(function () {
 
-// use App\Http\Controllers\Auth\TenantLoginController;
+    // Public tenant landing (can be same view)
+    if (tenancy()->initialized) {
+        Route::get('/', function () {
+            return view('tenant_landing'); // tenant-specific welcome
+        })->name('tenant.landing');
 
-// Tenant login (no auth required)
-Route::middleware(['web', InitializeTenancyByDomain::class, PreventAccessFromCentralDomains::class])
-    ->group(function () {
-        Route::get('/login', [TenantLoginController::class, 'showLoginForm'])->name('tenant.login');
-        Route::post('/login', [TenantLoginController::class, 'login'])->name('tenant.login.submit');
-    });
-
-// Protected tenant routes (must be logged in)
-Route::middleware(['web', InitializeTenancyByDomain::class, PreventAccessFromCentralDomains::class, 'auth', 'role:admin', 'tenant'])
-    ->prefix('admin')->name('admin.')->group(function () {
-        // Route::get('/admin/dashboard', [AdminDashboard::class, 'index'])->name('admin.dashboard');
+        // Tenant login routes (you can also keep them in auth.php if reused)
+        Route::get('/login', [App\Http\Controllers\Auth\TenantLoginController::class, 'create'])->name('login');
+        Route::post('/login', [App\Http\Controllers\Auth\TenantLoginController::class, 'store']);
+        Route::post('/logout', [App\Http\Controllers\Auth\TenantLoginController::class, 'destroy'])->name('logout');
+    }
+    // Admin routes inside tenant
+    Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
         Route::get('seasons', fn() => view('admin.seasons'))->name('seasons');
         Route::get('collection/centers', fn() => view('admin.centers'))->name('centers');
@@ -48,8 +36,23 @@ Route::middleware(['web', InitializeTenancyByDomain::class, PreventAccessFromCen
         Route::get('farmers', fn() => view('admin.farmers'))->name('farmers');
         Route::get('returns', fn() => view('admin.return'))->name('returns');
         Route::get('reports', fn() => view('admin.reports'))->name('reports');
-        Route::get('receipts', [MonetaryReturnController::class, 'index'])->name('receipts');
-        Route::get('receipts/{id}', [MonetaryReturnController::class, 'show'])->name('eceipts.show');
-        Route::post('receipts/{id}/verify', [MonetaryReturnController::class, 'verify'])->name('receipts.verify');
-        Route::post('receipts/{id}/reject', [MonetaryReturnController::class, 'reject'])->name('receipts.reject');
+        // Route::get('receipts', [MonetaryReturnController::class, 'index'])->name('receipts');
+        // Route::get('receipts/{id}', [MonetaryReturnController::class, 'show'])->name('eceipts.show');
+        // Route::post('receipts/{id}/verify', [MonetaryReturnController::class, 'verify'])->name('receipts.verify');
+        // Route::post('receipts/{id}/reject', [MonetaryReturnController::class, 'reject'])->name('receipts.reject');
     });
+
+    // Farmer routes inside tenant
+    Route::middleware(['auth', 'role:farmer'])->prefix('farmer')->name('farmer.')->group(function () {
+        Route::get('/dashboard', [FarmerDashboard::class, 'index'])->name('dashboard');
+        // Add more farmer routes here
+    });
+
+    // Agent routes inside tenant
+    Route::middleware(['auth', 'role:agent'])->prefix('agent')->name('agent.')->group(function () {
+        Route::get('/dashboard', [AgentDashboard::class, 'index'])->name('dashboard');
+        // Add more agent routes here
+    });
+
+    // Additional tenant-specific routes...
+});
