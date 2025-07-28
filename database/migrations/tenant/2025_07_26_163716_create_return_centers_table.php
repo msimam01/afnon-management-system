@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('return_centers', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique(); // UUID colum
             $table->string('name');
             $table->string('state');
             $table->string('lga');

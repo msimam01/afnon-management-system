@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('return_records', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique(); // UUID colum
             $table->foreignId('agent_id')->constrained();
             $table->foreignId('application_id')->constrained();
             $table->json('commodity_images');

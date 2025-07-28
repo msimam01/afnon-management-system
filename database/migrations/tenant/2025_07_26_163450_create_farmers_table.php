@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('farmers', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique(); // UUID colum
             $table->string('registration_number')->unique();
             $table->string('full_name');
             $table->string('phone')->unique();

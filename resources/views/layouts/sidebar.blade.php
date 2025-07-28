@@ -13,7 +13,7 @@
                         Dashboard
                     </a>
                 </li>
-                <li>
+                {{-- <li>
                     <a href="{{ route('superadmin.users') }}"
                         class="{{ Route::is('superadmin.users') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
                         <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -23,7 +23,7 @@
                         </svg>
                         User Management
                     </a>
-                </li>
+                </li> --}}
                 <li>
                     <a href="{{ route('superadmin.tenants.index') }}"
                         class="{{ Route::is('superadmin.tenants.index') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
@@ -37,7 +37,7 @@
                         Manage Tenants
                     </a>
                 </li>
-                <li>
+                {{-- <li>
                     <a href="{{route('superadmin.commodities')}}"
                         class="{{ Route::is('superadmin.commodities') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
                         <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -96,7 +96,7 @@
                         </svg>
                         System Settings
                     </a>
-                </li>
+                </li> --}}
             @endrole
             @role('admin')
                 <li>
@@ -122,8 +122,8 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('admin.seasons') }}"
-                        class="{{ Route::is('admin.seasons') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
+                    <a href="{{ route('admin.seasons.index') }}"
+                        class="{{ Route::is('admin.seasons.index') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
                         <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
@@ -133,8 +133,8 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('admin.commodities') }}"
-                        class="{{ Route::is('admin.commodities') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
+                    <a href="{{ route('admin.commodities.index') }}"
+                        class="{{ Route::is('admin.commodities.index') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
                         <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>

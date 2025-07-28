@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Season;
+use App\Models\Commodity;
 use Illuminate\Http\Request;
 
 class SeasonController extends Controller
@@ -12,7 +13,7 @@ class SeasonController extends Controller
      */
     public function index()
     {
-        //
+        return view('admin.seasons.index');
     }
 
     /**
@@ -20,7 +21,11 @@ class SeasonController extends Controller
      */
     public function create()
     {
-        //
+        $commodities = Commodity::latest()->get()->transform(fn($item) => [
+            'id' => $item->id ?? null,
+            'name' => $item->name ?? null,
+        ]);
+        return view('admin.seasons.create', compact('commodities'));
     }
 
     /**
@@ -28,7 +33,17 @@ class SeasonController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required|string',
+            'commodities' => 'required',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date',
+            'return_deadline' => 'required|date',
+            'insurance_rate' => 'required|numeric',
+            'send_reminder_after_days' => 'required|numeric',
+            'budget' => 'required|numeric',
+        ]);
+        return $validated;
     }
 
     /**

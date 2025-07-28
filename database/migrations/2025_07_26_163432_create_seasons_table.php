@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('seasons', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique(); // UUID colum
             $table->string('name');
             $table->date('start_date');
             $table->date('end_date');

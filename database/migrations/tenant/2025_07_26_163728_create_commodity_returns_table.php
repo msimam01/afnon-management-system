@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('commodity_returns', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique(); // UUID colum
             $table->foreignId('farmer_id')->constrained()->onDelete('cascade');
             $table->foreignId('application_id')->nullable()->constrained()->onDelete('set null');
             $table->foreignId('commodity_id')->constrained();

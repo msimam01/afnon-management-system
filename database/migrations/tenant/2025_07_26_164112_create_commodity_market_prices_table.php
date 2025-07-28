@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('commodity_market_prices', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique(); // UUID colum
             $table->foreignId('commodity_id')->constrained();
             $table->decimal('current_price', 12, 2);
             $table->timestamps();

@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('application_commodities', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique(); // UUID colum
             $table->foreignId('application_id')->constrained()->onDelete('cascade');
             $table->foreignId('commodity_id')->constrained()->onDelete('cascade');
             $table->integer('quantity')->nullable(); // optional if allocation is manual

@@ -2,12 +2,13 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\User;
+use Illuminate\Support\Str;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
-use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Permission;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class RoleSeeder extends Seeder
 {
@@ -25,6 +26,7 @@ class RoleSeeder extends Seeder
         $superAdmin = User::firstOrCreate(
             ['email' => 'superadmin@example.com'],
             [
+                'uuid' => Str::uuid(),
                 'name' => 'Super Admin',
                 'password' => Hash::make('password'), // Change this!
             ]
@@ -35,6 +37,7 @@ class RoleSeeder extends Seeder
         $admin = User::firstOrCreate(
             ['email' => 'admin@example.com'],
             [
+                'uuid' => Str::uuid(),
                 'name' => 'Zone Admin',
                 'password' => Hash::make('password'),
             ]
@@ -45,6 +48,7 @@ class RoleSeeder extends Seeder
         $farmer = User::firstOrCreate(
             ['email' => 'farmer@example.com'],
             [
+                'uuid' => Str::uuid(),
                 'name' => 'John Farmer',
                 'password' => Hash::make('password'),
             ]
@@ -55,6 +59,7 @@ class RoleSeeder extends Seeder
         $agent = User::firstOrCreate(
             ['email' => 'agent@example.com'],
             [
+                'uuid' => Str::uuid(),
                 'name' => 'Agent Musa',
                 'password' => Hash::make('password'),
             ]

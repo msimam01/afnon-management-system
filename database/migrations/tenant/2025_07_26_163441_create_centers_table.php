@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('centers', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique(); // UUID colum
             $table->string('name');
             $table->enum('type', ['collection', 'return', 'both']);
             $table->string('state')->comment('tenants');

@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('farms', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique(); // UUID colum
             $table->foreignId('farmer_id')->constrained()->onDelete('cascade');
             $table->string('location');
             $table->decimal('size', 5, 2);

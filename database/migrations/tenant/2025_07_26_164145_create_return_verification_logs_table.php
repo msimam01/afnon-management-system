@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('return_verification_logs', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique(); // UUID colum
             $table->foreignId('return_id')->constrained('commodity_returns');
             $table->foreignId('admin_id')->constrained('users');
             $table->enum('action', ['approved', 'rejected']);

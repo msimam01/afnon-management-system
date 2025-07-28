@@ -6,10 +6,10 @@
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
             <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
                 <h3 class="text-lg font-medium text-gray-900 dark:text-white">Global Season Management</h3>
-                <button onclick="openSeasonModal()"
+                <a href="{{ route('admin.seasons.create') }}"
                     class="bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500">
                     Create New Season
-                </button>
+                </a>
             </div>
 
             <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">

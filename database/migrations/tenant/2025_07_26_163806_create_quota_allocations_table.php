@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('quota_allocations', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique(); // UUID colum
             $table->foreignId('season_id')->constrained();
             $table->string('tenant'); // state/zone name
             $table->foreignId('commodity_id')->constrained();

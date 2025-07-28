@@ -17,9 +17,9 @@
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
     <script src="https://cdn.datatables.net/select/1.7.0/js/dataTables.select.min.js"></script>
-
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     {!! ToastMagic::styles() !!}
+    {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -100,6 +100,7 @@
     <script src="{{ asset('js/script.js') }}"></script>
     {!! ToastMagic::scripts() !!}
 
+    
 </body>
 
 </html>

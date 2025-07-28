@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('agents', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique(); // UUID colum
             $table->foreignId('user_id')->constrained(); // Laravel users table
             $table->string('assigned_center')->nullable();
             $table->string('photo')->nullable();
