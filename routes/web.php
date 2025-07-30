@@ -1,9 +1,12 @@
 <?php
 
+use App\Http\Controllers\CentralCommodityController;
+use App\Http\Controllers\CentralSeasonController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboard;
 use App\Http\Controllers\SuperAdmin\TenantController;
 use App\Http\Controllers\ProfileController;
+use App\Models\Central\CentralCommodity;
 
 Route::get('/', function () {
     return view('welcome'); // central landing page
@@ -13,11 +16,18 @@ Route::get('/', function () {
 require __DIR__ . '/auth.php';
 
 // Super Admin routes
-Route::middleware(['web', 'auth', 'role:super-admin'])->prefix('super-admin')->name('superadmin.')->group(function () {
+Route::middleware(['web', 'auth', 'role:super-admin', 'block-tenant-access'])->prefix('super-admin')->name('superadmin.')->group(function () {
     Route::get('/dashboard', [SuperAdminDashboard::class, 'index'])->name('dashboard');
     Route::get('/tenants', [TenantController::class, 'index'])->name('tenants.index');
     Route::get('/tenants/create', [TenantController::class, 'create'])->name('tenants.create');
     Route::post('/tenants', [TenantController::class, 'store'])->name('tenants.store');
+    // Route::resource('commodities', CentralCommodityController::class);
+    Route::get('/commodities', [CentralCommodityController::class, 'index'])->name('commodities.index');
+    Route::get('/commodities/create', [CentralCommodityController::class, 'create'])->name('commodities.create');
+    Route::post('/commodities/store', [CentralCommodityController::class, 'store'])->name('commodities.store');
+    Route::get('/commodities/{uuid}/edit', [CentralCommodityController::class, 'edit'])->name('commodities.edit');
+    Route::put('/commodities/{uuid}/update', [CentralCommodityController::class, 'update'])->name('commodities.update');
+    Route::delete('/commodities/{uuid}/destroy', [CentralCommodityController::class, 'destroy'])->name('commodities.destroy');
 });
 
 

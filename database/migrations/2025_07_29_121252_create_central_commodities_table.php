@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('commodities', function (Blueprint $table) {
+        Schema::create('central_commodities', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->unique(); // UUID colum
             $table->string('name');
@@ -21,9 +21,6 @@ return new class extends Migration
             $table->decimal('price_per_unit', 10, 2);
             $table->decimal('quantity_per_hectare', 8, 2); // E.g., 3 units per hectare
             $table->integer('stock');
-            $table->boolean('is_global')->default(false); // Identifies if it was imported
-            $table->unsignedBigInteger('global_commodity_id')->nullable(); // Links to central commodity
-            $table->timestamps();
         });
     }
 
@@ -32,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('commodities');
+        Schema::dropIfExists('central_commodities');
     }
 };

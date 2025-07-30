@@ -55,7 +55,6 @@ class TenantController extends Controller
             ToastMagic::info('Tenant creation started in background. You will be notified when ready.');
             return redirect()->route('superadmin.tenants.index');
         } catch (\Throwable $e) {
-            \Log::error('Tenant creation error: ' . $e->getMessage());
             ToastMagic::error('Something went wrong while creating the tenant. Please check logs.');
             return redirect()->back()->withInput();
         }
