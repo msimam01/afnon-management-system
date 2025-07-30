@@ -13,6 +13,7 @@
     <title>North East Commodity Distribution Associations (NECAS)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    {!! ToastMagic::styles() !!}
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -61,10 +62,6 @@
                         Tenant Login
                     </a>
                 @endif
-                <div class="text-sm mt-4 text-gray-500">
-                    Tenant Mode: {{ tenancy()->initialized ? 'YES' : 'NO' }} <br>
-                    Domain: {{ request()->getHost() }}
-                </div>
                 
 
             </div>
@@ -199,6 +196,7 @@
                     class="text-emerald-400 hover:underline">necas.com.ng</a></p>
         </div>
     </footer>
+    {!! ToastMagic::scripts() !!}
 
 </body>
 
