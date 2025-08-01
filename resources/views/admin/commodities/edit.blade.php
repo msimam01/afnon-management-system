@@ -6,8 +6,7 @@
             <h3 class="text-lg font-medium text-gray-900 dark:text-white">Edit Commodity</h3>
         </div>
         <div>
-            {{ $commodity->price_per_unit }}
-            <form action="{{ route('admin.commodities.update', $commodity->id) }}" method="POST" class="p-6 space-y-6">
+            <form action="{{ route('admin.commodities.update', $commodity->uuid) }}" method="POST" class="p-6 space-y-6">
                 @csrf
                 @method('PUT')
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">

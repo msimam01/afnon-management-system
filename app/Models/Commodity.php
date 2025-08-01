@@ -8,7 +8,7 @@ use Illuminate\Support\Str;
 class Commodity extends Model
 {
     use HasFactory;
-    protected $fillable = ['name', 'category', 'unit', 'price_per_unit', 'quantity_per_hectare', 'stock'];
+    protected $fillable = ['name', 'category', 'unit', 'price_per_unit', 'quantity_per_hectare', 'stock', 'is_global', 'global_commodity_id'];
 
     protected static function boot()
     {

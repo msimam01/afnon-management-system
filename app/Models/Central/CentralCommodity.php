@@ -10,6 +10,7 @@ class CentralCommodity extends Model
 {
     use HasFactory;
     protected $fillable = ['name', 'category', 'unit', 'price_per_unit', 'quantity_per_hectare', 'stock'];
+    protected $connection = 'central'; // ← THIS IS IMPORTANT
 
     protected static function boot()
     {

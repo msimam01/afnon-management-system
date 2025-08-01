@@ -95,8 +95,8 @@
                                     <td class="px-6 py-4 text-gray-900 dark:text-white">{{ $item->name }}</td>
                                     <td class="px-6 py-4 text-gray-600 dark:text-gray-400">{{ $item->category }}</td>
                                     <td class="px-6 py-4 text-gray-600 dark:text-gray-400">{{ $item->unit }}</td>
-                                    <td class="px-6 py-4 text-gray-600 dark:text-gray-400">{{ $item->price_per_unit }}</td>
-                                    <td class="px-6 py-4 text-gray-600 dark:text-gray-400">{{ $item->quantity_per_hectare }}
+                                    <td class="px-6 py-4 text-gray-600 dark:text-gray-400">{{ number_format($item->price_per_unit) }}</td>
+                                    <td class="px-6 py-4 text-gray-600 dark:text-gray-400">{{ number_format($item->quantity_per_hectare) }}
                                     </td>
                                     <td class="px-6 py-4 text-gray-600 dark:text-gray-400">{{ $item->stock }}</td>
                                     <td class="px-4 py-4 flex space-x-3">

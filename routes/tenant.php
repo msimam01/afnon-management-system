@@ -1,14 +1,15 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\SeasonController;
 use App\Http\Controllers\CommodityController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\MonetaryReturnController;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Agent\DashboardController as AgentDashboard;
 use App\Http\Controllers\Farmer\DashboardController as FarmerDashboard;
-use App\Http\Controllers\SeasonController;
 
 // Apply tenancy middleware
 Route::middleware([
@@ -24,16 +25,33 @@ Route::middleware([
         })->name('tenant.landing');
     }
     // Tenant login routes (you can also keep them in auth.php if reused)
-        Route::get('/login', [App\Http\Controllers\Auth\TenantLoginController::class, 'showLoginForm'])->name('tenant.login');
-        Route::post('/login', [App\Http\Controllers\Auth\TenantLoginController::class, 'login']);
-        Route::post('/logout', [App\Http\Controllers\Auth\TenantLoginController::class, 'destroy'])->name('tenant.logout');
+    Route::get('/login', [App\Http\Controllers\Auth\TenantLoginController::class, 'showLoginForm'])->name('tenant.login');
+    Route::post('/login', [App\Http\Controllers\Auth\TenantLoginController::class, 'login']);
+    Route::post('/logout', [App\Http\Controllers\Auth\TenantLoginController::class, 'destroy'])->name('tenant.logout');
     // Admin routes inside tenant
     Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
         Route::get('collection/centers', fn() => view('admin.centers'))->name('centers');
         Route::get('applications', fn() => view('admin.applications'))->name('applications');
         Route::get('agents', fn() => view('admin.agents'))->name('agents');
-        Route::resource('commodities', CommodityController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
+        Route::prefix('users')->name('users.')->group(function () {
+            Route::get('/', [UserController::class, 'index'])->name('index');
+        });
+        Route::prefix('commodities')->name('commodities.')->group(function () {
+            Route::get('/', [CommodityController::class, 'index'])->name('index');
+            Route::get('/create', [CommodityController::class, 'create'])->name('create');
+            Route::post('/', [CommodityController::class, 'store'])->name('store');
+            Route::get('/{uuid}/edit', [CommodityController::class, 'edit'])->name('edit');
+            Route::put('/{uuid}', [CommodityController::class, 'update'])->name('update');
+            Route::delete('/{uuid}', [CommodityController::class, 'destroy'])->name('destroy');
+
+            // Import
+            Route::get('/import/global', [CommodityController::class, 'importForm'])->name('importForm');
+            Route::post('/import/{id}', [CommodityController::class, 'import'])->name('import');
+            Route::post('/import-bulk', [CommodityController::class, 'importBulk'])->name('importBulk');
+            Route::post('/{uuid}/sync', [CommodityController::class, 'sync'])->name('sync');
+        });
+
         Route::resource('seasons', SeasonController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
         Route::get('farmers', fn() => view('admin.farmers'))->name('farmers');
         Route::get('returns', fn() => view('admin.return'))->name('returns');

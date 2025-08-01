@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Devrabiul\ToastMagic\Facades\ToastMagic;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -17,9 +18,15 @@ class PreventAccessFromTenantDomains
 
         // If current domain is NOT in central domains, it's a tenant domain
         if (!in_array($request->getHost(), $centralDomains)) {
-            Log::warning("Tenant domain '{$request->getHost()}' tried accessing central route.");
-            ToastMagic::error('Access to central routes is not allowed from a tenant domain.');
-            return redirect()->back();
+            // Auto logout user
+            Auth::logout();
+
+            // Log the event
+            Log::warning("Tenant domain '{$request->getHost()}' tried accessing central route. User logged out.");
+
+            // Redirect with message
+            ToastMagic::error('Access denied. You have been logged out for trying to access a restricted route.');
+            return redirect()->route('tenant.login');
         }
 
         return $next($request);
