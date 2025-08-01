@@ -7,7 +7,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
                         </svg>
                     </div>
-                    <h1 class="ml-3 text-xl font-bold text-gray-900 dark:text-white">North East Commodity Associations (NECAS)</h1>
+                    <h1 class="ml-3 text-xl font-bold text-gray-900 dark:text-white">AFNON</h1>
                 </div>
                 <div class="flex items-center space-x-4">
                     <div class="hidden md:block">
@@ -26,10 +26,11 @@
                         </button>
                         <div id="profileMenu" class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 border border-gray-200 dark:border-gray-700">
                             <a href="profile-settings.html" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Profile Settings</a>
-                            <form action="{{ route('logout') }}" method="post">
+                            {{-- <form action="{{ route('logout') }}" method="post">
                                 @csrf
                                 <button type="submit" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Logout</button>
-                            </form>
+                            </form> --}}
+                            <a href="{{ url('logout') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Logout</a>
                         </div>
                     </div>
                     <!-- Dark Mode Toggle -->

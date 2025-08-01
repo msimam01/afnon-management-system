@@ -1,3 +1,9 @@
+@php
+    $centralDomains = ['localhost', '127.0.0.1', 'afnon.com']; // Add your real central domains here
+    $host = request()->getHost();
+    $isCentral = in_array($host, $centralDomains);
+@endphp
+
 <!DOCTYPE html>
 <html lang="en" class="h-full">
 
@@ -7,6 +13,7 @@
     <title>North East Commodity Distribution Associations (NECAS)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    {!! ToastMagic::styles() !!}
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -33,7 +40,7 @@
                             d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
                     </svg>
                 </div>
-                <span class="text-xl font-bold text-gray-900 dark:text-white">NECAS</span>
+                <span class="text-xl font-bold text-gray-900 dark:text-white">AFNON</span>
             </div>
             <div class="space-x-6 flex items-center">
                 <a href="#about" class="hover:text-emerald-600 font-medium">About</a>
@@ -44,6 +51,19 @@
                     class="text-sm font-medium bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700 transition">
                     Visit Official Site
                 </a>
+                @if ($isCentral)
+                    {{-- Central login --}}
+                    <a href="{{ route('central.login') }}" class="text-emerald-600 font-semibold hover:underline">
+                        Super Admin Login
+                    </a>
+                @else
+                    {{-- Tenant login --}}
+                    <a href="{{ url('/login') }}" class="text-emerald-600 font-semibold hover:underline">
+                        Tenant Login
+                    </a>
+                @endif
+                
+
             </div>
         </div>
     </nav>
@@ -71,8 +91,8 @@
                 </div>
             </div>
             <div class="mt-8 lg:mt-0">
-                <img src="https://images.pexels.com/photos/2132250/pexels-photo-2132250.jpeg?auto=compress&cs=tinysrgb&w=1920" alt="Nigerian farmers in field"
-                    class="rounded-lg shadow-lg w-full h-auto object-cover">
+                <img src="https://images.pexels.com/photos/2132250/pexels-photo-2132250.jpeg?auto=compress&cs=tinysrgb&w=1920"
+                    alt="Nigerian farmers in field" class="rounded-lg shadow-lg w-full h-auto object-cover">
 
                 {{-- <img src="https://source.unsplash.com/600x400/?farmer,agriculture,nigeria" alt="Farmer Image" class="rounded-lg shadow-lg w-full h-auto object-cover"> --}}
             </div>
@@ -83,8 +103,8 @@
     <section id="about" class="py-16 bg-white dark:bg-gray-900">
         <div class="max-w-7xl mx-auto px-4 grid md:grid-cols-2 gap-8 items-center">
             <div>
-                <img src="https://images.pexels.com/photos/1595104/pexels-photo-1595104.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Farmers working together"
-                    class="rounded-lg shadow w-full">
+                <img src="https://images.pexels.com/photos/1595104/pexels-photo-1595104.jpeg?auto=compress&cs=tinysrgb&w=800"
+                    alt="Farmers working together" class="rounded-lg shadow w-full">
             </div>
             <div>
                 <h2 class="text-3xl font-bold text-gray-900 dark:text-white">About NECAS</h2>
@@ -103,25 +123,28 @@
             <h2 class="text-3xl font-bold text-center text-gray-900 dark:text-white">How It Works</h2>
             <div class="mt-12 grid md:grid-cols-3 gap-8">
                 <div class="text-center">
-                    <div class="flex items-center justify-center w-16 h-16 bg-emerald-100 dark:bg-emerald-900 rounded-full mx-auto mb-4">
-                            <span class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">1</span>
-                        </div>
+                    <div
+                        class="flex items-center justify-center w-16 h-16 bg-emerald-100 dark:bg-emerald-900 rounded-full mx-auto mb-4">
+                        <span class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">1</span>
+                    </div>
                     <h3 class="text-lg font-semibold">Apply</h3>
                     <p class="mt-2 text-gray-600 dark:text-gray-300">Fill the application form with your BVN, NIN, farm
                         and location details.</p>
                 </div>
                 <div class="text-center">
-                    <div class="flex items-center justify-center w-16 h-16 bg-emerald-100 dark:bg-emerald-900 rounded-full mx-auto mb-4">
-                            <span class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">2</span>
-                        </div>
+                    <div
+                        class="flex items-center justify-center w-16 h-16 bg-emerald-100 dark:bg-emerald-900 rounded-full mx-auto mb-4">
+                        <span class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">2</span>
+                    </div>
                     <h3 class="text-lg font-semibold">Get Approved</h3>
                     <p class="mt-2 text-gray-600 dark:text-gray-300">Admin reviews and allocates commodities. You get
                         notified by SMS.</p>
                 </div>
                 <div class="text-center">
-                    <div class="flex items-center justify-center w-16 h-16 bg-emerald-100 dark:bg-emerald-900 rounded-full mx-auto mb-4">
-                            <span class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">3</span>
-                        </div>
+                    <div
+                        class="flex items-center justify-center w-16 h-16 bg-emerald-100 dark:bg-emerald-900 rounded-full mx-auto mb-4">
+                        <span class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">3</span>
+                    </div>
                     <h3 class="text-lg font-semibold">Collect & Farm</h3>
                     <p class="mt-2 text-gray-600 dark:text-gray-300">Collect from assigned center, plant, and return
                         specified quota post-harvest.</p>
@@ -173,6 +196,7 @@
                     class="text-emerald-400 hover:underline">necas.com.ng</a></p>
         </div>
     </footer>
+    {!! ToastMagic::scripts() !!}
 
 </body>
 

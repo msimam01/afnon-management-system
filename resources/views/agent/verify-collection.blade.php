@@ -52,7 +52,27 @@
                                     class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200">Pending</span>
                             </td>
                             <td class="px-4 py-2">
-                                <button onclick="openCollectionModal('NEC001234')"
+                                <button <button
+                                    onclick="openCollectionModal({
+    farmer: {
+        name: 'John Doe',
+        phone: '08012345678',
+        state: 'Kano',
+        lga: 'Gwale'
+    },
+    season: {
+        name: '2024 Dry Season'
+    },
+    farmSize: 2.5,
+    seed: {
+        name: 'Maize Seeds'
+    },
+    expectedReturn: '5 bags (25kg each)',
+    commodities: [
+        { name: 'Maize Seeds', quantity: 5, unit: 'bags', unitPrice: 10000 },
+        { name: 'NPK Fertilizer', quantity: 3, unit: 'bags', unitPrice: 8000 }
+    ]
+})"
                                     class="bg-emerald-600 text-white px-3 py-1 rounded hover:bg-emerald-700 text-sm">
                                     Verify Collection
                                 </button>
@@ -64,237 +84,197 @@
         </div>
 
     </div>
-    <!-- Modal Wrapper -->
     <div id="collectionModal"
         class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-start justify-center overflow-y-auto">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-4xl mt-20 mx-4 p-6 relative">
-            <!-- Modal Header -->
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Verify Application Collection</h3>
+        <div
+            class="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-5xl mt-16 mx-4 p-6 sm:p-8 relative overflow-y-auto max-h-[90vh]">
+
+            <!-- Header -->
+            <div class="flex justify-between items-center mb-6 border-b border-gray-200 dark:border-gray-600 pb-4">
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-white">Verify Collection</h3>
                 <button onclick="closeCollectionModal()"
                     class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">✕</button>
             </div>
 
-            <form class="space-y-6" id="collectionForm">
+            <form id="collectionForm" class="space-y-8">
+
+                <!-- Farmer + Application Info -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label for="farmerId" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Farmer
-                            ID *</label>
-                        <input type="text" id="farmerId" name="farmerId" required
-                            class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-emerald-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
+                        <h4 class="font-semibold text-gray-800 dark:text-white mb-2">Farmer Info</h4>
+                        <ul class="text-sm text-gray-700 dark:text-gray-300 space-y-1" id="collection-farmer-info">
+                            <!-- Populated via JS -->
+                        </ul>
                     </div>
 
-                    <div>
-                        <label for="seasonInfo" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Season
-                            *</label>
-                        <input type="text" id="seasonInfo" name="seasonInfo" value="2024 Dry Season" readonly
-                            class="mt-1 block w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-md shadow-sm sm:text-sm bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white">
-                    </div>
-
-                    <div>
-                        <label for="commodityType"
-                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">Commodity Type *</label>
-                        <select id="commodityType" name="commodityType" required
-                            class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-emerald-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                            <option value="">Select commodity</option>
-                            <option value="maize-seeds">Maize Seeds</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label for="expectedQuantity"
-                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">Expected Return *</label>
-                        <input type="text" id="expectedQuantity" name="expectedQuantity" value="5 bags (25kg each)"
-                            readonly
-                            class="mt-1 block w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-md shadow-sm sm:text-sm bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white">
+                    <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
+                        <h4 class="font-semibold text-gray-800 dark:text-white mb-2">Application Info</h4>
+                        <ul class="text-sm text-gray-700 dark:text-gray-300 space-y-1" id="collection-app-info">
+                            <!-- Populated via JS -->
+                        </ul>
                     </div>
                 </div>
 
-                <!-- Image Uploads with Preview -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Commodity Breakdown -->
+                <div>
+                    <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Commodity Breakdown</h4>
+                    <div class="overflow-x-auto">
+                        <table
+                            class="w-full text-sm border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden">
+                            <thead class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-white">
+                                <tr>
+                                    <th class="px-4 py-2 text-left">Commodity</th>
+                                    <th class="px-4 py-2 text-left">Quantity</th>
+                                    <th class="px-4 py-2 text-left">Unit Price</th>
+                                    <th class="px-4 py-2 text-left">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="collection-breakdown"
+                                class="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+                                <!-- Injected via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
-                    <!-- ID Card -->
+                <!-- Image Uploads -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                    <!-- ID Card Upload -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">ID Card Photo
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">ID Card Photo
                             *</label>
-                        <div
-                            class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-md bg-white dark:bg-gray-700">
-                            <div class="space-y-1 text-center">
-                                <svg class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" stroke="currentColor"
-                                    fill="none" viewBox="0 0 48 48">
-                                    <path
-                                        d="M28 8H12a4 4 0 00-4 4v20m32-12v8v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28l4 4"
-                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                </svg>
-                                <div class="flex justify-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                                    <button type="button" id="idCameraBtn"
-                                        class="cursor-pointer bg-white dark:bg-gray-700 rounded-md font-medium text-emerald-600 hover:text-emerald-500">Use
-                                        Camera</button>
-                                    <label for="idCard"
-                                        class="cursor-pointer bg-white dark:bg-gray-700 rounded-md font-medium text-emerald-600 hover:text-emerald-500">
-                                        Upload
-                                        <input id="idCard" name="idCard" type="file" accept="image/*"
-                                            capture="environment" class="sr-only" required>
-                                    </label>
-                                </div>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">PNG, JPG up to 2MB</p>
-                            </div>
+                        <div class="relative flex flex-col items-center justify-center w-full h-40 px-4 border-2 border-dashed rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 cursor-pointer hover:border-emerald-500 transition"
+                            onclick="document.getElementById('idCard').click()">
+                            <svg class="w-10 h-10 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M7 16V4m0 0L3 8m4-4l4 4M17 8v8m0 0l4-4m-4 4l-4-4" />
+                            </svg>
+                            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Click or drop an image here</p>
+                            <input type="file" id="idCard" name="idCard" accept="image/*" required
+                                class="absolute inset-0 opacity-0 cursor-pointer"
+                                onchange="previewImage(event, 'idCardPreview')" />
                         </div>
                         <div id="idCardPreview" class="mt-2 hidden">
-                            <img class="h-24 w-24 object-cover border rounded-lg" alt="ID Card preview">
+                            <img class="h-24 w-24 object-cover border rounded-lg" alt="ID Card Preview" />
                         </div>
                     </div>
 
-
-                    <!-- Commodity -->
+                    <!-- Commodity Photo Upload -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Commodity Photo
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Commodity Photo
                             *</label>
-                        <div
-                            class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-md bg-white dark:bg-gray-700">
-                            <div class="space-y-1 text-center">
-                                <svg class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" stroke="currentColor"
-                                    fill="none" viewBox="0 0 48 48">
-                                    <path
-                                        d="M28 8H12a4 4 0 00-4 4v20m32-12v8v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28l4 4"
-                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                </svg>
-                                <div class="flex justify-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                                    <button type="button" id="commodityCameraBtn"
-                                        class="cursor-pointer bg-white dark:bg-gray-700 rounded-md font-medium text-emerald-600 hover:text-emerald-500">Use
-                                        Camera</button>
-                                    <label for="commodityPhoto"
-                                        class="cursor-pointer bg-white dark:bg-gray-700 rounded-md font-medium text-emerald-600 hover:text-emerald-500">
-                                        Upload
-                                        <input id="commodityPhoto" name="commodityPhoto" type="file" accept="image/*"
-                                            capture="environment" class="sr-only" required>
-                                    </label>
-                                </div>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">PNG, JPG up to 2MB</p>
-                            </div>
+                        <div class="relative flex flex-col items-center justify-center w-full h-40 px-4 border-2 border-dashed rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 cursor-pointer hover:border-emerald-500 transition"
+                            onclick="document.getElementById('commodityPhoto').click()">
+                            <svg class="w-10 h-10 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M7 16V4m0 0L3 8m4-4l4 4M17 8v8m0 0l4-4m-4 4l-4-4" />
+                            </svg>
+                            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Click or drop an image here</p>
+                            <input type="file" id="commodityPhoto" name="commodityPhoto" accept="image/*" required
+                                class="absolute inset-0 opacity-0 cursor-pointer"
+                                onchange="previewImage(event, 'commodityPreview')" />
                         </div>
                         <div id="commodityPreview" class="mt-2 hidden">
-                            <img class="h-24 w-24 object-cover border rounded-lg" alt="Commodity preview">
+                            <img class="h-24 w-24 object-cover border rounded-lg" alt="Commodity Preview" />
                         </div>
                     </div>
-
                 </div>
+
 
                 <!-- Notes -->
                 <div>
                     <label for="notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Notes</label>
                     <textarea id="notes" name="notes" rows="3"
-                        class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        placeholder="Any additional notes or observations..."></textarea>
+                        class="block w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-md text-gray-900 dark:text-white p-2"
+                        placeholder="Any additional notes or remarks..."></textarea>
                 </div>
 
                 <!-- Submit -->
                 <div class="flex justify-end">
                     <button type="submit"
-                        class="bg-emerald-600 text-white py-2 px-6 rounded-md hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 font-medium transition-colors">
-                        Submit Collection Verification
+                        class="bg-emerald-600 text-white py-2 px-6 rounded-md hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 font-medium transition">
+                        Submit Verification
                     </button>
                 </div>
             </form>
         </div>
     </div>
+
     <script>
-        function previewImage(input, previewId) {
-            const file = input.files[0];
-            const previewWrapper = document.getElementById(previewId);
-            const img = previewWrapper.querySelector('img');
-
+        // Preview image handlers
+        document.getElementById('idCard').addEventListener('change', function(e) {
+            const file = e.target.files[0];
             if (file) {
-                const reader = new FileReader();
-                reader.onload = e => {
-                    img.src = e.target.result;
-                    previewWrapper.classList.remove('hidden');
-                };
-                reader.readAsDataURL(file);
+                const preview = document.getElementById('idCardPreview');
+                preview.querySelector('img').src = URL.createObjectURL(file);
+                preview.classList.remove('hidden');
             }
-        }
-        document.addEventListener("DOMContentLoaded", function () {
-            // ========== Modal Functions ==========
-            window.openCollectionModal = function (farmerId) {
-                const modal = document.getElementById("collectionModal");
-                const farmerIdInput = document.getElementById("farmerId");
-
-                if (modal && farmerIdInput) {
-                    modal.classList.remove("hidden");
-                    farmerIdInput.value = farmerId;
-                }
-            };
-
-            window.closeCollectionModal = function () {
-                const modal = document.getElementById("collectionModal");
-                const form = document.getElementById("collectionForm");
-
-                if (modal) modal.classList.add("hidden");
-                if (form) form.reset();
-            };
-
-            // ========== Setup Camera Buttons (Safe) ==========
-            function setupCameraButton(buttonId) {
-                const button = document.getElementById(buttonId);
-                if (button) {
-                    button.addEventListener("click", function () {
-                        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                            navigator.mediaDevices.getUserMedia({ video: true })
-                                .then(function (stream) {
-                                    alert("Camera access granted!");
-                                    stream.getTracks().forEach((track) => track.stop());
-                                })
-                                .catch(function (err) {
-                                    alert("Camera access denied or not available.");
-                                });
-                        } else {
-                            alert("Camera not supported on this device.");
-                        }
-                    });
-                }
-            }
-
-            ["farmerCameraBtn", "idCameraBtn", "commodityCameraBtn", "returnCameraBtn"].forEach(setupCameraButton);
-
-            // ========== Form Submission Handling ==========
-            const collectionForm = document.getElementById("collectionForm");
-            if (collectionForm) {
-                collectionForm.addEventListener("submit", function (e) {
-                    e.preventDefault();
-                    alert("Collection verification submitted successfully!");
-                });
-            }
-
-            const returnForm = document.getElementById("returnForm");
-            if (returnForm) {
-                returnForm.addEventListener("submit", function (e) {
-                    e.preventDefault();
-                    alert("Return verification submitted successfully!");
-                });
-            }
-
-            window.openReturnModal = function (farmerId) {
-                const modal = document.getElementById("returnModal");
-                const input = document.getElementById("returnFarmerId");
-                document.getElementById("returnModal").classList.remove("hidden");
-                document.getElementById("returnFarmerId").value = farmerId;
-
-                if (modal && input) {
-                    modal.classList.remove("hidden");
-                    input.value = farmerId;
-                }
-            };
-
-            window.closeReturnModal = function () {
-                const modal = document.getElementById("returnModal");
-                const form = document.getElementById("returnForm");
-                const preview = document.getElementById("returnPreview");
-
-                if (modal) modal.classList.add("hidden");
-                if (form) form.reset();
-                if (preview) preview.classList.add("hidden");
-            };
-
         });
+
+        document.getElementById('commodityPhoto').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const preview = document.getElementById('commodityPreview');
+                preview.querySelector('img').src = URL.createObjectURL(file);
+                preview.classList.remove('hidden');
+            }
+        });
+        function previewImage(event, previewId) {
+        const input = event.target;
+        const file = input.files[0];
+        const previewContainer = document.getElementById(previewId);
+
+        if (file) {
+            const img = previewContainer.querySelector("img");
+            img.src = URL.createObjectURL(file);
+            previewContainer.classList.remove("hidden");
+        }
+    }
+
+        // Populate modal with data
+        function openCollectionModal(application) {
+            const farmerUl = document.getElementById("collection-farmer-info");
+            const appUl = document.getElementById("collection-app-info");
+            const breakdown = document.getElementById("collection-breakdown");
+
+            farmerUl.innerHTML = `
+        <li><strong>Name:</strong> ${application.farmer.name}</li>
+        <li><strong>Phone:</strong> ${application.farmer.phone}</li>
+        <li><strong>State:</strong> ${application.farmer.state}</li>
+        <li><strong>LGA:</strong> ${application.farmer.lga}</li>
+    `;
+
+            appUl.innerHTML = `
+        <li><strong>Season:</strong> ${application.season.name}</li>
+        <li><strong>Farm Size:</strong> ${application.farmSize} ha</li>
+        <li><strong>Seed:</strong> ${application.seed.name}</li>
+        <li><strong>Expected Return:</strong> ${application.expectedReturn}</li>
+    `;
+
+            let rows = '';
+            application.commodities.forEach(item => {
+                const total = item.quantity * item.unitPrice;
+                rows += `
+            <tr>
+                <td class="px-4 py-2 border">${item.name}</td>
+                <td class="px-4 py-2 border">${item.quantity} ${item.unit}</td>
+                <td class="px-4 py-2 border">₦${item.unitPrice.toLocaleString()}</td>
+                <td class="px-4 py-2 border">₦${total.toLocaleString()}</td>
+            </tr>
+        `;
+            });
+            breakdown.innerHTML = rows;
+
+            // Show modal
+            document.getElementById("collectionModal").classList.remove("hidden");
+        }
+
+        // Close modal
+        function closeCollectionModal() {
+            document.getElementById("collectionModal").classList.add("hidden");
+        }
     </script>
 @endsection

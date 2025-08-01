@@ -1,59 +1,14 @@
-{{-- <x-guest-layout>
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
 
-    <form method="POST" action="{{ route('login') }}">
-        @csrf
-
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
-
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
-
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
-            </label>
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
-                </a>
-            @endif
-
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout> --}}
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NECAS Management Software - Login</title>
+    <title>AFNON Management Software - Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    {!! ToastMagic::styles() !!}
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -83,7 +38,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
                         </svg>
                     </div>
-                    <h1 class="ml-3 text-xl font-bold text-gray-900 dark:text-white">North East Commodity Distribution Associations (NECAS)</h1>
+                    <h1 class="ml-3 text-xl font-bold text-gray-900 dark:text-white">AFNON</h1>
                 </div>
                 <div class="flex items-center space-x-4">
                     <!-- Dark Mode Toggle -->
@@ -114,10 +69,10 @@
                 <h2 class="mt-6 text-center text-3xl font-bold text-gray-900 dark:text-white">Sign in to your account
                 </h2>
                 <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-                    Access the NECAS Grant & Loan Management System
+                    Access the AFNON Loan Management System
                 </p>
             </div>
-            <form class="mt-8 space-y-6" action="{{ route('login') }}" method="POST">
+            <form class="mt-8 space-y-6" action="/central/login" method="POST">
                 @csrf
                 <div class="space-y-4">
                     <div>
@@ -166,9 +121,9 @@
                 <div class="text-center">
                     <p class="text-sm text-gray-600 dark:text-gray-400">
                         Don't have an account?
-                        <a href="{{ route('farmer-register') }}" class="font-medium text-emerald-600 hover:text-emerald-500">
-                            Register as Farmer
-                        </a>
+                        <span class="font-medium text-emerald-600 hover:text-emerald-500">
+                            Please contact administrator
+                        </span>
                     </p>
                 </div>
             </form>
@@ -195,6 +150,7 @@
         });
 
     </script>
+    {!! ToastMagic::scripts() !!}
 </body>
 
 </html>

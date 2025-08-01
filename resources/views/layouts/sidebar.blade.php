@@ -13,7 +13,7 @@
                         Dashboard
                     </a>
                 </li>
-                <li>
+                {{-- <li>
                     <a href="{{ route('superadmin.users') }}"
                         class="{{ Route::is('superadmin.users') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
                         <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -23,10 +23,10 @@
                         </svg>
                         User Management
                     </a>
-                </li>
+                </li> --}}
                 <li>
-                    <a href="{{ route('superadmin.tenants') }}"
-                        class="{{ Route::is('superadmin.tenants') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
+                    <a href="{{ route('superadmin.tenants.index') }}"
+                        class="{{ Route::is('superadmin.tenants.index') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
                         <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
@@ -38,8 +38,8 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{route('superadmin.commodities')}}"
-                        class="{{ Route::is('superadmin.commodities') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
+                    <a href="{{route('superadmin.commodities.index')}}"
+                        class="{{ Route::is('superadmin.commodities.index') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
                         <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
@@ -47,7 +47,7 @@
                         Global Commodities
                     </a>
                 </li>
-                <li>
+                {{-- <li>
                     <a href="{{ route('superadmin.seasons') }}"
                         class="{{ Route::is('superadmin.seasons') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
                         <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -96,7 +96,7 @@
                         </svg>
                         System Settings
                     </a>
-                </li>
+                </li> --}}
             @endrole
             @role('admin')
                 <li>
@@ -111,6 +111,17 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{{ route('admin.users.index') }}"
+                        class="{{ Route::is('admin.users.index') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg font-medium">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z">
+                            </path>
+                        </svg>
+                        User Management
+                    </a>
+                </li>
+                <li>
                     <a href="{{ route('admin.applications') }}"
                         class="{{ Route::is('admin.applications') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
                         <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -122,8 +133,8 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('admin.seasons') }}"
-                        class="{{ Route::is('admin.seasons') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
+                    <a href="{{ route('admin.seasons.index') }}"
+                        class="{{ Route::is('admin.seasons.index') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
                         <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
@@ -133,8 +144,8 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('admin.commodities') }}"
-                        class="{{ Route::is('admin.commodities') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
+                    <a href="{{ route('admin.commodities.index') }}"
+                        class="{{ Route::is('admin.commodities.index') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
                         <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
@@ -173,6 +184,17 @@
                             </path>
                         </svg>
                         Return Verification
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('admin.receipts') }}"
+                        class="{{ Route::is('admin.receipts') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z">
+                            </path>
+                        </svg>
+                        Monetary Return Verification
                     </a>
                 </li>
                 <li>

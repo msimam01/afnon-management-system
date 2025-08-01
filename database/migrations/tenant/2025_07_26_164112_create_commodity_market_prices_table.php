@@ -1,0 +1,30 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('commodity_market_prices', function (Blueprint $table) {
+            $table->id();
+            $table->uuid('uuid')->unique(); // UUID colum
+            $table->foreignId('commodity_id')->constrained();
+            $table->decimal('current_price', 12, 2);
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('commodity_market_prices');
+    }
+};
