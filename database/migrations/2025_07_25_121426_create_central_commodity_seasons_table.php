@@ -13,10 +13,11 @@ return new class extends Migration
     {
         Schema::create('central_commodity_seasons', function (Blueprint $table) {
             $table->id();
-            $table->uuid('uuid')->unique(); // UUID colum
-            $table->foreignId('season_id')->constrained()->onDelete('cascade');
-            $table->foreignId('commodity_id')->constrained()->onDelete('cascade');
-        });
+            $table->uuid('uuid')->unique();
+            $table->foreignId('season_id')->constrained('central_seasons')->onDelete('cascade');
+            $table->foreignId('commodity_id')->constrained('central_commodities')->onDelete('cascade');
+            $table->timestamps();
+        });        
     }
 
     /**

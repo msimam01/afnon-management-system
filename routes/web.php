@@ -1,12 +1,13 @@
 <?php
 
-use App\Http\Controllers\CentralCommodityController;
-use App\Http\Controllers\CentralSeasonController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboard;
-use App\Http\Controllers\SuperAdmin\TenantController;
-use App\Http\Controllers\ProfileController;
 use App\Models\Central\CentralCommodity;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\CentralSeasonController;
+use App\Http\Controllers\QuotaAllocationController;
+use App\Http\Controllers\CentralCommodityController;
+use App\Http\Controllers\SuperAdmin\TenantController;
+use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboard;
 
 Route::get('/', function () {
     return view('welcome'); // central landing page
@@ -28,6 +29,15 @@ Route::middleware(['web', 'auth', 'role:super-admin', 'block-tenant-access'])->p
     Route::get('/commodities/{uuid}/edit', [CentralCommodityController::class, 'edit'])->name('commodities.edit');
     Route::put('/commodities/{uuid}/update', [CentralCommodityController::class, 'update'])->name('commodities.update');
     Route::delete('/commodities/{uuid}/destroy', [CentralCommodityController::class, 'destroy'])->name('commodities.destroy');
+    Route::get('seasons', [CentralSeasonController::class, 'index'])->name('seasons.index');
+    Route::get('seasons/create', [CentralSeasonController::class, 'create'])->name('seasons.create');
+    Route::post('seasons', [CentralSeasonController::class, 'store'])->name('seasons.store');
+    Route::post('seasons/{season}/sync', [CentralSeasonController::class, 'syncToTenants'])->name('seasons.sync');
+    Route::get('seasons/{season}/quotas', [QuotaAllocationController::class, 'create'])->name('seasons.quotas.create');
+    Route::post('seasons/{season}/close', [CentralSeasonController::class, 'close'])->name('seasons.close');
+    Route::post('seasons/{season}/reopen', [CentralSeasonController::class, 'reopen'])->name('seasons.reopen');
+
+    Route::post('seasons/{season}/quotas', [QuotaAllocationController::class, 'store'])->name('seasons.quotas.store');
 });
 
 

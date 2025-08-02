@@ -60,6 +60,9 @@ Route::middleware([
         Route::get('receipts/{id}', [MonetaryReturnController::class, 'show'])->name('eceipts.show');
         Route::post('receipts/{id}/verify', [MonetaryReturnController::class, 'verify'])->name('receipts.verify');
         Route::post('receipts/{id}/reject', [MonetaryReturnController::class, 'reject'])->name('receipts.reject');
+        Route::get('seasons', [SeasonController::class, 'index'])->name('seasons.index');
+        Route::get('seasons/{uuid}/edit', [SeasonController::class, 'edit'])->name('seasons.edit');
+        Route::put('seasons/{uuid}', [SeasonController::class, 'update'])->name('seasons.update');
     });
 
     // Farmer routes inside tenant

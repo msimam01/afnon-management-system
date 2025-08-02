@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('quota_allocations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('season_id')->constrained();
-            $table->string('tenant'); // state/zone name
-            $table->foreignId('commodity_id')->constrained();
+            $table->foreignId('season_id')->constrained('central_seasons');
+            $table->string('tenant'); // E.g., "kano"
+            $table->foreignId('commodity_id')->constrained('central_commodities');
             $table->integer('allocated_quantity');
             $table->timestamps();
         });

@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Season;
-use App\Models\Commodity;
 use Illuminate\Http\Request;
+use App\Models\Season;
+use Illuminate\Support\Facades\Validator;
+use Devrabiul\ToastMagic\Facades\ToastMagic;
 
 class SeasonController extends Controller
 {
@@ -21,11 +22,8 @@ class SeasonController extends Controller
      */
     public function create()
     {
-        $commodities = Commodity::latest()->get()->transform(fn($item) => [
-            'id' => $item->id ?? null,
-            'name' => $item->name ?? null,
-        ]);
-        return view('admin.seasons.create', compact('commodities'));
+        $seasons = Season::latest()->get();
+        return view('admin.seasons.index', compact('seasons'));
     }
 
     /**
@@ -57,17 +55,39 @@ class SeasonController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Season $season)
+    public function edit($uuid)
     {
-        //
+        $season = Season::whereUuid($uuid)->firstOrFail();
+        return view('admin.seasons.edit', compact('season'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Season $season)
+    public function update(Request $request, $uuid)
     {
-        //
+        $season = Season::whereUuid($uuid)->firstOrFail();
+
+        $request->validate([
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'return_deadline' => 'required|date|after:end_date',
+            'insurance_rate' => 'required|numeric|min:0|max:100',
+            'send_reminder_after_days' => 'required|integer|min:1',
+            'status' => 'required|in:open,closed',
+        ]);
+
+        $season->update([
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
+            'return_deadline' => $request->return_deadline,
+            'insurance_rate' => $request->insurance_rate,
+            'send_reminder_after_days' => $request->send_reminder_after_days,
+            'status' => $request->status,
+        ]);
+
+        ToastMagic::success('Season updated successfully.');
+        return redirect()->route('admin.seasons.index');
     }
 
     /**

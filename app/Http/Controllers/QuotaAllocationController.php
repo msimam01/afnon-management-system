@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\QuotaAllocation;
 use Illuminate\Http\Request;
+use App\Models\Central\CentralSeason;
+use App\Models\Central\CentralCommodity;
 
 class QuotaAllocationController extends Controller
 {
@@ -18,18 +20,55 @@ class QuotaAllocationController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create($seasonId)
     {
-        //
+        $season = CentralSeason::findOrFail($seasonId);
+        $commodities = CentralCommodity::all();
+        $allocations = QuotaAllocation::where('season_id', $seasonId)->get();
+
+        // Hardcoded tenant names (or replace with DB logic later)
+        $tenants = \Stancl\Tenancy\Database\Models\Tenant::pluck('id')->toArray();
+
+
+        return view('super-admin.quotas.create', compact('season', 'commodities', 'allocations', 'tenants'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+
+    public function store(Request $request, $seasonId)
     {
-        //
+        $request->validate([
+            'allocations' => 'required|array',
+        ]);
+
+        $commodities = CentralCommodity::all()->keyBy('id');
+        $totalAllocated = [];
+
+        foreach ($request->allocations as $data) {
+            if (!empty($data['quantity']) && $data['quantity'] > 0) {
+                $commodityId = $data['commodity_id'];
+                $qty = (int) $data['quantity'];
+
+                $totalAllocated[$commodityId] = ($totalAllocated[$commodityId] ?? 0) + $qty;
+
+                if ($totalAllocated[$commodityId] > $commodities[$commodityId]->stock) {
+                    return back()->withErrors([
+                        'allocations' => 'Total allocation for ' . $commodities[$commodityId]->name . ' exceeds available stock (' . $commodities[$commodityId]->stock . ').'
+                    ])->withInput();
+                }
+
+                QuotaAllocation::updateOrCreate([
+                    'season_id' => $seasonId,
+                    'tenant' => $data['tenant'],
+                    'commodity_id' => $commodityId,
+                ], [
+                    'allocated_quantity' => $qty,
+                ]);
+            }
+        }
+
+        return redirect()->route('superadmin.seasons.index')->with('success', 'Quota allocations saved.');
     }
+
 
     /**
      * Display the specified resource.

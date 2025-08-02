@@ -4,6 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Central\CentralSeason;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use App\Models\Central\CentralCommodity;
+use App\Models\SuperAdmin\Tenant;
+use Devrabiul\ToastMagic\Facades\ToastMagic;
+use Stancl\Tenancy\TenantManager;
+use Illuminate\Support\Facades\DB;
 
 class CentralSeasonController extends Controller
 {
@@ -12,54 +18,140 @@ class CentralSeasonController extends Controller
      */
     public function index()
     {
-        //
+        $seasons = CentralSeason::latest()->get();
+        return view('super-admin.seasons.index', compact('seasons'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        $commodities = CentralCommodity::all();
+        return view('super-admin.seasons.create', compact('commodities'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required|string',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'return_deadline' => 'required|date|after:end_date',
+            'budget' => 'required|numeric',
+            'insurance_rate' => 'required|numeric|min:0|max:100',
+            'send_reminder_after_days' => 'required|integer|min:1',
+            'commodities' => 'required|array|min:1',
+        ]);
+
+        // Extract year and type
+        $year = date('Y', strtotime($validated['start_date']));
+        $seasonType = strtolower(str_contains($validated['name'], 'wet') ? 'wet' : 'dry');
+
+        // Prevent duplicate for same year & type
+        $exists = CentralSeason::whereYear('start_date', $year)
+            ->where('name', 'like', "%$seasonType%")
+            ->exists();
+
+        if ($exists) {
+            ToastMagic::error("A '$seasonType' season already exists for $year.");
+            return back()->withErrors(['name' => "A '$seasonType' season already exists for $year."])->withInput();
+        }
+
+        $season = CentralSeason::create([
+            'uuid' => Str::uuid(),
+            'name' => $validated['name'],
+            'start_date' => $validated['start_date'],
+            'end_date' => $validated['end_date'],
+            'return_deadline' => $validated['return_deadline'],
+            'budget' => $validated['budget'],
+            'insurance_rate' => $validated['insurance_rate'],
+            'send_reminder_after_days' => $validated['send_reminder_after_days'],
+            'commodities' => json_encode($validated['commodities']),
+        ]);
+
+        ToastMagic::success('Season created. Please assign commodity quotas.');
+        return redirect()->route('superadmin.seasons.quotas.create', $season->id);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(CentralSeason $centralSeason)
+
+    public function syncToTenants(CentralSeason $season)
     {
-        //
+        $tenants = Tenant::all();
+        $allocations = \App\Models\QuotaAllocation::where('season_id', $season->id)->get();
+
+        foreach ($tenants as $tenant) {
+            tenancy()->initialize($tenant);
+
+            // Step 1: Sync season
+            $tenantSeason = \App\Models\Season::firstOrCreate(
+                ['global_season_id' => $season->id],
+                [
+                    'uuid' => Str::uuid(),
+                    'name' => $season->name,
+                    'start_date' => $season->start_date,
+                    'end_date' => $season->end_date,
+                    'budget' => $season->budget,
+                    'return_deadline' => $season->return_deadline,
+                    'insurance_rate' => $season->insurance_rate,
+                    'send_reminder_after_days' => $season->send_reminder_after_days,
+                    'status' => $season->status,
+                    'is_global' => true,
+                ]
+            );
+
+            // Step 2: Sync commodities used in this season (from global)
+            $commodityNames = json_decode($season->commodities ?? '[]', true);
+
+            $globalCommodities = \App\Models\Central\CentralCommodity::on('central')
+                ->whereIn('name', $commodityNames)->get();
+
+            foreach ($globalCommodities as $global) {
+                \App\Models\Commodity::firstOrCreate(
+                    ['global_commodity_id' => $global->id],
+                    [
+                        'uuid' => Str::uuid(),
+                        'name' => $global->name,
+                        'category' => $global->category,
+                        'type' => $global->type,
+                        'unit' => $global->unit,
+                        'price_per_unit' => $global->price_per_unit,
+                        'quantity_per_hectare' => $global->quantity_per_hectare,
+                        'stock' => 0,
+                        'is_global' => true,
+                        'global_commodity_id' => $global->id,
+                    ]
+                );
+            }
+
+            // Step 3: Sync allocations into local tenant
+            $tenantId = $tenant->id;
+
+            foreach ($allocations->where('tenant', $tenantId) as $allocation) {
+                \App\Models\QuotaAllocation::updateOrCreate([
+                    'season_id' => $tenantSeason->id,
+                    'tenant' => $tenantId,
+                    'commodity_id' => $allocation->commodity_id,
+                ], [
+                    'allocated_quantity' => $allocation->allocated_quantity,
+                ]);
+            }
+
+            tenancy()->end();
+        }
+
+        ToastMagic::success("Season and quotas successfully synced to all tenants.");
+        return redirect()->back();
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(CentralSeason $centralSeason)
+    public function close(CentralSeason $season)
     {
-        //
+        $season->update(['status' => 'closed']);
+        ToastMagic::success('Season closed.');
+        return back();
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, CentralSeason $centralSeason)
+    public function reopen(CentralSeason $season)
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(CentralSeason $centralSeason)
-    {
-        //
+        $season->update(['status' => 'open']);
+        ToastMagic::success('Season reopened.');
+        return back();
     }
 }

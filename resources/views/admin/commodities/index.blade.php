@@ -38,7 +38,11 @@
                         <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                             @foreach ($commodities as $item)
                                 <tr>
-                                    <td class="px-6 py-4 text-gray-900 dark:text-gray-400">{{ $item->name }}</td>
+                                    <td class="px-6 py-4 text-gray-900 dark:text-gray-400">{{ $item->name }}@if ($item->is_global)
+                                            <span
+                                                class="ml-2 text-xs px-2 py-1 bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 rounded">Synced</span>
+                                        @endif
+                                    </td>
                                     <td class="px-6 py-4 text-gray-600 dark:text-gray-400">{{ $item->category }}</td>
                                     <td class="px-6 py-4 text-gray-600 dark:text-gray-400">{{ $item->unit }}</td>
                                     <td class="px-6 py-4 text-gray-600 dark:text-gray-400">
@@ -56,7 +60,7 @@
                                             <button
                                                 class="text-red-600 px-2 py-0 dark:text-red-400 hover:underline text-xs">Delete</button>
                                         </form>
-                                        
+
                                         @if ($item->is_global)
                                             <form action="{{ route('admin.commodities.sync', $item->uuid) }}"
                                                 method="POST">
