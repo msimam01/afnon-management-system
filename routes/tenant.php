@@ -63,6 +63,8 @@ Route::middleware([
         Route::get('seasons', [SeasonController::class, 'index'])->name('seasons.index');
         Route::get('seasons/{uuid}/edit', [SeasonController::class, 'edit'])->name('seasons.edit');
         Route::put('seasons/{uuid}', [SeasonController::class, 'update'])->name('seasons.update');
+        Route::get('seasons/{uuid}/export', [\App\Http\Controllers\SeasonController::class, 'export'])
+            ->name('seasons.export');
     });
 
     // Farmer routes inside tenant

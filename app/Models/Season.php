@@ -24,8 +24,10 @@ class Season extends Model
     ];
     public function commodities()
     {
-        return $this->hasMany(\App\Models\Commodity::class);
+        return $this->belongsToMany(\App\Models\Commodity::class, 'quota_allocations', 'season_id', 'commodity_id')
+            ->withPivot('allocated_quantity');
     }
+
 
     protected static function boot()
     {

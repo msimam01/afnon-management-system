@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Season;
+use App\Models\Commodity;
+use Illuminate\Http\Request;
+use App\Models\CommodityAllocation;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Validator;
 use Devrabiul\ToastMagic\Facades\ToastMagic;
+use App\Exports\SeasonCommodityDistributionExport;
 
 class SeasonController extends Controller
 {
@@ -14,8 +18,10 @@ class SeasonController extends Controller
      */
     public function index()
     {
-        return view('admin.seasons.index');
+        $seasons = Season::with('commodities')->latest()->get();
+        return view('admin.seasons.index', compact('seasons'));
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -57,8 +63,24 @@ class SeasonController extends Controller
      */
     public function edit($uuid)
     {
-        $season = Season::whereUuid($uuid)->firstOrFail();
-        return view('admin.seasons.edit', compact('season'));
+        $season = \App\Models\Season::whereUuid($uuid)->firstOrFail();
+
+        $commodities = $season->commodities()->withPivot('allocated_quantity')->get();
+
+        foreach ($commodities as $item) {
+            // Allocated from pivot
+            $item->allocated = $item->pivot->allocated_quantity ?? 0;
+
+            // Distributed to farmers from commodity_allocations table
+            $item->distributed = \App\Models\CommodityAllocation::where('commodity_id', $item->id)
+                ->where('status', 'collected')
+                ->sum('allocated_quantity');
+
+            // Remaining = allocated - distributed
+            $item->remaining = $item->allocated - $item->distributed;
+        }
+
+        return view('admin.seasons.edit', compact('season', 'commodities'));
     }
 
     /**
@@ -89,7 +111,11 @@ class SeasonController extends Controller
         ToastMagic::success('Season updated successfully.');
         return redirect()->route('admin.seasons.index');
     }
-
+    public function export($uuid)
+    {
+        $season = Season::whereUuid($uuid)->firstOrFail();
+        return Excel::download(new SeasonCommodityDistributionExport($season), $season->name . '_distribution.xlsx');
+    }
     /**
      * Remove the specified resource from storage.
      */
