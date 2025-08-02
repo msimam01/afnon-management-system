@@ -23,6 +23,9 @@ return new class extends Migration
             $table->integer('stock');
             $table->boolean('is_global')->default(false); // Identifies if it was imported
             $table->unsignedBigInteger('global_commodity_id')->nullable(); // Links to central commodity
+            $table->foreignId('season_id')
+                ->constrained('seasons')
+                ->onDelete('cascade');
             $table->timestamps();
         });
     }

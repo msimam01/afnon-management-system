@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Central\CentralSeason;
-use Illuminate\Http\Request;
+use App\Models\SyncLog;
 use Illuminate\Support\Str;
-use App\Models\Central\CentralCommodity;
+use Illuminate\Http\Request;
 use App\Models\SuperAdmin\Tenant;
-use Devrabiul\ToastMagic\Facades\ToastMagic;
 use Stancl\Tenancy\TenantManager;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use App\Models\Central\CentralSeason;
+use App\Models\Central\CentralCommodity;
+use Devrabiul\ToastMagic\Facades\ToastMagic;
 
 class CentralSeasonController extends Controller
 {
@@ -97,7 +99,7 @@ class CentralSeasonController extends Controller
                 ]
             );
 
-            // Step 2: Sync commodities used in this season (from global)
+            // Step 2: Sync commodities used in this season
             $commodityNames = json_decode($season->commodities ?? '[]', true);
 
             $globalCommodities = \App\Models\Central\CentralCommodity::on('central')
@@ -117,6 +119,7 @@ class CentralSeasonController extends Controller
                         'stock' => 0,
                         'is_global' => true,
                         'global_commodity_id' => $global->id,
+                        'season_id' => $tenantSeason->id,
                     ]
                 );
             }
@@ -125,21 +128,39 @@ class CentralSeasonController extends Controller
             $tenantId = $tenant->id;
 
             foreach ($allocations->where('tenant', $tenantId) as $allocation) {
+                // Match global commodity ID to tenant's local commodity ID
+                $localCommodity = \App\Models\Commodity::where('global_commodity_id', $allocation->commodity_id)->first();
+                if (!$localCommodity) {
+                    Log::warning("Missing local commodity for global ID {$allocation->commodity_id} in tenant {$tenantId}");
+                    continue;
+                }
+                if (!$localCommodity) continue;
+
                 \App\Models\QuotaAllocation::updateOrCreate([
                     'season_id' => $tenantSeason->id,
                     'tenant' => $tenantId,
-                    'commodity_id' => $allocation->commodity_id,
+                    'commodity_id' => $localCommodity->id,  // ✅ Correct local ID
                 ], [
                     'allocated_quantity' => $allocation->allocated_quantity,
                 ]);
             }
 
-            tenancy()->end();
+
+            tenancy()->end(); // ⛔️ Exit tenant DB context
+
+            // ✅ Log sync centrally
+            SyncLog::create([
+                'tenant_id' => $tenant->id,
+                'type' => 'season',
+                'item_id' => $season->id,
+                'synced_at' => now(),
+            ]);
         }
 
         ToastMagic::success("Season and quotas successfully synced to all tenants.");
         return redirect()->back();
     }
+
 
     public function close(CentralSeason $season)
     {

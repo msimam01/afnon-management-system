@@ -6,6 +6,7 @@ use App\Models\QuotaAllocation;
 use Illuminate\Http\Request;
 use App\Models\Central\CentralSeason;
 use App\Models\Central\CentralCommodity;
+use Devrabiul\ToastMagic\Facades\ToastMagic;
 
 class QuotaAllocationController extends Controller
 {
@@ -43,31 +44,63 @@ class QuotaAllocationController extends Controller
         $commodities = CentralCommodity::all()->keyBy('id');
         $totalAllocated = [];
 
-        foreach ($request->allocations as $data) {
-            if (!empty($data['quantity']) && $data['quantity'] > 0) {
-                $commodityId = $data['commodity_id'];
-                $qty = (int) $data['quantity'];
+        $tenants = \App\Models\SuperAdmin\Tenant::all();
 
-                $totalAllocated[$commodityId] = ($totalAllocated[$commodityId] ?? 0) + $qty;
+        foreach ($tenants as $tenant) {
+            tenancy()->initialize($tenant);
 
-                if ($totalAllocated[$commodityId] > $commodities[$commodityId]->stock) {
-                    return back()->withErrors([
-                        'allocations' => 'Total allocation for ' . $commodities[$commodityId]->name . ' exceeds available stock (' . $commodities[$commodityId]->stock . ').'
-                    ])->withInput();
-                }
-
-                QuotaAllocation::updateOrCreate([
-                    'season_id' => $seasonId,
-                    'tenant' => $data['tenant'],
-                    'commodity_id' => $commodityId,
-                ], [
-                    'allocated_quantity' => $qty,
-                ]);
+            $tenantSeason = \App\Models\Season::where('global_season_id', $seasonId)->first();
+            if (!$tenantSeason) {
+                tenancy()->end();
+                continue;
             }
+
+            foreach ($request->allocations as $data) {
+                if (
+                    isset($data['tenant']) &&
+                    $data['tenant'] === $tenant->id &&
+                    !empty($data['quantity']) &&
+                    $data['quantity'] > 0
+                ) {
+                    $centralCommodityId = $data['commodity_id'];
+                    $qty = (int) $data['quantity'];
+
+                    // 🛠️ Map central commodity ID to local tenant commodity
+                    $localCommodity = \App\Models\Commodity::where('global_commodity_id', $centralCommodityId)->first();
+
+                    if (!$localCommodity) {
+                        tenancy()->end();
+                        continue;
+                    }
+
+                    // Validate stock
+                    $totalAllocated[$centralCommodityId] = ($totalAllocated[$centralCommodityId] ?? 0) + $qty;
+                    if ($totalAllocated[$centralCommodityId] > $commodities[$centralCommodityId]->stock) {
+                        tenancy()->end();
+                        return back()->withErrors([
+                            'allocations' => 'Total allocation for ' . $commodities[$centralCommodityId]->name . ' exceeds available stock (' . $commodities[$centralCommodityId]->stock . ').'
+                        ])->withInput();
+                    }
+
+                    // ✅ Save using tenant-local season and commodity IDs
+                    \App\Models\QuotaAllocation::updateOrCreate([
+                        'season_id' => $tenantSeason->id,
+                        'tenant' => $tenant->id,
+                        'commodity_id' => $localCommodity->id,
+                    ], [
+                        'allocated_quantity' => $qty,
+                    ]);
+                }
+            }
+
+            tenancy()->end();
         }
 
-        return redirect()->route('superadmin.seasons.index')->with('success', 'Quota allocations saved.');
+
+        ToastMagic::success('Quota allocated successfully');
+        return redirect()->route('superadmin.seasons.index')->with('success', 'Quota allocations saved for all tenants.');
     }
+
 
 
     /**

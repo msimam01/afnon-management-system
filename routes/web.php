@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Models\Central\CentralCommodity;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SyncLogController;
 use App\Http\Controllers\CentralSeasonController;
 use App\Http\Controllers\QuotaAllocationController;
 use App\Http\Controllers\CentralCommodityController;
@@ -36,8 +37,9 @@ Route::middleware(['web', 'auth', 'role:super-admin', 'block-tenant-access'])->p
     Route::get('seasons/{season}/quotas', [QuotaAllocationController::class, 'create'])->name('seasons.quotas.create');
     Route::post('seasons/{season}/close', [CentralSeasonController::class, 'close'])->name('seasons.close');
     Route::post('seasons/{season}/reopen', [CentralSeasonController::class, 'reopen'])->name('seasons.reopen');
-
     Route::post('seasons/{season}/quotas', [QuotaAllocationController::class, 'store'])->name('seasons.quotas.store');
+
+    Route::get('sync-logs', [SyncLogController::class, 'index'])->name('sync.logs');
 });
 
 

@@ -22,6 +22,11 @@ class Season extends Model
         'is_global',
         'global_season_id'
     ];
+    public function commodities()
+    {
+        return $this->hasMany(\App\Models\Commodity::class);
+    }
+
     protected static function boot()
     {
         parent::boot();

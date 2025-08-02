@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class QuotaAllocation extends Model
 {
     use HasFactory;
-    protected $connection = 'central';
+    // protected $connection = 'tenant';
 
     protected $fillable = [
         'season_id',
@@ -29,13 +29,13 @@ class QuotaAllocation extends Model
     {
         return $this->belongsTo(CentralCommodity::class, 'commodity_id');
     }
-    // protected static function boot()
-    // {
-    //     parent::boot();
-    //     static::creating(function ($model) {
-    //         if (empty($model->uuid)) {
-    //             $model->uuid = (string) Str::uuid();
-    //         }
-    //     });
-    // }
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($model) {
+            if (empty($model->uuid)) {
+                $model->uuid = (string) Str::uuid();
+            }
+        });
+    }
 }
