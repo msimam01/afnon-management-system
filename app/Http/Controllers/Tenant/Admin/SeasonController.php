@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\CommoditySeason;
 use App\Http\Controllers\Controller;
 use Devrabiul\ToastMagic\Facades\ToastMagic;
+use Illuminate\Validation\ValidationException;
 
 class SeasonController extends Controller
 {
@@ -23,6 +24,11 @@ class SeasonController extends Controller
     public function create()
     {
         $commodities = Commodity::all();
+
+        if ($commodities->isEmpty()) {
+            ToastMagic::success('You must create at least one commodity before creating a season.');
+            return redirect()->route('admin.commodities.create');
+        }
         return view('admin.seasons.create', compact('commodities'));
     }
 
@@ -30,6 +36,7 @@ class SeasonController extends Controller
     {
         $data = $request->validate([
             'name' => 'required|string',
+            'type' => 'required|in:dry,wet', // ✅ validate type
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'return_deadline' => 'required|date|after:end_date',
@@ -39,12 +46,31 @@ class SeasonController extends Controller
             'commodities' => 'required|array|min:1',
             'commodities.*' => 'exists:commodities,id',
         ]);
-
+    
+        $year = \Carbon\Carbon::parse($request->start_date)->year;
+    
+        $exists = Season::whereYear('start_date', $year)
+            ->where('type', $data['type']) // ✅ use validated type
+            ->exists();
+    
+        if ($exists) {
+            ToastMagic::error("A {$data['type']} season already exists for the year {$year}.");
+            return redirect()->back()->withInput(); // ✅ stop execution
+        }
+    
         $season = Season::create($data);
-        $season->commodities()->sync($request->commodities);
+    
+        try {
+            $season->commodities()->sync($request->commodities);
+        } catch (\Throwable $e) {
+            report($e);
+            ToastMagic::error('An error occurred while assigning commodities. Please try again or contact support.');
+        }
+    
         ToastMagic::success('Season created.');
         return redirect()->route('admin.seasons.index');
     }
+    
 
     public function show(Season $season)
     {
@@ -80,7 +106,15 @@ class SeasonController extends Controller
         ]);
 
         $season->update($data);
-        $season->commodities()->sync($request->commodities);
+        try {
+            $season->commodities()->sync($request->commodities);
+        } catch (\Throwable $e) {
+            report($e); // log for devs
+            ToastMagic::error('An error occurred while assigning commodities. Please try again or contact support.');
+            // throw ValidationException::withMessages([
+            //     'commodities' => 'An error occurred while assigning commodities. Please try again or contact support.',
+            // ]);
+        }
         ToastMagic::success('Season updated');
         return redirect()->route('admin.seasons.index');
     }

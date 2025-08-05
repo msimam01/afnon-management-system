@@ -10,28 +10,24 @@
                 @csrf
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label for="seasonName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Season Name
+                        <label for="type" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Season Type
+                            *</label>
+                        <select name="type" id="type" required
+                            class="mt-1 w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
+                            <option value="">Select</option>
+                            <option value="dry" {{ old('type') == 'dry' ? 'selected' : '' }}>Dry</option>
+                            <option value="wet" {{ old('type') == 'wet' ? 'selected' : '' }}>Wet</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="seasonName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Season
+                            Name
                             *</label>
                         <input type="text" id="seasonName" name="name" value="{{ old('name') }}" required
                             placeholder="e.g: 2025 Dry Season"
                             class="mt-1 w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
                         <x-input-error :messages="$errors->get('name')" class="mt-2" />
-                    </div>
-
-                    <div>
-                        <label for="commodities"
-                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">Commodities *</label>
-                        <select id="commodities" name="commodities[]" multiple required
-                            class="mt-1 block w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
-                            @foreach ($commodities as $item)
-                                <option value="{{ $item['id'] }}" @if (in_array($item['id'], old('commodities', []))) selected @endif>
-                                    {{ $item['name'] }}
-                                </option>
-                            @endforeach
-                        </select>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Hold Ctrl or Cmd to select multiple
-                            <x-input-error :messages="$errors->get('commodities')" class="mt-2" />
-                        </p>
                     </div>
                     <div>
                         <label for="startDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Start
@@ -65,7 +61,7 @@
                             class="mt-1 w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
                         <x-input-error :messages="$errors->get('insurance_date')" class="mt-2" />
                     </div>
-                    <div class="md:col-span-2">
+                    <div>
                         <label for="reminderDays"
                             class="block text-sm font-medium text-gray-700 dark:text-gray-300">Reminder Days After
                             Deadline *</label>
@@ -74,13 +70,28 @@
                             class="mt-1 w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
                         <x-input-error :messages="$errors->get('send_reminder_after_days')" class="mt-2" />
                     </div>
-                    <div class="md:col-span-2">
+                    <div>
                         <label for="budget" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Total
                             Budget (₦)</label>
                         <input type="number" id="budget" name="budget" value="{{ old('budget ') }}"
                             placeholder="e.g: 5000000" required
                             class="mt-1 w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
                         <x-input-error :messages="$errors->get('budget')" class="mt-2" />
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="commodities"
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">Commodities *</label>
+                        <select id="commodities" name="commodities[]" multiple required
+                            class="mt-1 block w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
+                            @foreach ($commodities as $item)
+                                <option value="{{ $item['id'] }}" @if (in_array($item['id'], old('commodities', []))) selected @endif>
+                                    {{ $item['name'] }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Hold Ctrl or Cmd to select multiple
+                            <x-input-error :messages="$errors->get('commodities')" class="mt-2" />
+                        </p>
                     </div>
                 </div>
 

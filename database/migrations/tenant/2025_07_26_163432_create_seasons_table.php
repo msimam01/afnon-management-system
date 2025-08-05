@@ -23,6 +23,8 @@ return new class extends Migration
             $table->decimal('insurance_rate', 5, 2)->default(0);
             $table->integer('send_reminder_after_days')->default(7); // Central season ref
             $table->timestamps();
+            // $table->unique(['type', 'start_date']);
+
         });        
     }
 

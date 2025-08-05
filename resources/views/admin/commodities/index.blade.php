@@ -23,7 +23,7 @@
 
                 <div class="self-end">
                     <button type="submit"
-                        class="bg-emerald-600 text-white px-4 py-2 rounded hover:bg-emerald-700">Apply</button>
+                        class="bg-emerald-600 text-white px-4 py-2 rounded hover:bg-emerald-700">Search</button>
                 </div>
             </form>
 

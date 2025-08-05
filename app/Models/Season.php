@@ -12,6 +12,7 @@ class Season extends Model
     protected $fillable = [
         'uuid',
         'name',
+        'type',
         'start_date',
         'end_date',
         'budget',
