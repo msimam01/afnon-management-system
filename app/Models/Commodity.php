@@ -9,12 +9,14 @@ use Illuminate\Support\Str;
 class Commodity extends Model
 {
     use HasFactory;
-    protected $fillable = ['name', 'category', 'unit', 'price_per_unit', 'quantity_per_hectare', 'stock', 'is_global', 'global_commodity_id', 'season_id'];
+    protected $fillable = ['uuid', 'name', 'category', 'unit', 'price_per_unit', 'quantity_per_hectare', 'stock'];
 
-    public function season()
+    public function seasons()
     {
-        return $this->belongsTo(\App\Models\Season::class);
+        return $this->belongsToMany(Season::class, 'commodity_seasons')
+            ->withTimestamps();
     }
+
 
     protected static function boot()
     {
@@ -24,5 +26,9 @@ class Commodity extends Model
                 $model->uuid = (string) Str::uuid();
             }
         });
+    }
+    public function getRouteKeyName()
+    {
+        return 'uuid';
     }
 }

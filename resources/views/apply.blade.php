@@ -404,8 +404,7 @@
                 localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
             });
         }
-
-        // Commodity Dataset
+        // Commodity Dataset (You may later fetch this dynamically)
         const commodityData = {
             'dry-2024': {
                 seeds: [{
@@ -444,7 +443,7 @@
                         unit: 'unit',
                         qtyPerHectare: 1,
                         price: 50000
-                    }
+                    },
                 ]
             },
             'wet-2024': {
@@ -491,208 +490,176 @@
             }
         };
 
+        // Load states dropdown
+        fetch('https://nigeria-states-towns-lgas.onrender.com/api/states')
+            .then(res => res.json())
+            .then(states => {
+                const stateSelect = document.querySelector('[name="state"]');
+                states.forEach(s => {
+                    const opt = document.createElement('option');
+                    opt.value = s.name.toLowerCase();
+                    opt.textContent = s.name;
+                    stateSelect.append(opt);
+                });
+            });
+
+        // On state change, fetch LGAs
+        stateSelect.addEventListener('change', e => {
+            const code = e.target.value;
+            fetch(`https://nigeria-states-towns-lgas.onrender.com/api/${code}/lgas`)
+                .then(r => r.json())
+                .then(lgas => {
+                    const lgaSelect = document.getElementById('lga-select');
+                    lgaSelect.innerHTML = '<option value="">Select LGA</option>';
+                    lgas.forEach(l => {
+                        const o = document.createElement('option');
+                        o.value = l.name.toLowerCase();
+                        o.textContent = l.name;
+                        lgaSelect.append(o);
+                    });
+                });
+        });
+
+        function validateBVN() {
+            const bvn = document.getElementById('bvn-input').value;
+            const status = document.getElementById('bvn-status');
+            if (bvn.length === 11) {
+                status.classList.remove('hidden');
+                setTimeout(() => {
+                    status.innerHTML =
+                        `<span class="text-green-600 dark:text-green-400">✅ BVN verified successfully</span>`;
+                }, 2000);
+            } else {
+                status.classList.add('hidden');
+            }
+        }
+
         function renderCommoditiesForSeason() {
             const season = document.getElementById('season-select').value;
             const farmSize = parseFloat(document.getElementById('farm-size').value || 0);
-            const seedSection = document.getElementById('seed-selection');
-            const seedList = document.getElementById('seed-options');
-            const otherSection = document.getElementById('other-commodities-section');
-            const otherList = document.getElementById('other-commodities-list');
-            const totalText = document.getElementById('total-loan');
-            const equityText = document.getElementById('equity-held');
-            const disbursedText = document.getElementById('disbursed-amount');
-            const summaryBox = document.getElementById('loan-summary');
-            const equityNote = document.getElementById('equity-note');
-
-            if (!season || farmSize <= 0) {
-                seedSection.classList.add('hidden');
-                otherSection.classList.add('hidden');
-                summaryBox.classList.add('hidden');
-                equityNote.classList.add('hidden');
-                return;
-            }
-
+            const clusterInput = document.querySelector('[name="cluster"]');
             const data = commodityData[season];
-            let total = 0;
+            if (!data || farmSize <= 0) return;
 
-            // Render seeds
-            seedList.innerHTML = '';
-            data.seeds.forEach(seed => {
-                const html = `
-                <label class="block cursor-pointer border rounded-lg p-4 bg-white dark:bg-gray-800 shadow hover:shadow-md transition">
-                    <input type="radio" name="selected-seed" required value="${seed.id}" data-price="${seed.price}" data-qty="${seed.qtyPerHectare}" class="hidden">
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <h4 class="text-md font-semibold text-gray-900 dark:text-white">${seed.name}</h4>
-                            <p class="text-sm text-gray-600 dark:text-gray-400">${seed.qtyPerHectare} ${seed.unit}/ha × ₦${seed.price.toLocaleString()}</p>
-                        </div>
-                        <div class="text-emerald-600 dark:text-emerald-400 font-bold">Select</div>
-                    </div>
-                </label>
-                    `;
-                seedList.innerHTML += html;
-            });
+            if (clusterInput) clusterInput.value = farmSize >= 10 ? `${Math.floor(farmSize / 10)} cluster(s)` : '';
 
+            const seedHTML = data.seeds.map(seed => `
+    <label class="block border rounded-lg p-4 bg-white dark:bg-gray-800 hover:shadow transition">
+      <input type="radio" name="selected-seed" value="${seed.id}" data-price="${seed.price}" data-qty="${seed.qtyPerHectare}" class="hidden" required>
+      <div class="flex justify-between items-center">
+        <div>
+          <h4 class="text-md font-semibold text-gray-900 dark:text-white">${seed.name}</h4>
+          <p class="text-sm text-gray-600 dark:text-gray-400">${seed.qtyPerHectare} ${seed.unit}/ha × ₦${seed.price.toLocaleString()}</p>
+        </div>
+        <span class="text-emerald-600 dark:text-emerald-400 font-bold">Select</span>
+      </div>
+    </label>
+  `).join('');
 
-            seedSection.classList.remove('hidden');
-            otherSection.classList.remove('hidden');
-            equityNote.classList.remove('hidden');
-            summaryBox.classList.remove('hidden');
-            otherList.innerHTML = '';
+            document.getElementById('seed-options').innerHTML = seedHTML;
+            document.getElementById('seed-selection').classList.remove('hidden');
+            document.getElementById('other-commodities-section').classList.remove('hidden');
+            document.getElementById('loan-summary').classList.remove('hidden');
+            document.getElementById('equity-note').classList.remove('hidden');
 
-            document.querySelectorAll('input[name="selected-seed"]').forEach(radio => {
-                radio.addEventListener('change', () => {
-                    const qty = parseFloat(radio.dataset.qty);
-                    const price = parseFloat(radio.dataset.price);
-                    total = qty * price * farmSize;
+            document.querySelectorAll('input[name="selected-seed"]').forEach(input => {
+                input.addEventListener('change', () => {
+                    const qty = parseFloat(input.dataset.qty);
+                    const price = parseFloat(input.dataset.price);
+                    let total = qty * price * farmSize;
 
-                    otherList.innerHTML = '';
-                    data.others.forEach(commodity => {
-                        const quantity = commodity.qtyPerHectare * farmSize;
-                        const value = quantity * commodity.price;
-                        total += value;
-                        const row = `
-                    <tr>
-                        <td class="px-4 py-2 text-gray-900 dark:text-white">${commodity.name}</td>
-                        <td class="px-4 py-2 text-gray-700 dark:text-gray-300">${quantity} ${commodity.unit}</td>
-                        <td class="px-4 py-2 text-gray-700 dark:text-gray-300">₦${commodity.price.toLocaleString()}</td>
-                        <td class="px-4 py-2 font-semibold text-gray-900 dark:text-white">₦${value.toLocaleString()}</td>
-                    </tr>`;
-                        otherList.innerHTML += row;
+                    const othersHTML = data.others.map(item => {
+                        const q = item.qtyPerHectare * farmSize;
+                        const val = q * item.price;
+                        total += val;
+                        return `<tr>
+          <td class="px-4 py-2">${item.name}</td>
+          <td class="px-4 py-2">${q} ${item.unit}</td>
+          <td class="px-4 py-2">₦${item.price.toLocaleString()}</td>
+          <td class="px-4 py-2 font-semibold">₦${val.toLocaleString()}</td>
+        </tr>`;
+                    }).join('');
 
-                    });
-
+                    document.getElementById('other-commodities-list').innerHTML = othersHTML;
+                    const insurance = total * 0.01;
                     const equity = total / 2;
-                    totalText.innerHTML = `Total Loan Value: <strong>₦${total.toLocaleString()}</strong>`;
-                    equityText.innerHTML =
-                        `Equity Held by Organization: <strong>₦${equity.toLocaleString()}</strong>`;
-                    disbursedText.innerHTML =
-                        `Amount Disbursed to Farmer: <strong>₦${equity.toLocaleString()}</strong>`;
+
+                    document.getElementById('total-loan').innerHTML =
+                        `Total Loan Value: <strong>₦${(total + insurance).toLocaleString()}</strong>`;
+                    document.getElementById('equity-held').innerHTML =
+                        `Equity Held: <strong>₦${equity.toLocaleString()}</strong>`;
+                    document.getElementById('disbursed-amount').innerHTML =
+                        `Disbursed Amount: <strong>₦${equity.toLocaleString()}</strong>`;
                 });
             });
-        }
-
-        document.getElementById('season-select').addEventListener('change', renderCommoditiesForSeason);
-        document.getElementById('farm-size').addEventListener('input', renderCommoditiesForSeason);
-
-        // Update LGAs
-        const lgaData = {
-            'kaduna': ['Igabi', 'Kaduna North', 'Kaduna South', 'Chikun', 'Kajuru'],
-            'niger': ['Minna', 'Suleja', 'Kontagora', 'Bida', 'Mokwa'],
-            'kano': ['Kano Municipal', 'Fagge', 'Dala', 'Gwale', 'Tarauni'],
-            'katsina': ['Katsina', 'Funtua', 'Daura', 'Malumfashi', 'Dutsin-Ma'],
-            'sokoto': ['Sokoto North', 'Sokoto South', 'Wamako', 'Dange Shuni', 'Gudu']
-        };
-
-        function updateLGAs() {
-            const stateSelect = event.target;
-            const lgaSelect = document.getElementById('lga-select');
-            const selectedState = stateSelect.value;
-            lgaSelect.innerHTML = '<option value="">Select LGA</option>';
-            if (selectedState && lgaData[selectedState]) {
-                lgaData[selectedState].forEach(lga => {
-                    const option = document.createElement('option');
-                    option.value = lga.toLowerCase().replace(/\s+/g, '-');
-                    option.textContent = lga;
-                    lgaSelect.appendChild(option);
-                });
-            }
-        }
-
-        // BVN Simulation
-        function validateBVN() {
-            const bvnInput = document.getElementById('bvn-input');
-            const bvnStatus = document.getElementById('bvn-status');
-            if (bvnInput.value.length === 11) {
-                bvnStatus.classList.remove('hidden');
-                setTimeout(() => {
-                    bvnStatus.innerHTML = `
-                    <span class="text-green-600 dark:text-green-400">
-                        <svg class="inline w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                        </svg>
-                        BVN verified successfully
-                    </span>`;
-                }, 2000);
-            } else {
-                bvnStatus.classList.add('hidden');
-            }
         }
 
         function handleSubmission(e) {
             e.preventDefault();
-
+            const form = e.target;
             const season = document.getElementById('season-select').value;
+            const seed = document.querySelector('input[name="selected-seed"]:checked');
             const farmSize = parseFloat(document.getElementById('farm-size').value || 0);
-            const selectedSeed = document.querySelector('input[name="selected-seed"]:checked');
-
-            if (!season || !selectedSeed || farmSize <= 0) {
-                alert("Please fill in all required information before submitting.");
+            if (!season || !seed || farmSize <= 0) {
+                alert("Please fill out all required fields.");
                 return;
             }
 
             const data = commodityData[season];
-            const seedData = data.seeds.find(seed => seed.id === selectedSeed.value);
+            const seedData = data.seeds.find(s => s.id === seed.value);
             const seedQty = seedData.qtyPerHectare * farmSize;
-            const seedTotal = seedQty * seedData.price;
+            const seedVal = seedQty * seedData.price;
 
-            let total = seedTotal;
+            let total = seedVal;
             let rows = `
-        <tr>
-            <td class="px-4 py-2 border">${seedData.name}</td>
-            <td class="px-4 py-2 border">${seedQty} ${seedData.unit}</td>
-            <td class="px-4 py-2 border">₦${seedData.price.toLocaleString()}</td>
-            <td class="px-4 py-2 border font-medium">₦${seedTotal.toLocaleString()}</td>
-        </tr>
-    `;
+    <tr>
+      <td class="px-4 py-2 border">${seedData.name}</td>
+      <td class="px-4 py-2 border">${seedQty} ${seedData.unit}</td>
+      <td class="px-4 py-2 border">₦${seedData.price.toLocaleString()}</td>
+      <td class="px-4 py-2 border font-medium">₦${seedVal.toLocaleString()}</td>
+    </tr>
+  `;
 
-            // Other Commodities
             data.others.forEach(item => {
                 const qty = item.qtyPerHectare * farmSize;
                 const val = qty * item.price;
                 total += val;
                 rows += `
-            <tr>
-                <td class="px-4 py-2 border">${item.name}</td>
-                <td class="px-4 py-2 border">${qty} ${item.unit}</td>
-                <td class="px-4 py-2 border">₦${item.price.toLocaleString()}</td>
-                <td class="px-4 py-2 border font-medium">₦${val.toLocaleString()}</td>
-            </tr>
-        `;
+      <tr>
+        <td class="px-4 py-2 border">${item.name}</td>
+        <td class="px-4 py-2 border">${qty} ${item.unit}</td>
+        <td class="px-4 py-2 border">₦${item.price.toLocaleString()}</td>
+        <td class="px-4 py-2 border font-medium">₦${val.toLocaleString()}</td>
+      </tr>
+    `;
             });
 
-            const insuranceFee = total * 0.01;
-            total += insuranceFee;
+            const insurance = total * 0.01;
+            total += insurance;
             const equity = total / 2;
 
-            // Inject table rows and summary
             document.getElementById('summary-table-body').innerHTML = rows;
-            document.getElementById('summary-insurance').textContent = `₦${insuranceFee.toLocaleString()}`;
+            document.getElementById('summary-insurance').textContent = `₦${insurance.toLocaleString()}`;
             document.getElementById('summary-total').textContent = `₦${total.toLocaleString()}`;
             document.getElementById('summary-equity').textContent = `₦${equity.toLocaleString()}`;
             document.getElementById('summary-disbursed').textContent = `₦${equity.toLocaleString()}`;
-
-            const ref = 'NECAS-' + Math.floor(Math.random() * 900000 + 100000);
-            document.getElementById('ref-number').textContent = ref;
-
-            // Show modal and reset form
+            document.getElementById('ref-number').textContent = `NECAS-${Math.floor(Math.random() * 900000 + 100000)}`;
             document.getElementById('success-modal').classList.remove('hidden');
             window.scrollTo(0, 0);
+            form.reset();
+        }
 
-            document.getElementById('application-form').reset();
-            document.getElementById('seed-selection').classList.add('hidden');
-            document.getElementById('other-commodities-section').classList.add('hidden');
-            document.getElementById('loan-summary').classList.add('hidden');
-            document.getElementById('equity-note').classList.add('hidden');
+        function downloadAcknowledgment() {
+            alert("🔧 Acknowledgment slip generation coming soon...");
         }
 
         function closeSuccessModal() {
             document.getElementById('success-modal').classList.add('hidden');
         }
 
-        function downloadAcknowledgment() {
-            alert("Downloading acknowledgment slip... (feature coming soon)");
-        }
+        // Events
+        document.getElementById('season-select').addEventListener('change', renderCommoditiesForSeason);
+        document.getElementById('farm-size').addEventListener('input', renderCommoditiesForSeason);
     </script>
 
     {{-- <p class="text-sm text-gray-500 dark:text-gray-400">Available: ${commodity.available} ${commodity.unit}</p>

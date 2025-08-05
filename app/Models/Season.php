@@ -19,16 +19,23 @@ class Season extends Model
         'return_deadline',
         'insurance_rate',
         'send_reminder_after_days',
-        'is_global',
-        'global_season_id'
     ];
-    public function commodities()
+
+    protected static function booted()
     {
-        return $this->belongsToMany(\App\Models\Commodity::class, 'quota_allocations', 'season_id', 'commodity_id')
-            ->withPivot('allocated_quantity');
+        static::creating(fn($season) => $season->uuid = (string) Str::uuid());
     }
 
+    public function commodities()
+    {
+        return $this->belongsToMany(Commodity::class, 'commodity_seasons')
+            ->withTimestamps();
+    }
 
+    public function getRouteKeyName()
+    {
+        return 'uuid';
+    }
     protected static function boot()
     {
         parent::boot();

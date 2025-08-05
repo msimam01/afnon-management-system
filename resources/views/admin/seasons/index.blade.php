@@ -3,8 +3,13 @@
 @section('content')
     <div class="p-6">
         <div class="bg-white dark:bg-gray-800 shadow rounded-xl p-6">
-            <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">🌾 Active Seasons</h2>
-
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-white">🌾 Seasons Overview</h2>
+                <a href="{{ route('admin.seasons.create') }}"
+                    class="bg-emerald-600 text-white px-5 py-2 rounded hover:bg-emerald-700 transition">
+                    + New Season
+                </a>
+            </div>
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 @foreach ($seasons as $season)
                     <div
@@ -25,18 +30,28 @@
                         <p class="text-sm text-gray-600 dark:text-gray-400">🛡 Insurance: {{ $season->insurance_rate }}%</p>
 
                         <div class="mt-4 flex justify-between items-center">
-                            <a href="{{ route('admin.seasons.edit', $season->uuid) }}"
+                            <a href="{{ route('admin.seasons.show', $season->uuid) }}"
                                 class="text-sm text-emerald-600 hover:underline">🔍 View Details</a>
-
-                            {{-- <form method="POST" action="{{ route('admin.seasons.update', $season->uuid) }}">
-                                @csrf
-                                @method('PUT')
-                                <input type="hidden" name="status"
-                                    value="{{ $season->status === 'open' ? 'closed' : 'open' }}">
-                                <button type="submit" class="text-sm text-blue-600 hover:underline">
-                                    {{ $season->status === 'open' ? '🔒 Close' : '🔓 Reopen' }}
-                                </button>
-                            </form> --}}
+                                <a href="{{ route('admin.seasons.edit', $season->uuid) }}"
+                                    class="text-sm text-emerald-600 hover:underline">🔄
+                                    Edit</a>
+                            <!-- Close/Reopen Button -->
+                            @if ($season->status === 'open')
+                                <form method="POST" action="{{ route('admin.seasons.close', $season->uuid) }}"
+                                    onsubmit="return confirm('Are you sure you want to close this season?');">
+                                    @csrf
+                                    <button type="submit" class="text-xs text-red-600 hover:underline dark:text-red-400">🚫
+                                        Close</button>
+                                </form>
+                            @else
+                                <form method="POST" action="{{ route('admin.seasons.reopen', $season->uuid) }}"
+                                    onsubmit="return confirm('Reopen this season for allocations and distributions?');">
+                                    @csrf
+                                    <button type="submit"
+                                        class="text-xs text-green-600 hover:underline dark:text-green-400">✅
+                                        Reopen</button>
+                                </form>
+                            @endif
                         </div>
                     </div>
                 @endforeach

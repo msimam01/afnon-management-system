@@ -37,7 +37,7 @@
                         Manage Tenants
                     </a>
                 </li>
-                <li>
+                {{-- <li>
                     <a href="{{route('superadmin.commodities.index')}}"
                         class="{{ Route::is('superadmin.commodities.index') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
                         <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -46,8 +46,8 @@
                         </svg>
                         Global Commodities
                     </a>
-                </li>
-                <li>
+                </li> --}}
+                {{-- <li>
                     <a href="{{ route('superadmin.seasons.index') }}"
                         class="{{ Route::is('superadmin.seasons.index') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
                         <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -57,8 +57,8 @@
                         </svg>
                         Seasons
                     </a>
-                </li> 
-                <li>
+                </li>  --}}
+                {{-- <li>
                     <a href="{{ route('superadmin.sync.logs') }}"
                         class="{{ Route::is('superadmin.sync.logs') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
                         <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -68,7 +68,7 @@
                         </svg>
                         Sync Logs
                     </a>
-                </li> 
+                </li>  --}}
                 {{--
                 <li>
                     <a href="{{route('superadmin.roles')}}"

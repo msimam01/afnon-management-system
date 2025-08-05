@@ -2,10 +2,11 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SeasonController;
-use App\Http\Controllers\CommodityController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\MonetaryReturnController;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
+use App\Http\Controllers\Tenant\Admin\CommodityController;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Agent\DashboardController as AgentDashboard;
@@ -51,8 +52,10 @@ Route::middleware([
             Route::post('/import-bulk', [CommodityController::class, 'importBulk'])->name('importBulk');
             Route::post('/{uuid}/sync', [CommodityController::class, 'sync'])->name('sync');
         });
-
-        Route::resource('seasons', SeasonController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
+        Route::resource('seasons', \App\Http\Controllers\Tenant\Admin\SeasonController::class);
+        Route::get('seasons/{season}/export', [\App\Http\Controllers\Tenant\Admin\SeasonController::class, 'export'])->name('seasons.export');
+        Route::put('seasons/{season}/close', [\App\Http\Controllers\Tenant\Admin\SeasonController::class, 'close'])->name('seasons.close');
+        Route::put('seasons/{season}/reopen', [\App\Http\Controllers\Tenant\Admin\SeasonController::class, 'reopen'])->name('seasons.reopen');
         Route::get('farmers', fn() => view('admin.farmers'))->name('farmers');
         Route::get('returns', fn() => view('admin.return'))->name('returns');
         Route::get('reports', fn() => view('admin.reports'))->name('reports');
@@ -60,13 +63,10 @@ Route::middleware([
         Route::get('receipts/{id}', [MonetaryReturnController::class, 'show'])->name('eceipts.show');
         Route::post('receipts/{id}/verify', [MonetaryReturnController::class, 'verify'])->name('receipts.verify');
         Route::post('receipts/{id}/reject', [MonetaryReturnController::class, 'reject'])->name('receipts.reject');
-        Route::get('seasons', [SeasonController::class, 'index'])->name('seasons.index');
-        Route::get('seasons/{uuid}/edit', [SeasonController::class, 'edit'])->name('seasons.edit');
-        Route::put('seasons/{uuid}', [SeasonController::class, 'update'])->name('seasons.update');
-        Route::get('seasons/{uuid}/export', [\App\Http\Controllers\SeasonController::class, 'export'])
-            ->name('seasons.export');
     });
-
+    Route::get('applications', [ApplicationController::class, 'create'])->name('applications.create');
+    Route::post('applications', [ApplicationController::class, 'store'])->name('applications.store');
+    Route::get('applications/{uuid}/slip', [ApplicationController::class, 'acknowledgment'])->name('applications.slip');
     // Farmer routes inside tenant
     Route::middleware(['auth', 'role:farmer'])->prefix('farmer')->name('farmer.')->group(function () {
         Route::get('/dashboard', [FarmerDashboard::class, 'index'])->name('dashboard');

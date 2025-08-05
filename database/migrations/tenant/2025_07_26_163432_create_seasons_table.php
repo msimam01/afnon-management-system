@@ -21,9 +21,7 @@ return new class extends Migration
             $table->enum('status', ['open', 'closed'])->default('open');
             $table->date('return_deadline')->nullable();
             $table->decimal('insurance_rate', 5, 2)->default(0);
-            $table->integer('send_reminder_after_days')->default(7);
-            $table->boolean('is_global')->default(false);
-            $table->unsignedBigInteger('global_season_id')->nullable(); // Central season ref
+            $table->integer('send_reminder_after_days')->default(7); // Central season ref
             $table->timestamps();
         });        
     }
