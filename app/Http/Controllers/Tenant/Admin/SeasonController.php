@@ -46,31 +46,31 @@ class SeasonController extends Controller
             'commodities' => 'required|array|min:1',
             'commodities.*' => 'exists:commodities,id',
         ]);
-    
+
         $year = \Carbon\Carbon::parse($request->start_date)->year;
-    
+
         $exists = Season::whereYear('start_date', $year)
             ->where('type', $data['type']) // ✅ use validated type
             ->exists();
-    
+
         if ($exists) {
             ToastMagic::error("A {$data['type']} season already exists for the year {$year}.");
             return redirect()->back()->withInput(); // ✅ stop execution
         }
-    
+
         $season = Season::create($data);
-    
+
         try {
             $season->commodities()->sync($request->commodities);
         } catch (\Throwable $e) {
             report($e);
             ToastMagic::error('An error occurred while assigning commodities. Please try again or contact support.');
         }
-    
+
         ToastMagic::success('Season created.');
         return redirect()->route('admin.seasons.index');
     }
-    
+
 
     public function show(Season $season)
     {
@@ -88,13 +88,9 @@ class SeasonController extends Controller
 
     public function update(Request $request, Season $season)
     {
-        if ($request->has('status')) {
-            $season->update(['status' => $request->status]);
-            return back()->with('success', 'Season status updated.');
-        }
-
         $data = $request->validate([
             'name' => 'required|string',
+            'type' => 'required|in:dry,wet',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'return_deadline' => 'required|date|after:end_date',
@@ -105,19 +101,33 @@ class SeasonController extends Controller
             'commodities.*' => 'exists:commodities,id',
         ]);
 
+        $year = \Carbon\Carbon::parse($data['start_date'])->year;
+
+        // ✅ Ensure no duplicate season of same type + year, excluding current season
+        $exists = Season::whereYear('start_date', $year)
+            ->where('type', $data['type'])
+            ->where('id', '!=', $season->id)
+            ->exists();
+
+        if ($exists) {
+            ToastMagic::error("A {$data['type']} season already exists for the year {$year}.");
+            return redirect()->back()->withInput();
+        }
+
         $season->update($data);
+
         try {
             $season->commodities()->sync($request->commodities);
         } catch (\Throwable $e) {
-            report($e); // log for devs
-            ToastMagic::error('An error occurred while assigning commodities. Please try again or contact support.');
-            // throw ValidationException::withMessages([
-            //     'commodities' => 'An error occurred while assigning commodities. Please try again or contact support.',
-            // ]);
+            report($e);
+            ToastMagic::error('An error occurred while updating commodities. Please try again.');
+            return redirect()->back()->withInput();
         }
-        ToastMagic::success('Season updated');
+
+        ToastMagic::success('Season updated successfully.');
         return redirect()->route('admin.seasons.index');
     }
+
 
 
     public function destroy(Season $season)
