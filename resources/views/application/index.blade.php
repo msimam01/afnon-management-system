@@ -9,13 +9,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
-                darkMode: 'class',
-                theme: {
-                    fontFamily: {
-                        'sans': ['Inter', 'system-ui', 'sans-serif'],
-                    }
+            darkMode: 'class',
+            theme: {
+                fontFamily: {
+                    'sans': ['Inter', 'system-ui', 'sans-serif'],
                 }
             }
+        }
     </script>
 </head>
 
@@ -74,21 +74,22 @@
                 Get access to agricultural inputs based on your farm size
             </p>
         </div>
-    
+
         <div class="bg-white dark:bg-gray-900 shadow-2xl rounded-2xl overflow-hidden">
             <form id="application-form" onsubmit="handleSubmission(event)" class="space-y-10 p-8">
-    
+
                 <!-- Season -->
                 <section>
                     <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-2">Season</h2>
-                    <select name="season" onchange="renderCommoditiesForSeason()" required
+                    <select id="season-select" name="season" onchange="renderCommoditiesForSeason()" required
                         class="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                        <option value="">{{ $season->name }} Application</option>
+                        <option value="{{ $season->id }}">{{ $season->name }} Application</option>
                     </select>
+
                     <input type="hidden" name="season_id" value="{{ $season->id }}">
                     <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Only open seasons are shown</p>
                 </section>
-    
+
                 <!-- Farmer Details -->
                 <section>
                     <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-2">Farmer Details</h2>
@@ -110,8 +111,8 @@
                         </div>
                         <div>
                             <label class="text-sm font-medium text-gray-700 dark:text-gray-300">BVN *</label>
-                            <input type="text" id="bvn-input" name="bvn" maxlength="11" required pattern="[0-9]{11}"
-                                onchange="validateBVN()"
+                            <input type="text" id="bvn-input" name="bvn" maxlength="11" required
+                                pattern="[0-9]{11}" onchange="validateBVN()"
                                 class="w-full px-4 py-2 mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500" />
                             <div id="bvn-status" class="mt-1 text-sm hidden text-yellow-600 dark:text-yellow-400"></div>
                         </div>
@@ -137,7 +138,7 @@
                         </div>
                     </div>
                 </section>
-    
+
                 <!-- Farm Information -->
                 <section>
                     <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-2">Farm Information</h2>
@@ -149,26 +150,29 @@
                                 placeholder="Village/Town" />
                         </div>
                         <div>
-                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Farm Size (Hectares) *</label>
-                            <input type="number" name="farm_size" id="farm-size" step="0.1" min="0.1" required
+                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Farm Size (Hectares)
+                                *</label>
+                            <input type="number" name="farm_size" id="farm-size" step="0.1" min="0.1"
+                                required
                                 class="w-full px-4 py-2 mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
                                 placeholder="e.g. 2.5" />
                         </div>
                         <div class="md:col-span-2">
-                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Cluster Farm Location</label>
+                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Cluster Farm
+                                Location</label>
                             <input type="text" name="cluster_location"
                                 class="w-full px-4 py-2 mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
                                 placeholder="e.g., Igabi West" />
                         </div>
                     </div>
                 </section>
-    
+
                 <!-- Seed Selection -->
                 <section id="seed-selection" class="hidden">
                     <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Choose a Seed</h2>
                     <div id="seed-options" class="grid md:grid-cols-2 gap-6"></div>
                 </section>
-    
+
                 <!-- Commodities Breakdown -->
                 <section id="other-commodities-section" class="hidden">
                     <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Commodities Breakdown</h2>
@@ -176,10 +180,10 @@
                         <table class="w-full text-sm border rounded-lg overflow-hidden dark:border-gray-700">
                             <thead class="bg-gray-100 dark:bg-gray-800">
                                 <tr>
-                                    <th class="px-4 py-2 text-left">Commodity</th>
-                                    <th class="px-4 py-2 text-left">Quantity</th>
-                                    <th class="px-4 py-2 text-left">Unit Price</th>
-                                    <th class="px-4 py-2 text-left">Total</th>
+                                    <th class="px-4 py-2 text-left dark:text-white">Commodity</th>
+                                    <th class="px-4 py-2 text-left dark:text-white">Quantity</th>
+                                    <th class="px-4 py-2 text-left dark:text-white">Unit Price</th>
+                                    <th class="px-4 py-2 text-left dark:text-white">Total</th>
                                 </tr>
                             </thead>
                             <tbody id="other-commodities-list"
@@ -188,7 +192,7 @@
                         </table>
                     </div>
                 </section>
-    
+
                 <!-- Loan Summary -->
                 <section id="loan-summary" class="hidden">
                     <div class="grid md:grid-cols-3 gap-6">
@@ -203,27 +207,29 @@
                         </div>
                     </div>
                 </section>
-    
+
                 <!-- Note -->
                 <div id="equity-note" class="hidden mt-4 text-sm text-yellow-700 dark:text-yellow-300">
                     Note: You will only receive 50% of the loan value. 50% is held as equity.
                 </div>
-    
+
                 <!-- BVN Info -->
-                <div class="bg-blue-50 dark:bg-blue-900/10 border border-blue-300 dark:border-blue-700 rounded-lg p-4 mt-4">
+                <div
+                    class="bg-blue-50 dark:bg-blue-900/10 border border-blue-300 dark:border-blue-700 rounded-lg p-4 mt-4">
                     <p class="text-sm text-blue-800 dark:text-blue-200 font-medium">BVN Verification</p>
                     <p class="text-sm text-blue-700 dark:text-blue-400">
                         Your BVN will be verified automatically before submission.
                     </p>
                 </div>
-    
+
                 <!-- Agreement -->
                 <div class="space-y-4 pt-6">
                     <div class="flex items-start gap-2">
                         <input type="checkbox" required
                             class="mt-1 h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded">
                         <p class="text-sm text-gray-700 dark:text-gray-300">
-                            I agree to the <a href="#" class="text-emerald-600 hover:underline">Terms and Conditions</a> and confirm that all provided information is accurate.
+                            I agree to the <a href="#" class="text-emerald-600 hover:underline">Terms and
+                                Conditions</a> and confirm that all provided information is accurate.
                         </p>
                     </div>
                     <div class="flex items-start gap-2">
@@ -234,7 +240,7 @@
                         </p>
                     </div>
                 </div>
-    
+
                 <!-- Submit -->
                 <div class="pt-6 flex justify-end">
                     <button type="submit"
@@ -245,8 +251,6 @@
             </form>
         </div>
     </div>
-    
-
 
     <!-- Success Modal -->
     <div id="success-modal"
@@ -293,7 +297,7 @@
                                 </tbody>
                                 <tfoot class="bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white">
                                     <tr>
-                                        <td colspan="3" class="px-4 py-2 font-semibold">Insurance (1%)</td>
+                                        <td colspan="3" class="px-4 py-2 font-semibold">Insurance ({{ $season->insurance_rate }}%)</td>
                                         <td id="summary-insurance" class="px-4 py-2 font-semibold"></td>
                                     </tr>
                                     <tr>
@@ -342,6 +346,7 @@
                 localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
             });
         }
+
         //Fetch all States
         fetch('https://nga-states-lga.onrender.com/fetch')
             .then((res) => res.json())
@@ -354,6 +359,7 @@
                     x.add(option);
                 }
             });
+
         //Fetch Local Goverments based on selected state
         function selectLGA(target) {
             var state = target.value;
@@ -376,10 +382,6 @@
                 });
         }
 
-        const seedCommodities = @json($seeds);
-        const otherCommodities = @json($others);
-        const insuranceRate = {{ $season->insurance_rate ?? 1 }};
-
         function validateBVN() {
             const bvn = document.getElementById('bvn-input').value;
             const status = document.getElementById('bvn-status');
@@ -394,65 +396,114 @@
             }
         }
 
+        const commodityData = {
+            "{{ $season->id }}": {
+                seeds: @json($seeds),
+                others: @json($others)
+            }
+        };
+        const seedCommodities = @json($seeds);
+        const otherCommodities = @json($others);
+        const insuranceRate = {{ $season->insurance_rate ?? 1 }};
+
         function renderCommoditiesForSeason() {
-            const season = document.getElementById('season-select').value;
+            const seasonId = document.getElementById('season-select').value;
             const farmSize = parseFloat(document.getElementById('farm-size').value || 0);
-            const clusterInput = document.querySelector('[name="cluster"]');
-            const data = commodityData[season];
+            const data = commodityData[seasonId];
+
             if (!data || farmSize <= 0) return;
 
-            if (clusterInput) clusterInput.value = farmSize >= 10 ? `${Math.floor(farmSize / 10)} cluster(s)` : '';
-
+            // Render seed options
             const seedHTML = data.seeds.map(seed => `
-    <label class="block border rounded-lg p-4 bg-white dark:bg-gray-800 hover:shadow transition">
-      <input type="radio" name="selected-seed" value="${seed.id}" data-price="${seed.price}" data-qty="${seed.qtyPerHectare}" class="hidden" required>
-      <div class="flex justify-between items-center">
-        <div>
-          <h4 class="text-md font-semibold text-gray-900 dark:text-white">${seed.name}</h4>
-          <p class="text-sm text-gray-600 dark:text-gray-400">${seed.qtyPerHectare} ${seed.unit}/ha × ₦${seed.price.toLocaleString()}</p>
-        </div>
-        <span class="text-emerald-600 dark:text-emerald-400 font-bold">Select</span>
-      </div>
-    </label>
-  `).join('');
+            <label class="block border rounded-lg p-4 bg-white dark:bg-gray-800 hover:shadow transition">
+                <input type="radio" name="selected-seed" value="${seed.id}" data-price="${seed.price_per_unit}" data-qty="${seed.quantity_per_hectare}" data-name="${seed.name}" data-unit="${seed.unit}" class="hidden" required>
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h4 class="text-md font-semibold text-gray-900 dark:text-white">${seed.name}</h4>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">${seed.quantity_per_hectare} ${seed.unit}/ha × ₦${seed.price_per_unit.toLocaleString()}</p>
+                    </div>
+                    <span class="text-emerald-600 dark:text-emerald-400 font-bold">Select</span>
+                </div>
+            </label>
+        `).join('');
 
             document.getElementById('seed-options').innerHTML = seedHTML;
             document.getElementById('seed-selection').classList.remove('hidden');
+
+            document.querySelectorAll('input[name="selected-seed"]').forEach(input => {
+                input.addEventListener('change', () => renderCommodityBreakdown(data, farmSize, input));
+            });
+        }
+
+        function renderCommodityBreakdown(data, farmSize, selectedInput) {
+            let total = 0;
+
+            const seedQty = parseFloat(selectedInput.dataset.qty) * farmSize;
+            const seedPrice = parseFloat(selectedInput.dataset.price);
+            const seedUnit = selectedInput.dataset.unit;
+            const seedName = selectedInput.dataset.name;
+            const seedTotal = seedQty * seedPrice;
+            total += seedTotal;
+
+            let rows = `
+            <tr>
+                <td class="px-4 py-2">${seedName}</td>
+                <td class="px-4 py-2">${seedQty.toFixed(1)} ${seedUnit}</td>
+                <td class="px-4 py-2">₦${seedPrice.toLocaleString()}</td>
+                <td class="px-4 py-2 font-semibold">₦${seedTotal.toLocaleString()}</td>
+            </tr>
+        `;
+
+            data.others.forEach(item => {
+                const q = item.quantity_per_hectare * farmSize;
+                const val = q * item.price_per_unit;
+                total += val;
+                rows += `
+                <tr>
+                    <td class="px-4 py-2">${item.name}</td>
+                    <td class="px-4 py-2">${q.toFixed(1)} ${item.unit}</td>
+                    <td class="px-4 py-2">₦${item.price_per_unit.toLocaleString()}</td>
+                    <td class="px-4 py-2 font-semibold">₦${val.toLocaleString()}</td>
+                </tr>`;
+            });
+
+            const insurance = total * (insuranceRate / 100);
+            const finalLoan = total + insurance;
+            const equity = finalLoan / 2;
+
+            // Add insurance row
+            rows += `
+            <tr class="bg-gray-50 dark:bg-gray-700">
+                <td class="px-4 py-2 font-semibold text-gray-800 dark:text-white">Insurance (${insuranceRate}%)</td>
+                <td class="px-4 py-2">—</td>
+                <td class="px-4 py-2">—</td>
+                <td class="px-4 py-2 font-semibold">₦${insurance.toLocaleString()}</td>
+            </tr>
+        `;
+
+            // Update table and summary
+            document.getElementById('other-commodities-list').innerHTML = rows;
+            document.getElementById('total-loan').innerHTML =
+                `Total Loan Value: <strong>₦${finalLoan.toLocaleString()}</strong>`;
+            document.getElementById('equity-held').innerHTML = `Equity Held: <strong>₦${equity.toLocaleString()}</strong>`;
+            document.getElementById('disbursed-amount').innerHTML =
+                `Disbursed Amount: <strong>₦${equity.toLocaleString()}</strong>`;
+
+            // Show sections
             document.getElementById('other-commodities-section').classList.remove('hidden');
             document.getElementById('loan-summary').classList.remove('hidden');
             document.getElementById('equity-note').classList.remove('hidden');
-
-            document.querySelectorAll('input[name="selected-seed"]').forEach(input => {
-                input.addEventListener('change', () => {
-                    const qty = parseFloat(input.dataset.qty);
-                    const price = parseFloat(input.dataset.price);
-                    let total = qty * price * farmSize;
-
-                    const othersHTML = data.others.map(item => {
-                        const q = item.qtyPerHectare * farmSize;
-                        const val = q * item.price;
-                        total += val;
-                        return `<tr>
-          <td class="px-4 py-2">${item.name}</td>
-          <td class="px-4 py-2">${q} ${item.unit}</td>
-          <td class="px-4 py-2">₦${item.price.toLocaleString()}</td>
-          <td class="px-4 py-2 font-semibold">₦${val.toLocaleString()}</td>
-        </tr>`;
-                    }).join('');
-
-                    document.getElementById('other-commodities-list').innerHTML = othersHTML;
-                    const insurance = total * 0.01;
-                    const equity = total / 2;
-
-                    document.getElementById('total-loan').innerHTML =
-                        `Total Loan Value: <strong>₦${(total + insurance).toLocaleString()}</strong>`;
-                    document.getElementById('equity-held').innerHTML =
-                        `Equity Held: <strong>₦${equity.toLocaleString()}</strong>`;
-                    document.getElementById('disbursed-amount').innerHTML =
-                        `Disbursed Amount: <strong>₦${equity.toLocaleString()}</strong>`;
-                });
-            });
         }
+
+        // Trigger calculation when farm size changes
+        document.getElementById('farm-size').addEventListener('input', () => {
+            const selected = document.querySelector('input[name="selected-seed"]:checked');
+            if (selected) {
+                const farmSize = parseFloat(document.getElementById('farm-size').value || 0);
+                const seasonId = document.getElementById('season-select').value;
+                renderCommodityBreakdown(commodityData[seasonId], farmSize, selected);
+            }
+        });
 
         function handleSubmission(e) {
             e.preventDefault();
@@ -466,35 +517,47 @@
             }
 
             const data = commodityData[season];
-            const seedData = data.seeds.find(s => s.id === seed.value);
-            const seedQty = seedData.qtyPerHectare * farmSize;
-            const seedVal = seedQty * seedData.price;
+            // const seed = document.querySelector('input[name="selected-seed"]:checked');
+            const seedData = data.seeds.find(s => String(s.id) === seed.value);
+
+            if (!seedData) {
+                alert("Seed information not found. Please re-select the seed.");
+                return;
+            }
+
+            const seedQty = seedData.quantity_per_hectare * farmSize;
+            const seedVal = seedQty * seedData.price_per_unit;
 
             let total = seedVal;
             let rows = `
     <tr>
       <td class="px-4 py-2 border">${seedData.name}</td>
       <td class="px-4 py-2 border">${seedQty} ${seedData.unit}</td>
-      <td class="px-4 py-2 border">₦${seedData.price.toLocaleString()}</td>
+      <td class="px-4 py-2 border">₦${seedData.price_per_unit.toLocaleString()}</td>
       <td class="px-4 py-2 border font-medium">₦${seedVal.toLocaleString()}</td>
     </tr>
   `;
 
             data.others.forEach(item => {
-                const qty = item.qtyPerHectare * farmSize;
-                const val = qty * item.price;
+                const qty = item.quantity_per_hectare * farmSize;
+                const val = qty * item.price_per_unit;
                 total += val;
-                rows += `
-      <tr>
-        <td class="px-4 py-2 border">${item.name}</td>
-        <td class="px-4 py-2 border">${qty} ${item.unit}</td>
-        <td class="px-4 py-2 border">₦${item.price.toLocaleString()}</td>
-        <td class="px-4 py-2 border font-medium">₦${val.toLocaleString()}</td>
-      </tr>
-    `;
-            });
 
-            const insurance = total * 0.01;
+                rows += `
+    <tr>
+      <td class="px-4 py-2 border">${item.name}</td>
+      <td class="px-4 py-2 border">${qty.toFixed(1)} ${item.unit}</td>
+      <td class="px-4 py-2 border">₦${item.price_per_unit.toLocaleString()}</td>
+      <td class="px-4 py-2 border font-medium">₦${val.toLocaleString()}</td>
+    </tr>`;
+            });
+            if (!seedData.price_per_unit || !seedData.quantity_per_hectare) {
+                alert("Invalid seed data. Please refresh the page.");
+                return;
+            }
+
+
+            const insurance = total * (insuranceRate / 100);
             total += insurance;
             const equity = total / 2;
 
@@ -504,6 +567,7 @@
             document.getElementById('summary-equity').textContent = `₦${equity.toLocaleString()}`;
             document.getElementById('summary-disbursed').textContent = `₦${equity.toLocaleString()}`;
             document.getElementById('ref-number').textContent = `NECAS-${Math.floor(Math.random() * 900000 + 100000)}`;
+
             document.getElementById('success-modal').classList.remove('hidden');
             window.scrollTo(0, 0);
             form.reset();
@@ -520,12 +584,12 @@
         // Events
         document.getElementById('season-select').addEventListener('change', renderCommoditiesForSeason);
         document.getElementById('farm-size').addEventListener('input', renderCommoditiesForSeason);
+        // Initial render on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCommoditiesForSeason();
+        });
     </script>
     <script src="{{ asset('js/application.js') }}"></script>
-    {{-- <p class="text-sm text-gray-500 dark:text-gray-400">Available: ${commodity.available} ${commodity.unit}</p>
-                                        <p class="text-xs text-gray-500 dark:text-gray-400">Rate: ${commodity.ratePerHectare} ${commodity.unit} per hectare</p> --}}
-    {{-- // <p class="text-sm font-medium text-gray-900 dark:text-white" id="quantity-${key}">-</p> --}}
-    {{-- // <p class="text-xs text-gray-500 dark:text-gray-400">Calculated quantity</p> --}}
 </body>
 
 </html>
