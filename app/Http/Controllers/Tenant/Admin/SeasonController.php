@@ -17,7 +17,7 @@ class SeasonController extends Controller
      */
     public function index()
     {
-        $seasons = Season::with('commodities')->latest()->get();
+        $seasons = Season::with('commodities')->get();
         return view('admin.seasons.index', compact('seasons'));
     }
 

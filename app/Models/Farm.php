@@ -10,6 +10,7 @@ class Farm extends Model
 {
     use HasFactory;
     protected $fillable = [
+        'uuid',
         'farmer_id',
         'location',
         'size'

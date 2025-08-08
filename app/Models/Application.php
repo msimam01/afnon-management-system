@@ -10,6 +10,7 @@ class Application extends Model
 {
     use HasFactory;
     protected $fillable = [
+        'uuid',
         'farmer_id',
         'farm_id',
         'season_id',
@@ -17,8 +18,34 @@ class Application extends Model
         'insurance_amount',
         'total_loan',
         'equity',
-        'disbursed_amount'
+        'disbursed_amount',
+        'reference_number'
     ];
+
+    public function applicationCommodities()
+    {
+        return $this->hasMany(ApplicationCommodity::class);
+    }
+    // In Application.php model
+    public function commodities()
+    {
+        return $this->belongsToMany(Commodity::class, 'application_commodities')
+            ->withPivot('quantity')
+            ->withTimestamps();
+    }
+    public function farmer()
+    {
+        return $this->belongsTo(Farmer::class);
+    }
+    public function farm()
+    {
+        return $this->belongsTo(Farm::class);
+    }
+    public function season()
+    {
+        return $this->belongsTo(Season::class);
+    }        
+
     protected static function boot()
     {
         parent::boot();

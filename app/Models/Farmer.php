@@ -20,6 +20,12 @@ class Farmer extends Model
         'address',
         'cluster'
     ];
+
+    public function farms()
+    {
+        return $this->hasMany(Farm::class);
+    }
+
     protected static function boot()
     {
         parent::boot();

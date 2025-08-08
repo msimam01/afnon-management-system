@@ -41,107 +41,129 @@ class ApplicationController extends Controller
         $others = $commodities->where('category', '!=', 'seed')->values()->all();
         return view('application.index', compact('season', 'seeds', 'others'));
     }
-    private function generateRegistrationNumber($seasonType, $year)
+    protected function generateRegistrationNumber($seasonType, $year)
     {
-        $count = Farmer::whereYear('created_at', $year)->count() + 1;
-        $prefix = strtoupper($seasonType); // DRY, WET, etc.
-        $serial = str_pad($count, 6, '0', STR_PAD_LEFT);
-
-        return "AF/{$prefix}-{$year}/{$serial}";
+        $tenantPrefix = strtoupper(tenant()->id ?? 'TN');
+        $tenantName = substr($tenantPrefix, 0, 1) . substr($tenantPrefix, -2, length: 1);
+        $lastFarmer = Farmer::whereYear('created_at', $year)->latest()->first();
+        $sequence = $lastFarmer ? intval(substr($lastFarmer->registration_number, -6)) + 1 : 1;
+        return "AF/$tenantName-" . strtoupper($seasonType) . "-$year-" . str_pad($sequence, 6, '0', STR_PAD_LEFT);
     }
+
+    protected function generateReferenceNumber()
+    {
+        $tenantPrefix = strtoupper(tenant()->id ?? 'TN');
+        $tenantName = substr($tenantPrefix, 0, 1) . substr($tenantPrefix, -2, length: 1);
+        return 'REF/' . $tenantName . '-AFNON-' . rand(100000, 999999);
+    }
+
+
 
     public function store(Request $request)
     {
-        $request->validate([
-            'full_name' => 'required|string|max:255',
-            'phone' => 'required|unique:farmers,phone',
-            'nin' => 'required|digits:11|unique:farmers,nin',
-            'bvn' => 'required|digits:11|unique:farmers,bvn',
+        // return $request;
+        $validated = $request->validate([
+            'full_name' => 'required|string',
+            'phone' => 'required|string',
+            'nin' => 'required|string',
+            'bvn' => 'required|string',
             'state' => 'required|string',
             'lga' => 'required|string',
             'address' => 'required|string',
             'farm_location' => 'required|string',
             'farm_size' => 'required|numeric|min:0.1',
+            'cluster_location' => 'nullable|string',
             'season_id' => 'required|exists:seasons,id',
-            'seed_id' => 'required|exists:commodities,id', // assume one seed must be selected
+            'selected_seed' => 'required|exists:commodities,id',
         ]);
+        $phoneExist = Application::where('season_id', $validated['season_id'])->whereHas('farmer', function ($q) use ($validated) {
+            $q->where('phone', $validated['phone']);
+        })->exists();
+
+        $existing = Application::where('season_id', $validated['season_id'])
+            ->whereHas('farmer', function ($q) use ($validated) {
+                $q->where('nin', $validated['nin'])
+                    ->orWhere('bvn', $validated['bvn']);
+            })
+            ->exists();
+
+        if ($phoneExist) {
+            ToastMagic::error('The provided phone number has already been used for this season.');
+            return back()->withErrors([
+                'phone' => 'This phone number has already been used for this season.',
+            ])->withInput();
+        }
+        if ($existing) {
+            ToastMagic::error('The provided NIN or BVN has already been used for this season.');
+            return back()->withErrors([
+                'nin' => 'This NIN has already been used for this season.',
+                'bvn' => 'This BVN has already been used for this season.',
+            ])->withInput();
+        }
+
+
 
         DB::beginTransaction();
 
         try {
-            $season = Season::with('commodities')->findOrFail($request->season_id);
-            $year = \Carbon\Carbon::parse($season->start_date)->year;
-
-            // Generate unique registration number
-            $regNumber = $this->generateRegistrationNumber($season->type ?? 'GEN', $year);
-
-            // Create farmer
+            // Create Farmer
+            $season = Season::findOrFail($validated['season_id']);
+            $registrationNumber = $this->generateRegistrationNumber($season->type, now()->year);
+            // return $registrationNumber;
             $farmer = Farmer::create([
                 'uuid' => Str::uuid(),
-                'registration_number' => $regNumber,
-                'full_name' => $request->full_name,
-                'phone' => $request->phone,
-                'nin' => $request->nin,
-                'bvn' => $request->bvn,
-                'state' => $request->state,
-                'lga' => $request->lga,
-                'address' => $request->address,
-                'cluster' => $request->cluster_location,
+                'registration_number' => $registrationNumber,
+                'full_name' => $validated['full_name'],
+                'phone' => $validated['phone'],
+                'nin' => $validated['nin'],
+                'bvn' => $validated['bvn'],
+                'state' => $validated['state'],
+                'lga' => $validated['lga'],
+                'address' => $validated['address'],
+                'cluster' => $validated['cluster_location'],
             ]);
 
-            // Create farm
-            $farm = Farm::create([
+            // Create Farm
+            $farm = $farmer->farms()->create([
                 'uuid' => Str::uuid(),
-                'farmer_id' => $farmer->id,
-                'location' => $request->farm_location,
-                'size' => $request->farm_size,
+                'location' => $validated['farm_location'],
+                'size' => $validated['farm_size'],
             ]);
 
-            $farmSize = $request->farm_size;
-            $seedId = $request->seed_id;
 
-            $seasonCommodities = $season->commodities;
+            // Reference
+            $refNumber = $this->generateReferenceNumber();
 
-            // Split into seed + other
-            $seed = $seasonCommodities->firstWhere('id', $seedId);
-            if (!$seed) {
-                ToastMagic::error('Selected seed is not valid for this season.');
-                return back()->withErrors(['seed_id' => 'Selected seed is not valid for this season.']);
-            }
+            // Seed Commodity
+            $seed = Commodity::findOrFail($validated['selected_seed']);
+            $seedQty = $seed->quantity_per_hectare * $farm->size;
+            $seedVal = $seedQty * $seed->price_per_unit;
 
-            $otherCommodities = $seasonCommodities->where('id', '!=', $seedId);
+            // Other Commodities
+            $others = Commodity::where('category', '!=', 'seed')
+                ->whereHas('seasons', fn($q) => $q->where('season_id', $season->id))
+                ->get();
 
-            // Commodity Calculations
-            $loanTotal = $seed->price_per_unit;
-            $breakdown = [];
+            $otherTotal = 0;
+            $applicationCommodities = [];
 
-            $breakdown[] = [
-                'commodity_id' => $seed->id,
-                'quantity' => 1,
-                'unit_price' => $seed->price_per_unit,
-                'total' => $seed->price_per_unit,
-            ];
-
-            foreach ($otherCommodities as $item) {
-                $qty = round($item->quantity_per_hectare * $farmSize);
-                $total = $qty * $item->price_per_unit;
-                $loanTotal += $total;
-
-                $breakdown[] = [
+            foreach ($others as $item) {
+                $qty = $item->quantity_per_hectare * $farm->size;
+                $val = $qty * $item->price_per_unit;
+                $otherTotal += $val;
+                $applicationCommodities[] = [
                     'commodity_id' => $item->id,
                     'quantity' => $qty,
-                    'unit_price' => $item->price_per_unit,
-                    'total' => $total,
                 ];
             }
 
-            // Financials
-            $insuranceRate = $season->insurance_rate;
-            $insuranceAmount = ($insuranceRate / 100) * $loanTotal;
-            $equity = 0.5 * $loanTotal;
-            $disbursed = $loanTotal - $equity - $insuranceAmount;
+            $insuranceRate = $season->insurance_rate ?? 1;
+            $totalLoan = $seedVal + $otherTotal;
+            $insuranceAmount = $totalLoan * ($insuranceRate / 100);
+            $finalTotal = $totalLoan + $insuranceAmount;
+            $equity = $finalTotal / 2;
 
-            // Create application
+            // Create Application
             $application = Application::create([
                 'uuid' => Str::uuid(),
                 'farmer_id' => $farmer->id,
@@ -149,44 +171,54 @@ class ApplicationController extends Controller
                 'season_id' => $season->id,
                 'insurance_rate' => $insuranceRate,
                 'insurance_amount' => $insuranceAmount,
-                'total_loan' => $loanTotal,
+                'total_loan' => $finalTotal,
                 'equity' => $equity,
-                'disbursed_amount' => $disbursed,
+                'disbursed_amount' => $equity,
+                'reference_number' => $refNumber,
             ]);
 
-            foreach ($breakdown as $item) {
-                ApplicationCommodity::create([
+            // Attach seed and others
+            $application->applicationCommodities()->create([
+                'uuid' => Str::uuid(),
+                'commodity_id' => $seed->id,
+                'quantity' => $seedQty,
+            ]);
+
+            foreach ($applicationCommodities as $item) {
+                $application->applicationCommodities()->create([
                     'uuid' => Str::uuid(),
-                    'application_id' => $application->id,
                     'commodity_id' => $item['commodity_id'],
                     'quantity' => $item['quantity'],
                 ]);
             }
 
             DB::commit();
-            ToastMagic::success('Application submitted successfully!');
-            return response()->json([
-                'message' => 'Application submitted successfully!',
-                'application_id' => $application->uuid,
-                'registration_number' => $farmer->registration_number,
-            ]);
+            ToastMagic::success('Application submitted successfully.');
+            return redirect()->route('applications.slip', ['uuid' => $application->uuid]);
         } catch (\Throwable $e) {
-            DB::rollBack();
+            DB::rollback();
             report($e);
-            ToastMagic::error('An unexpected error occurred. Please try again.');
-            return back()->withErrors(['error' => 'An unexpected error occurred. Please try again.']);
+            ToastMagic::error('An error occurred. Please try again.');
+            return back()->with('error', 'An error occurred. Please try again.');
         }
     }
+
 
     /**
      * Store a newly created resource in storage.
      */
     public function acknowledgment($uuid)
     {
-        $application = Application::with(['farmer', 'farm', 'season', 'commodities'])->whereUuid($uuid)->firstOrFail();
-        return view('admin.applications.acknowledgment', compact('application'));
+        return $application = Application::with(['farmer', 'farm', 'season', 'commodities'])->whereUuid($uuid)->firstOrFail();
+        return view('application.acknowledgment', compact('application'));
     }
+    // public function downloadPDF($id)
+    // {
+    //     $application = Application::with('commodities')->findOrFail($id);
+    //     $pdf = Pdf::loadView('applications.acknowledgment-pdf', compact('application'));
 
+    //     return $pdf->download("acknowledgment-{$application->reference_number}.pdf");
+    // }
 
 
     /**
