@@ -209,7 +209,7 @@ class ApplicationController extends Controller
      */
     public function acknowledgment($uuid)
     {
-        return $application = Application::with(['farmer', 'farm', 'season', 'commodities'])->whereUuid($uuid)->firstOrFail();
+        $application = Application::with(['farmer', 'farm', 'season', 'commodities'])->whereUuid($uuid)->firstOrFail();
         return view('application.acknowledgment', compact('application'));
     }
     // public function downloadPDF($id)
