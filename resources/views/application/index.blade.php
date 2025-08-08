@@ -271,87 +271,6 @@
         </div>
     </div>
 
-    <!-- Success Modal -->
-    <div id="success-modal"
-        class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 transition-opacity duration-300 ease-out">
-        <div
-            class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white dark:bg-gray-800">
-            <div class="mt-3 text-center">
-                <div
-                    class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 dark:bg-green-900">
-                    <svg class="h-6 w-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
-                        </path>
-                    </svg>
-                </div>
-                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white mt-4">Application Submitted
-                    Successfully!</h3>
-                <div class="mt-2 px-7 py-3">
-                    <p class="text-sm text-gray-500 dark:text-gray-400">
-                        Your application has been received and is being processed. You will receive an SMS notification
-                        shortly.
-                    </p>
-                    <div class="mt-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                        <p class="text-sm font-medium text-gray-900 dark:text-white">Application Reference: <span
-                                id="ref-number"
-                                class="text-emerald-600 dark:text-emerald-400">NECAS-2024-001234</span></p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Keep this reference number for
-                            tracking your application</p>
-
-                        <!-- Commodity Summary Table -->
-                        <div class="mt-4 overflow-x-auto">
-                            <table class="w-full text-sm border-collapse border border-gray-300 dark:border-gray-600">
-                                <thead class="bg-gray-100 dark:bg-gray-700">
-                                    <tr>
-                                        <th class="px-4 py-2 border text-left dark:text-white">Commodity</th>
-                                        <th class="px-4 py-2 border text-left dark:text-white">Quantity</th>
-                                        <th class="px-4 py-2 border text-left dark:text-white">Unit Price</th>
-                                        <th class="px-4 py-2 border text-left dark:text-white">Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="summary-table-body"
-                                    class="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
-                                    <!-- Injected rows -->
-                                </tbody>
-                                <tfoot class="bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white">
-                                    <tr>
-                                        <td colspan="3" class="px-4 py-2 font-semibold">Insurance
-                                            ({{ $season->insurance_rate }}%)</td>
-                                        <td id="summary-insurance" class="px-4 py-2 font-semibold"></td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="3" class="px-4 py-2 font-semibold">Total Loan</td>
-                                        <td id="summary-total" class="px-4 py-2 font-semibold"></td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="3" class="px-4 py-2 font-semibold">Equity Held</td>
-                                        <td id="summary-equity" class="px-4 py-2 font-semibold"></td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="3" class="px-4 py-2 font-semibold">Disbursed Amount</td>
-                                        <td id="summary-disbursed" class="px-4 py-2 font-semibold"></td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="items-center px-4 py-3 space-y-2">
-                    <button onclick="downloadAcknowledgment()"
-                        class="px-4 py-2 bg-emerald-600 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                        Download Acknowledgment Slip
-                    </button>
-                    <button onclick="closeSuccessModal()"
-                        class="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300 text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-400 dark:hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500">
-                        Close
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     @include('layouts.footer')
 
     <script>
@@ -643,5 +562,4 @@
     </script>
     {!! ToastMagic::scripts() !!}
 </body>
-
 </html>
