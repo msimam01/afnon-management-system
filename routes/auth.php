@@ -18,8 +18,7 @@ Route::middleware(['guest', 'block-tenant-access'])->group(function () {
 
     Route::post('register', [RegisteredUserController::class, 'store']);
 
-    Route::get('central/login', [CustomLoginController::class, 'create'])
-        ->name('central.login');
+    Route::get('central/login', [CustomLoginController::class, 'create']);
 
     // Route::post('login', [AuthenticatedSessionController::class, 'store']);
     Route::post('/central/login', [CustomLoginController::class, 'store'])->middleware('guest')->name('central.login');

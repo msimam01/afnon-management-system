@@ -10,10 +10,9 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>North East Commodity Distribution Associations (NECAS)</title>
+    <title>Association of farmers in the northeast of nigeria (AFNON)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-    {!! ToastMagic::styles() !!}
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -34,13 +33,15 @@
     <nav class="bg-white dark:bg-gray-800 shadow border-b border-gray-200 dark:border-gray-700 fixed top-0 w-full z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between h-16 items-center">
             <div class="flex items-center space-x-2">
-                <div class="w-8 h-8 bg-emerald-600 rounded-full flex items-center justify-center">
+                {{-- <div class="w-8 h-8 bg-emerald-600 rounded-full flex items-center justify-center">
                     <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
                     </svg>
+                    <img src="{{ asset('images/afnon-logo.png') }}" class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" alt="AFNON logo">
                 </div>
-                <span class="text-xl font-bold text-gray-900 dark:text-white">AFNON</span>
+                <span class="text-xl font-bold text-gray-900 dark:text-white">AFNON</span> --}}
+                <img src="{{ asset('images/afnon-logo.png') }}" class="h-12 w-full text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" alt="AFNON logo">
             </div>
             <div class="space-x-6 flex items-center">
                 <a href="#about" class="hover:text-emerald-600 font-medium">About</a>
@@ -62,7 +63,6 @@
                         Tenant Login
                     </a>
                 @endif
-                
 
             </div>
         </div>
@@ -76,7 +76,7 @@
                     Empowering Nigerian Farmers
                 </h1>
                 <p class="mt-4 text-lg text-gray-600 dark:text-gray-300 max-w-2xl">
-                    Apply for seasonal agricultural loans through NECAS to grow your productivity and improve food
+                    Apply for seasonal agricultural loans through AFNON to grow your productivity and improve food
                     security.
                 </p>
                 <div class="mt-8 flex flex-col sm:flex-row gap-4">
@@ -179,24 +179,23 @@
         <div class="max-w-4xl mx-auto px-4 text-center">
             <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Contact Us</h2>
             <p class="mt-4 text-gray-600 dark:text-gray-300">Have any questions or need assistance?</p>
-            <p class="mt-2 text-gray-700 dark:text-gray-200">Email: <a href="mailto:support@necas.gov.ng"
-                    class="text-emerald-600 hover:underline">support@necas.gov.ng</a></p>
+            <p class="mt-2 text-gray-700 dark:text-gray-200">Email: <a href="mailto:support@afnon.com.ng"
+                    class="text-emerald-600 hover:underline">support@afnon.com.ng</a></p>
             <p class="mt-1 text-gray-700 dark:text-gray-200">Phone: <a href="tel:+23494615000"
                     class="text-emerald-600 hover:underline">+234 9 461 5000</a></p>
-            <p class="mt-1 text-gray-700 dark:text-gray-200">Website: <a href="https://necas.com.ng" target="_blank"
-                    class="text-emerald-600 hover:underline">www.necas.com.ng</a></p>
+            <p class="mt-1 text-gray-700 dark:text-gray-200">Website: <a href="https://afnon.com.ng" target="_blank"
+                    class="text-emerald-600 hover:underline">www.afnon.com.ng</a></p>
         </div>
     </section>
 
     <!-- Footer -->
     <footer class="bg-gray-900 text-white text-sm py-8">
         <div class="max-w-7xl mx-auto px-4 text-center">
-            <p>© {{ date('Y') }} North East Commodity Distribution Associations (NECAS). All rights reserved.</p>
-            <p class="mt-2">Visit: <a href="https://necas.com.ng"
-                    class="text-emerald-400 hover:underline">necas.com.ng</a></p>
+            <p>© {{ date('Y') }} Association of Farmers In The Northeast of Nigeria (AFNON). All rights reserved.</p>
+            <p class="mt-2">Visit: <a href="https://afnon.com.ng"
+                    class="text-emerald-400 hover:underline">afnon.com.ng</a></p>
         </div>
     </footer>
-    {!! ToastMagic::scripts() !!}
 
 </body>
 

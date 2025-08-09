@@ -67,7 +67,14 @@ Route::middleware([
     Route::get('applications', [ApplicationController::class, 'create'])->name('applications.create');
     Route::post('applications', [ApplicationController::class, 'store'])->name('applications.store');
     Route::get('applications/{uuid}/slip', [ApplicationController::class, 'acknowledgment'])->name('applications.slip');
-    Route::get('/applications/{uuid}/acknowledgment/pdf', [ApplicationController::class, 'downloadPDF'])->name('applications.acknowledgment.pdf');
+    Route::get('/verify/{reference}', [ApplicationController::class, 'verify'])->name('applications.verify');
+    Route::get('/applications/{uuid}/slip/pdf', [ApplicationController::class, 'downloadSlip'])
+        ->name('applications.slip.pdf');
+    Route::get('/verify/{reference}/pdf', [ApplicationController::class, 'downloadVerification'])
+        ->name('applications.verify.pdf');
+    Route::post('/verify-bvn', [ApplicationController::class, 'verifyBVN'])->name('bvn.verify');
+
+
 
     // Farmer routes inside tenant
     Route::middleware(['auth', 'role:farmer'])->prefix('farmer')->name('farmer.')->group(function () {

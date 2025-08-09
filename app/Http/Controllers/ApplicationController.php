@@ -15,6 +15,7 @@ use App\Models\{
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ApplicationController extends Controller
 {
@@ -47,18 +48,15 @@ class ApplicationController extends Controller
         $tenantName = substr($tenantPrefix, 0, 1) . substr($tenantPrefix, -2, length: 1);
         $lastFarmer = Farmer::whereYear('created_at', $year)->latest()->first();
         $sequence = $lastFarmer ? intval(substr($lastFarmer->registration_number, -6)) + 1 : 1;
-        return "AF/$tenantName-" . strtoupper($seasonType) . "-$year-" . str_pad($sequence, 6, '0', STR_PAD_LEFT);
+        return "AF-". $tenantName . '-' . strtoupper($seasonType) . "-$year-" . str_pad($sequence, 6, '0', STR_PAD_LEFT);
     }
 
     protected function generateReferenceNumber()
     {
         $tenantPrefix = strtoupper(tenant()->id ?? 'TN');
         $tenantName = substr($tenantPrefix, 0, 1) . substr($tenantPrefix, -2, length: 1);
-        return 'REF/' . $tenantName . '-AFNON-' . rand(100000, 999999);
+        return 'REF-' . $tenantName . '-AFNON-' . rand(100000, 999999);
     }
-
-
-
     public function store(Request $request)
     {
         // return $request;
@@ -203,7 +201,6 @@ class ApplicationController extends Controller
         }
     }
 
-
     /**
      * Store a newly created resource in storage.
      */
@@ -212,14 +209,44 @@ class ApplicationController extends Controller
         $application = Application::with(['farmer', 'farm', 'season', 'commodities'])->whereUuid($uuid)->firstOrFail();
         return view('application.acknowledgment', compact('application'));
     }
-    // public function downloadPDF($id)
-    // {
-    //     $application = Application::with('commodities')->findOrFail($id);
-    //     $pdf = Pdf::loadView('applications.acknowledgment-pdf', compact('application'));
+    public function verify($reference)
+    {
+        // Find application by reference number
+        $application = Application::where('reference_number', $reference)
+            ->with(['farmer', 'season', 'farm', 'commodities'])
+            ->first();
 
-    //     return $pdf->download("acknowledgment-{$application->reference_number}.pdf");
-    // }
+        if (!$application) {
+            return view('application.verify-not-found', [
+                'reference' => $reference
+            ]);
+        }
 
+        return view('application.verify', compact('application'));
+    }
+
+    public function downloadSlip($uuid)
+    {
+        $application = Application::whereUuid($uuid)->first();
+        $application->load(['farmer', 'season', 'farm', 'commodities']);
+    
+        $pdf = Pdf::loadView('application.slip-pdf', compact('application'))
+            ->setPaper('a4');
+    
+        return $pdf->download('Acknowledgement_Slip_' . $application->reference_number . '.pdf');
+    }
+    
+    public function downloadVerification($reference)
+    {
+        $application = Application::where('reference_number', $reference)
+            ->with(['farmer', 'season', 'farm', 'commodities'])
+            ->firstOrFail();
+    
+        $pdf = Pdf::loadView('application.verify-pdf', compact('application'))
+            ->setPaper('a4');
+    
+        return $pdf->download('Verification_' . $application->reference_number . '.pdf');
+    }
 
     /**
      * Display the specified resource.
