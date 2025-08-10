@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\CenterController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SeasonController;
 use App\Http\Controllers\Admin\UserController;
@@ -11,6 +12,10 @@ use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Agent\DashboardController as AgentDashboard;
 use App\Http\Controllers\Farmer\DashboardController as FarmerDashboard;
+use App\Http\Controllers\Tenant\Admin\Applications\ApplicationApprovalController;
+use App\Http\Controllers\Tenant\Admin\Centers\CollectionCenterController;
+use App\Http\Controllers\Tenant\Admin\Centers\CollectionCenters;
+use App\Http\Controllers\Tenant\Admin\Centers\ReturningCenterController;
 
 // Apply tenancy middleware
 Route::middleware([
@@ -33,7 +38,6 @@ Route::middleware([
     Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
         Route::get('collection/centers', fn() => view('admin.centers'))->name('centers');
-        Route::get('applications', fn() => view('admin.applications'))->name('applications');
         Route::get('agents', fn() => view('admin.agents'))->name('agents');
         Route::prefix('users')->name('users.')->group(function () {
             Route::get('/', [UserController::class, 'index'])->name('index');
@@ -52,6 +56,22 @@ Route::middleware([
             Route::post('/import-bulk', [CommodityController::class, 'importBulk'])->name('importBulk');
             Route::post('/{uuid}/sync', [CommodityController::class, 'sync'])->name('sync');
         });
+        Route::prefix('centers')->name('centers.')->group(function () {
+            Route::get('/', [CollectionCenters::class, 'index'])->name('index');
+            Route::get('/create', [CollectionCenters::class, 'create'])->name('create');
+            Route::post('/', [CollectionCenters::class, 'store'])->name('store');
+            Route::get('/{uuid}/edit', [CollectionCenters::class, 'edit'])->name('edit');
+            Route::put('/{uuid}', [CollectionCenters::class, 'update'])->name('update');
+            Route::delete('/{uuid}', [CollectionCenters::class, 'destroy'])->name('destroy');
+        });
+        Route::prefix('applications')->name('applications.')->group(function () {
+            Route::get('/', [ApplicationController::class, 'index'])->name('index');
+            Route::get('/{uuid}/show', [ApplicationController::class, 'show'])->name('show');
+            Route::put('/{uuid}/approve', [ApplicationController::class, 'approve'])->name('approve');
+            Route::post('/applications/bulk-approve', [ApplicationController::class, 'bulkApprove'])
+                ->name('bulk-approve');
+        });
+
         Route::resource('seasons', \App\Http\Controllers\Tenant\Admin\SeasonController::class);
         Route::get('seasons/{season}/export', [\App\Http\Controllers\Tenant\Admin\SeasonController::class, 'export'])->name('seasons.export');
         Route::put('seasons/{season}/close', [\App\Http\Controllers\Tenant\Admin\SeasonController::class, 'close'])->name('seasons.close');

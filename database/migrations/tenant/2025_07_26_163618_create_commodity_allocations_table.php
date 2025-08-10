@@ -15,12 +15,13 @@ return new class extends Migration
             $table->id();
             $table->uuid('uuid')->unique(); // UUID colum
             $table->foreignId('application_id')->constrained()->onDelete('cascade');
-            $table->foreignId('commodity_id')->constrained()->onDelete('cascade');
-            $table->foreignId('center_id')->nullable()->constrained();
-            $table->integer('allocated_quantity');
-            $table->decimal('unit_price', 10, 2)->nullable(); // For tracking
-            $table->decimal('value', 12, 2)->nullable(); // quantity * price
-            $table->enum('status', ['pending', 'collected'])->default('pending');
+            $table->string('commodity_name');
+            $table->decimal('qty_per_hectare', 10, 2)->default(0);
+            $table->decimal('allocated_quantity', 10, 2)->default(0);
+            $table->decimal('unit_price', 12, 2)->default(0);
+            $table->decimal('total_value', 15, 2)->default(0);
+            $table->string('status')->default('pending'); // pending, collected, returned
+            $table->string('collection_proof')->nullable(); // path to farmer & commodity picture
             $table->timestamp('collected_at')->nullable();
             $table->timestamps();
         });

@@ -21,13 +21,11 @@
             position: fixed;
             top: 35%;
             left: 50%;
-            transform: translate(-50%, -50%);
-            opacity: 0.07;
-            z-index: -1;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 80px;
+            color: rgba(0, 0, 0, 0.05);
             text-align: center;
-        }
-        .watermark img {
-            width: 100%;
+            z-index: -1;
         }
 
         /* Header */
@@ -44,11 +42,11 @@
         .header h1 {
             margin: 8px 0;
             font-size: 22px;
-            color: #fff;
+            color: #065f46;
         }
         .header p {
             font-size: 13px;
-            color: #e0f2f1;
+            color: #065f46;
             margin: 0;
         }
 
@@ -132,7 +130,7 @@
 <body>
     <!-- Watermark -->
     <div class="watermark">
-        <img src="{{ public_path('images/afnon-logo.png') }}" alt="AFNON Logo">
+        AFNON
     </div>
 
     <!-- Header -->

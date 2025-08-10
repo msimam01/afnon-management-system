@@ -20,6 +20,8 @@ class Season extends Model
         'return_deadline',
         'insurance_rate',
         'send_reminder_after_days',
+        'collection_start_date',
+        'collection_end_date',
     ];
 
     protected static function booted()

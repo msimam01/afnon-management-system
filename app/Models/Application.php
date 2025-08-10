@@ -19,7 +19,8 @@ class Application extends Model
         'total_loan',
         'equity',
         'disbursed_amount',
-        'reference_number'
+        'reference_number',
+        'status'
     ];
 
     public function applicationCommodities()

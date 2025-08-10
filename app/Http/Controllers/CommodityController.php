@@ -18,13 +18,7 @@ class CommodityController extends Controller
     {
         $query = Commodity::query();
 
-        if ($request->filled('season_id')) {
-            $query->where('season_id', $request->season_id);
-        }
-
-        if ($request->filled('is_global')) {
-            $query->where('is_global', $request->is_global);
-        }
+        
 
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {

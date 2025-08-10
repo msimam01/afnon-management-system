@@ -8,6 +8,12 @@ use Illuminate\Support\Str;
 class ReturnCenter extends Model
 {
     use HasFactory;
+    protected $fillable = [
+        'name',
+        'state',
+        'lga',
+        'location_details',
+    ];
     protected static function boot()
     {
         parent::boot();
