@@ -34,6 +34,13 @@ class Season extends Model
         return $this->belongsToMany(Commodity::class, 'commodity_seasons')
             ->withTimestamps();
     }
+    // App\Models\Season.php
+
+    public function applications()
+    {
+        return $this->hasMany(Application::class, 'season_id');
+    }
+
 
     public function getRouteKeyName()
     {

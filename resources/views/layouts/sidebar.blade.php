@@ -1,4 +1,4 @@
-<nav id="sidebar" class="bg-white dark:bg-gray-800 shadow-lg w-80 h-screen fixed top-16 left-0 z-30 hidden md:block">
+<nav id="sidebar" class="bg-white dark:bg-gray-800 shadow-lg w-80 h-screen fixed top-16 left-0 z-30 transform -translate-x-full md:translate-x-0 transition-transform duration-300">
     <div class="p-4 overflow-y-auto h-[calc(100vh-4rem)]">
         <ul class="space-y-2">
             @role('super-admin')

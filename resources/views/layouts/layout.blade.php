@@ -99,8 +99,16 @@
     @include('layouts.footer')
     <script src="{{ asset('js/script.js') }}"></script>
     {!! ToastMagic::scripts() !!}
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const mobileMenuButton = document.getElementById('mobileMenuButton');
 
-    
+        mobileMenuButton.addEventListener('click', () => {
+            sidebar.classList.toggle('-translate-x-full');
+        });
+    </script>
+
+
 </body>
 
 </html>

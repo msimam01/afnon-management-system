@@ -44,6 +44,20 @@
                         <x-input-error :messages="$errors->get('end_date')" class="mt-2" />
                     </div>
                     <div>
+                        <label for="collection_start_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Collection Start
+                            Date *</label>
+                        <input type="date" id="collection_start_date" name="collection_start_date" value="{{ old('collection_start_date') }}" required
+                            class="mt-1 w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
+                        <x-input-error :messages="$errors->get('collection_start_date')" class="mt-2" />
+                    </div>
+                    <div>
+                        <label for="collection_end_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Collection End
+                            Date *</label>
+                        <input type="date" id="collection_end_date" name="collection_end_date" value="{{ old('collection_end_date') }}" required
+                            class="mt-1 w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
+                        <x-input-error :messages="$errors->get('collection_end_date')" class="mt-2" />
+                    </div>
+                    <div>
                         <label for="returnDeadline"
                             class="block text-sm font-medium text-gray-700 dark:text-gray-300">Return Deadline
                             *</label>

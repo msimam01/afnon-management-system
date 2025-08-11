@@ -6,6 +6,7 @@ use App\Models\Season;
 use App\Models\Commodity;
 use Illuminate\Http\Request;
 use App\Models\CommoditySeason;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Devrabiul\ToastMagic\Facades\ToastMagic;
 use Illuminate\Validation\ValidationException;
@@ -39,6 +40,8 @@ class SeasonController extends Controller
             'type' => 'required|in:dry,wet', // ✅ validate type
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
+            'collection_start_date' => 'required|date|after:end_date',
+            'collection_end_date' => 'required|date|after:collection_start_date',
             'return_deadline' => 'required|date|after:end_date',
             'budget' => 'nullable|numeric|min:0',
             'insurance_rate' => 'required|numeric|min:0|max:100',
@@ -74,10 +77,49 @@ class SeasonController extends Controller
 
     public function show(Season $season)
     {
-        $commodities = Commodity::all();
-        $selected = $season->commodities()->pluck('commodities.id')->toArray();
-        return view('admin.seasons.show', compact('season', 'commodities', 'selected'));
+        // Application stats
+        $totalApplications = $season->applications()->count();
+        $approvedApplications = $season->applications()->where('status', 'approved')->count();
+        $pendingApplications = $totalApplications - $approvedApplications;
+    
+        // Commodity distribution stats
+        $commodities = DB::table('commodities')
+            ->join('commodity_allocations', 'commodities.name', '=', 'commodity_allocations.commodity_name')
+            ->join('applications', 'commodity_allocations.application_id', '=', 'applications.id')
+            ->where('applications.season_id', $season->id)
+            ->select(
+                'commodities.id',
+                'commodities.name',
+                'commodities.category',
+                'commodities.unit',
+                DB::raw('SUM(commodity_allocations.allocated_quantity) as allocated'),
+                DB::raw('SUM(CASE WHEN commodity_allocations.status = "distributed" THEN commodity_allocations.allocated_quantity ELSE 0 END) as distributed')
+            )
+            ->groupBy('commodities.id', 'commodities.name', 'commodities.category', 'commodities.unit')
+            ->get()
+            ->map(function ($item) {
+                $item->remaining = ($item->allocated ?? 0) - ($item->distributed ?? 0);
+                return $item;
+            });
+    
+        // Totals
+        $totalAllocated = $commodities->sum('allocated');
+        $totalDistributed = $commodities->sum('distributed');
+        $totalRemaining = $commodities->sum('remaining');
+    
+        return view('admin.seasons.show', compact(
+            'season',
+            'commodities',
+            'totalApplications',
+            'approvedApplications',
+            'pendingApplications',
+            'totalAllocated',
+            'totalDistributed',
+            'totalRemaining'
+        ));
     }
+    
+
 
     public function edit(Season $season)
     {
@@ -93,6 +135,8 @@ class SeasonController extends Controller
             'type' => 'required|in:dry,wet',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
+            'collection_start_date' => 'required|date|after:end_date',
+            'collection_end_date' => 'required|date|after:collection_start_date',
             'return_deadline' => 'required|date|after:end_date',
             'budget' => 'nullable|numeric|min:0',
             'insurance_rate' => 'required|numeric|min:0|max:100',

@@ -25,8 +25,10 @@
                             </div>
                             <p class="text-sm text-gray-600 dark:text-gray-400">📅 {{ $season->start_date }} →
                                 {{ $season->end_date }}</p>
-                            <p class="text-sm text-gray-600 dark:text-gray-400">📌 Return Deadline:
-                                {{ $season->return_deadline }}</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">📅 Collection Start/End Date:
+                                {{ $season->collection_start_date }} → {{ $season->collection_start_date }}</p>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">📌 Return Deadline:
+                                        {{ $season->return_deadline }}</p>
                             <p class="text-sm text-gray-600 dark:text-gray-400">💰 Budget:
                                 ₦{{ number_format($season->budget) }}
                             </p>

@@ -42,6 +42,8 @@ class SeasonController extends Controller
             'commodities' => 'required',
             'start_date' => 'required|date',
             'end_date' => 'required|date',
+            'collection_start_date' => 'required|date|after:end_date',
+            'collection_end_date' => 'required|date|after:collection_start_date',
             'return_deadline' => 'required|date',
             'insurance_rate' => 'required|numeric',
             'send_reminder_after_days' => 'required|numeric',
@@ -93,6 +95,8 @@ class SeasonController extends Controller
         $request->validate([
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
+            'collection_start_date' => 'required|date|after:end_date',
+            'collection_end_date' => 'required|date|after:collection_start_date',
             'return_deadline' => 'required|date|after:end_date',
             'insurance_rate' => 'required|numeric|min:0|max:100',
             'send_reminder_after_days' => 'required|integer|min:1',
