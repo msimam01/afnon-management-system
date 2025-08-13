@@ -135,7 +135,7 @@
             </svg>
         </button>
     </div>
-
+    {!! ToastMagic::scripts() !!}
     <script>
         const toggle = document.getElementById('darkModeToggle');
         const html = document.documentElement;

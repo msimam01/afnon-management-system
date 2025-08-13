@@ -1,21 +1,24 @@
 <?php
 
-use App\Http\Controllers\Admin\CenterController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SeasonController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\Admin\CenterController;
 use App\Http\Controllers\MonetaryReturnController;
+use App\Http\Controllers\BVNController;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use App\Http\Controllers\Tenant\Admin\CommodityController;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
+use App\Http\Controllers\Tenant\Admin\Centers\CollectionCenters;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Agent\DashboardController as AgentDashboard;
+use App\Http\Controllers\Tenant\Admin\RolePermissions\RoleController;
 use App\Http\Controllers\Farmer\DashboardController as FarmerDashboard;
-use App\Http\Controllers\Tenant\Admin\Applications\ApplicationApprovalController;
-use App\Http\Controllers\Tenant\Admin\Centers\CollectionCenterController;
-use App\Http\Controllers\Tenant\Admin\Centers\CollectionCenters;
 use App\Http\Controllers\Tenant\Admin\Centers\ReturningCenterController;
+use App\Http\Controllers\Tenant\Admin\Centers\CollectionCenterController;
+use App\Http\Controllers\Tenant\Admin\RolePermissions\PermissionController;
+use App\Http\Controllers\Tenant\Admin\Applications\ApplicationApprovalController;
 
 // Apply tenancy middleware
 Route::middleware([
@@ -33,13 +36,15 @@ Route::middleware([
     // Tenant login routes (you can also keep them in auth.php if reused)
     Route::get('/login', [App\Http\Controllers\Auth\TenantLoginController::class, 'showLoginForm'])->name('tenant.login');
     Route::post('/login', [App\Http\Controllers\Auth\TenantLoginController::class, 'login']);
-    Route::post('/logout', [App\Http\Controllers\Auth\TenantLoginController::class, 'destroy'])->name('tenant.logout');
+    Route::post('/logout', [App\Http\Controllers\Auth\TenantLoginController::class, 'logout'])->name('tenant.logout');
     // Admin routes inside tenant
     Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
         Route::get('collection/centers', fn() => view('admin.centers'))->name('centers');
         Route::get('agents', fn() => view('admin.agents'))->name('agents');
         Route::prefix('users')->name('users.')->group(function () {
+            Route::get('/', [UserController::class, 'index'])->name('index');
+            Route::post('/store', [UserController::class, 'store'])->name('store');
             Route::get('/', [UserController::class, 'index'])->name('index');
         });
         Route::prefix('commodities')->name('commodities.')->group(function () {
@@ -72,6 +77,22 @@ Route::middleware([
                 ->name('bulk-approve');
         });
 
+        Route::prefix('roles')->name('roles.')->group(function () {
+            Route::get('/', [RoleController::class, 'index'])->name('index');
+            Route::get('/create', [RoleController::class, 'create'])->name('create');
+            Route::post('/store', [RoleController::class, 'store'])->name('store');
+            Route::get('/{role}/edit', [RoleController::class, 'edit'])->name('edit');
+            Route::delete('/{role}/delete', [RoleController::class, 'destroy'])->name('destroy');
+        });
+        Route::prefix('permissions')->name('permissions.')->group(function () {
+            Route::get('/', [PermissionController::class, 'index'])->name('index');
+            Route::get('/create', [PermissionController::class, 'create'])->name('create');
+            Route::post('/store', [PermissionController::class, 'store'])->name('store');
+            Route::get('/{permission}/edit', [PermissionController::class, 'edit'])->name('edit');
+            Route::put('/{permission}/update', [PermissionController::class, 'update'])->name('update');
+            Route::delete('/{permission}/delete', [PermissionController::class, 'destroy'])->name('destroy');
+        });
+
         Route::resource('seasons', \App\Http\Controllers\Tenant\Admin\SeasonController::class);
         Route::get('seasons/{season}/export', [\App\Http\Controllers\Tenant\Admin\SeasonController::class, 'export'])->name('seasons.export');
         Route::put('seasons/{season}/close', [\App\Http\Controllers\Tenant\Admin\SeasonController::class, 'close'])->name('seasons.close');
@@ -84,15 +105,18 @@ Route::middleware([
         Route::post('receipts/{id}/verify', [MonetaryReturnController::class, 'verify'])->name('receipts.verify');
         Route::post('receipts/{id}/reject', [MonetaryReturnController::class, 'reject'])->name('receipts.reject');
     });
+
+
     Route::get('applications', [ApplicationController::class, 'create'])->name('applications.create');
-    Route::post('applications', [ApplicationController::class, 'store'])->name('applications.store');
+    Route::post('applications/store', [ApplicationController::class, 'store'])->name('applications.store');
     Route::get('applications/{uuid}/slip', [ApplicationController::class, 'acknowledgment'])->name('applications.slip');
     Route::get('/verify/{reference}', [ApplicationController::class, 'verify'])->name('applications.verify');
     Route::get('/applications/{uuid}/slip/pdf', [ApplicationController::class, 'downloadSlip'])
         ->name('applications.slip.pdf');
     Route::get('/verify/{reference}/pdf', [ApplicationController::class, 'downloadVerification'])
         ->name('applications.verify.pdf');
-    Route::post('/verify-bvn', [ApplicationController::class, 'verifyBVN'])->name('bvn.verify');
+    Route::post('/verify-bvn', [BVNController::class, 'verifyBVN'])
+        ->name('bvn.verify');
 
 
 

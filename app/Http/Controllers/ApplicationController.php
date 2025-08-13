@@ -66,15 +66,30 @@ class ApplicationController extends Controller
      * Show the form for creating a new resource.
      */
     public function create()
-    {
-        $season = Season::where('status', 'open')->latest()->firstOrFail();
-        $commodities = $season->commodities()->get();
+{
+    $season = Season::where('status', 'open')->latest()->first();
 
-        // Split into seeds and others
-        $seeds = $commodities->where('category', 'seed')->values()->all();
-        $others = $commodities->where('category', '!=', 'seed')->values()->all();
-        return view('application.index', compact('season', 'seeds', 'others'));
+    if (!$season) {
+        // If admin is logged in → send them to season creation page
+        if (auth()->check() && auth()->user()->hasRole('admin')) {
+            ToastMagic::error('Please create an open season before accepting applications.');
+            return redirect()
+                ->route('admin.seasons.create');
+        }
+
+        // If public user → show friendly message
+        ToastMagic::error('Applications are not open yet. Please check back later.');
+        return redirect('/');
     }
+
+    $commodities = $season->commodities()->get();
+    $seeds = $commodities->where('category', 'seed')->values()->all();
+    $others = $commodities->where('category', '!=', 'seed')->values()->all();
+
+    return view('application.index', compact('season', 'seeds', 'others'));
+}
+
+
     protected function generateRegistrationNumber($seasonType, $year)
     {
         $tenantPrefix = strtoupper(tenant()->id ?? 'TN');
@@ -131,7 +146,6 @@ class ApplicationController extends Controller
                 'bvn' => 'This BVN has already been used for this season.',
             ])->withInput();
         }
-
 
 
         DB::beginTransaction();

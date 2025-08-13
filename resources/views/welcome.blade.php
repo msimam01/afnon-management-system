@@ -13,6 +13,7 @@
     <title>Association of farmers in the northeast of nigeria (AFNON)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    {!! ToastMagic::styles() !!}
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -41,26 +42,22 @@
                     <img src="{{ asset('images/afnon-logo.png') }}" class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" alt="AFNON logo">
                 </div>
                 <span class="text-xl font-bold text-gray-900 dark:text-white">AFNON</span> --}}
-                <img src="{{ asset('images/afnon-logo.png') }}" class="h-12 w-full text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" alt="AFNON logo">
+                <img src="{{ asset('images/afnon-logo.png') }}" class="h-12 w-full text-white" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24" alt="AFNON logo">
             </div>
             <div class="space-x-6 flex items-center">
                 <a href="#about" class="hover:text-emerald-600 font-medium">About</a>
                 <a href="#how-it-works" class="hover:text-emerald-600 font-medium">How It Works</a>
                 <a href="#eligibility" class="hover:text-emerald-600 font-medium">Eligibility</a>
                 <a href="#contact" class="hover:text-emerald-600 font-medium">Contact</a>
-                <a href="https://necas.com.ng" target="_blank"
-                    class="text-sm font-medium bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700 transition">
-                    Visit Official Site
-                </a>
                 @if ($isCentral)
                     {{-- Central login --}}
                     <a href="{{ route('central.login') }}" class="text-emerald-600 font-semibold hover:underline">
-                        Super Admin Login
+                        Login
                     </a>
                 @else
-                    {{-- Tenant login --}}
                     <a href="{{ url('/login') }}" class="text-emerald-600 font-semibold hover:underline">
-                        Tenant Login
+                        Login
                     </a>
                 @endif
 
@@ -80,14 +77,22 @@
                     security.
                 </p>
                 <div class="mt-8 flex flex-col sm:flex-row gap-4">
-                    <a href="/apply"
-                        class="bg-emerald-600 text-white px-6 py-3 rounded-md hover:bg-emerald-700 text-base font-medium">
-                        Apply Now
-                    </a>
-                    <a href="https://necas.com.ng" target="_blank"
-                        class="border border-emerald-600 text-emerald-600 px-6 py-3 rounded-md hover:bg-emerald-50 text-base font-medium">
-                        Learn More
-                    </a>
+                    @if ($isCentral)
+                        <a href="#about"
+                            class="border border-emerald-600 text-emerald-600 px-6 py-3 rounded-md hover:bg-emerald-50 text-base font-medium">
+                            Learn More
+                        </a>
+                    @else
+                        <a href="{{ route('applications.create') }}"
+                            class="bg-emerald-600 text-white px-6 py-3 rounded-md hover:bg-emerald-700 text-base font-medium">
+                            Apply Now
+                        </a>
+                        <a href="#about"
+                            class="border border-emerald-600 text-emerald-600 px-6 py-3 rounded-md hover:bg-emerald-50 text-base font-medium">
+                            Learn More
+                        </a>
+                    @endif
+
                 </div>
             </div>
             <div class="mt-8 lg:mt-0">
@@ -191,12 +196,13 @@
     <!-- Footer -->
     <footer class="bg-gray-900 text-white text-sm py-8">
         <div class="max-w-7xl mx-auto px-4 text-center">
-            <p>© {{ date('Y') }} Association of Farmers In The Northeast of Nigeria (AFNON). All rights reserved.</p>
+            <p>© {{ date('Y') }} Association of Farmers In The Northeast of Nigeria (AFNON). All rights reserved.
+            </p>
             <p class="mt-2">Visit: <a href="https://afnon.com.ng"
                     class="text-emerald-400 hover:underline">afnon.com.ng</a></p>
         </div>
     </footer>
-
+    {!! ToastMagic::scripts() !!}
 </body>
 
 </html>

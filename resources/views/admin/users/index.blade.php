@@ -6,38 +6,55 @@
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-lg font-medium ... font-semibold text-gray-600 dark:text-gray-300">Manage All Users</h3>
-                <button onclick="openUserModal()" class="bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500">Add New User</button>
+                <button onclick="openUserModal()"
+                    class="bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500">Add
+                    New User</button>
             </div>
 
-            <!-- Tabs -->
-            <div class="border-b mb-4">
-                <nav class="-mb-px flex space-x-8">
-                    <button class="user-tab active px-6 py-3 text-left font-semibold text-gray-600 dark:text-gray-300" data-tab="admins">Admins</button>
-                    <button class="user-tab px-6 py-3 text-left font-semibold text-gray-600 dark:text-gray-300" data-tab="agents">Agents</button>
-                    <button class="user-tab px-6 py-3 text-left font-semibold text-gray-600 dark:text-gray-300" data-tab="farmers">Farmers</button>
-                </nav>
-            </div>
-
-            <!-- Bulk Controls -->
-            <div class="flex mb-4 gap-2 items-center">
-                <button id="bulk-activate" class="px-3 py-1 bg-green-500 text-white rounded">Activate</button>
-                <button id="bulk-deactivate" class="px-3 py-1 bg-yellow-500 text-white rounded">Deactivate</button>
-                <button id="bulk-delete" class="px-3 py-1 bg-red-500 text-white rounded">Delete</button>
-            </div>
-
-            <table id="usersTable" class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800 text-sm" style="width:100%">
+            <table id="usersTable"
+                class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800 text-sm"
+                style="width:100%">
                 <thead class="bg-gray-100 dark:bg-gray-700">
                     <tr>
                         <th><input type="checkbox" id="select-all"></th>
                         <th class="px-6 py-3 text-left font-semibold text-gray-600 dark:text-gray-300">User</th>
+                        <th class="px-6 py-3 text-left font-semibold text-gray-600 dark:text-gray-300">Email</th>
                         <th class="px-6 py-3 text-left font-semibold text-gray-600 dark:text-gray-300">Role</th>
-                        <th class="px-6 py-3 text-left font-semibold text-gray-600 dark:text-gray-300">State</th>
-                        <th class="px-6 py-3 text-left font-semibold text-gray-600 dark:text-gray-300">Status</th>
-                        <th class="px-6 py-3 text-left font-semibold text-gray-600 dark:text-gray-300">Actions</th>
+                        <th class="px-6 py-3 text-left font-semibold text-gray-600 dark:text-gray-300">Action</th>
+                        <th class="px-6 py-3 text-left font-semibold text-gray-600 dark:text-gray-300"></th>
                     </tr>
                 </thead>
-                <tbody>
-                    <!-- populate via server-side or static rows -->
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                    @foreach ($users as $item)
+                        <tr class="px-6 py-4 text-gray-600 dark:text-gray-400">
+                            <td>
+                                <input type="checkbox">
+                            </td>
+                            <td>{{ $item['name'] }}</td>
+                            <td>{{ $item['email'] }}</td>
+                            <td>{{ $item['role'] }}</td>
+                            <!-- Actions -->
+                                    <td class="px-4 py-4">
+                                        <div class="flex items-center space-x-2">
+                                            <a href=""
+                                                class="text-blue-600 dark:text-blue-400 hover:underline text-xs">Edit</a>
+
+
+                                            <form action=""
+                                                method="post">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit"
+                                                    class="text-red-600 dark:text-red-400 hover:underline text-xs">Delete</button>
+                                            </form>
+
+
+
+                                        </div>
+                                    </td>
+                            <td></td>
+                        </tr>
+                    @endforeach
                 </tbody>
             </table>
         </div>
@@ -51,24 +68,27 @@
                 <h3 class="text-lg font-medium text-gray-900 dark:text-white">Add New User</h3>
                 <button onclick="closeUserModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400">✕</button>
             </div>
-            <form class="space-y-4">
+            <form class="space-y-4" method="POST" action="{{ route('admin.users.store') }}">
+                @csrf
                 <div>
                     <label class="block text-sm text-gray-700 dark:text-gray-300">Full Name</label>
-                    <input type="text"
+                    <input type="text" name="name"
                         class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2">
+                    <x-input-error :messages="$errors->get('name')" class="mt-1" />
                 </div>
                 <div>
                     <label class="block text-sm text-gray-700 dark:text-gray-300">Email</label>
-                    <input type="email"
+                    <input type="email" name="email"
                         class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2">
+                    <x-input-error :messages="$errors->get('email')" class="mt-1" />
                 </div>
                 <div>
                     <label class="block text-sm text-gray-700 dark:text-gray-300">Role</label>
-                    <select
+                    <select name="role"
                         class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2">
-                        <option>Admin</option>
-                        <option>Agent</option>
-                        <option>Farmer</option>
+                        @foreach ($roles as $item)
+                            <option value="{{ $item->name }}">{{ $item->name }}</option>
+                        @endforeach
                     </select>
                 </div>
                 <div class="flex justify-end">

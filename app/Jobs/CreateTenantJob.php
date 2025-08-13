@@ -38,8 +38,8 @@ class CreateTenantJob implements ShouldQueue
             Log::info("🔐 Initialized tenant context for {$this->tenant->id}");
 
             // Ensure role exists before assignment
-            if (!\Spatie\Permission\Models\Role::where('name', 'admin')->exists()) {
-                \Spatie\Permission\Models\Role::create(['name' => 'admin']);
+            if (!Role::where('name', 'admin')->exists()) {
+                Role::create(['name' => 'admin', 'tenant_id' => tenant('id')]);
                 Log::info("🔐 Initialized tenant context for {$this->tenant->id}");
             }
 

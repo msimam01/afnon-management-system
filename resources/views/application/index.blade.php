@@ -60,15 +60,13 @@
                             </path>
                         </svg>
                     </button>
-                    <a href="/central/login" class="text-emerald-600 hover:text-emerald-500 font-medium">Back to
-                        Login</a>
                 </div>
             </div>
         </div>
     </nav>
 
     <div class="max-w-6xl mt-9 mx-auto py-10 px-4 sm:px-8 lg:px-10">
-        <div class="text-center mb-10">
+        <div class="text-center mt-5 mb-10">
             <h1 class="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white">
                 Apply for Seasonal Loan
             </h1>
@@ -122,17 +120,17 @@
                         <div>
                             <label class="text-sm font-medium text-gray-700 dark:text-gray-300">BVN *</label>
                             <input type="text" id="bvn-input" name="bvn" maxlength="11" required
-                                pattern="[0-9]{11}" onchange="validateBVN()" value="{{ old('bvn') }}"
+                                pattern="[0-9]{11}" value="{{ old('bvn') }}"
                                 class="w-full px-4 py-2 mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+
                             <x-input-error :messages="$errors->get('bvn')" class="mt-1" />
-                            <div id="bvn-status" class="mt-1 text-sm hidden text-yellow-600 dark:text-yellow-400">
-                            </div>
+                            <div id="bvn-status" class="mt-1 text-sm hidden"></div>
                         </div>
                         <div>
                             <label class="text-sm font-medium text-gray-700 dark:text-gray-300">State *</label>
                             <select name="state" id="state" onchange="selectLGA(this)" required
                                 class="w-full px-4 py-2 mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                                <option value="">Select State</option>
+                                <option value="{{ old('state') }}">Select State</option>
                             </select>
                             <x-input-error :messages="$errors->get('state')" class="mt-1" />
                         </div>
@@ -140,7 +138,7 @@
                             <label class="text-sm font-medium text-gray-700 dark:text-gray-300">LGA *</label>
                             <select name="lga" id="lga" required
                                 class="w-full px-4 py-2 mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                                <option value="">Select LGA</option>
+                                <option value="{{ old('lga') }}">Select LGA</option>
                             </select>
                             <x-input-error :messages="$errors->get('lga')" class="mt-1" />
                         </div>
@@ -169,7 +167,7 @@
                             <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Farm Size (Hectares)
                                 *</label>
                             <input type="number" name="farm_size" id="farm-size" step="0.1" min="0.1"
-                                required value="{{ old('number') }}"
+                                required value="{{ old('farm_size') }}"
                                 class="w-full px-4 py-2 mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
                                 placeholder="e.g. 2.5" />
                             <x-input-error :messages="$errors->get('farm_size')" class="mt-1" />
@@ -285,7 +283,8 @@
                 localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
             });
         }
-
+        const bvnInput = document.getElementById('bvn-input');
+        const bvnStatus = document.getElementById('bvn-status');
         //Fetch all States
         fetch('https://nga-states-lga.onrender.com/fetch')
             .then((res) => res.json())
@@ -321,19 +320,52 @@
                 });
         }
 
-        function validateBVN() {
-            const bvn = document.getElementById('bvn-input').value;
-            const status = document.getElementById('bvn-status');
+        bvnInput.addEventListener('input', function() {
+            let bvn = this.value;
             if (bvn.length === 11) {
-                status.classList.remove('hidden');
-                setTimeout(() => {
-                    status.innerHTML =
-                        `<span class="text-green-600 dark:text-green-400">✅ BVN verified successfully</span>`;
-                }, 2000);
+                bvnStatus.classList.remove('hidden');
+                bvnStatus.innerHTML = `<span class="text-yellow-600">⏳ Verifying BVN...</span>`;
+
+                fetch("{{ route('bvn.verify') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            bvn: bvn
+                        })
+                    })
+                    .then(async res => {
+                        let data;
+                        try {
+                            data = await res.json();
+                        } catch (e) {
+                            throw new Error("Invalid JSON response");
+                        }
+
+                        if (!res.ok) {
+                            throw new Error(data.message || "Verification request failed");
+                        }
+
+                        return data;
+                    })
+                    .then(data => {
+                        if (data.status) {
+                            bvnStatus.innerHTML = `<span class="text-green-600">${data.message}</span>`;
+                        } else {
+                            bvnStatus.innerHTML = `<span class="text-red-600">❌ ${data.message}</span>`;
+                        }
+                    })
+                    .catch(err => {
+                        bvnStatus.innerHTML =
+                            `<span class="text-red-600">❌ ${'Could not verify BVN. Please try again.'}</span>`;
+                    });
+
             } else {
-                status.classList.add('hidden');
+                bvnStatus.classList.add('hidden');
             }
-        }
+        });
 
         const commodityData = {
             "{{ $season->id }}": {
@@ -562,4 +594,5 @@
     </script>
     {!! ToastMagic::scripts() !!}
 </body>
+
 </html>
