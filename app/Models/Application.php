@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Support\Str;
+use App\Models\ApplicationCenter;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -45,8 +46,15 @@ class Application extends Model
     public function season()
     {
         return $this->belongsTo(Season::class);
-    }        
+    }
+    public function commodity_allocations()
+    {
+        return $this->hasMany(CommodityAllocation::class);
+    }
 
+    public function applicationCenter() {
+        return $this->hasOne(ApplicationCenter::class);
+    }
     protected static function boot()
     {
         parent::boot();

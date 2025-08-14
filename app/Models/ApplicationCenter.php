@@ -16,4 +16,16 @@ class ApplicationCenter extends Model
         'collection_date',
         'return_date',
     ];
+
+    public function application() {
+        return $this->belongsTo(Application::class);
+    }
+
+    public function collectionCenter() {
+        return $this->belongsTo(Center::class, 'collection_center_id');
+    }
+
+    public function returnCenter() {
+        return $this->belongsTo(Center::class, 'return_center_id');
+    }
 }

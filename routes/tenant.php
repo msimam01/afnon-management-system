@@ -8,7 +8,9 @@ use App\Http\Controllers\SeasonController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\Admin\CenterController;
+use App\Http\Controllers\AgentDashboardController;
 use App\Http\Controllers\MonetaryReturnController;
+use App\Http\Controllers\AgentCollectionController;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use App\Http\Controllers\Tenant\Admin\CommodityController;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
@@ -141,11 +143,15 @@ Route::middleware([
         // Add more farmer routes here
     });
 
-    // Agent routes inside tenant
+
+
     Route::middleware(['auth', 'role:agent'])->prefix('agent')->name('agent.')->group(function () {
-        Route::get('/dashboard', [AgentDashboard::class, 'index'])->name('dashboard');
-        // Add more agent routes here
+        Route::get('dashboard', [AgentDashboardController::class, 'index'])->name('dashboard');
+
+        Route::get('verify-collection', [AgentCollectionController::class, 'verify'])->name('verify.collection');
+        Route::post('verify-collection-submit', [AgentCollectionController::class, 'verifyCollection'])->name('verify.collection.submit');
     });
+
 
     // Additional tenant-specific routes...
 });

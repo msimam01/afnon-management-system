@@ -25,7 +25,11 @@ class Farmer extends Model
     {
         return $this->hasMany(Farm::class);
     }
-
+    // Farmer.php
+    public function center() {
+        return $this->belongsTo(Center::class);
+    }
+    
     protected static function boot()
     {
         parent::boot();

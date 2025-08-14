@@ -18,6 +18,12 @@ class CommodityAllocation extends Model
         'total_value',
         'status',
     ];
+
+    public function application()
+    {
+        return $this->belongsTo(Application::class);
+    }
+
     protected static function boot()
     {
         parent::boot();

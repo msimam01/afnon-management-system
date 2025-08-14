@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Devrabiul\ToastMagic\Facades\ToastMagic;
 
@@ -28,13 +28,13 @@ class TenantLoginController extends Controller
             if ($user->hasRole('admin')) {
                 return redirect()->route('admin.dashboard');
             } elseif ($user->hasRole('agent')) {
-                return redirect()->route('agent.dashboard');
-            } elseif ($user->hasRole('farmer')) {
-                return redirect()->route('farmer.dashboard');
+                return redirect()->route('agent.dashboard'); // Only assigned agent view
             } else {
                 Auth::logout();
+                ToastMagic::error('Unauthorized role');
                 return redirect()->route('tenant.login')->withErrors(['access' => 'Unauthorized role.']);
             }
+            
         }
         ToastMagic::error('The provided credentials are incorrect.');
         return back()->withErrors([
