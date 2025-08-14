@@ -42,10 +42,12 @@ Route::middleware([
         Route::get('dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
         Route::get('collection/centers', fn() => view('admin.centers'))->name('centers');
         Route::get('agents', fn() => view('admin.agents'))->name('agents');
+
         Route::prefix('users')->name('users.')->group(function () {
             Route::get('/', [UserController::class, 'index'])->name('index');
             Route::post('/store', [UserController::class, 'store'])->name('store');
-            Route::get('/', [UserController::class, 'index'])->name('index');
+            Route::get('/{uuid}/edit', [UserController::class, 'edit'])->name('edit');
+            Route::put('/{uuid}/update', [UserController::class, 'update'])->name('update');
         });
         Route::prefix('commodities')->name('commodities.')->group(function () {
             Route::get('/', [CommodityController::class, 'index'])->name('index');
@@ -83,6 +85,11 @@ Route::middleware([
             Route::post('/store', [RoleController::class, 'store'])->name('store');
             Route::get('/{role}/edit', [RoleController::class, 'edit'])->name('edit');
             Route::delete('/{role}/delete', [RoleController::class, 'destroy'])->name('destroy');
+            Route::put('/{role}/update', [RoleController::class, 'update'])->name('update');
+            Route::post('/{role}/permissions', [RoleController::class, 'togglePermission'])
+                ->name('toggle-permission'); // (group already has name('roles.'))
+
+
         });
         Route::prefix('permissions')->name('permissions.')->group(function () {
             Route::get('/', [PermissionController::class, 'index'])->name('index');

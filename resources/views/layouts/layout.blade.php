@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>{{ config('app.name', 'AFNON') }}</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
     {{-- <link rel="stylesheet" href="{{asset('css/style.css')}}"> --}}
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -91,80 +90,85 @@
 
 <body class="bg-gray-50 dark:bg-gray-900 font-sans transition-colors duration-200">
     <nav
-    class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 fixed top-0 left-0 right-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center py-4">
-            <div class="flex items-center">
-                <!-- Mobile menu button -->
-                <button id="mobileMenuButton"
-                    class="md:hidden mr-3 p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600">
-                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                </button>
+        class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 fixed top-0 left-0 right-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center">
+                    <!-- Mobile menu button -->
+                    <button id="mobileMenuButton"
+                        class="md:hidden mr-3 p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
 
-                <div class="h-8 w-full flex items-center justify-center">
-                    {{-- <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="h-8 w-full flex items-center justify-center">
+                        {{-- <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
                         </svg> --}}
-                    {{-- <h1 class="ml-3 text-xl font-bold text-gray-900 dark:text-white">AFNON</h1> --}}
-                    <img src="{{ asset('images/afnon-logo.png') }}" class="h-12 w-full text-white" fill="none"
-                        stroke="currentColor" viewBox="0 0 24 24" alt="AFNON logo">
+                        {{-- <h1 class="ml-3 text-xl font-bold text-gray-900 dark:text-white">AFNON</h1> --}}
+                        <img src="{{ asset('images/afnon-logo.png') }}" class="h-12 w-full text-white" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24" alt="AFNON logo">
+                    </div>
                 </div>
-            </div>
-            <div class="flex items-center space-x-4">
-                <div class="hidden md:block">
-                    <span class="text-sm text-gray-500 dark:text-gray-400">Welcome, </span>
-                    <span class="text-sm font-medium text-gray-900 dark:text-white">John Doe</span>
-                </div>
-                <!-- Profile Settings -->
-                <div class="relative">
-                    <button id="profileDropdown"
-                        class="flex items-center space-x-2 p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-                        <div class="h-6 w-6 bg-emerald-600 rounded-full flex items-center justify-center">
-                            <span class="text-xs text-white font-medium">JD</span>
+                <div class="flex items-center space-x-4">
+                    <div class="hidden md:block">
+                        <span class="text-sm text-gray-500 dark:text-gray-400">Welcome, </span>
+                        <span class="text-sm font-medium text-gray-900 dark:text-white">{{ Auth::user()->name }}</span>
+                    </div>
+                    <!-- Profile Settings -->
+                    <div class="relative">
+                        <button id="profileDropdown"
+                            class="flex items-center space-x-2 p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                            <div class="h-6 w-6 bg-emerald-600 rounded-full flex items-center justify-center">
+                                <span class="text-xs text-white font-medium">
+                                        {{ strtoupper(substr(Auth::user()->name, 0, 2)) }}
+                                </span>
+                            </div>
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7">
+                                </path>
+                            </svg>
+                        </button>
+                        <div id="profileMenu"
+                            class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 border border-gray-200 dark:border-gray-700">
+                            <a href="profile-settings.html"
+                                class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Profile
+                                Settings</a>
+                            <form action="{{ route('tenant.logout') }}" method="post">
+                                @csrf
+                                <button type="submit"
+                                    class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Logout</button>
+                            </form>
+                            {{-- <a href="{{ url('logout') }}"
+                            class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Logout</a> --}}
                         </div>
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
+                    </div>
+                    <!-- Dark Mode Toggle -->
+                    <button id="darkModeToggle"
+                        class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                        <svg id="sunIcon" class="h-5 w-5 hidden dark:block" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z">
+                            </path>
+                        </svg>
+                        <svg id="moonIcon" class="h-5 w-5 block dark:hidden" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z">
                             </path>
                         </svg>
                     </button>
-                    <div id="profileMenu"
-                        class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 border border-gray-200 dark:border-gray-700">
-                        <a href="profile-settings.html"
-                            class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Profile
-                            Settings</a>
-                        <form action="{{ route('tenant.logout') }}" method="post">
-                                @csrf
-                                <button type="submit" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Logout</button>
-                            </form>
-                        {{-- <a href="{{ url('logout') }}"
-                            class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Logout</a> --}}
-                    </div>
                 </div>
-                <!-- Dark Mode Toggle -->
-                <button id="darkModeToggle"
-                    class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-                    <svg id="sunIcon" class="h-5 w-5 hidden dark:block" fill="none" stroke="currentColor"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z">
-                        </path>
-                    </svg>
-                    <svg id="moonIcon" class="h-5 w-5 block dark:hidden" fill="none" stroke="currentColor"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z">
-                        </path>
-                    </svg>
-                </button>
             </div>
         </div>
-    </div>
-</nav>
+    </nav>
     <div class="flex pt-16">
-        <nav id="sidebar" class="bg-white dark:bg-gray-800 shadow-lg w-80 h-screen fixed top-16 left-0 z-30 transform -translate-x-full md:translate-x-0 transition-transform duration-300">
+        <nav id="sidebar"
+            class="bg-white dark:bg-gray-800 shadow-lg w-80 h-screen fixed top-16 left-0 z-30 transform -translate-x-full md:translate-x-0 transition-transform duration-300">
             <div class="p-4 overflow-y-auto h-[calc(100vh-4rem)]">
                 <ul class="space-y-2">
                     @role('super-admin')
@@ -336,13 +340,14 @@
                                 class="{{ Route::is('admin.centers.index') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
                                 <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                                        d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z">
+                                    </path>
                                 </svg>
-                                Centers
+                                Manage Centers
                             </a>
                         </li>
                         <li>
-                            <a href="{{route('admin.roles.index')}}"
+                            <a href="{{ route('admin.roles.index') }}"
                                 class="{{ Route::is('admin.roles.index') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
                                 <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -351,42 +356,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                 </svg>
-                                Roles
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{route('admin.permissions.index')}}"
-                                class="{{ Route::is('admin.permissions.index') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
-                                <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
-                                    </path>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                </svg>
-                                Permissions
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ route('admin.farmers') }}"
-                                class="{{ Route::is('admin.farmers') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
-                                <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z">
-                                    </path>
-                                </svg>
-                                Farmers
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ route('admin.agents') }}"
-                                class="{{ Route::is('admin.agents') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
-                                <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
-                                    </path>
-                                </svg>
-                                Agents
+                                Roles & Permissions
                             </a>
                         </li>
                         <li>
@@ -409,17 +379,6 @@
                                     </path>
                                 </svg>
                                 Monetary Return Verification
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ route('admin.centers') }}"
-                                class="{{ Route::is('admin.centers') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
-                                <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z">
-                                    </path>
-                                </svg>
-                                Manage Centers
                             </a>
                         </li>
                         <li>
@@ -446,7 +405,7 @@
                                 Dashboard
                             </a>
                         </li>
-                        <li>
+                        {{-- <li>
                             <a href="{{ route('agent.search') }}"
                                 class="{{ Route::is('agent.search') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
                                 <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -477,9 +436,9 @@
                                 </svg>
                                 Verify Return
                             </a>
-                        </li>
+                        </li> --}}
                     @endrole
-        
+
                 </ul>
             </div>
         </nav>
@@ -500,5 +459,7 @@
     </script>
 
 
+
 </body>
+
 </html>

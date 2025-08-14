@@ -34,24 +34,25 @@
                             <td>{{ $item['email'] }}</td>
                             <td>{{ $item['role'] }}</td>
                             <!-- Actions -->
-                                    <td class="px-4 py-4">
-                                        <div class="flex items-center space-x-2">
-                                            <a href=""
-                                                class="text-blue-600 dark:text-blue-400 hover:underline text-xs">Edit</a>
+                            <td class="px-4 py-4">
+                                <div class="flex items-center space-x-2">
+                                    <a href="javascript:void(0)"
+                                        class="edit-user-btn text-blue-600 dark:text-blue-400 hover:underline text-xs"
+                                        data-user-id="{{ $item['uuid'] ?? $item['id'] }}">
+                                        Edit
+                                    </a>
+
+                                    <form action="" method="post">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit"
+                                            class="text-red-600 dark:text-red-400 hover:underline text-xs">Delete</button>
+                                    </form>
 
 
-                                            <form action=""
-                                                method="post">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit"
-                                                    class="text-red-600 dark:text-red-400 hover:underline text-xs">Delete</button>
-                                            </form>
 
-
-
-                                        </div>
-                                    </td>
+                                </div>
+                            </td>
                             <td></td>
                         </tr>
                     @endforeach
@@ -59,8 +60,6 @@
             </table>
         </div>
     </div>
-
-
     <!-- User Modal -->
     <div id="userModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
         <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-lg w-full max-w-lg">
@@ -70,57 +69,143 @@
             </div>
             <form class="space-y-4" method="POST" action="{{ route('admin.users.store') }}">
                 @csrf
-                <div>
-                    <label class="block text-sm text-gray-700 dark:text-gray-300">Full Name</label>
-                    <input type="text" name="name"
-                        class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2">
-                    <x-input-error :messages="$errors->get('name')" class="mt-1" />
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm text-gray-700 dark:text-gray-300">Full Name</label>
+                        <input type="text" name="name"
+                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2">
+                        <x-input-error :messages="$errors->get('name')" class="mt-1" />
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-700 dark:text-gray-300">Email</label>
+                        <input type="email" name="email"
+                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2">
+                        <x-input-error :messages="$errors->get('email')" class="mt-1" />
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-700 dark:text-gray-300">Roles</label>
+                        <select name="roles[]" multiple
+                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2">
+                            @foreach ($roles as $item)
+                                <option value="{{ $item->name }}">{{ $item->name }}</option>
+                            @endforeach
+                        </select>
+                        <small class="text-gray-500">Hold Ctrl (Cmd on Mac) to select multiple</small>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm text-gray-700 dark:text-gray-300">Permissions</label>
+                        <select name="permissions[]" multiple
+                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2">
+                            @foreach (\Spatie\Permission\Models\Permission::all() as $permission)
+                                <option value="{{ $permission->name }}">{{ $permission->name }}</option>
+                            @endforeach
+                        </select>
+                        <small class="text-gray-500">Optional: Assign permissions directly to this user</small>
+                        <div class="flex justify-end">
+                            <button type="submit"
+                                class="bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700">Save</button>
+                        </div>
+                    </div>
+
                 </div>
-                <div>
-                    <label class="block text-sm text-gray-700 dark:text-gray-300">Email</label>
-                    <input type="email" name="email"
-                        class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2">
-                    <x-input-error :messages="$errors->get('email')" class="mt-1" />
+
+            </form>
+        </div>
+    </div>
+    <div id="editUserModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-lg w-full max-w-lg">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Edit User</h3>
+                <button onclick="closeEditUserModal()"
+                    class="text-gray-500 hover:text-gray-700 dark:text-gray-400">✕</button>
+            </div>
+            <form id="editUserForm" method="POST">
+                @csrf
+                @method('PUT')
+
+                <input type="hidden" name="user_id" id="edit_user_id">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm text-gray-700 dark:text-gray-300">Full Name</label>
+                        <input type="text" name="name" id="edit_name"
+                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm text-gray-700 dark:text-gray-300">Email</label>
+                        <input type="email" name="email" id="edit_email"
+                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm text-gray-700 dark:text-gray-300">Roles</label>
+                        <select name="roles[]" id="edit_roles" multiple
+                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2"></select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm text-gray-700 dark:text-gray-300">Permissions</label>
+                        <select name="permissions[]" id="edit_permissions" multiple
+                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2"></select>
+                    </div>
+
                 </div>
-                <div>
-                    <label class="block text-sm text-gray-700 dark:text-gray-300">Role</label>
-                    <select name="role"
-                        class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2">
-                        @foreach ($roles as $item)
-                            <option value="{{ $item->name }}">{{ $item->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="flex justify-end">
+                <div class="flex justify-end mt-4">
                     <button type="submit"
-                        class="bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700">Save</button>
+                        class="bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700">Update</button>
                 </div>
             </form>
         </div>
     </div>
+
     <script>
+        function openEditUserModal(uuid) {
+            fetch(`/admin/users/${uuid}/edit`)
+                .then(response => response.json())
+                .then(data => {
+                    // Fill form fields
+                    document.getElementById('edit_user_id').value = data.user.id;
+                    document.getElementById('edit_name').value = data.user.name;
+                    document.getElementById('edit_email').value = data.user.email;
+
+                    // Roles
+                    const rolesSelect = document.getElementById('edit_roles');
+                    rolesSelect.innerHTML = '';
+                    data.all_roles.forEach(role => {
+                        const option = document.createElement('option');
+                        option.value = role;
+                        option.text = role;
+                        if (data.user.roles.includes(role)) option.selected = true;
+                        rolesSelect.appendChild(option);
+                    });
+
+                    // Permissions
+                    const permsSelect = document.getElementById('edit_permissions');
+                    permsSelect.innerHTML = '';
+                    data.all_permissions.forEach(perm => {
+                        const option = document.createElement('option');
+                        option.value = perm;
+                        option.text = perm;
+                        if (data.user.permissions.includes(perm)) option.selected = true;
+                        permsSelect.appendChild(option);
+                    });
+
+                    // Set form action
+                    document.getElementById('editUserForm').action = `/admin/users/${uuid}/update`;
+
+                    // Show modal
+                    document.getElementById('editUserModal').classList.remove('hidden');
+                });
+        }
+
+        function closeEditUserModal() {
+            document.getElementById('editUserModal').classList.add('hidden');
+        }
         $(document).ready(function() {
             const table = $('#usersTable').DataTable({
                 dom: 'Bfrtip',
-                buttons: [{
-                        extend: 'csvHtml5',
-                        text: 'Export CSV',
-                        exportOptions: {
-                            modifier: {
-                                selected: true
-                            }
-                        }
-                    },
-                    {
-                        extend: 'excelHtml5',
-                        text: 'Export Excel',
-                        exportOptions: {
-                            modifier: {
-                                selected: true
-                            }
-                        }
-                    }
-                ],
+                
                 select: {
                     style: 'multi',
                     selector: 'td:first-child input'
@@ -181,6 +266,12 @@
                 const role = $(this).data('tab');
                 table.column(2).search(role).draw();
             });
+            // Handle Edit button clicks via data-id
+            $(document).on('click', '.edit-user-btn', function() {
+                const userId = $(this).data('user-id');
+                openEditUserModal(userId);
+            });
+
         });
     </script>
 @endsection

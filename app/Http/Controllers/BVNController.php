@@ -65,7 +65,7 @@ class BVNController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Server error: ' . $th->getMessage()
+                'message' => 'Server error: Connection timeout, check your internet connection'
             ], 500);
         }
     }

@@ -66,28 +66,28 @@ class ApplicationController extends Controller
      * Show the form for creating a new resource.
      */
     public function create()
-{
-    $season = Season::where('status', 'open')->latest()->first();
+    {
+        $season = Season::where('status', 'open')->latest()->first();
 
-    if (!$season) {
-        // If admin is logged in → send them to season creation page
-        if (auth()->check() && auth()->user()->hasRole('admin')) {
-            ToastMagic::error('Please create an open season before accepting applications.');
-            return redirect()
-                ->route('admin.seasons.create');
+        if (!$season) {
+            // If admin is logged in → send them to season creation page
+            if (auth()->check() && auth()->user()->hasRole('admin')) {
+                ToastMagic::error('Please create an open season before accepting applications.');
+                return redirect()
+                    ->route('admin.seasons.create');
+            }
+
+            // If public user → show friendly message
+            ToastMagic::error('Applications are not open yet. Please check back later.');
+            return redirect('/');
         }
 
-        // If public user → show friendly message
-        ToastMagic::error('Applications are not open yet. Please check back later.');
-        return redirect('/');
+        $commodities = $season->commodities()->get();
+        $seeds = $commodities->where('category', 'seed')->values()->all();
+        $others = $commodities->where('category', '!=', 'seed')->values()->all();
+
+        return view('application.index', compact('season', 'seeds', 'others'));
     }
-
-    $commodities = $season->commodities()->get();
-    $seeds = $commodities->where('category', 'seed')->values()->all();
-    $others = $commodities->where('category', '!=', 'seed')->values()->all();
-
-    return view('application.index', compact('season', 'seeds', 'others'));
-}
 
 
     protected function generateRegistrationNumber($seasonType, $year)
@@ -336,6 +336,11 @@ class ApplicationController extends Controller
 
     public function approve(Request $request, $uuid)
     {
+        // Check if at least one center exists
+        if (Center::count() === 0) {
+            ToastMagic::error('No centers have been created yet. Please create a collection/return center before approving applications.');
+            return back();
+        }
         $application = Application::whereUuid($uuid)->first();
         $request->validate([
             'collection_center_id' => 'nullable|exists:centers,id',
@@ -447,6 +452,11 @@ Return Date: {$returnDate} at {$returnCenterName}.";
 
     public function bulkApprove(Request $request)
     {
+        // Check if at least one center exists
+        if (Center::count() === 0) {
+            ToastMagic::error('No centers have been created yet. Please create a collection/return center before bulk approval.');
+            return back();
+        }
         $request->validate([
             'application_ids' => 'required|array',
             'collection_center_id' => 'nullable|exists:centers,id',

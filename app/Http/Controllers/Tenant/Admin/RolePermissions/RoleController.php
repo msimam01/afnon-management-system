@@ -6,18 +6,73 @@ use App\Models\Admin\Role;
 use Illuminate\Http\Request;
 use App\Models\Admin\Permission;
 use App\Http\Controllers\Controller;
+use Devrabiul\ToastMagic\Facades\ToastMagic;
+use Illuminate\Validation\Rule;
 
 class RoleController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
+    // App\Http\Controllers\Tenant\Admin\RolePermissions\RoleController.php
+
+
     public function index()
     {
-        
-        $roles = Role::where('tenant_id', tenant('id'))->get();
-        return view('admin.roles.index', compact('roles'));
+        $permissions = Permission::where('tenant_id', tenant('id'))
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        $roles = Role::where('tenant_id', tenant('id'))
+            ->with('permissions:id,name') // eager-load
+            ->orderBy('name')
+            ->get(['id', 'name', 'tenant_id']);
+
+        // roleId => [permissionId, ...]
+        $rolePermissions = [];
+        foreach ($roles as $role) {
+            $rolePermissions[$role->id] = $role->permissions->pluck('id')->toArray();
+        }
+
+        return view('admin.roles.index', compact('roles', 'permissions', 'rolePermissions'));
     }
+
+    public function togglePermission(Request $request, Role $role)
+    {
+        $this->authorizeRole($role);
+
+        $request->validate([
+            'permission_id' => [
+                'required',
+                'integer',
+                Rule::exists('permissions', 'id')->where(
+                    fn($q) =>
+                    $q->where('tenant_id', tenant('id'))->where('guard_name', 'web')
+                ),
+            ],
+            'grant' => ['required', 'boolean'],
+        ]);
+
+        // Always resolve the permission within the current tenant
+        $permission = Permission::where('id', $request->permission_id)
+            ->where('tenant_id', tenant('id'))
+            ->firstOrFail();
+
+        if ($request->boolean('grant')) {
+            $role->givePermissionTo($permission);   // pass model instance
+        } else {
+            $role->revokePermissionTo($permission); // pass model instance
+        }
+
+        return response()->json([
+            'success' => true,
+            'role_id' => $role->id,
+            'permission_id' => (int) $permission->id,
+            'granted' => $request->boolean('grant'),
+        ]);
+    }
+
+
 
     public function create()
     {
@@ -42,16 +97,15 @@ class RoleController extends Controller
             $role->syncPermissions($request->permissions);
         }
 
-        return redirect()->route('admin.roles.index')
-            ->with('success', 'Role created successfully.');
-    }
-
-    public function edit(Role $role)
-    {
-        $this->authorizeRole($role);
-
-        $permissions = Permission::where('tenant_id', tenant('id'))->get();
-        return view('admin.roles.edit', compact('role', 'permissions'));
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Role created successfully.',
+                'role' => $role
+            ]);
+        }
+        ToastMagic::success('Role created successfully.');
+        return redirect()->route('admin.roles.index');
     }
 
     public function update(Request $request, Role $role)
@@ -69,18 +123,31 @@ class RoleController extends Controller
 
         $role->syncPermissions($request->permissions ?? []);
 
-        return redirect()->route('admin.roles.index')
-            ->with('success', 'Role updated successfully.');
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Role updated successfully.',
+                'role' => $role
+            ]);
+        }
+        ToastMagic::success('Role updated successfully.');
+        return redirect()->route('admin.roles.index');
     }
 
-    public function destroy(Role $role)
+    public function destroy(Request $request, Role $role)
     {
         $this->authorizeRole($role);
 
         $role->delete();
 
-        return redirect()->route('admin.roles.index')
-            ->with('success', 'Role deleted successfully.');
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Role deleted successfully.'
+            ]);
+        }
+        ToastMagic::success('Role deleted successfully.');
+        return redirect()->route('admin.roles.index');
     }
 
     private function authorizeRole(Role $role)

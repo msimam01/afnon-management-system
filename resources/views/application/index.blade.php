@@ -359,7 +359,7 @@
                     })
                     .catch(err => {
                         bvnStatus.innerHTML =
-                            `<span class="text-red-600">❌ ${'Could not verify BVN. Please try again.'}</span>`;
+                            `<span class="text-red-600">❌ ${err.message || 'Could not verify BVN. Please try again.'}</span>`;
                     });
 
             } else {
