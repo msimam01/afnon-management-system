@@ -45,6 +45,12 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+    // User.php
+    public function agent()
+    {
+        return $this->hasOne(Agent::class);
+    }
+
     protected static function boot()
     {
         parent::boot();

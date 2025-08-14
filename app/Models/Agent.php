@@ -10,13 +10,24 @@ class Agent extends Model
 {
     use HasFactory;
 
-    protected static function boot()
+    protected $fillable = [
+        'uuid', 'user_id', 'center_id', 'photo', 'status'
+    ];
+
+    protected static function booted()
     {
-        parent::boot();
-        static::creating(function ($model) {
-            if (empty($model->uuid)) {
-                $model->uuid = (string) Str::uuid();
-            }
+        static::creating(function ($agent) {
+            $agent->uuid = Str::uuid();
         });
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function center()
+    {
+        return $this->belongsTo(Center::class);
     }
 }

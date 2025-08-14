@@ -13,15 +13,14 @@ return new class extends Migration
     {
         Schema::create('agents', function (Blueprint $table) {
             $table->id();
-            $table->uuid('uuid')->unique(); // UUID colum
-            $table->foreignId('user_id')->constrained(); // Laravel users table
-            $table->string('assigned_center')->nullable();
+            $table->uuid('uuid')->unique();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // link to users
+            $table->foreignId('center_id')->nullable()->constrained()->onDelete('set null'); // assigned center
             $table->string('photo')->nullable();
-            // $table->foreignId('collection_center_id')->nullable()->constrained()->onDelete('set null');
-            $table->foreignId('center_id')->nullable()->constrained()->onDelete('set null');
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->timestamps();
         });
+        
     }
 
     /**

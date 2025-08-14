@@ -1,12 +1,14 @@
 <?php
 
+use App\Models\Agent;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\BVNController;
+use App\Http\Controllers\AgentController;
 use App\Http\Controllers\SeasonController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\Admin\CenterController;
 use App\Http\Controllers\MonetaryReturnController;
-use App\Http\Controllers\BVNController;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use App\Http\Controllers\Tenant\Admin\CommodityController;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
@@ -41,13 +43,19 @@ Route::middleware([
     Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
         Route::get('collection/centers', fn() => view('admin.centers'))->name('centers');
-        Route::get('agents', fn() => view('admin.agents'))->name('agents');
 
         Route::prefix('users')->name('users.')->group(function () {
             Route::get('/', [UserController::class, 'index'])->name('index');
             Route::post('/store', [UserController::class, 'store'])->name('store');
             Route::get('/{uuid}/edit', [UserController::class, 'edit'])->name('edit');
             Route::put('/{uuid}/update', [UserController::class, 'update'])->name('update');
+        });
+        Route::prefix('agents')->name('agents.')->group(function () {
+            Route::get('/', [AgentController::class, 'index'])->name('index');
+            Route::post('/store', [AgentController::class, 'store'])->name('store');
+            Route::get('/{uuid}/edit', [AgentController::class, 'edit'])->name('edit');
+            Route::put('/{uuid}/update', [AgentController::class, 'update'])->name('update');
+            Route::delete('/{uuid}/delete', [AgentController::class, 'destroy'])->name('destroy');
         });
         Route::prefix('commodities')->name('commodities.')->group(function () {
             Route::get('/', [CommodityController::class, 'index'])->name('index');
