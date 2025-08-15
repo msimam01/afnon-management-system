@@ -10,31 +10,31 @@ class AgentCollectionController extends Controller
 {
     public function verify(Request $request)
     {
-        dd(auth()->user()->center_id);
-
         $agent = auth()->user();
-        $centerId = $agent->center_id;
-        $filter = $request->query('filter');
-        $season = $request->query('season');
+        // $centerId = $agent->center_id;
+        // $filter = $request->query('filter');
+        // $season = $request->query('season');
     
-        $query = Application::with(['farmer', 'farm', 'season', 'commodity_allocations', 'applicationCenter'])
-            ->whereHas('applicationCenter', function ($q) use ($centerId) {
-                $q->where('collection_center_id', $centerId);
-            });
+        // $query = Application::with(['farmer', 'farm', 'season', 'commodity_allocations', 'applicationCenter'])
+        //     ->whereHas('applicationCenter', function ($q) use ($centerId) {
+        //         $q->where('collection_center_id', $centerId);
+        //     });
     
-        if ($season) {
-            $query->whereHas('season', function ($q) use ($season) {
-                $q->where('name', 'like', str_contains($season, 'dry') ? '%Dry%' : '%Wet%');
-            });
-        }
+        // if ($season) {
+        //     $query->whereHas('season', function ($q) use ($season) {
+        //         $q->where('name', 'like', str_contains($season, 'dry') ? '%Dry%' : '%Wet%');
+        //     });
+        // }
     
-        if ($filter) {
-            $query->whereHas('farmer', function ($q) use ($filter) {
-                $q->where('full_name', 'like', "%$filter%")
-                  ->orWhere('registration_number', 'like', "%$filter%");
-            });
-        }
+        // if ($filter) {
+        //     $query->whereHas('farmer', function ($q) use ($filter) {
+        //         $q->where('full_name', 'like', "%$filter%")
+        //           ->orWhere('registration_number', 'like', "%$filter%");
+        //     });
+        // }
     
+        $query = Application::with(['farmer', 'farm', 'season', 'commodity_allocations', 'applicationCenter']);
+
         // Check if AJAX request
         if ($request->ajax()) {
             return response()->json($query->get());

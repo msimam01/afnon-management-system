@@ -13,6 +13,8 @@ use App\Http\Controllers\MonetaryReturnController;
 use App\Http\Controllers\AgentCollectionController;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use App\Http\Controllers\Tenant\Admin\CommodityController;
+use App\Http\Controllers\Admin\AdminVerificationController;
+use App\Http\Controllers\Agent\AgentVerificationController;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 use App\Http\Controllers\Tenant\Admin\Centers\CollectionCenters;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
@@ -110,6 +112,14 @@ Route::middleware([
             Route::delete('/{permission}/delete', [PermissionController::class, 'destroy'])->name('destroy');
         });
 
+        Route::get('verifications/collections', [AdminVerificationController::class, 'collections'])->name('verifications.collections');
+        Route::post('verifications/collections/{id}/approve', [AdminVerificationController::class, 'approveCollection'])->name('verifications.collections.approve');
+        Route::post('verifications/collections/{id}/reject', [AdminVerificationController::class, 'rejectCollection'])->name('verifications.collections.reject');
+
+        Route::get('verifications/returns', [AdminVerificationController::class, 'returns'])->name('verifications.returns');
+        Route::post('verifications/returns/{id}/approve', [AdminVerificationController::class, 'approveReturn'])->name('verifications.returns.approve');
+        Route::post('verifications/returns/{id}/reject', [AdminVerificationController::class, 'rejectReturn'])->name('verifications.returns.reject');
+
         Route::resource('seasons', \App\Http\Controllers\Tenant\Admin\SeasonController::class);
         Route::get('seasons/{season}/export', [\App\Http\Controllers\Tenant\Admin\SeasonController::class, 'export'])->name('seasons.export');
         Route::put('seasons/{season}/close', [\App\Http\Controllers\Tenant\Admin\SeasonController::class, 'close'])->name('seasons.close');
@@ -148,8 +158,11 @@ Route::middleware([
     Route::middleware(['auth', 'role:agent'])->prefix('agent')->name('agent.')->group(function () {
         Route::get('dashboard', [AgentDashboardController::class, 'index'])->name('dashboard');
 
-        Route::get('verify-collection', [AgentCollectionController::class, 'verify'])->name('verify.collection');
-        Route::post('verify-collection-submit', [AgentCollectionController::class, 'verifyCollection'])->name('verify.collection.submit');
+        Route::get('verify-collection', [AgentVerificationController::class, 'assignedFarmers'])->name('verify.collection');
+        Route::post('verify-collection', [AgentVerificationController::class, 'storeCollection'])->name('verify.collection.submit');
+    
+        Route::get('verify-return', [AgentVerificationController::class, 'assignedReturns'])->name('verify.return');
+        Route::post('verify-return', [AgentVerificationController::class, 'storeReturn'])->name('verify.return.submit');
     });
 
 

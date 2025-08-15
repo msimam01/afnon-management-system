@@ -1,0 +1,14 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class CollectionVerification extends Model
+{
+    use HasFactory;
+    protected $fillable = [
+        'application_id', 'agent_id', 'id_card_photo', 'commodity_photo', 'status'
+    ];
+}

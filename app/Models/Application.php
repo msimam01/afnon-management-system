@@ -52,9 +52,15 @@ class Application extends Model
         return $this->hasMany(CommodityAllocation::class);
     }
 
-    public function applicationCenter() {
+    public function applicationCenter()
+    {
         return $this->hasOne(ApplicationCenter::class);
     }
+    public function collectionVerification()
+    {
+        return $this->hasOne(CollectionVerification::class);
+    }
+
     protected static function boot()
     {
         parent::boot();

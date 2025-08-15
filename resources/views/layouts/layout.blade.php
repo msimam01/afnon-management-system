@@ -18,6 +18,7 @@
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
     <script src="https://cdn.datatables.net/select/1.7.0/js/dataTables.select.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet"/>
     {!! ToastMagic::styles() !!}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script>
@@ -460,6 +461,8 @@
     </div>
     @include('layouts.footer')
     <script src="{{ asset('js/script.js') }}"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     {!! ToastMagic::scripts() !!}
     <script>
         const sidebar = document.getElementById('sidebar');
