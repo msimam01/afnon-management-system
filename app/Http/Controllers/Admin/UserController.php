@@ -25,6 +25,7 @@ class UserController extends Controller
             'name' => $user->name ?? null,
             'email' => $user->email ?? null,
             'role' => $user->roles->pluck('name')->implode(', ') ?: 'No Role Assigned',
+            'status' => $user->status,
         ]);
 
         return view('admin.users.index', compact('roles', 'users'));
@@ -117,7 +118,19 @@ class UserController extends Controller
     }
 
 
+    public function toggleStatus($uuid)
+    {
+        $user = User::whereUuid($uuid)->firstOrFail();
+
+        $user->status = $user->status === 'active' ? 'inactive' : 'active';
+        $user->save();
+
+        ToastMagic::success("User status updated to {$user->status}");
+        return redirect()->back();
+    }
+
     /**
+     * 
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)

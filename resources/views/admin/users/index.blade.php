@@ -41,7 +41,13 @@
                                         data-user-id="{{ $item['uuid'] ?? $item['id'] }}">
                                         Edit
                                     </a>
-
+                                    <form action="{{ route('admin.users.toggle-status', $item['uuid']) }}" method="POST" onsubmit="return confirm('Change user status?')">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="text-xs {{ $item['status'] === 'active' ? 'text-yellow-600 dark:text-yellow-400' : 'text-green-600 dark:text-green-400' }}">
+                                            {{ $item['status'] === 'active' ? 'Deactivate' : 'Activate' }}
+                                        </button>
+                                    </form>
                                     <form action="" method="post">
                                         @csrf
                                         @method('DELETE')

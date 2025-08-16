@@ -53,6 +53,8 @@ Route::middleware([
             Route::post('/store', [UserController::class, 'store'])->name('store');
             Route::get('/{uuid}/edit', [UserController::class, 'edit'])->name('edit');
             Route::put('/{uuid}/update', [UserController::class, 'update'])->name('update');
+            Route::patch('/{uuid}/toggle-status', [UserController::class, 'toggleStatus'])->name('toggle-status');
+
         });
         Route::prefix('agents')->name('agents.')->group(function () {
             Route::get('/', [AgentController::class, 'index'])->name('index');

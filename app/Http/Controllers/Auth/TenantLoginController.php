@@ -23,15 +23,21 @@ class TenantLoginController extends Controller
 
         if (Auth::guard('web')->attempt($request->only('email', 'password'), $request->filled('remember'))) {
             $user = Auth::user();
-
-            // Redirect based on role
-            if ($user->hasRole('admin')) {
-                return redirect()->route('admin.dashboard');
-            } elseif ($user->hasRole('agent')) {
-                return redirect()->route('agent.dashboard'); // Only assigned agent view
-            } else {
-                Auth::logout();
-                ToastMagic::error('Unauthorized role');
+            if ($user->status == 'active') {
+            
+                // Redirect based on role
+                if ($user->hasRole('admin')) {
+                    return redirect()->route('admin.dashboard');
+                    } elseif ($user->hasRole('agent')) {
+                    return redirect()->route('agent.dashboard'); // Only assigned agent view
+                } else {
+                    Auth::logout();
+                    ToastMagic::error('Unauthorized role');
+                    return redirect()->route('tenant.login')->withErrors(['access' => 'Unauthorized role.']);
+                }
+                
+            }else{
+                ToastMagic::error('Your account has been deactivated!');
                 return redirect()->route('tenant.login')->withErrors(['access' => 'Unauthorized role.']);
             }
             
