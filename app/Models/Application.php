@@ -60,6 +60,10 @@ class Application extends Model
     {
         return $this->hasOne(CollectionVerification::class);
     }
+    public function returnVerification()
+    {
+        return $this->hasOne(\App\Models\ReturnVerification::class, 'application_id');
+    }
 
     protected static function boot()
     {

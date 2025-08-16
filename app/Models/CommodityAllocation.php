@@ -24,6 +24,11 @@ class CommodityAllocation extends Model
         return $this->belongsTo(Application::class);
     }
 
+    public function commodity()
+    {
+        return $this->belongsTo(Commodity::class);
+    }
+
     protected static function boot()
     {
         parent::boot();

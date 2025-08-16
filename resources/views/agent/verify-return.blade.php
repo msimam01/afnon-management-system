@@ -1,389 +1,350 @@
 @extends('layouts.layout')
-@section('content')
-    <!-- Return Section -->
-    <div id="return-section" class="w-full min-h-screen px-4 py-6 bg-gray-50 dark:bg-gray-900">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-8">
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-6">Farmers with Return Obligations
-            </h3>
 
-            <!-- Filter & Search -->
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
-                <select id="returnSeasonFilter"
-                    class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                    <option value="2024 Dry Season">2024 Dry Season</option>
-                    <option value="2023 Wet Season">2023 Wet Season</option>
-                </select>
-                <input type="text" id="returnSearch" placeholder="Search Farmer ID or Name"
-                    class="w-full md:w-64 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+@section('content')
+    <div x-data="returnApp()" class="w-full min-h-screen px-4 py-6 bg-gray-50 dark:bg-gray-900">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-8">
+            <div class="px-4 py-3 flex justify-between items-center border-b border-gray-200 dark:border-gray-700">
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Return Verification</h1>
             </div>
 
-            <!-- Table -->
-            <div class="overflow-x-auto">
+            <div class="flex px-4 py-3 mt-2 flex-col md:flex-row md:items-center md:justify-between mb-4 space-y-4 md:space-y-0">
+                <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+                    <input type="text" x-model.debounce.500ms="filter" placeholder="Search Farmer Name or ID"
+                        class="w-full sm:w-64 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+                    <select x-model="season"
+                        class="w-full sm:w-64 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        <option value="">All Seasons</option>
+                        @foreach ($seasons as $item)
+                            <option value="{{ $item->slug }}">{{ $item->name }}</option>
+                        @endforeach
+                    </select>
+                    <select x-model="status"
+                        class="w-full sm:w-64 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        <option value="">All</option>
+                        <option value="pending">Pending</option>
+                        <option value="verified">Verified</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto px-6 py-4">
                 <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                     <thead class="bg-gray-50 dark:bg-gray-700">
                         <tr>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                                Farmer ID</th>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                                Name</th>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                                Commodity</th>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                                Expected Qty</th>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                                Actions</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Farmer ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Name</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Commodities</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                        <tr>
-                            <td class="px-4 py-2 text-sm text-gray-900 dark:text-white">NEC001234</td>
-                            <td class="px-4 py-2 text-sm text-gray-900 dark:text-white">John Doe</td>
-                            <td class="px-4 py-2 text-sm text-gray-900 dark:text-white">Maize (harvested)</td>
-                            <td class="px-4 py-2 text-sm text-gray-900 dark:text-white">80kg</td>
-                            <td class="px-4 py-2">
-                                <button onclick="openReturnModal('NEC001234')"
-                                    class="bg-emerald-600 text-white text-xs px-3 py-1 rounded hover:bg-emerald-700">Verify
-                                    Return</button>
-                            </td>
+                    <tbody class="bg-white text-gray-300 dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                        <template x-for="app in applications" :key="app.id">
+                            <tr>
+                                <td class="px-4 py-2 text-sm" x-text="app.farmer.registration_number"></td>
+                                <td class="px-4 py-2 text-sm" x-text="app.farmer.full_name"></td>
+                                <td class="px-4 py-2 text-sm">
+                                    <ul class="list-disc list-inside">
+                                        <template x-for="c in app.commodity_allocations" :key="c.id">
+                                            <li x-text="`${c.commodity_name}: ${c.allocated_quantity}`"></li>
+                                        </template>
+                                    </ul>
+                                </td>
+                                <td class="px-4 py-2">
+                                    <span :class="{'bg-green-100 text-green-800': app.return_status === 'verified', 'bg-yellow-100 text-yellow-800': app.return_status === 'pending'}"
+                                        class="inline-flex px-2 py-1 text-xs font-semibold rounded-full">
+                                        <span x-text="app.return_status"></span>
+                                    </span>
+                                </td>
+                                <td class="px-4 py-2">
+                                    <button x-show="app.return_status === 'pending'"
+                                        @click="openReturnModal(app)"
+                                        class="bg-emerald-600 text-white px-3 py-1 rounded hover:bg-emerald-700 text-sm">
+                                        Verify
+                                    </button>
+                                </td>
+                            </tr>
+                        </template>
+                        <tr x-show="applications.length === 0 && !loading">
+                            <td colspan="5" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">No applications found.</td>
+                        </tr>
+                        <tr x-show="loading">
+                            <td colspan="5" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">Loading...</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-        </div>
-    </div>
-    <!-- Return Modal -->
-    <div id="returnModal"
-        class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-start justify-center overflow-y-auto">
-        <div
-            class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-5xl mt-20 mx-4 p-6 sm:p-8 max-h-[90vh] overflow-y-auto">
 
-            <!-- Header -->
-            <div class="flex justify-between items-center mb-6 border-b pb-4 border-gray-200 dark:border-gray-600">
-                <h3 class="text-2xl font-bold text-gray-900 dark:text-white">Return Verification</h3>
-                <button onclick="closeReturnModal()"
-                    class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition">✕</button>
+            <div class="px-6 py-3 flex flex-col sm:flex-row justify-between items-center" x-show="last_page > 1">
+                <div class="dark:text-gray-500 text-sm mb-2 sm:mb-0">
+                    Showing <span x-text="from"></span> to <span x-text="to"></span> of <span x-text="total"></span> results
+                </div>
+                <div class="space-x-1 dark:text-gray-300 flex items-center">
+                    <button @click="goToPage(current_page - 1)" :disabled="current_page === 1"
+                        class="px-3 py-1 rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50">Prev</button>
+                    <template x-for="page in pages" :key="page">
+                        <button @click="goToPage(page)"
+                            :class="{
+                                'bg-emerald-500 text-white': current_page === page,
+                                'bg-gray-200 dark:bg-gray-700': current_page !== page
+                            }"
+                            class="px-3 py-1 rounded hover:bg-emerald-400 transition">
+                            <span x-text="page"></span>
+                        </button>
+                    </template>
+                    <button @click="goToPage(current_page + 1)" :disabled="current_page === last_page"
+                        class="px-3 py-1 rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50">Next</button>
+                </div>
             </div>
+        </div>
 
-            <form id="returnForm" class="space-y-8">
-
-                <!-- Farmer & Application Info -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg border dark:border-gray-600">
-                        <h4 class="font-semibold text-gray-800 dark:text-white mb-2">📋 Farmer Info</h4>
-                        <ul id="return-farmer-info" class="text-sm text-gray-700 dark:text-gray-300 space-y-1"></ul>
-                    </div>
-                    <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg border dark:border-gray-600">
-                        <h4 class="font-semibold text-gray-800 dark:text-white mb-2">📁 Application Info</h4>
-                        <ul id="return-app-info" class="text-sm text-gray-700 dark:text-gray-300 space-y-1"></ul>
-                    </div>
+        <div x-show="showModal" x-cloak class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center overflow-y-auto p-4">
+            <div @click.away="closeReturnModal()"
+                class="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-5xl my-16 p-6 sm:p-8 relative max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center mb-6 border-b border-gray-200 dark:border-gray-600 pb-4">
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white">Verify Return</h3>
+                    <button @click="closeReturnModal()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">✕</button>
                 </div>
+                <form id="returnForm" class="space-y-8" enctype="multipart/form-data" @submit.prevent="submitReturn">
+                    <input type="hidden" name="application_id" x-model="form.application_id" />
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <h4 class="font-semibold text-gray-800 dark:text-white mb-2">Farmer Info</h4>
+                            <ul class="text-sm text-gray-700 dark:text-gray-300 space-y-1">
+                                <li><strong>Name:</strong> <span x-text="modalData.farmer?.full_name"></span></li>
+                                <li><strong>Phone:</strong> <span x-text="modalData.farmer?.phone"></span></li>
+                                <li><strong>State:</strong> <span x-text="modalData.farmer?.state"></span></li>
+                                <li><strong>LGA:</strong> <span x-text="modalData.farmer?.lga"></span></li>
+                            </ul>
+                        </div>
+                        <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <h4 class="font-semibold text-gray-800 dark:text-white mb-2">Application Info</h4>
+                            <ul class="text-sm text-gray-700 dark:text-gray-300 space-y-1">
+                                <li><strong>Season:</strong> <span x-text="modalData.season?.name"></span></li>
+                                <li><strong>Farm Size:</strong> <span x-text="modalData.farm?.size"></span> ha</li>
+                                <li><strong>Collection Date:</strong> <span x-text="modalData.application_center?.collection_date"></span></li>
+                                <li><strong>Return Deadline:</strong> <span x-text="modalData.application_center?.return_date"></span></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Commodity Breakdown</h4>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden">
+                                <thead class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-white">
+                                    <tr>
+                                        <th class="px-4 py-2 text-left">Commodity</th>
+                                        <th class="px-4 py-2 text-left">Quantity</th>
+                                        <th class="px-4 py-2 text-left">Unit Price</th>
+                                        <th class="px-4 py-2 text-left">Total Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+                                    <template x-for="c in modalData.commodity_allocations" :key="c.id">
+                                        <tr>
+                                            <td class="px-4 py-2 border" x-text="c.commodity_name"></td>
+                                            <td class="px-4 py-2 border" x-text="c.allocated_quantity"></td>
+                                            <td class="px-4 py-2 border" x-text="`₦${c.unit_price.toLocaleString()}`"></td>
+                                            <td class="px-4 py-2 border" x-text="`₦${(c.allocated_quantity * c.unit_price).toLocaleString()}`"></td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" x-model="isMonetaryReturn" class="form-checkbox h-5 w-5 text-emerald-600">
+                            <span class="ml-2 text-gray-700 dark:text-gray-300">Is this a monetary return?</span>
+                        </label>
+                    </div>
 
-                <!-- Commodity Breakdown -->
-                <div>
-                    <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">🧾 Commodity Breakdown</h4>
-                    <table
-                        class="w-full text-sm border-collapse border rounded-lg overflow-hidden bg-white dark:bg-gray-800">
-                        <thead class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-white">
-                            <tr>
-                                <th class="px-4 py-2 text-left">Commodity</th>
-                                <th class="px-4 py-2 text-left">Qty</th>
-                                <th class="px-4 py-2 text-left">Price</th>
-                                <th class="px-4 py-2 text-left">Total</th>
-                            </tr>
-                        </thead>
-                        <tbody id="return-commodity-table" class="text-gray-900 dark:text-white"></tbody>
-                        <tfoot class="bg-gray-50 dark:bg-gray-700 font-medium">
-                            <tr>
-                                <td colspan="3" class="px-4 py-2 dark:text-white">Expected Return Value</td>
-                                <td id="expectedReturnValue" class="px-4 py-2 text-emerald-600 dark:text-emerald-400">₦0.00
-                                </td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-
-                <!-- 🔁 Return Method -->
-                <div>
-                    <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">🔄 Choose Return Method</h4>
-
-                    <!-- Modern Toggle Cards -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <label for="returnModeCommodity"
-                            class="group border border-gray-300 dark:border-gray-600 rounded-lg p-4 flex items-center gap-3 cursor-pointer hover:border-emerald-500 transition">
-                            <input type="radio" name="returnMode" id="returnModeCommodity" value="commodity"
-                                class="sr-only" onchange="toggleReturnMode()" checked>
-                            <div>
-                                <div class="font-medium text-gray-900 dark:text-white">Return Commodity</div>
-                                <div class="text-xs text-gray-500 dark:text-gray-400">Upload photo proof of physical return
+                    <div class="flex flex-col sm:flex-row gap-6">
+                        <div class="flex-1">
+                            <label for="idCardInput" class="block text-gray-700 dark:text-gray-300 font-medium mb-2">Upload ID Card Photo</label>
+                            <div class="relative border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center cursor-pointer hover:border-emerald-500 transition-colors">
+                                <input type="file" name="idCard" id="idCardInput" accept="image/*" @change="previewImage($event, 'idCardPreview')" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                                <div class="flex flex-col items-center">
+                                    <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                    <span class="mt-2 text-gray-600 dark:text-gray-400 text-sm">Drag & drop or click to upload ID (Optional)</span>
+                                    <img id="idCardPreview" class="mt-2 w-32 h-32 object-cover rounded hidden border border-gray-300 dark:border-gray-600" />
                                 </div>
                             </div>
-                        </label>
-
-                        <label for="returnModeMoney"
-                            class="group border border-gray-300 dark:border-gray-600 rounded-lg p-4 flex items-center gap-3 cursor-pointer hover:border-emerald-500 transition">
-                            <input type="radio" name="returnMode" id="returnModeMoney" value="money" class="sr-only"
-                                onchange="toggleReturnMode()">
-                            <div>
-                                <div class="font-medium text-gray-900 dark:text-white">Pay Money Equivalent</div>
-                                <div class="text-xs text-gray-500 dark:text-gray-400">Upload bank payment receipt</div>
+                        </div>
+                        <div class="flex-1" x-show="!isMonetaryReturn">
+                            <label for="returnedCommodityPhotoInput" class="block text-gray-700 dark:text-gray-300 font-medium mb-2">Upload Returned Commodity Photo</label>
+                            <div class="relative border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center cursor-pointer hover:border-emerald-500 transition-colors">
+                                <input type="file" name="returnedCommodityPhoto" id="returnedCommodityPhotoInput" accept="image/*" x-bind:required="!isMonetaryReturn" @change="previewImage($event, 'returnedCommodityPreview')" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                                <div class="flex flex-col items-center">
+                                    <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.828-1.472A2 2 0 0110.153 4h3.694a2 2 0 011.664.89l.828 1.472A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                    <span class="mt-2 text-gray-600 dark:text-gray-400 text-sm">Drag & drop or click to upload commodity photo</span>
+                                    <img id="returnedCommodityPreview" class="mt-2 w-32 h-32 object-cover rounded hidden border border-gray-300 dark:border-gray-600" />
+                                </div>
                             </div>
-                        </label>
+                        </div>
+                        <div class="flex-1" x-show="isMonetaryReturn">
+                            <label for="paymentReceiptInput" class="block text-gray-700 dark:text-gray-300 font-medium mb-2">Upload Payment Receipt</label>
+                            <div class="relative border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center cursor-pointer hover:border-emerald-500 transition-colors">
+                                <input type="file" name="paymentReceipt" id="paymentReceiptInput" accept="image/*" x-bind:required="isMonetaryReturn" @change="previewImage($event, 'paymentReceiptPreview')" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                                <div class="flex flex-col items-center">
+                                    <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    <span class="mt-2 text-gray-600 dark:text-gray-400 text-sm">Drag & drop or click to upload receipt</span>
+                                    <img id="paymentReceiptPreview" class="mt-2 w-32 h-32 object-cover rounded hidden border border-gray-300 dark:border-gray-600" />
+                                </div>
+                            </div>
+                        </div>
                     </div>
-
-                    <!-- Invoice Button (conditional) -->
-                    <div id="invoiceBtnWrap" class="mt-4 hidden">
-                        <button type="button" onclick="openInvoiceModal()" class="text-sm text-emerald-600 underline">📄
-                            View Invoice</button>
+                    <div x-show="isMonetaryReturn">
+                        <label for="cashPayment" class="block text-gray-700 dark:text-gray-300 font-medium mb-2">Cash Payment</label>
+                        <input type="number" name="cashPayment" id="cashPayment" x-bind:required="isMonetaryReturn" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white" step="0.01" min="0">
                     </div>
-                </div>
-
-                <!-- 📸 Commodity Return Photo Upload -->
-                <div id="commodityReturnGroup" class="mt-4 transition-all duration-300">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Upload Farmer + Commodity
-                        Photo *</label>
-                    <label for="returnPhoto"
-                        class="flex flex-col items-center justify-center w-full p-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 cursor-pointer">
-                        <svg class="w-10 h-10 text-gray-400 dark:text-gray-300" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M7 16V4a4 4 0 014-4h2a4 4 0 014 4v12m1 4H6a2 2 0 00-2 2v0a2 2 0 002 2h12a2 2 0 002-2v0a2 2 0 00-2-2z" />
-                        </svg>
-                        <span class="mt-2 text-sm text-gray-600 dark:text-gray-400">Click to upload or use camera</span>
-                        <input type="file" id="returnPhoto" accept="image/*" class="sr-only" required />
-                    </label>
-                    <div id="returnPhotoPreview" class="mt-2 hidden">
-                        <img class="h-24 w-24 object-cover border rounded-md" />
+                    <div class="flex justify-end">
+                        <button type="submit"
+                            class="bg-emerald-600 text-white py-2 px-6 rounded-md hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 font-medium transition">
+                            Submit Verification
+                        </button>
                     </div>
-                </div>
-
-                <!-- 💳 Payment Receipt Upload (if money) -->
-                <div id="moneyReturnGroup" class="hidden mt-6 space-y-3 transition-all duration-300">
-                    <div>
-                        <label for="paymentProof"
-                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">Upload Payment Receipt
-                            *</label>
-                        <label for="paymentProof"
-                            class="flex flex-col items-center justify-center w-full p-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 cursor-pointer">
-                            <svg class="w-8 h-8 text-gray-400 dark:text-gray-300" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 11c0-2.21 2-4 4-4s4 1.79 4 4-2 4-4 4-4 1.79-4 4m-8 0h8m-4-4h.01" />
-                            </svg>
-                            <span class="mt-2 text-sm text-gray-600 dark:text-gray-400">Upload or take a picture of
-                                receipt</span>
-                            <input type="file" id="paymentProof" accept="image/*,application/pdf" class="sr-only" />
-                        </label>
-                    </div>
-                    <div
-                        class="text-sm text-yellow-800 dark:text-yellow-300 bg-yellow-100 dark:bg-yellow-900 rounded-md px-4 py-3">
-                        <strong>Invoice #:</strong> <span id="generatedInvoice">INV-00000000</span><br />
-                        Please pay at the bank and upload your receipt for verification.
-                    </div>
-                </div>
-
-
-                <!-- Notes -->
-                <div>
-                    <label for="returnNote" class="block text-sm font-medium text-gray-700 dark:text-gray-300">📝
-                        Verification Notes</label>
-                    <textarea id="returnNote" rows="3"
-                        class="block w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
-                        placeholder="Add any remarks about the verification..."></textarea>
-                </div>
-
-                <!-- Submit -->
-                <div class="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-600">
-                    <button type="submit"
-                        class="bg-emerald-600 text-white px-6 py-2 rounded-md hover:bg-emerald-700 font-medium transition">
-                        ✅ Submit Return Verification
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-    <!-- Invoice Modal -->
-    <div id="invoiceModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-2xl mx-4 p-6 sm:p-8">
-            <div class="flex justify-between items-center border-b pb-3 mb-4">
-                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Invoice Preview</h3>
-                <button onclick="closeInvoiceModal()"
-                    class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">✕</button>
-            </div>
-            <div id="invoiceContent" class="text-sm text-gray-700 dark:text-gray-300 space-y-2">
-                <p><strong>Invoice Number:</strong> INV-20250725-8552</p>
-                <p><strong>Farmer:</strong> John Doe</p>
-                <p><strong>Total Amount:</strong> <span class="text-emerald-600 font-semibold">₦150,000.00</span></p>
-                <p>Payment should be made to the designated bank account. This invoice will be verified upon return.</p>
-            </div>
-            <div class="mt-6 flex justify-end">
-                <button onclick="downloadInvoice()"
-                    class="bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700 font-medium transition">
-                    ⬇ Download Invoice
-                </button>
+                </form>
             </div>
         </div>
     </div>
 
-
-
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const returnForm = document.getElementById('returnForm');
-            const returnPhoto = document.getElementById('returnPhoto');
-            const paymentProof = document.getElementById('paymentProof');
-            const commodityGroup = document.getElementById('commodityReturnGroup');
-            const moneyGroup = document.getElementById('moneyReturnGroup');
-            const invoiceEl = document.getElementById('generatedInvoice');
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('returnApp', () => ({
+                filter: '',
+                season: '',
+                status: '',
+                loading: true,
+                applications: [],
+                showModal: false,
+                modalData: {},
+                form: {
+                    application_id: null
+                },
+                isMonetaryReturn: false,
 
-            function toggleReturnMode() {
-    const mode = document.querySelector('input[name="returnMode"]:checked').value;
-    const showMoney = mode === 'money';
+                // Pagination data
+                current_page: 1,
+                last_page: 1,
+                from: 0,
+                to: 0,
+                total: 0,
+                pages: [],
 
-    document.getElementById('commodityReturnGroup').classList.toggle('hidden', showMoney);
-    document.getElementById('moneyReturnGroup').classList.toggle('hidden', !showMoney);
-    document.getElementById('invoiceBtnWrap').classList.toggle('hidden', !showMoney);
+                init() {
+                    this.fetchAssignedReturns();
+                    this.$watch('filter', () => this.goToPage(1));
+                    this.$watch('season', () => this.goToPage(1));
+                    this.$watch('status', () => this.goToPage(1));
+                },
 
-    document.getElementById('returnPhoto').required = !showMoney;
-    document.getElementById('paymentProof').required = showMoney;
-}
+                fetchAssignedReturns() {
+                    this.loading = true;
+                    this.applications = [];
+                    const url = `/agent/verify-return?page=${this.current_page}&filter=${this.filter}&season=${this.season}&status=${this.status}`;
+                    fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                        .then(res => res.json())
+                        .then(data => {
+                            this.applications = data.data;
+                            this.current_page = data.current_page;
+                            this.last_page = data.last_page;
+                            this.from = data.from;
+                            this.to = data.to;
+                            this.total = data.total;
+                            this.generatePages();
+                        })
+                        .catch(err => {
+                            toastr.error('Failed to load farmers');
+                        })
+                        .finally(() => {
+                            this.loading = false;
+                        });
+                },
 
+                goToPage(page) {
+                    if (page < 1 || page > this.last_page) return;
+                    this.current_page = page;
+                    this.fetchAssignedReturns();
+                },
 
-
-            // Bind toggle event
-            document.querySelectorAll('input[name="returnMode"]').forEach(radio => {
-                radio.addEventListener('change', toggleReturnMode);
-            });
-
-            // Preview uploaded photo
-            returnPhoto.addEventListener('change', e => {
-                const file = e.target.files[0];
-                const preview = document.getElementById('returnPhotoPreview');
-                const img = preview.querySelector('img');
-                if (file) {
-                    img.src = URL.createObjectURL(file);
-                    preview.classList.remove('hidden');
-                } else {
-                    preview.classList.add('hidden');
-                }
-            });
-
-            // Modal open handler
-            window.openReturnModal = function(farmerId) {
-                document.getElementById('returnModal').classList.remove('hidden');
-
-                const farmer = {
-                    name: "John Doe",
-                    phone: "+2348123456789",
-                    state: "Kano",
-                    lga: "Tarauni"
-                };
-                const app = {
-                    season: "2024 Dry Season",
-                    seed: "Maize",
-                    farmSize: "2.5ha"
-                };
-                const commodities = [{
-                        name: "Maize",
-                        quantity: 5,
-                        unit: "bags",
-                        price: 10000
-                    },
-                    {
-                        name: "NPK",
-                        quantity: 3,
-                        unit: "bags",
-                        price: 8000
+                generatePages() {
+                    this.pages = [];
+                    const maxPages = 5;
+                    let startPage = Math.max(1, this.current_page - Math.floor(maxPages / 2));
+                    let endPage = Math.min(this.last_page, startPage + maxPages - 1);
+                    if (endPage - startPage + 1 < maxPages) {
+                        startPage = Math.max(1, endPage - maxPages + 1);
                     }
-                ];
+                    for (let i = startPage; i <= endPage; i++) {
+                        this.pages.push(i);
+                    }
+                },
 
-                const farmerInfo = `
-            <li><strong>Name:</strong> ${farmer.name}</li>
-            <li><strong>Phone:</strong> ${farmer.phone}</li>
-            <li><strong>State:</strong> ${farmer.state}</li>
-            <li><strong>LGA:</strong> ${farmer.lga}</li>`;
-                const appInfo = `
-            <li><strong>Season:</strong> ${app.season}</li>
-            <li><strong>Seed:</strong> ${app.seed}</li>
-            <li><strong>Farm Size:</strong> ${app.farmSize}</li>`;
+                openReturnModal(app) {
+                    this.modalData = app;
+                    this.form.application_id = app.id;
+                    this.showModal = true;
+                    this.isMonetaryReturn = false; // Reset the checkbox state
 
-                document.getElementById('return-farmer-info').innerHTML = farmerInfo;
-                document.getElementById('return-app-info').innerHTML = appInfo;
+                    // Reset all file inputs and previews
+                    document.getElementById('idCardInput').value = '';
+                    document.getElementById('returnedCommodityPhotoInput').value = '';
+                    document.getElementById('paymentReceiptInput').value = '';
+                    document.getElementById('idCardPreview').classList.add('hidden');
+                    document.getElementById('returnedCommodityPreview').classList.add('hidden');
+                    document.getElementById('paymentReceiptPreview').classList.add('hidden');
+                },
 
-                // Commodity Table
-                const table = document.getElementById('return-commodity-table');
-                let total = 0;
-                table.innerHTML = '';
-                commodities.forEach(c => {
-                    const lineTotal = c.quantity * c.price;
-                    total += lineTotal;
-                    table.innerHTML += `
-                <tr>
-                    <td class="px-4 py-2 border">${c.name}</td>
-                    <td class="px-4 py-2 border">${c.quantity} ${c.unit}</td>
-                    <td class="px-4 py-2 border">₦${c.price.toLocaleString()}</td>
-                    <td class="px-4 py-2 border">₦${lineTotal.toLocaleString()}</td>
-                </tr>`;
-                });
+                closeReturnModal() {
+                    this.showModal = false;
+                    this.modalData = {};
+                    this.form.application_id = null;
+                },
 
-                document.getElementById('expectedReturnValue').innerText = `₦${total.toLocaleString()}`;
-                invoiceEl.innerText = 'INV-' + new Date().getTime();
-                toggleReturnMode(); // Apply initial mode
-            }
+                submitReturn() {
+                    const form = document.getElementById('returnForm');
+                    const formData = new FormData(form);
+                    
+                    fetch('{{ route('agent.verify.return.submit') }}', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: formData
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.message) {
+                            toastr.success(data.message);
+                            this.closeReturnModal();
+                            this.fetchAssignedReturns();
+                        } else {
+                            toastr.error('Verification failed!');
+                        }
+                    })
+                    .catch(err => {
+                        toastr.error('Network error occurred');
+                    });
+                },
 
-            window.closeReturnModal = function() {
-                document.getElementById('returnModal').classList.add('hidden');
-                returnForm.reset();
-                document.getElementById('returnPhotoPreview').classList.add('hidden');
-                toggleReturnMode();
-            }
-
-            returnForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                alert("✅ Return Verification Submitted!");
-                closeReturnModal();
-            });
+                previewImage(event, previewId) {
+                    const file = event.target.files[0];
+                    const preview = document.getElementById(previewId);
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = e => {
+                            preview.src = e.target.result;
+                            preview.classList.remove('hidden');
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        preview.src = '';
+                        preview.classList.add('hidden');
+                    }
+                }
+            }));
         });
-
-        function toggleReturnMode() {
-            const selected = document.querySelector('input[name="returnMode"]:checked').value;
-            document.getElementById('commodityReturnGroup').classList.toggle('hidden', selected !== 'commodity');
-            document.getElementById('moneyReturnGroup').classList.toggle('hidden', selected !== 'money');
-            document.getElementById('returnPhoto').required = selected === 'commodity';
-            document.getElementById('paymentProof').required = selected === 'money';
-        }
-
-        document.getElementById('returnPhoto').addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            const preview = document.getElementById('returnPhotoPreview');
-            const img = preview.querySelector('img');
-            if (file) {
-                img.src = URL.createObjectURL(file);
-                preview.classList.remove('hidden');
-            } else {
-                preview.classList.add('hidden');
-            }
-        });
-
-        function openInvoiceModal() {
-            document.getElementById('invoiceModal').classList.remove('hidden');
-        }
-
-        function closeInvoiceModal() {
-            document.getElementById('invoiceModal').classList.add('hidden');
-        }
-
-        function downloadInvoice() {
-            // Fake download for now
-            const invoiceText = document.getElementById('invoiceContent').innerText;
-            const blob = new Blob([invoiceText], {
-                type: 'text/plain'
-            });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'invoice.txt';
-            a.click();
-            window.URL.revokeObjectURL(url);
-        }
     </script>
 @endsection

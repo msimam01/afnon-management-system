@@ -9,7 +9,10 @@ class ReturnVerification extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'application_id', 'agent_id', 'id_card_photo', 'returned_commodity_photo',
-        'cash_payment', 'payment_receipt', 'status'
+        'application_id',
+        'agent_id',
+        'id_card_photo',
+        'returned_commodity_photo',
+        'status'
     ];
 }

@@ -17,6 +17,8 @@ return new class extends Migration
             $table->foreignId('application_id')->constrained()->onDelete('cascade');
             $table->foreignId('collection_center_id')->constrained('centers')->onDelete('cascade');
             $table->foreignId('return_center_id')->constrained('centers')->onDelete('cascade');
+            $table->date('collection_date')->nullable();
+            $table->date('return_date')->nullable();   
             $table->timestamps();
         });
     }

@@ -163,6 +163,9 @@ Route::middleware([
     
         Route::get('verify-return', [AgentVerificationController::class, 'assignedReturns'])->name('verify.return');
         Route::post('verify-return', [AgentVerificationController::class, 'storeReturn'])->name('verify.return.submit');
+        Route::get('/agent/verify-return/{uuid}/invoice/data', [AgentVerificationController::class, 'getInvoiceData']);
+
+Route::post('verify-return/invoice', [AgentVerificationController::class, 'generateMonetaryInvoice'])->name('verify.return.invoice');
     });
 
 

@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>{{ config('app.name', 'AFNON') }}</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     {{-- <link rel="stylesheet" href="{{asset('css/style.css')}}"> --}}
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -439,9 +440,9 @@
                                 Verify Collection
                             </a>
                         </li>
-                        {{-- <li>
-                            <a href="{{ route('agent.verify-return') }}"
-                                class="{{ Route::is('agent.verify-return') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
+                        <li>
+                            <a href="{{ route('agent.verify.return') }}"
+                                class="{{ Route::is('agent.verify.return') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
                                 <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z">
@@ -449,7 +450,7 @@
                                 </svg>
                                 Verify Return
                             </a>
-                        </li> --}}
+                        </li>
                     @endrole
 
                 </ul>

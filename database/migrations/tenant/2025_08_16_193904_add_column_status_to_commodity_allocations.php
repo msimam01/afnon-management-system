@@ -11,9 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('application_centers', function (Blueprint $table) {
-            $table->date('collection_date')->nullable();
-            $table->date('return_date')->nullable();    
+        Schema::table('commodity_allocations', function (Blueprint $table) {
+            
         });
     }
 
@@ -22,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('application_centers', function (Blueprint $table) {
-            $table->dropColumn(['collection_date', 'return_date']);
+        Schema::table('commodity_allocations', function (Blueprint $table) {
+            //
         });
     }
 };

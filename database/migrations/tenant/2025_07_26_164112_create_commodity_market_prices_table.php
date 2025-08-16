@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->uuid('uuid')->unique(); // UUID colum
             $table->foreignId('commodity_id')->constrained();
+            $table->foreignId('season_id')->nullable()->constrained();
             $table->decimal('current_price', 12, 2);
             $table->timestamps();
         });

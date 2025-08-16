@@ -16,8 +16,6 @@ return new class extends Migration {
             $table->foreignId('agent_id')->constrained()->cascadeOnDelete();
             $table->string('id_card_photo')->nullable();
             $table->string('returned_commodity_photo')->nullable();
-            $table->decimal('cash_payment', 12, 2)->nullable();
-            $table->string('payment_receipt')->nullable();
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->timestamps();
         });

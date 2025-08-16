@@ -421,7 +421,6 @@ class ApplicationController extends Controller
                     'allocated_quantity' => $allocatedQty,
                     'unit_price' => $commodity->price_per_unit ?? 0,
                     'total_value' => $totalValue,
-                    'status' => 'pending',
                 ]);
             }
 
@@ -536,7 +535,6 @@ Return Date: {$returnDate} at {$returnCenterName}.";
                         'allocated_quantity' => $allocatedQty,
                         'unit_price' => $commodity->price_per_unit ?? 0,
                         'total_value' => $totalValue,
-                        'status' => 'pending',
                     ]);
                 }
 

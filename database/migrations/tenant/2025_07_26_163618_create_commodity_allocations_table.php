@@ -20,9 +20,6 @@ return new class extends Migration
             $table->decimal('allocated_quantity', 10, 2)->default(0);
             $table->decimal('unit_price', 12, 2)->default(0);
             $table->decimal('total_value', 15, 2)->default(0);
-            $table->string('status')->default('pending'); // pending, collected, returned
-            $table->string('collection_proof')->nullable(); // path to farmer & commodity picture
-            $table->timestamp('collected_at')->nullable();
             $table->timestamps();
         });
     }
