@@ -47,7 +47,7 @@ class AdminVerificationController extends Controller
                 'center'
             ]);
         } else {
-            // Handle both types if no specific type is selected, ensuring a union for pagination.
+            // Handle both types if no specific type is selected.
             $collectionQuery = CollectionVerification::with([
                 'application.farmer',
                 'application.season',
@@ -89,12 +89,22 @@ class AdminVerificationController extends Controller
                 $q->where('status', $status);
             });
 
-            $collectionData = $collectionQuery->get()->map(function ($item) {
+            // The fix: Add the transformation for media_files here before merging.
+            $collectionData = $collectionQuery->get()->transform(function ($item) {
                 $item->type = 'collection';
+                $item->media_files = [
+                    Storage::url($item->id_card_photo),
+                    Storage::url($item->commodities_photo)
+                ];
                 return $item;
             });
-            $returnData = $returnQuery->get()->map(function ($item) {
+
+            $returnData = $returnQuery->get()->transform(function ($item) {
                 $item->type = 'return';
+                $item->media_files = [
+                    Storage::url($item->id_card_photo),
+                    Storage::url($item->returned_commodity_photo)
+                ];
                 return $item;
             });
 
@@ -109,7 +119,7 @@ class AdminVerificationController extends Controller
             return response()->json($pagedData);
         }
 
-        // Apply filters conditionally using a series of 'when' clauses for single type
+        // Apply filters conditionally for single type
         $query->when($filter, function ($q) use ($filter) {
             $q->whereHas('application.farmer', function ($query) use ($filter) {
                 $query->where('full_name', 'like', '%' . $filter . '%')
