@@ -196,7 +196,7 @@ class AdminVerificationController extends Controller
             DB::transaction(function () use ($model, $validated) {
                 $model::whereIn('id', $validated['ids'])
                     ->where('status', 'pending')
-                    ->update(['status' => 'verified']);
+                    ->update(['status' => 'approved']);
             });
 
             return response()->json(['message' => 'Selected verifications approved successfully.']);
