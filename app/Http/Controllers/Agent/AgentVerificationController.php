@@ -136,22 +136,12 @@ class AgentVerificationController extends Controller
 
     public function storeReturn(Request $request)
     {
-        $isMonetary = $request->has('cashPayment') && $request->get('cashPayment') > 0;
         
         $rules = [
             'application_id' => 'required|exists:applications,id',
             'idCard' => 'nullable|image|max:2048',
         ];
-
-        if ($isMonetary) {
-            $rules['cashPayment'] = 'required|numeric|min:0';
-            $rules['paymentReceipt'] = 'required|image|max:4096';
-            $rules['returnedCommodityPhoto'] = 'nullable';
-        } else {
-            $rules['returnedCommodityPhoto'] = 'required|image|max:4096';
-            $rules['cashPayment'] = 'nullable';
-            $rules['paymentReceipt'] = 'nullable';
-        }
+        $rules['returnedCommodityPhoto'] = 'required|image|max:4096';
 
         $request->validate($rules);
 
@@ -166,8 +156,6 @@ class AgentVerificationController extends Controller
         $data = [
             'application_id' => $application->id,
             'agent_id' => $agent->id,
-            'cash_payment' => $request->cashPayment,
-            'invoice_path' => null, // Initialize invoice path
         ];
 
         if ($request->hasFile('idCard')) {
@@ -181,24 +169,6 @@ class AgentVerificationController extends Controller
         }
 
         $returnVerification = ReturnVerification::create($data);
-
-        if ($isMonetary) {
-            // Generate and save the PDF invoice
-            $invoiceData = [
-                'invoice_number' => 'INV-' . Str::uuid(),
-                'date' => now()->format('Y-m-d'),
-                'farmer' => $application->farmer,
-                'application' => $application,
-                'amount' => $request->cashPayment,
-                'agent' => $agent,
-            ];
-
-            $pdf = PDF::loadView('invoices.monetary_return', $invoiceData);
-            $invoicePath = 'invoices/returns/' . $invoiceData['invoice_number'] . '.pdf';
-            Storage::disk('public')->put($invoicePath, $pdf->output());
-
-            $returnVerification->update(['invoice_path' => $invoicePath]);
-        }
         
         ToastMagic::success('Return submitted successfully');
         return response()->json(['message' => 'Return submitted successfully']);

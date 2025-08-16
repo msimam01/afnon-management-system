@@ -152,12 +152,6 @@
                             </table>
                         </div>
                     </div>
-                    <div class="mb-4">
-                        <label class="inline-flex items-center">
-                            <input type="checkbox" x-model="isMonetaryReturn" class="form-checkbox h-5 w-5 text-emerald-600">
-                            <span class="ml-2 text-gray-700 dark:text-gray-300">Is this a monetary return?</span>
-                        </label>
-                    </div>
 
                     <div class="flex flex-col sm:flex-row gap-6">
                         <div class="flex-1">
@@ -182,22 +176,9 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="flex-1" x-show="isMonetaryReturn">
-                            <label for="paymentReceiptInput" class="block text-gray-700 dark:text-gray-300 font-medium mb-2">Upload Payment Receipt</label>
-                            <div class="relative border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center cursor-pointer hover:border-emerald-500 transition-colors">
-                                <input type="file" name="paymentReceipt" id="paymentReceiptInput" accept="image/*" x-bind:required="isMonetaryReturn" @change="previewImage($event, 'paymentReceiptPreview')" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                                <div class="flex flex-col items-center">
-                                    <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                    <span class="mt-2 text-gray-600 dark:text-gray-400 text-sm">Drag & drop or click to upload receipt</span>
-                                    <img id="paymentReceiptPreview" class="mt-2 w-32 h-32 object-cover rounded hidden border border-gray-300 dark:border-gray-600" />
-                                </div>
-                            </div>
-                        </div>
+                       
                     </div>
-                    <div x-show="isMonetaryReturn">
-                        <label for="cashPayment" class="block text-gray-700 dark:text-gray-300 font-medium mb-2">Cash Payment</label>
-                        <input type="number" name="cashPayment" id="cashPayment" x-bind:required="isMonetaryReturn" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white" step="0.01" min="0">
-                    </div>
+                    
                     <div class="flex justify-end">
                         <button type="submit"
                             class="bg-emerald-600 text-white py-2 px-6 rounded-md hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 font-medium transition">
@@ -286,15 +267,12 @@
                     this.modalData = app;
                     this.form.application_id = app.id;
                     this.showModal = true;
-                    this.isMonetaryReturn = false; // Reset the checkbox state
 
                     // Reset all file inputs and previews
                     document.getElementById('idCardInput').value = '';
                     document.getElementById('returnedCommodityPhotoInput').value = '';
-                    document.getElementById('paymentReceiptInput').value = '';
                     document.getElementById('idCardPreview').classList.add('hidden');
                     document.getElementById('returnedCommodityPreview').classList.add('hidden');
-                    document.getElementById('paymentReceiptPreview').classList.add('hidden');
                 },
 
                 closeReturnModal() {
