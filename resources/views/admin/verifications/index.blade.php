@@ -322,7 +322,7 @@
                     this.total = data.total;
 
                 } catch (error) {
-                    console.error("Error fetching verifications:", error);
+                    toastr.error("Error fetching verifications:", error)
                 } finally {
                     this.loading = false;
                 }
@@ -345,7 +345,7 @@
 
             async bulkApprove() {
                 if (this.selectedItems.length === 0) {
-                    alert('Please select at least one item to approve.');
+                    toastr.error('Please select at least one item to approve.')
                     return;
                 }
 
@@ -363,14 +363,13 @@
                     if (!response.ok) {
                         const errorData = await response.json();
                         throw new Error(errorData.message || 'Failed to perform bulk approval.');
+                        toastr.error("Failed to perform bulk approval.", errorData.message);
                     }
-                    
-                    alert('Selected items approved successfully.');
+                    toastr.success('Selected items approved successfully.');
                     await this.fetchVerifications();
 
                 } catch (error) {
-                    console.error("Error with bulk approval:", error);
-                    alert(`Error: ${error.message}`);
+                    toastr.error("Error with bulk approval:", error);
                 } finally {
                     this.loading = false;
                 }
@@ -405,13 +404,12 @@
                         throw new Error(errorData.message || 'Failed to update status.');
                     }
 
-                    alert(`Item status updated to ${status}.`);
+                    toastr.success(`Item status updated to ${status}.`)
                     await this.fetchVerifications();
                     this.closeModal();
 
                 } catch (error) {
-                    console.error("Error updating status:", error);
-                    alert(`Error: ${error.message}`);
+                    toastr.error(`Error: ${error.message}`);
                 } finally {
                     this.loading = false;
                 }
