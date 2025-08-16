@@ -2,50 +2,206 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\Season;
 use Illuminate\Http\Request;
 use App\Models\ReturnVerification;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\CollectionVerification;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection; // <--- This line was missing
 
 class AdminVerificationController extends Controller
 {
-    public function collections()
+    public function index()
     {
-        $verifications = CollectionVerification::with(['application.farmer', 'agent'])->latest()->get();
-        return view('admin.verifications.collections', compact('verifications'));
+        return view('admin.verifications.index');
     }
 
-    public function approveCollection($id)
+    /**
+     * Get paginated verification data for the API.
+     */
+    public function getVerifications(Request $request)
     {
-        $verification = CollectionVerification::findOrFail($id);
-        $verification->update(['status' => 'approved']);
-        return back()->with('success', 'Collection approved.');
+        $perPage = 10;
+        $filter = $request->get('filter');
+        $seasonName = $request->get('season');
+        $status = $request->get('status');
+        $type = $request->get('type');
+        $page = $request->get('page', 1);
+
+        $query = null;
+        if ($type === 'collection') {
+            $query = CollectionVerification::with([
+                'application.farmer',
+                'application.season',
+                'application.commodity_allocations',
+                'center'
+            ]);
+        } elseif ($type === 'return') {
+            $query = ReturnVerification::with([
+                'application.farmer',
+                'application.season',
+                'application.commodity_allocations',
+                'center'
+            ]);
+        } else {
+            // Handle both types if no specific type is selected, ensuring a union for pagination.
+            $collectionQuery = CollectionVerification::with([
+                'application.farmer',
+                'application.season',
+                'application.commodity_allocations',
+                'center'
+            ]);
+
+            $returnQuery = ReturnVerification::with([
+                'application.farmer',
+                'application.season',
+                'application.commodity_allocations',
+                'center'
+            ]);
+
+            // Apply filters to both queries before the union
+            $collectionQuery->when($filter, function ($q) use ($filter) {
+                $q->whereHas('application.farmer', function ($query) use ($filter) {
+                    $query->where('full_name', 'like', '%' . $filter . '%')
+                        ->orWhere('registration_number', 'like', '%' . $filter . '%');
+                });
+            })->when($seasonName, function ($q) use ($seasonName) {
+                $q->whereHas('application.season', function ($query) use ($seasonName) {
+                    $query->where('name', $seasonName);
+                });
+            })->when($status, function ($q) use ($status) {
+                $q->where('status', $status);
+            });
+
+            $returnQuery->when($filter, function ($q) use ($filter) {
+                $q->whereHas('application.farmer', function ($query) use ($filter) {
+                    $query->where('full_name', 'like', '%' . $filter . '%')
+                        ->orWhere('registration_number', 'like', '%' . $filter . '%');
+                });
+            })->when($seasonName, function ($q) use ($seasonName) {
+                $q->whereHas('application.season', function ($query) use ($seasonName) {
+                    $query->where('name', $seasonName);
+                });
+            })->when($status, function ($q) use ($status) {
+                $q->where('status', $status);
+            });
+
+            $collectionData = $collectionQuery->get()->map(function ($item) {
+                $item->type = 'collection';
+                return $item;
+            });
+            $returnData = $returnQuery->get()->map(function ($item) {
+                $item->type = 'return';
+                return $item;
+            });
+
+            $allData = $collectionData->merge($returnData);
+            $total = $allData->count();
+            $paginatedData = $allData->forPage($page, $perPage);
+            $pagedData = new LengthAwarePaginator($paginatedData, $total, $perPage, $page, [
+                'path' => $request->url(),
+                'query' => $request->query(),
+            ]);
+
+            return response()->json($pagedData);
+        }
+
+        // Apply filters conditionally using a series of 'when' clauses for single type
+        $query->when($filter, function ($q) use ($filter) {
+            $q->whereHas('application.farmer', function ($query) use ($filter) {
+                $query->where('full_name', 'like', '%' . $filter . '%')
+                    ->orWhere('registration_number', 'like', '%' . $filter . '%');
+            });
+        });
+
+        $query->when($seasonName, function ($q) use ($seasonName) {
+            $q->whereHas('application.season', function ($query) use ($seasonName) {
+                $query->where('name', $seasonName);
+            });
+        });
+
+        $query->when($status, function ($q) use ($status) {
+            $q->where('status', $status);
+        });
+
+        // Paginate the results directly from the database query.
+        $pagedData = $query->paginate($perPage);
+
+        // Normalize the type and image URLs for the single type query.
+        $pagedData->getCollection()->transform(function ($item) use ($type) {
+            $item->type = $type;
+            if ($type === 'collection') {
+                $item->media_files = [
+                    Storage::url($item->id_card_photo),
+                    Storage::url($item->commodities_photo)
+                ];
+            } elseif ($type === 'return') {
+                $item->media_files = [
+                    Storage::url($item->id_card_photo),
+                    Storage::url($item->returned_commodity_photo)
+                ];
+            }
+            return $item;
+        });
+
+        return response()->json($pagedData);
     }
 
-    public function rejectCollection($id)
+    /**
+     * Update the status of a single verification.
+     */
+    public function verifySingle(Request $request)
     {
-        $verification = CollectionVerification::findOrFail($id);
-        $verification->update(['status' => 'rejected']);
-        return back()->with('success', 'Collection rejected.');
+        $validated = $request->validate([
+            'id' => 'required|integer',
+            'type' => 'required|string|in:collection,return',
+            'status' => 'required|string|in:approved,rejected',
+        ]);
+
+        $model = ($validated['type'] === 'collection') ? CollectionVerification::class : ReturnVerification::class;
+
+        try {
+            DB::transaction(function () use ($model, $validated) {
+                $verification = $model::findOrFail($validated['id']);
+                $verification->status = $validated['status'];
+                $verification->save();
+            });
+
+            return response()->json(['message' => 'Verification status updated successfully.']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to update verification status.', 'error' => $e->getMessage()], 500);
+        }
     }
 
-    public function returns()
+    /**
+     * Bulk approve verifications.
+     */
+    public function bulkApprove(Request $request)
     {
-        $verifications = ReturnVerification::with(['application.farmer', 'agent'])->latest()->get();
-        return view('admin.verifications.returns', compact('verifications'));
-    }
+        $validated = $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer',
+        ]);
 
-    public function approveReturn($id)
-    {
-        $verification = ReturnVerification::findOrFail($id);
-        $verification->update(['status' => 'approved']);
-        return back()->with('success', 'Return approved.');
-    }
+        // Assumes all items in the array are of the same type for simplicity.
+        // For a more robust solution, you would need a mechanism to determine the type for each ID.
+        // This example assumes they come from the filtered list.
+        $type = $request->get('type');
+        $model = ($type === 'collection') ? CollectionVerification::class : ReturnVerification::class;
 
-    public function rejectReturn($id)
-    {
-        $verification = ReturnVerification::findOrFail($id);
-        $verification->update(['status' => 'rejected']);
-        return back()->with('success', 'Return rejected.');
+        try {
+            DB::transaction(function () use ($model, $validated) {
+                $model::whereIn('id', $validated['ids'])
+                    ->where('status', 'pending')
+                    ->update(['status' => 'verified']);
+            });
+
+            return response()->json(['message' => 'Selected verifications approved successfully.']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to approve verifications.', 'error' => $e->getMessage()], 500);
+        }
     }
 }

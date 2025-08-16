@@ -15,4 +15,18 @@ class ReturnVerification extends Model
         'returned_commodity_photo',
         'status'
     ];
+    public function application()
+    {
+        return $this->belongsTo(Application::class);
+    }
+
+    public function agent()
+    {
+        return $this->belongsTo(Agent::class);
+    }
+
+    public function center()
+    {
+        return $this->belongsTo(Center::class, 'center_id');
+    }
 }

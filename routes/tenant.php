@@ -112,13 +112,17 @@ Route::middleware([
             Route::delete('/{permission}/delete', [PermissionController::class, 'destroy'])->name('destroy');
         });
 
-        Route::get('verifications/collections', [AdminVerificationController::class, 'collections'])->name('verifications.collections');
-        Route::post('verifications/collections/{id}/approve', [AdminVerificationController::class, 'approveCollection'])->name('verifications.collections.approve');
-        Route::post('verifications/collections/{id}/reject', [AdminVerificationController::class, 'rejectCollection'])->name('verifications.collections.reject');
+        // Route for the main admin verification page
+        Route::get('/verifications', [AdminVerificationController::class, 'index'])->name('verifications.index');
 
-        Route::get('verifications/returns', [AdminVerificationController::class, 'returns'])->name('verifications.returns');
-        Route::post('verifications/returns/{id}/approve', [AdminVerificationController::class, 'approveReturn'])->name('verifications.returns.approve');
-        Route::post('verifications/returns/{id}/reject', [AdminVerificationController::class, 'rejectReturn'])->name('verifications.returns.reject');
+        // API endpoint to get verification data
+        Route::get('/api/verifications', [AdminVerificationController::class, 'getVerifications'])->name('api.verifications');
+
+        // Route for bulk approval
+        Route::post('/verifications/bulk-approve', [AdminVerificationController::class, 'bulkApprove'])->name('verifications.bulk-approve');
+
+        // Route for single item verification
+        Route::post('/verifications/verify', [AdminVerificationController::class, 'verifySingle'])->name('verifications.verify');
 
         Route::resource('seasons', \App\Http\Controllers\Tenant\Admin\SeasonController::class);
         Route::get('seasons/{season}/export', [\App\Http\Controllers\Tenant\Admin\SeasonController::class, 'export'])->name('seasons.export');
@@ -160,14 +164,10 @@ Route::middleware([
 
         Route::get('verify-collection', [AgentVerificationController::class, 'assignedFarmers'])->name('verify.collection');
         Route::post('verify-collection', [AgentVerificationController::class, 'storeCollection'])->name('verify.collection.submit');
-    
+
         Route::get('verify-return', [AgentVerificationController::class, 'assignedReturns'])->name('verify.return');
         Route::post('verify-return', [AgentVerificationController::class, 'storeReturn'])->name('verify.return.submit');
-        Route::get('/agent/verify-return/{uuid}/invoice/data', [AgentVerificationController::class, 'getInvoiceData']);
 
-Route::post('verify-return/invoice', [AgentVerificationController::class, 'generateMonetaryInvoice'])->name('verify.return.invoice');
     });
-
-
     // Additional tenant-specific routes...
 });
