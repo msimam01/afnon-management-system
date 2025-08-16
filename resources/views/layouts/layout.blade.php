@@ -140,7 +140,7 @@
                         </button>
                         <div id="profileMenu"
                             class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 border border-gray-200 dark:border-gray-700">
-                            <a href="profile-settings.html"
+                            <a href="{{ route('profile.edit') }}"
                                 class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Profile
                                 Settings</a>
                             <form action="{{ route('tenant.logout') }}" method="post">

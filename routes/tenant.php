@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BVNController;
 use App\Http\Controllers\AgentController;
 use App\Http\Controllers\SeasonController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\Admin\CenterController;
@@ -39,10 +40,19 @@ Route::middleware([
             return view('tenant_landing'); // tenant-specific welcome
         })->name('tenant.landing');
     }
+    Route::get('/profile', function () {
+        return view('profile.edit'); // central landing page
+    })->name('profile');
     // Tenant login routes (you can also keep them in auth.php if reused)
     Route::get('/login', [App\Http\Controllers\Auth\TenantLoginController::class, 'showLoginForm'])->name('tenant.login');
     Route::post('/login', [App\Http\Controllers\Auth\TenantLoginController::class, 'login']);
     Route::post('/logout', [App\Http\Controllers\Auth\TenantLoginController::class, 'logout'])->name('tenant.logout');
+
+    
+    Route::middleware('auth')->group(function () {
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    });
     // Admin routes inside tenant
     Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
