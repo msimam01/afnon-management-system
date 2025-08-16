@@ -87,6 +87,9 @@
         body.dark .dataTables_wrapper table tbody tr:hover {
             background-color: #374151;
         }
+        .sidebar-link {
+            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+        }
     </style>
 
 </head>
@@ -362,6 +365,44 @@
                                 Roles & Permissions
                             </a>
                         </li>
+                        <li x-data="{ open: false }" class="relative">
+                            <button @click="open = !open"
+                                class="sidebar-link w-full flex items-center px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-700 dark:hover:bg-gray-600 focus:outline-none">
+                                <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12h6m-3-3v6m-9 6h16a2 2 0 002-2V8a2 2 0 00-2-2H3a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                    </path>
+                                </svg>
+                                <span class="flex-grow text-left">Reports</span>
+                                <!-- Dropdown arrow -->
+                                <svg class="w-4 h-4 transform transition-transform duration-200"
+                                    :class="{'rotate-90': open, 'rotate-0': !open}" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </button>
+                            <!-- Nested links -->
+                            <ul x-show="open" x-collapse.duration.300ms class="mt-2 ml-6 space-y-2 text-sm" x-cloak>
+                                <li>
+                                    <a href="#"
+                                        class="sidebar-link flex items-center px-4 py-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-700 dark:hover:bg-gray-600">
+                                        Summary Report
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#"
+                                        class="sidebar-link flex items-center px-4 py-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-700 dark:hover:bg-gray-600">
+                                        Detailed Analytics
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#"
+                                        class="sidebar-link flex items-center px-4 py-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-700 dark:hover:bg-gray-600">
+                                        Financials
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
                         <li>
                             <a href="{{ route('admin.verifications.index') }}"
                                 class="{{ Route::is('admin.verifications.index') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
@@ -462,7 +503,7 @@
     </div>
     @include('layouts.footer')
     <script src="{{ asset('js/script.js') }}"></script>
-    
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     {!! ToastMagic::scripts() !!}
     <script>

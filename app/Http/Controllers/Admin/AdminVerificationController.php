@@ -16,7 +16,8 @@ class AdminVerificationController extends Controller
 {
     public function index()
     {
-        return view('admin.verifications.index');
+        $seasons = Season::all();
+        return view('admin.verifications.index', compact('seasons'));
     }
 
     /**

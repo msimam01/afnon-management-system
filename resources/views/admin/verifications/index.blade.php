@@ -323,6 +323,7 @@
 
                 } catch (error) {
                     toastr.error("Error fetching verifications:", error)
+                    
                 } finally {
                     this.loading = false;
                 }
