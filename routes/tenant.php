@@ -11,6 +11,7 @@ use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\Admin\CenterController;
 use App\Http\Controllers\AgentDashboardController;
 use App\Http\Controllers\MonetaryReturnController;
+use App\Http\Controllers\Admin\AuditLogsController;
 use App\Http\Controllers\AgentCollectionController;
 use App\Http\Controllers\Admin\AdminReportController;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
@@ -128,6 +129,11 @@ Route::middleware([
             Route::get('applications', [AdminReportController::class, 'applications'])->name('applications');
             Route::get('export', [AdminReportController::class, 'export'])
                 ->name('export');
+
+        });
+
+        Route::prefix('logs')->name('logs.')->group(function () {
+            Route::get('activity-logs', [AuditLogsController::class, 'index'])->name('index');
 
         });
 
