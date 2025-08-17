@@ -5,6 +5,7 @@ namespace App\Http\Controllers\SuperAdmin;
 use Illuminate\Http\Request;
 use App\Models\SuperAdmin\Tenant;
 use App\Http\Controllers\Controller;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class DashboardController extends Controller
 {
@@ -19,22 +20,19 @@ class DashboardController extends Controller
         $totalApproved = 0;
         $totalCollected = 0;
         $totalReturned = 0;
-        $stateBreakdown = []; // ['State' => ['farmers'=>int, 'collected'=>int, 'returned'=>int]]
+        $stateBreakdown = [];
+        $tenantRows = [];
 
-        $tenantRows = []; // per-tenant table rows
-
+        // build per-tenant rows (loop tenants and switch to tenant DB)
         foreach ($tenants as $tenant) {
-            // initialize tenant DB context
             tenancy()->initialize($tenant);
 
-            // gather tenant counts (these models live inside tenant DB)
             $farmers = (int) \App\Models\Farmer::count();
             $applications = (int) \App\Models\Application::count();
             $approved = (int) \App\Models\Application::where('status', 'approved')->count();
             $collected = (int) \App\Models\CollectionVerification::count();
             $returned = (int) \App\Models\ReturnVerification::count();
 
-            // append per-tenant row
             $tenantRows[] = [
                 'id' => $tenant->id,
                 'name' => $tenant->name ?? $tenant->domain ?? "Tenant {$tenant->id}",
@@ -45,14 +43,13 @@ class DashboardController extends Controller
                 'returned' => $returned,
             ];
 
-            // add to totals
             $totalFarmers += $farmers;
             $totalApplications += $applications;
             $totalApproved += $approved;
             $totalCollected += $collected;
             $totalReturned += $returned;
 
-            // state breakdown per tenant
+            // state breakdown (per tenant)
             $states = \App\Models\Farmer::select('state')
                 ->selectRaw('COUNT(id) as total_farmers')
                 ->groupBy('state')
@@ -70,7 +67,6 @@ class DashboardController extends Controller
 
                 $stateBreakdown[$stateName]['farmers'] += (int) $s->total_farmers;
 
-                // count collected/returned for this state inside the tenant
                 $collectedCount = (int) \App\Models\CollectionVerification::whereHas('application.farmer', function ($q) use ($stateName) {
                     $q->where('state', $stateName);
                 })->count();
@@ -83,32 +79,89 @@ class DashboardController extends Controller
                 $stateBreakdown[$stateName]['returned'] += $returnedCount;
             }
 
-            // end tenant DB context (important)
             tenancy()->end();
         }
 
-        // Prepare chart arrays (top states)
-        arsort($stateBreakdown); // sort by farmers descending
-        $stateBreakdown = array_slice($stateBreakdown, 0, 12, true); // top 12 states
+        // --- server-side search ---
+        $q = $request->query('q', null);
+        if ($q) {
+            $tenantRows = array_values(array_filter($tenantRows, function ($row) use ($q) {
+                return str_contains(strtolower($row['name']), strtolower($q)) || str_contains((string)$row['id'], (string)$q);
+            }));
+        }
+
+        // --- CSV export (exports ALL rows, not just current page) ---
+        if ($request->query('export') === 'csv') {
+            $filename = 'tenants_export_' . date('Ymd_His') . '.csv';
+            $columns = ['id', 'name', 'farmers', 'applications', 'approved', 'collected', 'returned'];
+
+            $callback = function () use ($tenantRows, $columns) {
+                $fh = fopen('php://output', 'w');
+                // BOM for Excel (optional)
+                // fprintf($fh, chr(0xEF).chr(0xBB).chr(0xBF));
+                fputcsv($fh, $columns);
+                foreach ($tenantRows as $row) {
+                    fputcsv($fh, [
+                        $row['id'],
+                        $row['name'],
+                        $row['farmers'],
+                        $row['applications'],
+                        $row['approved'],
+                        $row['collected'],
+                        $row['returned'],
+                    ]);
+                }
+                fclose($fh);
+            };
+
+            return response()->streamDownload($callback, $filename, [
+                'Content-Type' => 'text/csv',
+            ]);
+        }
+
+        // --- server-side pagination ---
+        $perPage = (int) $request->query('per_page', 10);
+        $page = (int) $request->query('page', 1);
+        $totalRows = count($tenantRows);
+
+        // slice for current page
+        $offset = ($page - 1) * $perPage;
+        $pagedRows = array_slice($tenantRows, $offset, $perPage);
+
+        $tenantPaginator = new LengthAwarePaginator(
+            $pagedRows,
+            $totalRows,
+            $perPage,
+            $page,
+            [
+                'path' => $request->url(),
+                'query' => $request->query(),
+            ]
+        );
+
+        // Prepare state chart arrays (top states)
+        arsort($stateBreakdown);
+        $stateBreakdown = array_slice($stateBreakdown, 0, 12, true);
 
         $tenantGrowthLabels = array_keys($stateBreakdown);
         $tenantGrowthData = array_map(fn($v) => $v['farmers'], array_values($stateBreakdown));
-
         if (empty($tenantGrowthLabels)) {
             $tenantGrowthLabels = ['No Data'];
             $tenantGrowthData = [0];
         }
 
         return view('super-admin.dashboard', [
-            'totalTenants'       => $totalTenants,
-            'totalFarmers'       => $totalFarmers,
-            'totalApplications'  => $totalApplications,
-            'totalApproved'      => $totalApproved,
-            'totalCollected'     => $totalCollected,
-            'totalReturned'      => $totalReturned,
-            'tenantRows'         => $tenantRows,
+            'totalTenants' => $totalTenants,
+            'totalFarmers' => $totalFarmers,
+            'totalApplications' => $totalApplications,
+            'totalApproved' => $totalApproved,
+            'totalCollected' => $totalCollected,
+            'totalReturned' => $totalReturned,
+            'tenantPaginator' => $tenantPaginator,
             'tenantGrowthLabels' => $tenantGrowthLabels,
-            'tenantGrowthData'   => $tenantGrowthData,
+            'tenantGrowthData' => $tenantGrowthData,
+            'q' => $q,
+            'perPage' => $perPage,
         ]);
     }
 }
