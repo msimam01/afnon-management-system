@@ -18,6 +18,7 @@ use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use App\Http\Controllers\Tenant\Admin\CommodityController;
 use App\Http\Controllers\Admin\AdminVerificationController;
 use App\Http\Controllers\Agent\AgentVerificationController;
+use App\Http\Controllers\Auth\TenantForgotPasswordController;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 use App\Http\Controllers\Tenant\Admin\Centers\CollectionCenters;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
@@ -42,14 +43,15 @@ Route::middleware([
             return view('tenant_landing'); // tenant-specific welcome
         })->name('tenant.landing');
     }
-    Route::get('/profile', function () {
-        return view('profile.edit'); // central landing page
-    })->name('profile');
+
     // Tenant login routes (you can also keep them in auth.php if reused)
     Route::get('/login', [App\Http\Controllers\Auth\TenantLoginController::class, 'showLoginForm'])->name('tenant.login');
     Route::post('/login', [App\Http\Controllers\Auth\TenantLoginController::class, 'login']);
     Route::post('/logout', [App\Http\Controllers\Auth\TenantLoginController::class, 'logout'])->name('tenant.logout');
-
+    Route::get('/forgot-password', [TenantForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+    Route::post('/forgot-password', [TenantForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+    Route::get('/reset-password/{token}', [TenantForgotPasswordController::class, 'showResetForm'])->name('password.reset');
+    Route::put('/reset-password', [TenantForgotPasswordController::class, 'reset'])->name('password.update');
 
     Route::middleware('auth')->group(function () {
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -57,6 +59,10 @@ Route::middleware([
     });
     // Admin routes inside tenant
     Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+        Route::get('settings', [\App\Http\Controllers\Tenant\Admin\SettingController::class, 'index'])->name('settings');
+        Route::post('settings', [\App\Http\Controllers\Tenant\Admin\SettingController::class, 'store'])->name('settings.store');
+
+
         Route::get('dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
         Route::get('collection/centers', fn() => view('admin.centers'))->name('centers');
 

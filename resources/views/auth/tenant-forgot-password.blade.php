@@ -64,13 +64,13 @@
                         </path>
                     </svg>
                 </div>
-                <h2 class="mt-6 text-center text-3xl font-bold text-gray-900 dark:text-white">Sign in to your account
+                <h2 class="mt-6 text-center text-3xl font-bold text-gray-900 dark:text-white">Forget password
                 </h2>
                 <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-                    Access the Afnon Loan Management System
+                    Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.
                 </p>
             </div>
-            <form class="mt-8 space-y-6" action="{{ route('tenant.login') }}" method="POST">
+            <form class="mt-8 space-y-6" action="{{ route('password.email') }}" method="POST">
                 @csrf
                 <div class="space-y-4">
                     <div>
@@ -79,50 +79,18 @@
                         <input id="email-address" name="email" type="email" autocomplete="email" required
                             class="mt-1 appearance-none relative block w-full px-3 py-3 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 focus:z-10 sm:text-sm"
                             value="{{ old('email') }}" placeholder="Enter your email">
-                        <x-input-error :messages="$errors->get('email')" class="mt-2" />
-                    </div>
-                    <div>
-                        <label for="password"
-                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
-                        <input id="password" name="password" type="password" autocomplete="current-password" required
-                            class="mt-1 appearance-none relative block w-full px-3 py-3 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 focus:z-10 sm:text-sm"
-                            placeholder="Enter your password">
-                        <x-input-error :messages="$errors->get('password')" class="mt-2" />
+                        {{-- Use Laravel's @error directive for error messages --}}
+                        @error('email')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
                 </div>
-
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center">
-                        <input id="remember-me" name="remember-me" type="checkbox"
-                            class="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 dark:border-gray-600 rounded">
-                        <label for="remember-me" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
-                            Remember me
-                        </label>
-                    </div>
-
-                    <div class="text-sm">
-                        @if (Route::has('password.request'))
-                            <a href="{{ route('password.request') }}" class="font-medium text-emerald-600 hover:text-emerald-500">
-                            Forgot your password?
-                        </a>
-                        @endif
-                    </div>
-                </div>
-
+            
                 <div>
                     <button type="submit"
                         class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors">
-                        Sign in
+                        Email Password Reset Link
                     </button>
-                </div>
-
-                <div class="text-center">
-                    <p class="text-sm text-gray-600 dark:text-gray-400">
-                        Don't have an account?
-                        <span class="font-medium text-emerald-600 hover:text-emerald-500">
-                            Please contact administrator
-                        </span>
-                    </p>
                 </div>
             </form>
         </div>
