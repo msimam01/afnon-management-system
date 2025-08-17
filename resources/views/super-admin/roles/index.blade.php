@@ -150,7 +150,7 @@
                 },
 
                 togglePermission(roleId, permissionId, grant) {
-                    fetch(`/admin/roles/${roleId}/permissions`, {
+                    fetch(`/super-admin/roles/${roleId}/permissions`, {
                         method: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -180,8 +180,8 @@
                 },
                 saveRole() {
                     const method = this.roleForm.id ? 'PUT' : 'POST';
-                    const url = this.roleForm.id ? `/admin/roles/${this.roleForm.id}/update` :
-                        '/admin/roles/store';
+                    const url = this.roleForm.id ? `/super-admin/roles/${this.roleForm.id}/update` :
+                        '/super-admin/roles/store';
                     fetch(url, {
                         method,
                         headers: {
@@ -199,7 +199,7 @@
                     this.showRoleModal = true
                 },
                 deleteRole(id) {
-                    if (confirm('Are you sure?')) fetch(`/admin/roles/${id}/delete`, {
+                    if (confirm('Are you sure?')) fetch(`/super-admin/roles/${id}/delete`, {
                         method: 'DELETE',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
@@ -221,8 +221,8 @@
                 savePermission() {
                     const method = this.permissionForm.id ? 'PUT' : 'POST';
                     const url = this.permissionForm.id ?
-                        `/admin/permissions/${this.permissionForm.id}/update` :
-                        '/admin/permissions/store';
+                        `/super-admin/permissions/${this.permissionForm.id}/update` :
+                        '/super-admin/permissions/store';
                     fetch(url, {
                         method,
                         headers: {
@@ -240,7 +240,7 @@
                     this.showPermissionModal = true
                 },
                 deletePermission(id) {
-                    if (confirm('Are you sure?')) fetch(`/admin/permissions/${id}/delete`, {
+                    if (confirm('Are you sure?')) fetch(`/super-admin/permissions/${id}/delete`, {
                         method: 'DELETE',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'

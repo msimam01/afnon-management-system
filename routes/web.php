@@ -6,10 +6,12 @@ use App\Http\Controllers\SyncLogController;
 use App\Http\Controllers\CentralSeasonController;
 use App\Http\Controllers\QuotaAllocationController;
 use App\Http\Controllers\SuperAdmin\LogsController;
+use App\Http\Controllers\SuperAdmin\RoleController;
 use App\Http\Controllers\SuperAdmin\UserController;
 use App\Http\Controllers\CentralCommodityController;
 use App\Http\Controllers\SuperAdmin\TenantController;
 use App\Http\Controllers\SuperAdmin\ProfileController;
+use App\Http\Controllers\SuperAdmin\PermissionController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboard;
 
@@ -51,8 +53,14 @@ Route::middleware(['web', 'auth', 'role:super-admin', 'block-tenant-access'])->p
         Route::put('/{role}/update', [RoleController::class, 'update'])->name('update');
         Route::post('/{role}/permissions', [RoleController::class, 'togglePermission'])
             ->name('toggle-permission'); // (group already has name('roles.'))
-
-
+    });
+    Route::prefix('permissions')->name('permissions.')->group(function () {
+        Route::get('/', [PermissionController::class, 'index'])->name('index');
+        Route::get('/create', [PermissionController::class, 'create'])->name('create');
+        Route::post('/store', [PermissionController::class, 'store'])->name('store');
+        Route::get('/{permission}/edit', [PermissionController::class, 'edit'])->name('edit');
+        Route::put('/{permission}/update', [PermissionController::class, 'update'])->name('update');
+        Route::delete('/{permission}/delete', [PermissionController::class, 'destroy'])->name('destroy');
     });
     
 });

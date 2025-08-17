@@ -120,8 +120,6 @@ Route::middleware([
             Route::put('/{role}/update', [RoleController::class, 'update'])->name('update');
             Route::post('/{role}/permissions', [RoleController::class, 'togglePermission'])
                 ->name('toggle-permission'); // (group already has name('roles.'))
-
-
         });
         Route::prefix('permissions')->name('permissions.')->group(function () {
             Route::get('/', [PermissionController::class, 'index'])->name('index');
