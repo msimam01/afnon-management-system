@@ -9,7 +9,8 @@ use Devrabiul\ToastMagic\Facades\ToastMagic;
 
 class CustomLoginController extends Controller
 {
-    public function create() {
+    public function create()
+    {
         return view('auth.login');
     }
     public function store(Request $request)
@@ -23,22 +24,33 @@ class CustomLoginController extends Controller
             $request->session()->regenerate();
 
             $user = Auth::user();
-
+            activity()
+                ->causedBy($user)
+                ->log('logged in');
             if ($user->hasRole('super-admin')) {
                 return redirect()->route('superadmin.dashboard');
-            } elseif ($user->hasRole('admin')) {
-                return redirect()->route('admin.dashboard');
-            } elseif ($user->hasRole('agent')) {
-                return redirect()->route('agent.dashboard');
-            } elseif ($user->hasRole('farmer')) {
-                return redirect()->route('farmer.dashboard');
             }
 
-            return redirect('/dashboard');
         }
         ToastMagic::error('The provided credentials are incorrect.');
         return back()->withErrors([
             'email' => 'The provided credentials are incorrect.',
         ]);
     }
+    public function destroy(Request $request)
+    {
+        // Log the logout action as well
+        if (Auth::check()) {
+            activity()
+                ->causedBy(Auth::user())
+                ->log('logged out');
+        }
+        Auth::logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/');
+    }
+
 }

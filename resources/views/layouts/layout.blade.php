@@ -1,3 +1,8 @@
+@php
+    $centralDomains = ['localhost', '127.0.0.1', 'afnon.com'];
+    $host = request()->getHost();
+    $isCentral = in_array($host, $centralDomains);
+@endphp
 <!DOCTYPE html>
 <html lang="en">
 
@@ -140,10 +145,10 @@
                         </button>
                         <div id="profileMenu"
                             class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 border border-gray-200 dark:border-gray-700">
-                            <a href="{{ route('profile.edit') }}"
+                            <a href="{{ $isCentral ? route('superadmin.profile.edit') : route('profile.edit') }}"
                                 class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Profile
                                 Settings</a>
-                            <form action="{{ route('tenant.logout') }}" method="post">
+                            <form action="{{ $isCentral ? route('central.logout') : route('tenant.logout') }}" method="post">
                                 @csrf
                                 <button type="submit"
                                     class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Logout</button>
@@ -211,6 +216,19 @@
                                         d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                 </svg>
                                 Manage Tenants
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('superadmin.logs.index') }}"
+                                class="{{ Route::is('superadmin.logs.index') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
+                                <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+                                    </path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                                Logs
                             </a>
                         </li>
                         {{-- <li>

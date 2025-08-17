@@ -2,12 +2,14 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Models\Central\CentralCommodity;
-use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SuperAdmin\ProfileController;
 use App\Http\Controllers\SyncLogController;
 use App\Http\Controllers\CentralSeasonController;
 use App\Http\Controllers\QuotaAllocationController;
+use App\Http\Controllers\SuperAdmin\LogsController;
 use App\Http\Controllers\CentralCommodityController;
 use App\Http\Controllers\SuperAdmin\TenantController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboard;
 
 Route::get('/', function () {
@@ -17,12 +19,18 @@ Route::get('/', function () {
 // Auth routes for central (e.g. super admin)
 require __DIR__ . '/auth.php';
 
+
 // Super Admin routes
 Route::middleware(['web', 'auth', 'role:super-admin', 'block-tenant-access'])->prefix('super-admin')->name('superadmin.')->group(function () {
     Route::get('/dashboard', [SuperAdminDashboard::class, 'index'])->name('dashboard');
     Route::get('/tenants', [TenantController::class, 'index'])->name('tenants.index');
     Route::get('/tenants/create', [TenantController::class, 'create'])->name('tenants.create');
     Route::post('/tenants', [TenantController::class, 'store'])->name('tenants.store');
+    Route::get('/logs', [LogsController::class, 'index'])->name('logs.index');
+    Route::middleware('auth')->group(function () {
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    });
     
 });
 
