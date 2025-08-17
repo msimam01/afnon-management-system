@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\CenterController;
 use App\Http\Controllers\AgentDashboardController;
 use App\Http\Controllers\MonetaryReturnController;
 use App\Http\Controllers\AgentCollectionController;
+use App\Http\Controllers\Admin\AdminReportController;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use App\Http\Controllers\Tenant\Admin\CommodityController;
 use App\Http\Controllers\Admin\AdminVerificationController;
@@ -48,7 +49,7 @@ Route::middleware([
     Route::post('/login', [App\Http\Controllers\Auth\TenantLoginController::class, 'login']);
     Route::post('/logout', [App\Http\Controllers\Auth\TenantLoginController::class, 'logout'])->name('tenant.logout');
 
-    
+
     Route::middleware('auth')->group(function () {
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -122,6 +123,12 @@ Route::middleware([
             Route::get('/{permission}/edit', [PermissionController::class, 'edit'])->name('edit');
             Route::put('/{permission}/update', [PermissionController::class, 'update'])->name('update');
             Route::delete('/{permission}/delete', [PermissionController::class, 'destroy'])->name('destroy');
+        });
+        Route::prefix('reports')->name('reports.')->group(function () {
+            Route::get('applications', [AdminReportController::class, 'applications'])->name('applications');
+            Route::get('export', [AdminReportController::class, 'export'])
+                ->name('export');
+
         });
 
         // Route for the main admin verification page
