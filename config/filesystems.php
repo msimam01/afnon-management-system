@@ -43,6 +43,12 @@ return [
             'visibility' => 'public',
             'throw' => false,
         ],
+        'tenant_logos' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public'),   // all logos go to /public/logos/
+            'url' => env('APP_URL') . '/storage',
+            'visibility' => 'public',
+        ],
 
         's3' => [
             'driver' => 's3',

@@ -1,14 +1,28 @@
 @php
+    use App\Models\Setting;
+
     $centralDomains = ['localhost', '127.0.0.1', 'afnon.com'];
     $host = request()->getHost();
     $isCentral = in_array($host, $centralDomains);
 
-    // Example: Fetch tenant details (if using tenancy package like hyn/multi-tenant or stancl/tenancy)
     $tenant = null;
-    if (!$isCentral) {
+    $setting = null;
+
+    if ($isCentral) {
+        // Central settings (still stored in central DB settings table)
+        $setting = Setting::first();
+    } else {
         $tenant = \App\Models\SuperAdmin\Tenant::whereHas('domains', function ($q) use ($host) {
             $q->where('domain', $host);
         })->first();
+
+        if ($tenant) {
+            // Switch to tenant DB
+            tenancy()->initialize($tenant);
+
+            // Tenant settings (logo, phone, email, address, etc.)
+            $setting = Setting::first();
+        }
     }
 @endphp
 
@@ -18,7 +32,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $isCentral ? 'AFNON - Empowering Nigerian Farmers' : $tenant->name ?? 'Tenant Portal' }}</title>
+    <title>
+        {{ $isCentral ? $setting->name ?? 'AFNON - Empowering Nigerian Farmers' : $tenant->id . ' Portal' ?? 'Tenant Portal' }}
+    </title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/alpinejs" defer></script>
     <style>
@@ -29,28 +45,32 @@
 </head>
 
 <body class="bg-gray-50 text-gray-900">
-    <!-- Tenant Header -->
-    @if (!$isCentral && $tenant)
-        <div class="bg-emerald-700 text-white p-3 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                @if ($tenant && $tenant->logo)
-                    <img src="{{ Storage::url($tenant->logo) }}" alt="{{ $tenant->name }}" class="h-10 w-10 rounded-full">
-                @endif
-
-
-                <span class="font-bold text-lg">{{strtoupper($tenant->id)}}</span>
-            </div>
-            <div>
-                <span class="text-sm">📍 {{ $tenant->location ?? 'Nigeria' }}</span>
-            </div>
+    <!-- Header -->
+    <div class="bg-emerald-700 text-white p-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            @if ($setting && $setting->logo)
+                <a href="/">
+                    <img src="{{ asset('storage/' . $setting->logo) }}" alt="Logo" class="h-16 mt-2">
+                </a>
+            @endif
+            {{-- <span class="font-bold text-lg">
+                {{ $isCentral ? ($setting->name ?? 'AFNON') : ($tenant->short_name ?? strtoupper($tenant->id)) }}
+            </span> --}}
         </div>
-    @endif
+        <div class="text-right text-sm">
+            @if ($setting)
+                <p>📍 {{ $setting->address ?? 'Nigeria' }}</p>
+                <p>📞 <a href="tel:{{ $setting->phone }}" class="hover:underline">{{ $setting->phone }}</a></p>
+                <p>✉️ <a href="mailto:{{ $setting->email }}" class="hover:underline">{{ $setting->email }}</a></p>
+            @endif
+        </div>
+    </div>
 
     <!-- Navbar -->
     <header class="bg-white shadow sticky top-0 z-50" x-data="{ open: false }">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center py-4">
             <h1 class="text-2xl font-bold text-emerald-700">
-                {{ $isCentral ? 'AFNON' : $tenant->short_name ?? strtoupper($tenant->id) }}
+                {{ $isCentral ? $setting->name ?? 'AFNON' : $tenant->short_name ?? strtoupper($tenant->id) }}
             </h1>
 
             <!-- Desktop Nav -->
@@ -58,8 +78,32 @@
                 <a href="#about" class="text-gray-700 hover:text-emerald-700">About</a>
                 <a href="#services" class="text-gray-700 hover:text-emerald-700">Services</a>
                 <a href="#contact" class="text-gray-700 hover:text-emerald-700">Contact</a>
-                <a href="#apply"
-                    class="bg-emerald-700 text-white px-4 py-2 rounded-lg shadow hover:bg-emerald-800">Apply Now</a>
+                @guest
+                    <a href="{{ $isCentral ? route('central.login') : route('tenant.login') }}"
+                        class="bg-emerald-700 text-white px-4 py-2 rounded-lg shadow hover:bg-emerald-800">
+                        Login
+                    </a>
+                @endguest
+
+                @auth
+                    @if (auth()->user()->hasRole('super-admin'))
+                        <a href="{{ route('superadmin.dashboard') }}"
+                            class="bg-emerald-700 text-white px-4 py-2 rounded-lg shadow hover:bg-emerald-800">
+                            Dashboard
+                        </a>
+                    @elseif(auth()->user()->hasRole('admin'))
+                        <a href="{{ route('admin.dashboard') }}"
+                            class="bg-emerald-700 text-white px-4 py-2 rounded-lg shadow hover:bg-emerald-800">
+                            Admin Dashboard
+                        </a>
+                    @elseif(auth()->user()->hasRole('agent'))
+                        <a href="{{ route('agent.dashboard') }}"
+                            class="bg-emerald-700 text-white px-4 py-2 rounded-lg shadow hover:bg-emerald-800">
+                            Agent Dashboard
+                        </a>
+                    @endif
+                @endauth
+
             </nav>
 
             <!-- Mobile Hamburger -->
@@ -87,7 +131,6 @@
         </nav>
     </header>
 
-    <!-- Hero -->
     <section class="pt-24 pb-16 bg-gray-100 dark:bg-gray-800">
         <div class="max-w-7xl mx-auto px-4 grid lg:grid-cols-2 gap-8 items-center">
             <div>
@@ -95,8 +138,8 @@
                     Empowering Nigerian Farmers
                 </h1>
                 <p class="mt-4 text-lg text-gray-600 dark:text-gray-300 max-w-2xl">
-                    Apply for seasonal agricultural loans through AFNON to grow your productivity and improve food
-                    security.
+                    Apply for seasonal agricultural loans through {{ $setting->name ?? 'our program' }} to grow your
+                    productivity and improve food security.
                 </p>
                 <div class="mt-8 flex flex-col sm:flex-row gap-4">
                     @if ($isCentral)
@@ -114,14 +157,11 @@
                             Learn More
                         </a>
                     @endif
-
                 </div>
             </div>
             <div class="mt-8 lg:mt-0">
                 <img src="https://images.pexels.com/photos/2132250/pexels-photo-2132250.jpeg?auto=compress&cs=tinysrgb&w=1920"
                     alt="Nigerian farmers in field" class="rounded-lg shadow-lg w-full h-auto object-cover">
-
-                {{-- <img src="https://source.unsplash.com/600x400/?farmer,agriculture,nigeria" alt="Farmer Image" class="rounded-lg shadow-lg w-full h-auto object-cover"> --}}
             </div>
         </div>
     </section>
@@ -207,22 +247,29 @@
         <div class="max-w-4xl mx-auto px-4 text-center">
             <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Contact Us</h2>
             <p class="mt-4 text-gray-600 dark:text-gray-300">Have any questions or need assistance?</p>
-            <p class="mt-2 text-gray-700 dark:text-gray-200">Email: <a href="mailto:support@afnon.com.ng"
-                    class="text-emerald-600 hover:underline">support@afnon.com.ng</a></p>
-            <p class="mt-1 text-gray-700 dark:text-gray-200">Phone: <a href="tel:+23494615000"
-                    class="text-emerald-600 hover:underline">+234 9 461 5000</a></p>
-            <p class="mt-1 text-gray-700 dark:text-gray-200">Website: <a href="https://afnon.com.ng" target="_blank"
-                    class="text-emerald-600 hover:underline">www.afnon.com.ng</a></p>
+
+            @if ($setting)
+                <p class="mt-2 text-gray-700 dark:text-gray-200">Email:
+                    <a href="mailto:{{ $setting->email }}" class="text-emerald-600 hover:underline">
+                        {{ $setting->email }}
+                    </a>
+                </p>
+                <p class="mt-1 text-gray-700 dark:text-gray-200">Phone:
+                    <a href="tel:{{ $setting->phone }}" class="text-emerald-600 hover:underline">
+                        {{ $setting->phone }}
+                    </a>
+                </p>
+                <p class="mt-1 text-gray-700 dark:text-gray-200">Address:
+                    <span class="text-emerald-600">{{ $setting->address }}</span>
+                </p>
+            @endif
         </div>
     </section>
 
     <!-- Footer -->
     <footer class="bg-gray-900 text-white text-sm py-8">
         <div class="max-w-7xl mx-auto px-4 text-center">
-            <p>© {{ date('Y') }} Association of Farmers In The Northeast of Nigeria (AFNON). All rights reserved.
-            </p>
-            <p class="mt-2">Visit: <a href="https://afnon.com.ng"
-                    class="text-emerald-400 hover:underline">afnon.com.ng</a></p>
+            <p>© {{ date('Y') }} {{ $setting->name ?? 'AFNON' }}. All rights reserved.</p>
         </div>
     </footer>
     {!! ToastMagic::scripts() !!}

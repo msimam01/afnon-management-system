@@ -24,11 +24,17 @@ class CustomLoginController extends Controller
             $request->session()->regenerate();
 
             $user = Auth::user();
-            activity()
-                ->causedBy($user)
-                ->log('logged in');
-            if ($user->hasRole('super-admin')) {
-                return redirect()->route('superadmin.dashboard');
+            if ($user->status == 'active') {
+                activity()
+                    ->causedBy($user)
+                    ->log('logged in');
+                if ($user->hasRole('super-admin')) {
+                    return redirect()->route('superadmin.dashboard');
+                }
+            }else {
+                Auth::logout();
+                ToastMagic::error('Your account has been deactivated!');
+                return redirect()->route('central.login')->withErrors(['access' => 'Unauthorized role.']);
             }
 
         }
