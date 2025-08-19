@@ -16,7 +16,10 @@ use App\Models\{
 };
 use App\Helpers\SmsHelper;
 use App\Models\Center;
+use App\Services\ApplicationCacheService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -25,40 +28,37 @@ use Illuminate\Support\Facades\App;
 class ApplicationController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of the resource with performance optimization
      */
     public function index(Request $request)
     {
-        $query = Application::with(['farmer', 'season', 'commodities', 'farm']);
+        // Use cached paginated results for better performance
+        $filters = $request->only(['season', 'status', 'search']);
+        $perPage = $request->get('per_page', 15);
 
-        // Filter by season
-        if ($request->filled('season')) {
-            $query->whereHas('season', function ($q) use ($request) {
-                $q->where('name', $request->season);
-            });
-        }
+        $applications = ApplicationCacheService::getPaginatedApplications($filters, $perPage);
 
-        // Filter by status
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
+        // Cache frequently accessed data
+        $seasons = Cache::remember('seasons_list', 1800, function () {
+            return Season::select('id', 'name', 'status')->get();
+        });
 
-        // Search farmer
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->whereHas('farmer', function ($q) use ($search) {
-                $q->where('full_name', 'like', "%{$search}%")
-                    ->orWhere('phone', 'like', "%{$search}%")
-                    ->orWhere('bvn', 'like', "%{$search}%");
-            });
-        }
-        $seasons = Season::all();
-        $applications = $query->paginate(5);
+        $collectionCenters = Cache::remember('collection_centers', 1800, function () {
+            return Center::whereIn('type', ['collection', 'both'])
+                         ->select('id', 'name', 'type')
+                         ->get();
+        });
 
-        $collectionCenters = Center::whereIn('type', ['collection', 'both'])->get();
-        $returnCenters = Center::whereIn('type', ['return', 'both'])->get();
+        $returnCenters = Cache::remember('return_centers', 1800, function () {
+            return Center::whereIn('type', ['return', 'both'])
+                         ->select('id', 'name', 'type')
+                         ->get();
+        });
 
-        return view('admin.applications.index', compact('applications', 'collectionCenters', 'returnCenters', 'seasons'));
+        // Add response caching headers for better performance
+        return Response::view('admin.applications.index', compact(
+            'applications', 'collectionCenters', 'returnCenters', 'seasons'
+        ))->header('Cache-Control', 'public, max-age=300'); // 5 minutes
     }
 
 
@@ -249,50 +249,74 @@ class ApplicationController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Show acknowledgment slip with caching and performance optimization
      */
     public function acknowledgment($uuid)
     {
-        $application = Application::with(['farmer', 'farm', 'season', 'commodities'])->whereUuid($uuid)->firstOrFail();
-        return view('application.acknowledgment', compact('application'));
+        // Use cached application data
+        $application = Application::findByUuidCached($uuid);
+
+        if (!$application) {
+            abort(404, 'Application not found');
+        }
+
+        // Add response caching for static content
+        return Response::view('application.acknowledgment', compact('application'))
+                      ->header('Cache-Control', 'public, max-age=1800') // 30 minutes
+                      ->header('ETag', md5($application->updated_at . $uuid));
     }
     public function verify($reference)
     {
-        // Find application by reference number
-        $application = Application::where('reference_number', $reference)
-            ->with(['farmer', 'season', 'farm', 'commodities'])
-            ->first();
+        // Use cached application lookup for better performance
+        $application = Application::findByReferenceCached($reference);
 
         if (!$application) {
+            // Return not-found view without caching to avoid cache tagging issues
             return view('application.verify-not-found', [
                 'reference' => $reference
             ]);
         }
 
-        return view('application.verify', compact('application'));
+        // Return verification view with basic caching headers
+        return Response::view('application.verify', compact('application'))
+                      ->header('Cache-Control', 'public, max-age=1800') // 30 minutes
+                      ->header('ETag', md5($application->updated_at . $reference));
     }
 
     public function downloadSlip($uuid)
     {
-        $application = Application::whereUuid($uuid)->first();
-        $application->load(['farmer', 'season', 'farm', 'commodities']);
+        // Use cached application data
+        $application = Application::findByUuidCached($uuid);
 
+        if (!$application) {
+            abort(404, 'Application not found');
+        }
+
+        // Generate PDF without caching for now (to avoid cache tagging issues)
         $pdf = Pdf::loadView('application.slip-pdf', compact('application'))
-            ->setPaper('a4');
+                  ->setPaper('a4');
 
-        return $pdf->download('Acknowledgement_Slip_' . $application->reference_number . '.pdf');
+        $filename = 'Acknowledgement_Slip_' . $application->reference_number . '.pdf';
+
+        return $pdf->download($filename);
     }
 
     public function downloadVerification($reference)
     {
-        $application = Application::where('reference_number', $reference)
-            ->with(['farmer', 'season', 'farm', 'commodities'])
-            ->firstOrFail();
+        // Use cached application data
+        $application = Application::findByReferenceCached($reference);
 
+        if (!$application) {
+            abort(404, 'Application not found');
+        }
+
+        // Generate PDF without caching for now (to avoid cache tagging issues)
         $pdf = Pdf::loadView('application.verify-pdf', compact('application'))
-            ->setPaper('a4');
+                  ->setPaper('a4');
 
-        return $pdf->download('Verification_' . $application->reference_number . '.pdf');
+        $filename = 'Verification_' . $application->reference_number . '.pdf';
+
+        return $pdf->download($filename);
     }
 
     /**

@@ -1,5 +1,6 @@
 @php
     $tenantName = tenant()->id ?? 'Tenant';
+    $tenantDisplayName = ucfirst($tenantName);
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -8,46 +9,71 @@
     <meta charset="UTF-8">
     <title>Application Verification - {{ $application->reference_number }}</title>
     <style>
+        @page {
+            size: A4;
+            margin: 15mm;
+            background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+        }
+
         body {
-            font-family: 'DejaVu Sans', sans-serif;
+            font-family: 'DejaVu Sans', Arial, sans-serif;
             margin: 0;
             padding: 0;
-            font-size: 14px;
-            background: #f8fafc;
+            font-size: 12px;
+            line-height: 1.6;
+            color: #1f2937;
         }
 
-        /* Watermark */
+        /* Enhanced Watermark */
         .watermark {
             position: fixed;
-            top: 35%;
+            top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%) rotate(-30deg);
-            font-size: 80px;
-            color: rgba(0, 0, 0, 0.05);
+            transform: translate(-50%, -50%) rotate(-25deg);
+            font-size: 120px;
+            font-weight: bold;
+            color: rgba(16, 185, 129, 0.08);
             text-align: center;
             z-index: -1;
+            letter-spacing: 8px;
         }
 
-        /* Header */
+        /* Modern Header */
         .header {
-            text-align: center;
-            border-bottom: 3px solid #059669;
-            padding: 15px 0;
-            background: linear-gradient(90deg, #059669, #10b981);
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
             color: white;
+            padding: 25px;
+            margin: -15mm -15mm 20px -15mm;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
         }
-        .header img {
-            height: 100px;
-        }
+
         .header h1 {
-            margin: 8px 0;
-            font-size: 22px;
-            color: #065f46;
+            margin: 0 0 10px 0;
+            font-size: 28px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            letter-spacing: 1px;
         }
-        .header p {
-            font-size: 13px;
-            color: #065f46;
+
+        .header .subtitle {
+            font-size: 16px;
+            opacity: 0.9;
             margin: 0;
+            font-weight: 300;
+        }
+
+        .verification-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 15px;
+            font-weight: bold;
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+        }
         }
 
         /* Details */
