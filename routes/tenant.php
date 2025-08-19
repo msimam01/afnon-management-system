@@ -35,6 +35,7 @@ Route::middleware([
     'web',
     InitializeTenancyByDomain::class,
     PreventAccessFromCentralDomains::class,
+    'check-tenant-status',
 ])->group(function () {
 
     // Public tenant landing (can be same view)
@@ -53,12 +54,12 @@ Route::middleware([
     Route::get('/reset-password/{token}', [TenantForgotPasswordController::class, 'showResetForm'])->name('password.reset');
     Route::put('/reset-password', [TenantForgotPasswordController::class, 'reset'])->name('password.update');
 
-    Route::middleware('auth')->group(function () {
+    Route::middleware(['auth', 'check-user-status'])->group(function () {
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     });
     // Admin routes inside tenant
-    Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::middleware(['auth', 'check-user-status', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('settings', [\App\Http\Controllers\Tenant\Admin\SettingController::class, 'index'])->name('settings');
         Route::post('settings', [\App\Http\Controllers\Tenant\Admin\SettingController::class, 'store'])->name('settings.store');
 
@@ -137,8 +138,10 @@ Route::middleware([
         });
 
         Route::prefix('logs')->name('logs.')->group(function () {
-            Route::get('activity-logs', [AuditLogsController::class, 'index'])->name('index');
-
+            Route::get('/', [\App\Http\Controllers\Admin\LogController::class, 'index'])->name('index');
+            Route::get('/export/csv', [\App\Http\Controllers\Admin\LogController::class, 'export'])->name('export');
+            Route::get('/api/statistics', [\App\Http\Controllers\Admin\LogController::class, 'statistics'])->name('statistics');
+            Route::get('/{uuid}', [\App\Http\Controllers\Admin\LogController::class, 'show'])->name('show');
         });
 
         // Route for the main admin verification page
@@ -181,14 +184,14 @@ Route::middleware([
 
 
     // Farmer routes inside tenant
-    Route::middleware(['auth', 'role:farmer'])->prefix('farmer')->name('farmer.')->group(function () {
+    Route::middleware(['auth', 'check-user-status', 'role:farmer'])->prefix('farmer')->name('farmer.')->group(function () {
         Route::get('/dashboard', [FarmerDashboard::class, 'index'])->name('dashboard');
         // Add more farmer routes here
     });
 
 
 
-    Route::middleware(['auth', 'role:agent'])->prefix('agent')->name('agent.')->group(function () {
+    Route::middleware(['auth', 'check-user-status', 'role:agent'])->prefix('agent')->name('agent.')->group(function () {
         Route::get('dashboard', [AgentDashboardController::class, 'index'])->name('dashboard');
 
         Route::get('verify-collection', [AgentVerificationController::class, 'assignedFarmers'])->name('verify.collection');

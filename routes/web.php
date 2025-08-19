@@ -24,11 +24,20 @@ require __DIR__ . '/auth.php';
 
 
 // Super Admin routes
-Route::middleware(['web', 'auth', 'role:super-admin', 'block-tenant-access'])->prefix('super-admin')->name('superadmin.')->group(function () {
+Route::middleware(['web', 'auth', 'check-user-status', 'role:super-admin', 'block-tenant-access'])->prefix('super-admin')->name('superadmin.')->group(function () {
     Route::get('/dashboard', [SuperAdminDashboard::class, 'index'])->name('dashboard');
     Route::get('/tenants', [TenantController::class, 'index'])->name('tenants.index');
     Route::get('/tenants/create', [TenantController::class, 'create'])->name('tenants.create');
     Route::post('/tenants', [TenantController::class, 'store'])->name('tenants.store');
+    Route::get('/tenants/{tenant}', [TenantController::class, 'show'])->name('tenants.show');
+    Route::patch('/tenants/{tenant}/toggle-status', [TenantController::class, 'toggleStatus'])->name('tenants.toggle-status');
+    Route::post('/tenants/{tenant}/suspend', [TenantController::class, 'suspend'])->name('tenants.suspend');
+
+    // Activity Logs
+    Route::get('/logs', [\App\Http\Controllers\SuperAdmin\LogsController::class, 'index'])->name('logs.index');
+    Route::get('/logs/export/csv', [\App\Http\Controllers\SuperAdmin\LogsController::class, 'export'])->name('logs.export');
+    Route::get('/logs/api/statistics', [\App\Http\Controllers\SuperAdmin\LogsController::class, 'statistics'])->name('logs.statistics');
+    Route::get('/logs/{uuid}', [\App\Http\Controllers\SuperAdmin\LogsController::class, 'show'])->name('logs.show');
     Route::get('/logs', [LogsController::class, 'index'])->name('logs.index');
     Route::get('settings', [\App\Http\Controllers\SuperAdmin\SettingController::class, 'index'])->name('settings');
     Route::post('settings', [\App\Http\Controllers\SuperAdmin\SettingController::class, 'store'])->name('settings.store');
@@ -62,7 +71,7 @@ Route::middleware(['web', 'auth', 'role:super-admin', 'block-tenant-access'])->p
         Route::put('/{permission}/update', [PermissionController::class, 'update'])->name('update');
         Route::delete('/{permission}/delete', [PermissionController::class, 'destroy'])->name('destroy');
     });
-    
+
 });
 
 

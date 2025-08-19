@@ -30,7 +30,7 @@ Route::middleware(['guest', 'block-tenant-access'])->group(function () {
 
 });
 
-Route::middleware(['auth', 'block-tenant-access'])->group(function () {
+Route::middleware(['auth', 'check-user-status', 'block-tenant-access'])->group(function () {
     Route::get('verify-email', EmailVerificationPromptController::class)
         ->name('verification.notice');
 
@@ -52,5 +52,5 @@ Route::middleware(['auth', 'block-tenant-access'])->group(function () {
 
 // Central logout route (needs to be accessible for authenticated users)
 Route::post('central/logout', [CustomLoginController::class, 'destroy'])
-    ->middleware(['auth', 'block-tenant-access'])
+    ->middleware(['auth', 'check-user-status', 'block-tenant-access'])
     ->name('central.logout');
