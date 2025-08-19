@@ -79,7 +79,7 @@ class CustomForgotPasswordController extends Controller
 
         if ($response === Password::PASSWORD_RESET) {
             ToastMagic::success('Your password has been reset!');
-            return redirect()->route('central.login')->with('status', __($response));
+            return redirect()->route('central.login.form')->with('status', __($response));
         }
 
         ToastMagic::error('This password reset token is invalid.');

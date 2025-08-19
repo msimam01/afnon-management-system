@@ -34,7 +34,7 @@ class CustomLoginController extends Controller
             }else {
                 Auth::logout();
                 ToastMagic::error('Your account has been deactivated!');
-                return redirect()->route('central.login')->withErrors(['access' => 'Unauthorized role.']);
+                return redirect()->route('central.login.form')->withErrors(['access' => 'Unauthorized role.']);
             }
 
         }

@@ -33,11 +33,9 @@ class RouteServiceProvider extends ServiceProvider
                 ->prefix('api')
                 ->group(base_path('routes/api.php'));
 
-            // ✅ Only load web.php if this is not a tenant route
-            if (!app(\Stancl\Tenancy\Contracts\Tenant::class)) {
-                Route::middleware('web')
-                    ->group(base_path('routes/web.php'));
-            }
+            // ✅ Always load central routes (web.php) for central domains
+            Route::middleware('web')
+                ->group(base_path('routes/web.php'));
         });
     }
 }

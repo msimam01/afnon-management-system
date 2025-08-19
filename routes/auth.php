@@ -19,16 +19,14 @@ Route::middleware(['guest', 'block-tenant-access'])->group(function () {
 
     Route::post('register', [RegisteredUserController::class, 'store']);
 
-    Route::get('central/login', [CustomLoginController::class, 'create']);
+    Route::get('central/login', [CustomLoginController::class, 'create'])->name('central.login.form');
 
     // Route::post('login', [AuthenticatedSessionController::class, 'store']);
     Route::post('/central/login', [CustomLoginController::class, 'store'])->middleware('guest')->name('central.login');
-    Route::domain('afnon.com')->group(function(){
-        Route::get('/forgot-password', [CustomForgotPasswordController::class, 'showLinkRequestForm'])->name('central.password.request');
-        Route::post('/forgot-password', [CustomForgotPasswordController::class, 'sendResetLinkEmail'])->name('central.password.email');
-        Route::get('/reset-password/{token}', [CustomForgotPasswordController::class, 'showResetForm'])->name('central.password.reset');
-        Route::put('/reset-password', [CustomForgotPasswordController::class, 'reset'])->name('central.password.update');
-    });
+    Route::get('/forgot-password', [CustomForgotPasswordController::class, 'showLinkRequestForm'])->name('central.password.request');
+    Route::post('/forgot-password', [CustomForgotPasswordController::class, 'sendResetLinkEmail'])->name('central.password.email');
+    Route::get('/reset-password/{token}', [CustomForgotPasswordController::class, 'showResetForm'])->name('central.password.reset');
+    Route::put('/reset-password', [CustomForgotPasswordController::class, 'reset'])->name('central.password.update');
 
 });
 
@@ -50,10 +48,9 @@ Route::middleware(['auth', 'block-tenant-access'])->group(function () {
 
     Route::put('password', [PasswordController::class, 'update'])->name('password.update');
 
-    Route::domain('afnon.com')->middleware(['auth', 'block-tenant-access'])->group(function () {
-        Route::post('logout', [CustomLoginController::class, 'destroy'])
-            ->name('central.logout');
-    });
-    
-
 });
+
+// Central logout route (needs to be accessible for authenticated users)
+Route::post('central/logout', [CustomLoginController::class, 'destroy'])
+    ->middleware(['auth', 'block-tenant-access'])
+    ->name('central.logout');

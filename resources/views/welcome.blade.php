@@ -79,7 +79,7 @@
                 <a href="#services" class="text-gray-700 hover:text-emerald-700">Services</a>
                 <a href="#contact" class="text-gray-700 hover:text-emerald-700">Contact</a>
                 @guest
-                    <a href="{{ $isCentral ? route('central.login') : route('tenant.login') }}"
+                    <a href="{{ $isCentral ? route('central.login.form') : route('tenant.login') }}"
                         class="bg-emerald-700 text-white px-4 py-2 rounded-lg shadow hover:bg-emerald-800">
                         Login
                     </a>

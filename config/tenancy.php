@@ -22,6 +22,7 @@ return [
         'localhost',      // your local dev domain
         '127.0.0.1',
         'afnon.test',
+        'afnon.com',      // production central domain
     ],
 
 
