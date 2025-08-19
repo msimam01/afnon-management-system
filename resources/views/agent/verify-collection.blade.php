@@ -1,280 +1,322 @@
 @extends('layouts.layout')
-@section('content')
-    <!-- Collection Section -->
-    <div id="collection-section" class="w-full min-h-screen px-4 py-6 bg-gray-50 dark:bg-gray-900">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-8">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4 space-y-4 md:space-y-0">
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Assigned Farmers - 2024 Dry Season
-                </h3>
 
-                <!-- Filters -->
+@section('content')
+    <div x-data="collectionApp()" class="w-full min-h-screen px-4 py-6 bg-gray-50 dark:bg-gray-900">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-8">
+            <div class="px-4 py-3 flex justify-between items-center border-b border-gray-200 dark:border-gray-700">
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Collection Verification</h1>
+            </div>
+
+            <div class="flex px-4 py-3 mt-2 flex-col md:flex-row md:items-center md:justify-between mb-4 space-y-4 md:space-y-0">
                 <div class="flex flex-col sm:flex-row sm:items-center gap-2">
-                    <input type="text" id="farmerFilter" placeholder="Search by Farmer ID or Name"
+                    <input type="text" x-model.debounce.500ms="filter" placeholder="Search Farmer Name or ID"
                         class="w-full sm:w-64 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
-                    <select id="seasonFilter"
-                        class="w-full sm:w-48 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                        <option value="2024-dry" selected>2024 Dry Season</option>
-                        <option value="2024-wet">2024 Wet Season</option>
+                    <select x-model="season"
+                        class="w-full sm:w-64 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        <option value="">All Seasons</option>
+                        @foreach ($seasons as $item)
+                            <option value="{{ $item->slug }}">{{ $item->name }}</option>
+                        @endforeach
+                    </select>
+                    <select x-model="status"
+                        class="w-full sm:w-64 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        <option value="">All</option>
+                        <option value="pending">Pending</option>
+                        <option value="verified">Verified</option>
                     </select>
                 </div>
             </div>
 
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto px-6 py-4">
                 <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                     <thead class="bg-gray-50 dark:bg-gray-700">
                         <tr>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                                Farmer ID</th>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                                Name</th>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                                Commodity</th>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                                Expected Return</th>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                                Status</th>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                                Actions</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Farmer ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Name</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Commodities</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="collectionTableBody"
-                        class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                        <!-- Dynamic Rows -->
-                        <tr>
-                            <td class="px-4 py-2 text-sm text-gray-900 dark:text-white">NEC001234</td>
-                            <td class="px-4 py-2 text-sm text-gray-900 dark:text-white">John Doe</td>
-                            <td class="px-4 py-2 text-sm text-gray-900 dark:text-white">Maize Seeds (5 bags)
-                            </td>
-                            <td class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">Expected: 4 Bags
-                                Maize</td>
-                            <td class="px-4 py-2">
-                                <span
-                                    class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200">Pending</span>
-                            </td>
-                            <td class="px-4 py-2">
-                                <button <button
-                                    onclick="openCollectionModal({
-    farmer: {
-        name: 'John Doe',
-        phone: '08012345678',
-        state: 'Kano',
-        lga: 'Gwale'
-    },
-    season: {
-        name: '2024 Dry Season'
-    },
-    farmSize: 2.5,
-    seed: {
-        name: 'Maize Seeds'
-    },
-    expectedReturn: '5 bags (25kg each)',
-    commodities: [
-        { name: 'Maize Seeds', quantity: 5, unit: 'bags', unitPrice: 10000 },
-        { name: 'NPK Fertilizer', quantity: 3, unit: 'bags', unitPrice: 8000 }
-    ]
-})"
-                                    class="bg-emerald-600 text-white px-3 py-1 rounded hover:bg-emerald-700 text-sm">
-                                    Verify Collection
-                                </button>
-                            </td>
+                    <tbody id="collectionTableBody" class="bg-white text-gray-300 dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                        <template x-for="app in applications" :key="app.id">
+                            <tr>
+                                <td class="px-4 py-2 text-sm" x-text="app.farmer.registration_number"></td>
+                                <td class="px-4 py-2 text-sm" x-text="app.farmer.full_name"></td>
+                                <td class="px-4 py-2 text-sm">
+                                    <ul class="list-disc list-inside">
+                                        <template x-for="c in app.commodity_allocations" :key="c.id">
+                                            <li x-text="`${c.commodity_name}: ${c.allocated_quantity}`"></li>
+                                        </template>
+                                    </ul>
+                                </td>
+                                <td class="px-4 py-2">
+                                    <span :class="{'bg-green-100 text-green-800': app.collection_status === 'verified', 'bg-yellow-100 text-yellow-800': app.collection_status === 'pending'}"
+                                        class="inline-flex px-2 py-1 text-xs font-semibold rounded-full">
+                                        <span x-text="app.collection_status"></span>
+                                    </span>
+                                </td>
+                                <td class="px-4 py-2">
+                                    <button x-show="app.collection_status === 'pending'"
+                                        @click="openCollectionModal(app)"
+                                        class="bg-emerald-600 text-white px-3 py-1 rounded hover:bg-emerald-700 text-sm">
+                                        Verify
+                                    </button>
+                                </td>
+                            </tr>
+                        </template>
+                        <tr x-show="applications.length === 0 && !loading">
+                            <td colspan="5" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">No applications found.</td>
+                        </tr>
+                        <tr x-show="loading">
+                            <td colspan="5" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">Loading...</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-        </div>
 
-    </div>
-    <div id="collectionModal"
-        class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-start justify-center overflow-y-auto">
-        <div
-            class="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-5xl mt-16 mx-4 p-6 sm:p-8 relative overflow-y-auto max-h-[90vh]">
-
-            <!-- Header -->
-            <div class="flex justify-between items-center mb-6 border-b border-gray-200 dark:border-gray-600 pb-4">
-                <h3 class="text-2xl font-bold text-gray-900 dark:text-white">Verify Collection</h3>
-                <button onclick="closeCollectionModal()"
-                    class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">✕</button>
+            <div class="px-6 py-3 flex flex-col sm:flex-row justify-between items-center" x-show="last_page > 1">
+                <div class="dark:text-gray-500 text-sm mb-2 sm:mb-0">
+                    Showing <span x-text="from"></span> to <span x-text="to"></span> of <span x-text="total"></span> results
+                </div>
+                <div class="space-x-1 dark:text-gray-300 flex items-center">
+                    <button @click="goToPage(current_page - 1)" :disabled="current_page === 1"
+                        class="px-3 py-1 rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50">Prev</button>
+                    <template x-for="page in pages" :key="page">
+                        <button @click="goToPage(page)"
+                            :class="{
+                                'bg-emerald-500 text-white': current_page === page,
+                                'bg-gray-200 dark:bg-gray-700': current_page !== page
+                            }"
+                            class="px-3 py-1 rounded hover:bg-emerald-400 transition">
+                            <span x-text="page"></span>
+                        </button>
+                    </template>
+                    <button @click="goToPage(current_page + 1)" :disabled="current_page === last_page"
+                        class="px-3 py-1 rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50">Next</button>
+                </div>
             </div>
+        </div>
 
-            <form id="collectionForm" class="space-y-8">
-
-                <!-- Farmer + Application Info -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
-                        <h4 class="font-semibold text-gray-800 dark:text-white mb-2">Farmer Info</h4>
-                        <ul class="text-sm text-gray-700 dark:text-gray-300 space-y-1" id="collection-farmer-info">
-                            <!-- Populated via JS -->
-                        </ul>
-                    </div>
-
-                    <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
-                        <h4 class="font-semibold text-gray-800 dark:text-white mb-2">Application Info</h4>
-                        <ul class="text-sm text-gray-700 dark:text-gray-300 space-y-1" id="collection-app-info">
-                            <!-- Populated via JS -->
-                        </ul>
-                    </div>
+        <div x-show="showModal" x-cloak class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center overflow-y-auto p-4">
+            <div @click.away="closeCollectionModal()"
+                class="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-5xl my-16 p-6 sm:p-8 relative max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center mb-6 border-b border-gray-200 dark:border-gray-600 pb-4">
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white">Verify Collection</h3>
+                    <button @click="closeCollectionModal()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">✕</button>
                 </div>
-
-                <!-- Commodity Breakdown -->
-                <div>
-                    <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Commodity Breakdown</h4>
-                    <div class="overflow-x-auto">
-                        <table
-                            class="w-full text-sm border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden">
-                            <thead class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-white">
-                                <tr>
-                                    <th class="px-4 py-2 text-left">Commodity</th>
-                                    <th class="px-4 py-2 text-left">Quantity</th>
-                                    <th class="px-4 py-2 text-left">Unit Price</th>
-                                    <th class="px-4 py-2 text-left">Total</th>
-                                </tr>
-                            </thead>
-                            <tbody id="collection-breakdown"
-                                class="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
-                                <!-- Injected via JS -->
-                            </tbody>
-                        </table>
+                <form id="collectionForm" class="space-y-8" enctype="multipart/form-data" @submit.prevent="submitCollection">
+                    <input type="hidden" name="application_id" x-model="form.application_id" />
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <h4 class="font-semibold text-gray-800 dark:text-white mb-2">Farmer Info</h4>
+                            <ul class="text-sm text-gray-700 dark:text-gray-300 space-y-1">
+                                <li><strong>Name:</strong> <span x-text="modalData.farmer?.full_name"></span></li>
+                                <li><strong>Phone:</strong> <span x-text="modalData.farmer?.phone"></span></li>
+                                <li><strong>State:</strong> <span x-text="modalData.farmer?.state"></span></li>
+                                <li><strong>LGA:</strong> <span x-text="modalData.farmer?.lga"></span></li>
+                            </ul>
+                        </div>
+                        <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <h4 class="font-semibold text-gray-800 dark:text-white mb-2">Application Info</h4>
+                            <ul class="text-sm text-gray-700 dark:text-gray-300 space-y-1">
+                                <li><strong>Season:</strong> <span x-text="modalData.season?.name"></span></li>
+                                <li><strong>Farm Size:</strong> <span x-text="modalData.farm?.size"></span> ha</li>
+                                <li><strong>Collection Date:</strong> <span x-text="modalData.application_center?.collection_date"></span></li>
+                                <li><strong>Return Deadline:</strong> <span x-text="modalData.application_center?.return_date"></span></li>
+                            </ul>
+                        </div>
                     </div>
-                </div>
-
-                <!-- Image Uploads -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                    <!-- ID Card Upload -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">ID Card Photo
-                            *</label>
-                        <div class="relative flex flex-col items-center justify-center w-full h-40 px-4 border-2 border-dashed rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 cursor-pointer hover:border-emerald-500 transition"
-                            onclick="document.getElementById('idCard').click()">
-                            <svg class="w-10 h-10 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M7 16V4m0 0L3 8m4-4l4 4M17 8v8m0 0l4-4m-4 4l-4-4" />
-                            </svg>
-                            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Click or drop an image here</p>
-                            <input type="file" id="idCard" name="idCard" accept="image/*" required
-                                class="absolute inset-0 opacity-0 cursor-pointer"
-                                onchange="previewImage(event, 'idCardPreview')" />
-                        </div>
-                        <div id="idCardPreview" class="mt-2 hidden">
-                            <img class="h-24 w-24 object-cover border rounded-lg" alt="ID Card Preview" />
-                        </div>
-                    </div>
-
-                    <!-- Commodity Photo Upload -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Commodity Photo
-                            *</label>
-                        <div class="relative flex flex-col items-center justify-center w-full h-40 px-4 border-2 border-dashed rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 cursor-pointer hover:border-emerald-500 transition"
-                            onclick="document.getElementById('commodityPhoto').click()">
-                            <svg class="w-10 h-10 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M7 16V4m0 0L3 8m4-4l4 4M17 8v8m0 0l4-4m-4 4l-4-4" />
-                            </svg>
-                            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Click or drop an image here</p>
-                            <input type="file" id="commodityPhoto" name="commodityPhoto" accept="image/*" required
-                                class="absolute inset-0 opacity-0 cursor-pointer"
-                                onchange="previewImage(event, 'commodityPreview')" />
-                        </div>
-                        <div id="commodityPreview" class="mt-2 hidden">
-                            <img class="h-24 w-24 object-cover border rounded-lg" alt="Commodity Preview" />
+                        <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Commodity Breakdown</h4>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden">
+                                <thead class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-white">
+                                    <tr>
+                                        <th class="px-4 py-2 text-left">Commodity</th>
+                                        <th class="px-4 py-2 text-left">Quantity</th>
+                                        <th class="px-4 py-2 text-left">Unit Price</th>
+                                        <th class="px-4 py-2 text-left">Total Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+                                    <template x-for="c in modalData.commodity_allocations" :key="c.id">
+                                        <tr>
+                                            <td class="px-4 py-2 border" x-text="c.commodity_name"></td>
+                                            <td class="px-4 py-2 border" x-text="c.allocated_quantity"></td>
+                                            <td class="px-4 py-2 border" x-text="`₦${c.unit_price.toLocaleString()}`"></td>
+                                            <td class="px-4 py-2 border" x-text="`₦${(c.allocated_quantity * c.unit_price).toLocaleString()}`"></td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
-                </div>
-
-
-                <!-- Notes -->
-                <div>
-                    <label for="notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Notes</label>
-                    <textarea id="notes" name="notes" rows="3"
-                        class="block w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-md text-gray-900 dark:text-white p-2"
-                        placeholder="Any additional notes or remarks..."></textarea>
-                </div>
-
-                <!-- Submit -->
-                <div class="flex justify-end">
-                    <button type="submit"
-                        class="bg-emerald-600 text-white py-2 px-6 rounded-md hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 font-medium transition">
-                        Submit Verification
-                    </button>
-                </div>
-            </form>
+                    <div class="flex flex-col sm:flex-row gap-6">
+                        <div class="flex-1">
+                            <label for="idCardInput" class="block text-gray-700 dark:text-gray-300 font-medium mb-2">Upload ID Card Photo</label>
+                            <div class="relative border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center cursor-pointer hover:border-emerald-500 transition-colors">
+                                <input type="file" name="idCard" id="idCardInput" accept="image/*" required @change="previewImage($event, 'idCardPreview')" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                                <div class="flex flex-col items-center">
+                                    <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                    <span class="mt-2 text-gray-600 dark:text-gray-400 text-sm">Drag & drop or click to upload ID</span>
+                                    <img id="idCardPreview" class="mt-2 w-32 h-32 object-cover rounded hidden border border-gray-300 dark:border-gray-600" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex-1">
+                            <label for="commodityPhotoInput" class="block text-gray-700 dark:text-gray-300 font-medium mb-2">Upload Commodity Photo</label>
+                            <div class="relative border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center cursor-pointer hover:border-emerald-500 transition-colors">
+                                <input type="file" name="commodityPhoto" id="commodityPhotoInput" accept="image/*" required @change="previewImage($event, 'commodityPreview')" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                                <div class="flex flex-col items-center">
+                                    <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.828-1.472A2 2 0 0110.153 4h3.694a2 2 0 011.664.89l.828 1.472A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                    <span class="mt-2 text-gray-600 dark:text-gray-400 text-sm">Drag & drop or click to upload commodity photo</span>
+                                    <img id="commodityPreview" class="mt-2 w-32 h-32 object-cover rounded hidden border border-gray-300 dark:border-gray-600" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex justify-end">
+                        <button type="submit"
+                            class="bg-emerald-600 text-white py-2 px-6 rounded-md hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 font-medium transition">
+                            Submit Verification
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <script>
-        // Preview image handlers
-        document.getElementById('idCard').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const preview = document.getElementById('idCardPreview');
-                preview.querySelector('img').src = URL.createObjectURL(file);
-                preview.classList.remove('hidden');
-            }
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('collectionApp', () => ({
+                filter: '',
+                season: '',
+                status: '',
+                loading: true,
+                applications: [],
+                showModal: false,
+                modalData: {},
+                form: {
+                    application_id: null
+                },
+
+                // Pagination data
+                current_page: 1,
+                last_page: 1,
+                from: 0,
+                to: 0,
+                total: 0,
+                pages: [],
+
+                init() {
+                    this.fetchAssignedFarmers();
+                    this.$watch('filter', () => this.goToPage(1));
+                    this.$watch('season', () => this.goToPage(1));
+                    this.$watch('status', () => this.goToPage(1));
+                },
+
+                fetchAssignedFarmers() {
+                    this.loading = true;
+                    this.applications = [];
+                    const url = `/agent/verify-collection?page=${this.current_page}&filter=${this.filter}&season=${this.season}&status=${this.status}`;
+                    fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                        .then(res => res.json())
+                        .then(data => {
+                            this.applications = data.data;
+                            this.current_page = data.current_page;
+                            this.last_page = data.last_page;
+                            this.from = data.from;
+                            this.to = data.to;
+                            this.total = data.total;
+                            this.generatePages();
+                        })
+                        .catch(err => {
+                            toastr.error('Failed to load farmers');
+                        })
+                        .finally(() => {
+                            this.loading = false;
+                        });
+                },
+
+                goToPage(page) {
+                    if (page < 1 || page > this.last_page) return;
+                    this.current_page = page;
+                    this.fetchAssignedFarmers();
+                },
+
+                generatePages() {
+                    this.pages = [];
+                    const maxPages = 5;
+                    let startPage = Math.max(1, this.current_page - Math.floor(maxPages / 2));
+                    let endPage = Math.min(this.last_page, startPage + maxPages - 1);
+                    if (endPage - startPage + 1 < maxPages) {
+                        startPage = Math.max(1, endPage - maxPages + 1);
+                    }
+                    for (let i = startPage; i <= endPage; i++) {
+                        this.pages.push(i);
+                    }
+                },
+
+                openCollectionModal(app) {
+                    this.modalData = app;
+                    this.form.application_id = app.id;
+                    this.showModal = true;
+                    // Reset file inputs and previews
+                    document.getElementById('idCardInput').value = '';
+                    document.getElementById('commodityPhotoInput').value = '';
+                    document.getElementById('idCardPreview').classList.add('hidden');
+                    document.getElementById('commodityPreview').classList.add('hidden');
+                },
+
+                closeCollectionModal() {
+                    this.showModal = false;
+                    this.modalData = {};
+                    this.form.application_id = null;
+                },
+
+                submitCollection() {
+                    const form = document.getElementById('collectionForm');
+                    const formData = new FormData(form);
+                    fetch('{{ route('agent.verify.collection.submit') }}', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: formData
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.message) {
+                            toastr.success(data.message);
+                            this.closeCollectionModal();
+                            this.fetchAssignedFarmers();
+                        } else {
+                            toastr.error('Verification failed!');
+                        }
+                    })
+                    .catch(err => {
+                        toastr.error('Network error occurred');
+                    });
+                },
+
+                previewImage(event, previewId) {
+                    const file = event.target.files[0];
+                    const preview = document.getElementById(previewId);
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = e => {
+                            preview.src = e.target.result;
+                            preview.classList.remove('hidden');
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        preview.src = '';
+                        preview.classList.add('hidden');
+                    }
+                }
+            }));
         });
-
-        document.getElementById('commodityPhoto').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const preview = document.getElementById('commodityPreview');
-                preview.querySelector('img').src = URL.createObjectURL(file);
-                preview.classList.remove('hidden');
-            }
-        });
-        function previewImage(event, previewId) {
-        const input = event.target;
-        const file = input.files[0];
-        const previewContainer = document.getElementById(previewId);
-
-        if (file) {
-            const img = previewContainer.querySelector("img");
-            img.src = URL.createObjectURL(file);
-            previewContainer.classList.remove("hidden");
-        }
-    }
-
-        // Populate modal with data
-        function openCollectionModal(application) {
-            const farmerUl = document.getElementById("collection-farmer-info");
-            const appUl = document.getElementById("collection-app-info");
-            const breakdown = document.getElementById("collection-breakdown");
-
-            farmerUl.innerHTML = `
-        <li><strong>Name:</strong> ${application.farmer.name}</li>
-        <li><strong>Phone:</strong> ${application.farmer.phone}</li>
-        <li><strong>State:</strong> ${application.farmer.state}</li>
-        <li><strong>LGA:</strong> ${application.farmer.lga}</li>
-    `;
-
-            appUl.innerHTML = `
-        <li><strong>Season:</strong> ${application.season.name}</li>
-        <li><strong>Farm Size:</strong> ${application.farmSize} ha</li>
-        <li><strong>Seed:</strong> ${application.seed.name}</li>
-        <li><strong>Expected Return:</strong> ${application.expectedReturn}</li>
-    `;
-
-            let rows = '';
-            application.commodities.forEach(item => {
-                const total = item.quantity * item.unitPrice;
-                rows += `
-            <tr>
-                <td class="px-4 py-2 border">${item.name}</td>
-                <td class="px-4 py-2 border">${item.quantity} ${item.unit}</td>
-                <td class="px-4 py-2 border">₦${item.unitPrice.toLocaleString()}</td>
-                <td class="px-4 py-2 border">₦${total.toLocaleString()}</td>
-            </tr>
-        `;
-            });
-            breakdown.innerHTML = rows;
-
-            // Show modal
-            document.getElementById("collectionModal").classList.remove("hidden");
-        }
-
-        // Close modal
-        function closeCollectionModal() {
-            document.getElementById("collectionModal").classList.add("hidden");
-        }
     </script>
 @endsection

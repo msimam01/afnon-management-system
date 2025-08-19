@@ -8,6 +8,13 @@ use Illuminate\Support\Str;
 class Center extends Model
 {
     use HasFactory;
+    protected $fillable = [
+        'name',
+        'type',
+        'state',
+        'lga',
+        'address',
+    ];
     protected static function boot()
     {
         parent::boot();

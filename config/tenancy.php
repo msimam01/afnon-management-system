@@ -22,7 +22,11 @@ return [
         'localhost',      // your local dev domain
         '127.0.0.1',
         'afnon.test',
+<<<<<<< HEAD
         'afnon.com',
+=======
+        'afnon.com',      // production central domain
+>>>>>>> working
     ],
 
 

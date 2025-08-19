@@ -1,16 +1,17 @@
 <?php
 
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\Auth\ConfirmablePasswordController;
-use App\Http\Controllers\Auth\EmailVerificationNotificationController;
-use App\Http\Controllers\Auth\EmailVerificationPromptController;
-use App\Http\Controllers\Auth\NewPasswordController;
-use App\Http\Controllers\Auth\PasswordController;
-use App\Http\Controllers\Auth\PasswordResetLinkController;
-use App\Http\Controllers\Auth\RegisteredUserController;
-use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\CustomLoginController;
+use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Auth\PasswordResetLinkController;
+use App\Http\Controllers\Auth\ConfirmablePasswordController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\CustomForgotPasswordController;
+use App\Http\Controllers\Auth\EmailVerificationPromptController;
+use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 
 Route::middleware(['guest', 'block-tenant-access'])->group(function () {
     Route::get('register', [RegisteredUserController::class, 'create'])
@@ -18,26 +19,18 @@ Route::middleware(['guest', 'block-tenant-access'])->group(function () {
 
     Route::post('register', [RegisteredUserController::class, 'store']);
 
-    Route::get('central/login', [CustomLoginController::class, 'create'])
-        ->name('central.login');
+    Route::get('central/login', [CustomLoginController::class, 'create'])->name('central.login.form');
 
     // Route::post('login', [AuthenticatedSessionController::class, 'store']);
     Route::post('/central/login', [CustomLoginController::class, 'store'])->middleware('guest')->name('central.login');
+    Route::get('/forgot-password', [CustomForgotPasswordController::class, 'showLinkRequestForm'])->name('central.password.request');
+    Route::post('/forgot-password', [CustomForgotPasswordController::class, 'sendResetLinkEmail'])->name('central.password.email');
+    Route::get('/reset-password/{token}', [CustomForgotPasswordController::class, 'showResetForm'])->name('central.password.reset');
+    Route::put('/reset-password', [CustomForgotPasswordController::class, 'reset'])->name('central.password.update');
 
-    Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
-        ->name('password.request');
-
-    Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
-        ->name('password.email');
-
-    Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
-        ->name('password.reset');
-
-    Route::post('reset-password', [NewPasswordController::class, 'store'])
-        ->name('password.store');
 });
 
-Route::middleware(['auth', 'block-tenant-access'])->group(function () {
+Route::middleware(['auth', 'check-user-status', 'block-tenant-access'])->group(function () {
     Route::get('verify-email', EmailVerificationPromptController::class)
         ->name('verification.notice');
 
@@ -51,11 +44,13 @@ Route::middleware(['auth', 'block-tenant-access'])->group(function () {
 
     Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])
         ->name('password.confirm');
-
     Route::post('confirm-password', [ConfirmablePasswordController::class, 'store']);
 
     Route::put('password', [PasswordController::class, 'update'])->name('password.update');
 
-    Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
-        ->name('logout');
 });
+
+// Central logout route (needs to be accessible for authenticated users)
+Route::post('central/logout', [CustomLoginController::class, 'destroy'])
+    ->middleware(['auth', 'check-user-status', 'block-tenant-access'])
+    ->name('central.logout');

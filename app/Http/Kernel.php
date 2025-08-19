@@ -50,6 +50,8 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         // 'tenant' => \App\Http\Middleware\EnsureTenantInitialized::class,
         'block-tenant-access' => \App\Http\Middleware\PreventAccessFromTenantDomains::class,
+        'check-user-status' => \App\Http\Middleware\CheckUserStatus::class,
+        'check-tenant-status' => \App\Http\Middleware\CheckTenantStatus::class,
 
         // ✅ Spatie Permissions middleware
         'role' => RoleMiddleware::class,

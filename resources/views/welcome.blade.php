@@ -1,74 +1,136 @@
 @php
-    $centralDomains = ['localhost', '127.0.0.1', 'afnon.com']; // Add your real central domains here
+    use App\Models\Setting;
+
+    $centralDomains = ['localhost', '127.0.0.1', 'afnon.com'];
     $host = request()->getHost();
     $isCentral = in_array($host, $centralDomains);
+
+    $tenant = null;
+    $setting = null;
+
+    if ($isCentral) {
+        // Central settings (still stored in central DB settings table)
+        $setting = Setting::first();
+    } else {
+        $tenant = \App\Models\SuperAdmin\Tenant::whereHas('domains', function ($q) use ($host) {
+            $q->where('domain', $host);
+        })->first();
+
+        if ($tenant) {
+            // Switch to tenant DB
+            tenancy()->initialize($tenant);
+
+            // Tenant settings (logo, phone, email, address, etc.)
+            $setting = Setting::first();
+        }
+    }
 @endphp
 
 <!DOCTYPE html>
-<html lang="en" class="h-full">
+<html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>North East Commodity Distribution Associations (NECAS)</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        {{ $isCentral ? $setting->name ?? 'AFNON - Empowering Nigerian Farmers' : $tenant->id . ' Portal' ?? 'Tenant Portal' }}
+    </title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-    {!! ToastMagic::styles() !!}
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'ui-sans-serif', 'system-ui'],
-                    }
-                }
-            }
-        };
-    </script>
+    <script src="https://unpkg.com/alpinejs" defer></script>
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
 </head>
 
-<body class="h-full bg-white text-gray-800 dark:bg-gray-900 dark:text-gray-100 font-sans">
+<body class="bg-gray-50 text-gray-900">
+    <!-- Header -->
+    <div class="bg-emerald-700 text-white p-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            @if ($setting && $setting->logo)
+                <a href="/">
+                    <img src="{{ asset('storage/' . $setting->logo) }}" alt="Logo" class="h-16 mt-2">
+                </a>
+            @endif
+            {{-- <span class="font-bold text-lg">
+                {{ $isCentral ? ($setting->name ?? 'AFNON') : ($tenant->short_name ?? strtoupper($tenant->id)) }}
+            </span> --}}
+        </div>
+        <div class="text-right text-sm">
+            @if ($setting)
+                <p>📍 {{ $setting->address ?? 'Nigeria' }}</p>
+                <p>📞 <a href="tel:{{ $setting->phone }}" class="hover:underline">{{ $setting->phone }}</a></p>
+                <p>✉️ <a href="mailto:{{ $setting->email }}" class="hover:underline">{{ $setting->email }}</a></p>
+            @endif
+        </div>
+    </div>
 
     <!-- Navbar -->
-    <nav class="bg-white dark:bg-gray-800 shadow border-b border-gray-200 dark:border-gray-700 fixed top-0 w-full z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between h-16 items-center">
-            <div class="flex items-center space-x-2">
-                <div class="w-8 h-8 bg-emerald-600 rounded-full flex items-center justify-center">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
-                    </svg>
-                </div>
-                <span class="text-xl font-bold text-gray-900 dark:text-white">AFNON</span>
-            </div>
-            <div class="space-x-6 flex items-center">
-                <a href="#about" class="hover:text-emerald-600 font-medium">About</a>
-                <a href="#how-it-works" class="hover:text-emerald-600 font-medium">How It Works</a>
-                <a href="#eligibility" class="hover:text-emerald-600 font-medium">Eligibility</a>
-                <a href="#contact" class="hover:text-emerald-600 font-medium">Contact</a>
-                <a href="https://necas.com.ng" target="_blank"
-                    class="text-sm font-medium bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700 transition">
-                    Visit Official Site
-                </a>
-                @if ($isCentral)
-                    {{-- Central login --}}
-                    <a href="{{ route('central.login') }}" class="text-emerald-600 font-semibold hover:underline">
-                        Super Admin Login
-                    </a>
-                @else
-                    {{-- Tenant login --}}
-                    <a href="{{ url('/login') }}" class="text-emerald-600 font-semibold hover:underline">
-                        Tenant Login
-                    </a>
-                @endif
-                
+    <header class="bg-white shadow sticky top-0 z-50" x-data="{ open: false }">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center py-4">
+            <h1 class="text-2xl font-bold text-emerald-700">
+                {{ $isCentral ? $setting->name ?? 'AFNON' : $tenant->short_name ?? strtoupper($tenant->id) }}
+            </h1>
 
-            </div>
+            <!-- Desktop Nav -->
+            <nav class="hidden md:flex space-x-6">
+                <a href="#about" class="text-gray-700 hover:text-emerald-700">About</a>
+                <a href="#services" class="text-gray-700 hover:text-emerald-700">Services</a>
+                <a href="#contact" class="text-gray-700 hover:text-emerald-700">Contact</a>
+                @guest
+                    <a href="{{ $isCentral ? route('central.login.form') : route('tenant.login') }}"
+                        class="bg-emerald-700 text-white px-4 py-2 rounded-lg shadow hover:bg-emerald-800">
+                        Login
+                    </a>
+                @endguest
+
+                @auth
+                    @if (auth()->user()->hasRole('super-admin'))
+                        <a href="{{ route('superadmin.dashboard') }}"
+                            class="bg-emerald-700 text-white px-4 py-2 rounded-lg shadow hover:bg-emerald-800">
+                            Dashboard
+                        </a>
+                    @elseif(auth()->user()->hasRole('admin'))
+                        <a href="{{ route('admin.dashboard') }}"
+                            class="bg-emerald-700 text-white px-4 py-2 rounded-lg shadow hover:bg-emerald-800">
+                            Admin Dashboard
+                        </a>
+                    @elseif(auth()->user()->hasRole('agent'))
+                        <a href="{{ route('agent.dashboard') }}"
+                            class="bg-emerald-700 text-white px-4 py-2 rounded-lg shadow hover:bg-emerald-800">
+                            Agent Dashboard
+                        </a>
+                    @endif
+                @endauth
+
+            </nav>
+
+            <!-- Mobile Hamburger -->
+            <button class="md:hidden text-gray-700" @click="open = !open">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path :class="{ 'hidden': open, 'block': !open }" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    <path :class="{ 'block': open, 'hidden': !open }" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
         </div>
-    </nav>
 
-    <!-- Hero -->
+        <!-- Mobile Menu -->
+        <nav class="md:hidden" x-show="open" @click.away="open = false" x-transition>
+            <div class="bg-white px-4 pt-2 pb-4 space-y-2 shadow-md">
+                <a href="#about" class="block text-gray-700 hover:text-emerald-700">About</a>
+                <a href="#services" class="block text-gray-700 hover:text-emerald-700">Services</a>
+                <a href="#contact" class="block text-gray-700 hover:text-emerald-700">Contact</a>
+                <a href="#apply"
+                    class="block bg-emerald-700 text-white px-4 py-2 rounded-lg shadow hover:bg-emerald-800">Apply
+                    Now</a>
+            </div>
+        </nav>
+    </header>
+
     <section class="pt-24 pb-16 bg-gray-100 dark:bg-gray-800">
         <div class="max-w-7xl mx-auto px-4 grid lg:grid-cols-2 gap-8 items-center">
             <div>
@@ -76,25 +138,30 @@
                     Empowering Nigerian Farmers
                 </h1>
                 <p class="mt-4 text-lg text-gray-600 dark:text-gray-300 max-w-2xl">
-                    Apply for seasonal agricultural loans through NECAS to grow your productivity and improve food
-                    security.
+                    Apply for seasonal agricultural loans through {{ $setting->name ?? 'our program' }} to grow your
+                    productivity and improve food security.
                 </p>
                 <div class="mt-8 flex flex-col sm:flex-row gap-4">
-                    <a href="/apply"
-                        class="bg-emerald-600 text-white px-6 py-3 rounded-md hover:bg-emerald-700 text-base font-medium">
-                        Apply Now
-                    </a>
-                    <a href="https://necas.com.ng" target="_blank"
-                        class="border border-emerald-600 text-emerald-600 px-6 py-3 rounded-md hover:bg-emerald-50 text-base font-medium">
-                        Learn More
-                    </a>
+                    @if ($isCentral)
+                        <a href="#about"
+                            class="border border-emerald-600 text-emerald-600 px-6 py-3 rounded-md hover:bg-emerald-50 text-base font-medium">
+                            Learn More
+                        </a>
+                    @else
+                        <a href="{{ route('applications.create') }}"
+                            class="bg-emerald-600 text-white px-6 py-3 rounded-md hover:bg-emerald-700 text-base font-medium">
+                            Apply Now
+                        </a>
+                        <a href="#about"
+                            class="border border-emerald-600 text-emerald-600 px-6 py-3 rounded-md hover:bg-emerald-50 text-base font-medium">
+                            Learn More
+                        </a>
+                    @endif
                 </div>
             </div>
             <div class="mt-8 lg:mt-0">
                 <img src="https://images.pexels.com/photos/2132250/pexels-photo-2132250.jpeg?auto=compress&cs=tinysrgb&w=1920"
                     alt="Nigerian farmers in field" class="rounded-lg shadow-lg w-full h-auto object-cover">
-
-                {{-- <img src="https://source.unsplash.com/600x400/?farmer,agriculture,nigeria" alt="Farmer Image" class="rounded-lg shadow-lg w-full h-auto object-cover"> --}}
             </div>
         </div>
     </section>
@@ -107,9 +174,10 @@
                     alt="Farmers working together" class="rounded-lg shadow w-full">
             </div>
             <div>
-                <h2 class="text-3xl font-bold text-gray-900 dark:text-white">About NECAS</h2>
+                <h2 class="text-3xl font-bold text-gray-900 dark:text-white">About AFNON</h2>
                 <p class="mt-4 text-lg text-gray-600 dark:text-gray-300">
-                    NECAS (North East Commodity Association) is a private-sector-led initiative that provides support to
+                    AFNON (Association of farmers in the Northeast of Nigeria) is a private-sector-led initiative that
+                    provides support to
                     Nigerian farmers including seasonal inputs, loans, and access to mechanization through
                     public-private partnerships.
                 </p>
@@ -179,25 +247,32 @@
         <div class="max-w-4xl mx-auto px-4 text-center">
             <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Contact Us</h2>
             <p class="mt-4 text-gray-600 dark:text-gray-300">Have any questions or need assistance?</p>
-            <p class="mt-2 text-gray-700 dark:text-gray-200">Email: <a href="mailto:support@necas.gov.ng"
-                    class="text-emerald-600 hover:underline">support@necas.gov.ng</a></p>
-            <p class="mt-1 text-gray-700 dark:text-gray-200">Phone: <a href="tel:+23494615000"
-                    class="text-emerald-600 hover:underline">+234 9 461 5000</a></p>
-            <p class="mt-1 text-gray-700 dark:text-gray-200">Website: <a href="https://necas.com.ng" target="_blank"
-                    class="text-emerald-600 hover:underline">www.necas.com.ng</a></p>
+
+            @if ($setting)
+                <p class="mt-2 text-gray-700 dark:text-gray-200">Email:
+                    <a href="mailto:{{ $setting->email }}" class="text-emerald-600 hover:underline">
+                        {{ $setting->email }}
+                    </a>
+                </p>
+                <p class="mt-1 text-gray-700 dark:text-gray-200">Phone:
+                    <a href="tel:{{ $setting->phone }}" class="text-emerald-600 hover:underline">
+                        {{ $setting->phone }}
+                    </a>
+                </p>
+                <p class="mt-1 text-gray-700 dark:text-gray-200">Address:
+                    <span class="text-emerald-600">{{ $setting->address }}</span>
+                </p>
+            @endif
         </div>
     </section>
 
     <!-- Footer -->
     <footer class="bg-gray-900 text-white text-sm py-8">
         <div class="max-w-7xl mx-auto px-4 text-center">
-            <p>© {{ date('Y') }} North East Commodity Distribution Associations (NECAS). All rights reserved.</p>
-            <p class="mt-2">Visit: <a href="https://necas.com.ng"
-                    class="text-emerald-400 hover:underline">necas.com.ng</a></p>
+            <p>© {{ date('Y') }} {{ $setting->name ?? 'AFNON' }}. All rights reserved.</p>
         </div>
     </footer>
     {!! ToastMagic::scripts() !!}
-
 </body>
 
 </html>

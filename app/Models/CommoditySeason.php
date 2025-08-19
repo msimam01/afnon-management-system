@@ -8,13 +8,13 @@ use Illuminate\Support\Str;
 class CommoditySeason extends Model
 {
     use HasFactory;
-    protected static function boot()
+    protected $fillable = ['commodity_id', 'season_id'];
+    protected static function booted()
     {
-        parent::boot();
-        static::creating(function ($model) {
-            if (empty($model->uuid)) {
-                $model->uuid = (string) Str::uuid();
-            }
-        });
+        static::creating(fn ($model) => $model->uuid = (string) Str::uuid());
+    }
+    public function getRouteKeyName()
+    {
+        return 'uuid';
     }
 }

@@ -5,9 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+
 class ApplicationCommodity extends Model
 {
     use HasFactory;
+    protected $fillable = [
+        'application_id',
+        'commodity_id',
+        'quantity'
+    ];
     protected static function boot()
     {
         parent::boot();

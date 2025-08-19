@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Season;
 use App\Models\Commodity;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Models\QuotaAllocation;
 use Devrabiul\ToastMagic\Facades\ToastMagic;
 
 class CommodityController extends Controller
@@ -12,12 +14,47 @@ class CommodityController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        $query = Commodity::query();
+
+        
+
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                    ->orWhere('category', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        // Optional: Sorting
+        if ($request->filled('sort_by')) {
+            $query->orderBy($request->sort_by, $request->get('sort_dir', 'asc'));
+        } else {
+            $query->latest();
+        }
+
+        $commodities = $query->paginate(15)->withQueryString();
         $seasons = Season::all();
-        $commodities = Commodity::all();
-        return view('admin.commodities.index', compact('seasons', 'commodities'));
+
+        // Inject allocated quantity for global commodities
+        foreach ($commodities as $item) {
+            if ($item->is_global && $item->season_id) {
+                $allocation = \App\Models\QuotaAllocation::where('commodity_id', $item->id)
+                    ->where('season_id', $item->season_id)
+                    ->where('tenant', tenant('id'))
+                    ->first();
+
+                if ($allocation) {
+                    $item->allocated_quantity = $allocation->allocated_quantity;
+                }
+            }
+        }
+
+        return view('admin.commodities.index', compact('commodities', 'seasons'));
     }
+
+
 
     /**
      * Show the form for creating a new resource.
@@ -32,7 +69,6 @@ class CommodityController extends Controller
      */
     public function store(Request $request)
     {
-
         $validated = $request->validate([
             'name' => 'required|string',
             'category' => 'required|string',
@@ -42,16 +78,26 @@ class CommodityController extends Controller
             'stock' => 'required|integer',
         ]);
 
+        $openSeason = Season::where('status', 'open')->latest()->first();
+
+        if (!$openSeason) {
+            ToastMagic::error('No open season found. Cannot create commodity.');
+            return redirect()->route('admin.commodities.index');
+        }
+
         Commodity::create([
+            'uuid' => Str::uuid(),
             'name' => $validated['name'],
             'category' => $validated['category'],
             'unit' => $validated['unit'],
             'price_per_unit' => $validated['price'],
             'quantity_per_hectare' => $validated['qtyPerHectare'],
             'stock' => $validated['stock'],
-            'is_global' => $validated['is_global'] = false
+            'season_id' => $openSeason->id,
+            'is_global' => false,
         ]);
-        ToastMagic::success('Commodity created successfull');
+
+        ToastMagic::success('Commodity created successfully');
         return redirect()->route('admin.commodities.index');
     }
 
@@ -77,10 +123,32 @@ class CommodityController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, String $uuid)
+    public function update(Request $request, string $uuid)
     {
-        $commodity = Commodity::whereUuid($uuid)->first();
-        $request->validate([
+        $commodity = Commodity::whereUuid($uuid)->firstOrFail();
+
+        // Optional: If commodity is associated with a season, prevent updates if season is closed
+        if ($commodity->season && $commodity->season->status === 'closed') {
+            ToastMagic::error('This commodity is linked to a closed season and cannot be modified.');
+            return redirect()->route('admin.commodities.index');
+        }
+
+        // If global commodity, only allow price update
+        if ($commodity->is_global) {
+            $validated = $request->validate([
+                'price_per_unit' => 'required|numeric|min:0',
+            ]);
+
+            $commodity->update([
+                'price_per_unit' => $validated['price_per_unit'],
+            ]);
+
+            ToastMagic::success('Price updated for global commodity.');
+            return redirect()->route('admin.commodities.index');
+        }
+
+        // Local commodity full update
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'category' => 'required|string',
             'unit' => 'required|string',
@@ -90,16 +158,18 @@ class CommodityController extends Controller
         ]);
 
         $commodity->update([
-            'name' => $request->name,
-            'category' => $request->category,
-            'unit' => $request->unit,
-            'price_per_unit' => $request->price_per_unit,
-            'quantity_per_hectare' => $request->quantity_per_hectare,
-            'stock' => $request->stock,
+            'name' => $validated['name'],
+            'category' => $validated['category'],
+            'unit' => $validated['unit'],
+            'price_per_unit' => $validated['price_per_unit'],
+            'quantity_per_hectare' => $validated['quantity_per_hectare'],
+            'stock' => $validated['stock'],
         ]);
-        ToastMagic::success('Commodity updated successfull');
+
+        ToastMagic::success('Commodity updated successfully.');
         return redirect()->route('admin.commodities.index');
     }
+
 
     /**
      * Remove the specified resource from storage.
@@ -130,8 +200,25 @@ class CommodityController extends Controller
     public function import($id)
     {
         $global = \App\Models\Central\CentralCommodity::findOrFail($id);
+        $season = Season::where('status', 'open')->latest()->first();
+
+        if (!$season) {
+            ToastMagic::error('No active season found. Cannot import commodity.');
+            return redirect()->route('admin.commodities.index');
+        }
+
+        // Fix: check if already imported for this season
+        $exists = Commodity::where('global_commodity_id', $global->id)
+            ->where('season_id', $season->id)
+            ->exists();
+
+        if ($exists) {
+            ToastMagic::error('Commodity already imported for this season.');
+            return redirect()->route('admin.commodities.index');
+        }
 
         Commodity::create([
+            'uuid' => Str::uuid(),
             'name' => $global->name,
             'category' => $global->category,
             'type' => $global->type,
@@ -141,28 +228,40 @@ class CommodityController extends Controller
             'stock' => 0,
             'is_global' => true,
             'global_commodity_id' => $global->id,
+            'season_id' => $season->id,
         ]);
-        ToastMagic::success('Imported from global commodities');
+
+        ToastMagic::success('Commodity imported successfully');
         return redirect()->route('admin.commodities.index');
     }
+
     public function importBulk(Request $request)
     {
         $request->validate([
             'commodity_ids' => 'required|array|min:1',
         ]);
 
+        $season = Season::where('status', 'open')->latest()->first();
+
+        if (!$season) {
+            ToastMagic::error('No active season found.');
+            return redirect()->route('admin.commodities.index');
+        }
+
         $ids = $request->commodity_ids;
 
         $globalCommodities = \App\Models\Central\CentralCommodity::on('central')
-            ->whereIn('id', $ids)
-            ->get();
+            ->whereIn('id', $ids)->get();
 
         foreach ($globalCommodities as $global) {
-            // Prevent duplicates (extra safety)
-            $exists = Commodity::where('global_commodity_id', $global->id)->exists();
+            // Fix: check for season-specific import
+            $exists = Commodity::where('global_commodity_id', $global->id)
+                ->where('season_id', $season->id)
+                ->exists();
             if ($exists) continue;
 
             Commodity::create([
+                'uuid' => Str::uuid(),
                 'name' => $global->name,
                 'category' => $global->category,
                 'type' => $global->type,
@@ -172,12 +271,14 @@ class CommodityController extends Controller
                 'stock' => 0,
                 'is_global' => true,
                 'global_commodity_id' => $global->id,
+                'season_id' => $season->id,
             ]);
         }
 
         ToastMagic::success('Selected commodities imported successfully!');
         return redirect()->route('admin.commodities.index');
     }
+
     public function sync($uuid)
     {
         $local = Commodity::whereUuid($uuid)->firstOrFail();

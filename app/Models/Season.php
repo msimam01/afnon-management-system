@@ -5,9 +5,47 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+
 class Season extends Model
 {
     use HasFactory;
+    protected $fillable = [
+        'uuid',
+        'name',
+        'type',
+        'start_date',
+        'end_date',
+        'budget',
+        'status',
+        'return_deadline',
+        'insurance_rate',
+        'send_reminder_after_days',
+        'collection_start_date',
+        'collection_end_date',
+    ];
+
+    protected static function booted()
+    {
+        static::creating(fn($season) => $season->uuid = (string) Str::uuid());
+    }
+
+    public function commodities()
+    {
+        return $this->belongsToMany(Commodity::class, 'commodity_seasons')
+            ->withTimestamps();
+    }
+    // App\Models\Season.php
+
+    public function applications()
+    {
+        return $this->hasMany(Application::class, 'season_id');
+    }
+
+
+    public function getRouteKeyName()
+    {
+        return 'uuid';
+    }
     protected static function boot()
     {
         parent::boot();
