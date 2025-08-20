@@ -33,7 +33,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>
-        {{ $isCentral ? $setting->name ?? 'AFNON - Empowering Nigerian Farmers' : $tenant->id . ' Portal' ?? 'Tenant Portal' }}
+        {{ $isCentral ? ($setting->name ?? 'AFNON - Empowering Nigerian Farmers') : (($tenant?->id ?? 'Unknown') . ' Portal') }}
     </title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/alpinejs" defer></script>

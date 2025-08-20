@@ -85,7 +85,7 @@ class Tenant extends BaseTenant implements TenantWithDatabase
         ]);
     }
 
-    public function deactivate(string $reason = null): void
+    public function deactivate(?string $reason = null): void
     {
         $this->update([
             'status' => self::STATUS_INACTIVE,
@@ -94,7 +94,7 @@ class Tenant extends BaseTenant implements TenantWithDatabase
         ]);
     }
 
-    public function suspend(string $reason = null): void
+    public function suspend(?string $reason = null): void
     {
         $this->update([
             'status' => self::STATUS_SUSPENDED,
@@ -103,7 +103,7 @@ class Tenant extends BaseTenant implements TenantWithDatabase
         ]);
     }
 
-    public function markAsFailed(string $reason = null): void
+    public function markAsFailed(?string $reason = null): void
     {
         $this->update([
             'status' => self::STATUS_FAILED,

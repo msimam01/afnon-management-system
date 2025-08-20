@@ -22,11 +22,7 @@ return [
         'localhost',      // your local dev domain
         '127.0.0.1',
         'afnon.test',
-<<<<<<< HEAD
         'afnon.com',
-=======
-        'afnon.com',      // production central domain
->>>>>>> working
     ],
 
 
@@ -52,6 +48,8 @@ return [
         'template_tenant_connection' => null,
         'prefix' => 'tenant_',
         'suffix' => '',
+        'auto-create' => true,
+        'auto-delete' => true,
         'managers' => [
             'mysql' => Stancl\Tenancy\TenantDatabaseManagers\MySQLDatabaseManager::class,
         ],

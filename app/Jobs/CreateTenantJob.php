@@ -29,8 +29,6 @@ class CreateTenantJob implements ShouldQueue
     public function __construct(Tenant $tenant)
     {
         $this->tenant = $tenant;
-        // Use a dedicated queue for tenant creation to avoid blocking other jobs
-        $this->onQueue('tenant-creation');
     }
 
     /**
@@ -38,35 +36,36 @@ class CreateTenantJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $tenantId = $this->tenant->id;
-
         try {
-            Log::info("🚀 Starting tenant creation for: {$tenantId}");
+            Log::info("🚀 Starting tenant setup for: {$this->tenant->id}");
 
-            // Step 1: Run tenant migrations with memory optimization
+            // Step 1: Create tenant database
+            $this->createTenantDatabase();
+
+            // Step 2: Run tenant migrations
             $this->runTenantMigrations();
 
-            // Step 2: Initialize tenant context with error handling
+            // Step 3: Initialize tenant context
             $this->initializeTenantContext();
 
-            // Step 3: Create default roles and permissions
+            // Step 4: Create default roles and permissions
             $this->createDefaultRolesAndPermissions();
 
-            // Step 4: Create default admin user
+            // Step 5: Create default admin user
             $this->createDefaultAdminUser();
 
-            // Step 5: Seed essential data (if needed)
+            // Step 6: Seed essential data
             $this->seedEssentialData();
 
-            // Step 6: Mark tenant as active
+            // Step 7: Mark tenant as active
             $this->tenant->activate();
 
-            Log::info("✅ Tenant {$tenantId} setup completed successfully");
+            Log::info("✅ Tenant setup completed successfully for: {$this->tenant->id}");
 
         } catch (\Throwable $e) {
             $this->handleFailure($e);
         } finally {
-            // Always end tenancy context to prevent memory leaks
+            // Always end tenancy context
             if (tenancy()->initialized) {
                 tenancy()->end();
             }
@@ -74,20 +73,51 @@ class CreateTenantJob implements ShouldQueue
     }
 
     /**
-     * Run tenant migrations with memory optimization
+     * Create tenant database
+     */
+    private function createTenantDatabase(): void
+    {
+        Log::info("📦 Creating database for tenant: {$this->tenant->id}");
+
+        $dbName = 'tenant_' . $this->tenant->id;
+        $connection = config('tenancy.database.central_connection');
+        
+        try {
+            // Try to create database manually
+            \DB::connection($connection)->statement("CREATE DATABASE IF NOT EXISTS `{$dbName}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+            Log::info("✅ Database created/verified for tenant: {$this->tenant->id}");
+        } catch (\Exception $e) {
+            Log::error("❌ Failed to create database for tenant: {$this->tenant->id}", [
+                'error' => $e->getMessage()
+            ]);
+            throw new \Exception("Failed to create database: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * Run tenant migrations
      */
     private function runTenantMigrations(): void
     {
         Log::info("📦 Running migrations for tenant: {$this->tenant->id}");
 
-        // Use Artisan command with memory optimization
-        Artisan::call('tenants:migrate', [
+        $exitCode = Artisan::call('tenants:migrate', [
             '--tenants' => [$this->tenant->id],
             '--force' => true,
         ]);
 
+        if ($exitCode !== 0) {
+            $output = Artisan::output();
+            Log::error("❌ Migration failed for tenant: {$this->tenant->id}", [
+                'exit_code' => $exitCode,
+                'output' => $output
+            ]);
+            throw new \Exception("Migration failed with exit code: {$exitCode}. Output: {$output}");
+        }
+
         Log::info("✅ Migrations completed for tenant: {$this->tenant->id}");
     }
+
 
     /**
      * Initialize tenant context safely
@@ -157,10 +187,16 @@ class CreateTenantJob implements ShouldQueue
 
         // Run tenant-specific seeders if they exist
         try {
-            Artisan::call('tenants:seed', [
+            $exitCode = Artisan::call('tenants:seed', [
                 '--tenants' => [$this->tenant->id],
-                '--class' => 'TenantSeeder', // Create this seeder if needed
+                '--class' => 'DatabaseSeeder',
             ]);
+
+            if ($exitCode === 0) {
+                Log::info("✅ Seeding completed for tenant: {$this->tenant->id}");
+            } else {
+                Log::warning("⚠️ Seeding returned non-zero exit code for tenant {$this->tenant->id}");
+            }
         } catch (\Exception $e) {
             // Seeding is optional, log but don't fail
             Log::warning("⚠️ Seeding failed for tenant {$this->tenant->id}: {$e->getMessage()}");
@@ -172,12 +208,14 @@ class CreateTenantJob implements ShouldQueue
      */
     private function handleFailure(\Throwable $e): void
     {
-        $errorMessage = "Tenant creation failed: {$e->getMessage()}";
+        $errorMessage = "Tenant setup failed: {$e->getMessage()}";
 
         Log::error("❌ {$errorMessage}", [
             'tenant_id' => $this->tenant->id,
             'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
+            'trace' => $e->getTraceAsString(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine()
         ]);
 
         // Mark tenant as failed
@@ -192,8 +230,9 @@ class CreateTenantJob implements ShouldQueue
      */
     public function failed(\Throwable $exception): void
     {
-        Log::error("❌ Tenant creation permanently failed for: {$this->tenant->id}", [
-            'error' => $exception->getMessage()
+        Log::error("❌ Tenant setup permanently failed for: {$this->tenant->id}", [
+            'error' => $exception->getMessage(),
+            'attempts' => $this->tries
         ]);
 
         // Mark tenant as permanently failed

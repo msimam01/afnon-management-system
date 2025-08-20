@@ -80,6 +80,7 @@ class TenantController extends Controller
 
             // 🚀 Dispatch background job with proper queue
             CreateTenantJob::dispatch($tenant)
+                ->afterCommit()
                 ->onQueue('tenant-creation')
                 ->delay(now()->addSeconds(5)); // Small delay to ensure DB commit
 

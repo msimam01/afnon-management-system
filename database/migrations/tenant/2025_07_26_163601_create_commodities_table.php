@@ -21,8 +21,6 @@ return new class extends Migration
             $table->decimal('price_per_unit', 10, 2);
             $table->decimal('quantity_per_hectare', 8, 2); // E.g., 3 units per hectare
             $table->integer('stock');
-            $table->boolean('is_global')->default(false); // Identifies if it was imported
-            $table->unsignedBigInteger('global_commodity_id')->nullable(); // Links to central commodity
             $table->timestamps();
         });
     }
