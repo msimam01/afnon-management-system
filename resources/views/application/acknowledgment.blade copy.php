@@ -102,7 +102,7 @@
                     <!-- QR Code Container with Glow Effect -->
                     <div class="relative p-4 bg-white rounded-2xl shadow-2xl transform hover:scale-105 transition-transform duration-300">
                         <div class="absolute inset-0 bg-gradient-to-r from-emerald-400 to-blue-500 rounded-2xl blur opacity-20 animate-pulse-slow"></div>
-                        <div class="relative bg-white rounded-xl p-2 border border-gray-200">
+                        <div class="relative bg-white rounded-xl p-2">
                             {!! QrCode::size(100)->backgroundColor(255,255,255)
                                 ->generate(url('/verify/'.$application->reference_number)) !!}
                         </div>
@@ -346,7 +346,7 @@
                 <!-- Action Buttons -->
                 <div class="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8 border-t border-gray-200 dark:border-gray-700">
                     <!-- Print Button -->
-                    <button onclick="window.print()" aria-label="Print acknowledgment slip"
+                    <button onclick="window.print()"
                             class="group relative px-8 py-4 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center space-x-3">
                         <i class="fas fa-print group-hover:animate-bounce"></i>
                         <span>Print Slip</span>
@@ -354,7 +354,7 @@
                     </button>
 
                     <!-- Download PDF Button -->
-                    <a href="{{ route('applications.slip.pdf', $application->uuid) }}" aria-label="Download acknowledgment PDF"
+                    <a href="{{ route('applications.slip.pdf', $application->uuid) }}"
                        class="group relative px-8 py-4 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center space-x-3">
                         <i class="fas fa-download group-hover:animate-bounce"></i>
                         <span>Download PDF</span>
@@ -362,29 +362,13 @@
                     </a>
 
                     <!-- Verify Button -->
-                    <a href="{{ route('applications.verify', $application->reference_number) }}" aria-label="Verify acknowledgment online"
+                    <a href="{{ route('applications.verify', $application->reference_number) }}"
                        class="group relative px-8 py-4 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center space-x-3">
                         <i class="fas fa-check-circle group-hover:animate-bounce"></i>
                         <span>Verify Online</span>
                         <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 rounded-2xl transition-opacity duration-300"></div>
                     </a>
                 </div>
-            </div>
-        </div>
-
-        <!-- Signature / Stamp Section -->
-        <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="text-center">
-                <div class="h-16 border-b border-dashed border-gray-300 dark:border-gray-600"></div>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">Applicant Signature</p>
-            </div>
-            <div class="text-center">
-                <div class="h-16 border-b border-dashed border-gray-300 dark:border-gray-600"></div>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">Officer Signature</p>
-            </div>
-            <div class="text-center">
-                <div class="h-16 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded"></div>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">Official Stamp</p>
             </div>
         </div>
 
@@ -403,7 +387,7 @@
 
     <!-- Enhanced Dark Mode Toggle -->
     <div class="fixed bottom-6 right-6 z-50">
-        <button id="darkModeToggle" aria-label="Toggle dark mode"
+        <button id="darkModeToggle"
                 class="group p-4 rounded-2xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl shadow-2xl border border-white/20 dark:border-gray-700/20 hover:scale-110 transition-all duration-300">
             <svg id="sunIcon" class="h-6 w-6 hidden dark:block text-yellow-400 group-hover:rotate-180 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
@@ -417,13 +401,13 @@
     <!-- Floating Action Buttons -->
     <div class="fixed bottom-6 left-6 z-50 space-y-4">
         <!-- Share Button -->
-        <button onclick="shareApplication()" aria-label="Share acknowledgment slip"
+        <button onclick="shareApplication()"
                 class="group p-4 rounded-2xl bg-emerald-500/90 hover:bg-emerald-600 backdrop-blur-xl shadow-2xl text-white hover:scale-110 transition-all duration-300">
             <i class="fas fa-share-alt group-hover:rotate-12 transition-transform duration-300"></i>
         </button>
 
         <!-- Help Button -->
-        <button onclick="showHelp()" aria-label="Help information for this page"
+        <button onclick="showHelp()"
                 class="group p-4 rounded-2xl bg-blue-500/90 hover:bg-blue-600 backdrop-blur-xl shadow-2xl text-white hover:scale-110 transition-all duration-300">
             <i class="fas fa-question group-hover:bounce transition-transform duration-300"></i>
         </button>
@@ -508,22 +492,15 @@
 
     <style>
         @media print {
-            html, body { background: #fff !important; color: #000 !important; }
-            .printing { background: #fff !important; }
-            /* Hide floating/animated and decorative elements */
-            .fixed, .animate-float, .animate-pulse-slow, .shadow-2xl, .shadow-xl { display: none !important; }
-            /* Neutralize gradients and blurs for crisp print */
-            .bg-gradient-to-r, .bg-gradient-to-br, .backdrop-blur-xl { background: #fff !important; backdrop-filter: none !important; }
-            /* Improve table readability */
-            table { border-collapse: collapse !important; }
-            th, td { border: 1px solid #000 !important; padding: 6px !important; }
-            thead tr { background: #eee !important; color: #000 !important; }
-            /* Remove printed link URLs */
-            a[href]:after { content: '' !important; }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after { animation: none !important; transition: none !important; }
+            .printing {
+                background: white !important;
+            }
+            .fixed, .animate-float, .animate-pulse-slow {
+                display: none !important;
+            }
+            .backdrop-blur-xl {
+                backdrop-filter: none !important;
+            }
         }
 
         .loading {
