@@ -1,269 +1,1039 @@
-@php
-    use App\Models\Setting;
-
-    $centralDomains = ['localhost', '127.0.0.1', 'afnon.com'];
-    $host = request()->getHost();
-    $isCentral = in_array($host, $centralDomains);
-
-    $tenant = null;
-    $setting = null;
-
-    if ($isCentral) {
-        // Central settings (still stored in central DB settings table)
-        $setting = Setting::first();
-    } else {
-        $tenant = \App\Models\SuperAdmin\Tenant::whereHas('domains', function ($q) use ($host) {
-            $q->where('domain', $host);
-        })->first();
-
-        if ($tenant) {
-            // Switch to tenant DB
-            tenancy()->initialize($tenant);
-
-            // Tenant settings (logo, phone, email, address, etc.)
-            $setting = Setting::first();
-        }
-    }
-@endphp
-
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>
-        {{ $isCentral ? ($setting->name ?? 'AFNON - Empowering Nigerian Farmers') : (($tenant?->id ?? 'Unknown') . ' Portal') }}
-    </title>
+    <title>AFNON - Empowering Nigerian Farmers</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/alpinejs" defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 1s ease-out',
+                        'slide-up': 'slideUp 0.8s ease-out',
+                        'scale-in': 'scaleIn 0.6s ease-out',
+                        'bounce-gentle': 'bounceGentle 2s infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-ring': 'pulseRing 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite',
+                        'gradient-xy': 'gradientXY 15s ease infinite',
+                        'text-shimmer': 'textShimmer 3s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(30px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        },
+                        scaleIn: {
+                            '0%': { opacity: '0', transform: 'scale(0.9)' },
+                            '100%': { opacity: '1', transform: 'scale(1)' }
+                        },
+                        bounceGentle: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+                            '33%': { transform: 'translateY(-15px) rotate(1deg)' },
+                            '66%': { transform: 'translateY(5px) rotate(-1deg)' }
+                        },
+                        pulseRing: {
+                            '0%': { transform: 'scale(0.33)' },
+                            '40%, 50%': { opacity: '1' },
+                            '100%': { opacity: '0', transform: 'scale(1.03)' }
+                        },
+                        gradientXY: {
+                            '0%, 100%': { 'background-size': '400% 400%', 'background-position': 'left center' },
+                            '50%': { 'background-size': '200% 200%', 'background-position': 'right center' }
+                        },
+                        textShimmer: {
+                            '0%': { 'background-position': '0% 50%' },
+                            '50%': { 'background-position': '100% 50%' },
+                            '100%': { 'background-position': '0% 50%' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        html {
-            scroll-behavior: smooth;
+        html { scroll-behavior: smooth; }
+        
+        /* Custom gradient background */
+        .gradient-bg {
+            background: linear-gradient(-45deg, #065f46, #10b981, #059669, #047857);
+            background-size: 400% 400%;
+            animation: gradientXY 15s ease infinite;
+        }
+
+        /* Glass morphism effect */
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Text shimmer effect */
+        .text-shimmer {
+            background: linear-gradient(45deg, #10b981, #34d399, #6ee7b7, #10b981);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: textShimmer 3s ease-in-out infinite;
+        }
+
+        /* Floating elements */
+        .floating-element {
+            position: absolute;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.05));
+            animation: float 8s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        /* Pulse ring animation */
+        .pulse-ring::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 100%;
+            height: 100%;
+            border: 3px solid #10b981;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: pulseRing 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+        }
+
+        /* Enhanced card hover effects */
+        .feature-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 25px 50px -12px rgba(16, 185, 129, 0.3);
+        }
+
+        /* Statistics counter animation */
+        .stat-number {
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Smooth parallax effect */
+        .parallax {
+            transform: translateZ(0);
+            will-change: transform;
+        }
+
+        /* Navigation enhancements */
+        .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 50%;
+            background: linear-gradient(90deg, #10b981, #34d399);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* Button enhancements */
+        .btn-primary {
+            background: linear-gradient(135deg, #10b981, #059669);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+        }
+
+        /* Section dividers */
+        .section-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #10b981, transparent);
+        }
+
+        /* Mobile menu enhancements */
+        .mobile-menu {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
         }
     </style>
 </head>
 
-<body class="bg-gray-50 text-gray-900">
-    <!-- Header -->
-    <div class="bg-emerald-700 text-white p-3 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-            @if ($setting && $setting->logo)
-                <a href="/">
-                    <img src="{{ asset('storage/' . $setting->logo) }}" alt="Logo" class="h-16 mt-2">
-                </a>
-            @endif
-            {{-- <span class="font-bold text-lg">
-                {{ $isCentral ? ($setting->name ?? 'AFNON') : ($tenant->short_name ?? strtoupper($tenant->id)) }}
-            </span> --}}
-        </div>
-        <div class="text-right text-sm">
-            @if ($setting)
-                <p>📍 {{ $setting->address ?? 'Nigeria' }}</p>
-                <p>📞 <a href="tel:{{ $setting->phone }}" class="hover:underline">{{ $setting->phone }}</a></p>
-                <p>✉️ <a href="mailto:{{ $setting->email }}" class="hover:underline">{{ $setting->email }}</a></p>
-            @endif
+<body class="bg-white text-gray-900 font-sans">
+    <!-- Top Bar -->
+    <div class="bg-emerald-800 text-white py-2 px-4">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center text-sm">
+            <div class="flex items-center gap-4 mb-2 sm:mb-0">
+                <span class="flex items-center gap-1">
+                    <i class="fas fa-map-marker-alt text-emerald-300"></i>
+                    Nigeria
+                </span>
+                <span class="flex items-center gap-1">
+                    <i class="fas fa-phone text-emerald-300"></i>
+                    <a href="tel:+2341234567890" class="hover:text-emerald-300 transition-colors">+234 123 456 7890</a>
+                </span>
+            </div>
+            <div class="flex items-center gap-4">
+                <span class="flex items-center gap-1">
+                    <i class="fas fa-envelope text-emerald-300"></i>
+                    <a href="mailto:info@afnon.ng" class="hover:text-emerald-300 transition-colors">info@afnon.ng</a>
+                </span>
+                <div class="flex gap-2">
+                    <a href="#" class="text-emerald-300 hover:text-white transition-colors">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="text-emerald-300 hover:text-white transition-colors">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="text-emerald-300 hover:text-white transition-colors">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Navbar -->
-    <header class="bg-white shadow sticky top-0 z-50" x-data="{ open: false }">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center py-4">
-            <h1 class="text-2xl font-bold text-emerald-700">
-                {{ $isCentral ? $setting->name ?? 'AFNON' : $tenant->short_name ?? strtoupper($tenant->id) }}
-            </h1>
+    <!-- Navigation -->
+    <nav class="bg-white/95 backdrop-blur-lg shadow-lg sticky top-0 z-50 transition-all duration-300" 
+         x-data="{ open: false, scrolled: false }"
+         x-init="window.addEventListener('scroll', () => { scrolled = window.scrollY > 50 })"
+         :class="{ 'py-2': scrolled, 'py-4': !scrolled }">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 bg-gradient-to-br from-emerald-600 to-emerald-800 rounded-xl flex items-center justify-center shadow-lg">
+                        <i class="fas fa-seedling text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-emerald-800">AFNON</h1>
+                        <p class="text-xs text-emerald-600 font-medium">Agricultural Finance Network</p>
+                    </div>
+                </div>
 
-            <!-- Desktop Nav -->
-            <nav class="hidden md:flex space-x-6">
-                <a href="#about" class="text-gray-700 hover:text-emerald-700">About</a>
-                <a href="#services" class="text-gray-700 hover:text-emerald-700">Services</a>
-                <a href="#contact" class="text-gray-700 hover:text-emerald-700">Contact</a>
-                @guest
-                    <a href="{{ $isCentral ? route('central.login.form') : route('tenant.login') }}"
-                        class="bg-emerald-700 text-white px-4 py-2 rounded-lg shadow hover:bg-emerald-800">
-                        Login
-                    </a>
-                @endguest
-
-                @auth
-                    @if (auth()->user()->hasRole('super-admin'))
-                        <a href="{{ route('superadmin.dashboard') }}"
-                            class="bg-emerald-700 text-white px-4 py-2 rounded-lg shadow hover:bg-emerald-800">
-                            Dashboard
-                        </a>
-                    @elseif(auth()->user()->hasRole('admin'))
-                        <a href="{{ route('admin.dashboard') }}"
-                            class="bg-emerald-700 text-white px-4 py-2 rounded-lg shadow hover:bg-emerald-800">
-                            Admin Dashboard
-                        </a>
-                    @elseif(auth()->user()->hasRole('agent'))
-                        <a href="{{ route('agent.dashboard') }}"
-                            class="bg-emerald-700 text-white px-4 py-2 rounded-lg shadow hover:bg-emerald-800">
-                            Agent Dashboard
-                        </a>
-                    @endif
-                @endauth
-
-            </nav>
-
-            <!-- Mobile Hamburger -->
-            <button class="md:hidden text-gray-700" @click="open = !open">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path :class="{ 'hidden': open, 'block': !open }" stroke-linecap="round" stroke-linejoin="round"
-                        stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                    <path :class="{ 'block': open, 'hidden': !open }" stroke-linecap="round" stroke-linejoin="round"
-                        stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-        </div>
-
-        <!-- Mobile Menu -->
-        <nav class="md:hidden" x-show="open" @click.away="open = false" x-transition>
-            <div class="bg-white px-4 pt-2 pb-4 space-y-2 shadow-md">
-                <a href="#about" class="block text-gray-700 hover:text-emerald-700">About</a>
-                <a href="#services" class="block text-gray-700 hover:text-emerald-700">Services</a>
-                <a href="#contact" class="block text-gray-700 hover:text-emerald-700">Contact</a>
-                <a href="#apply"
-                    class="block bg-emerald-700 text-white px-4 py-2 rounded-lg shadow hover:bg-emerald-800">Apply
-                    Now</a>
-            </div>
-        </nav>
-    </header>
-
-    <section class="pt-24 pb-16 bg-gray-100 dark:bg-gray-800">
-        <div class="max-w-7xl mx-auto px-4 grid lg:grid-cols-2 gap-8 items-center">
-            <div>
-                <h1 class="text-4xl font-bold text-gray-900 dark:text-white sm:text-5xl">
-                    Empowering Nigerian Farmers
-                </h1>
-                <p class="mt-4 text-lg text-gray-600 dark:text-gray-300 max-w-2xl">
-                    Apply for seasonal agricultural loans through {{ $setting->name ?? 'our program' }} to grow your
-                    productivity and improve food security.
-                </p>
-                <div class="mt-8 flex flex-col sm:flex-row gap-4">
-                    @if ($isCentral)
-                        <a href="#about"
-                            class="border border-emerald-600 text-emerald-600 px-6 py-3 rounded-md hover:bg-emerald-50 text-base font-medium">
-                            Learn More
-                        </a>
-                    @else
-                        <a href="{{ route('applications.create') }}"
-                            class="bg-emerald-600 text-white px-6 py-3 rounded-md hover:bg-emerald-700 text-base font-medium">
+                <!-- Desktop Navigation -->
+                <nav class="hidden lg:flex items-center space-x-8">
+                    <a href="#home" class="nav-link text-gray-700 hover:text-emerald-600 font-medium">Home</a>
+                    <a href="#about" class="nav-link text-gray-700 hover:text-emerald-600 font-medium">About</a>
+                    <a href="#services" class="nav-link text-gray-700 hover:text-emerald-600 font-medium">Services</a>
+                    <a href="#how-it-works" class="nav-link text-gray-700 hover:text-emerald-600 font-medium">How It Works</a>
+                    <a href="#contact" class="nav-link text-gray-700 hover:text-emerald-600 font-medium">Contact</a>
+                    <div class="flex items-center space-x-3">
+                        <a href="#" class="text-gray-600 hover:text-emerald-600 font-medium">Login</a>
+                        <a href="#" class="btn-primary text-white px-6 py-2 rounded-lg font-semibold">
                             Apply Now
                         </a>
-                        <a href="#about"
-                            class="border border-emerald-600 text-emerald-600 px-6 py-3 rounded-md hover:bg-emerald-50 text-base font-medium">
-                            Learn More
+                    </div>
+                </nav>
+
+                <!-- Mobile menu button -->
+                <button @click="open = !open" class="lg:hidden p-2 rounded-lg text-gray-600 hover:text-emerald-600 hover:bg-emerald-50 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path x-show="!open" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        <path x-show="open" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Mobile Navigation -->
+            <div x-show="open" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform scale-95" 
+                 x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-150" 
+                 x-transition:leave-start="opacity-100 transform scale-100" x-transition:leave-end="opacity-0 transform scale-95" 
+                 class="lg:hidden mt-4 mobile-menu rounded-xl shadow-lg overflow-hidden">
+                <div class="px-6 py-4 space-y-4">
+                    <a href="#home" class="block text-gray-700 hover:text-emerald-600 font-medium">Home</a>
+                    <a href="#about" class="block text-gray-700 hover:text-emerald-600 font-medium">About</a>
+                    <a href="#services" class="block text-gray-700 hover:text-emerald-600 font-medium">Services</a>
+                    <a href="#how-it-works" class="block text-gray-700 hover:text-emerald-600 font-medium">How It Works</a>
+                    <a href="#contact" class="block text-gray-700 hover:text-emerald-600 font-medium">Contact</a>
+                    <div class="pt-4 border-t border-gray-200 space-y-3">
+                        <a href="#" class="block text-gray-600 hover:text-emerald-600 font-medium">Login</a>
+                        <a href="#" class="btn-primary block text-center text-white px-6 py-3 rounded-lg font-semibold">
+                            Apply Now
                         </a>
-                    @endif
-                </div>
-            </div>
-            <div class="mt-8 lg:mt-0">
-                <img src="https://images.pexels.com/photos/2132250/pexels-photo-2132250.jpeg?auto=compress&cs=tinysrgb&w=1920"
-                    alt="Nigerian farmers in field" class="rounded-lg shadow-lg w-full h-auto object-cover">
-            </div>
-        </div>
-    </section>
-
-    <!-- About -->
-    <section id="about" class="py-16 bg-white dark:bg-gray-900">
-        <div class="max-w-7xl mx-auto px-4 grid md:grid-cols-2 gap-8 items-center">
-            <div>
-                <img src="https://images.pexels.com/photos/1595104/pexels-photo-1595104.jpeg?auto=compress&cs=tinysrgb&w=800"
-                    alt="Farmers working together" class="rounded-lg shadow w-full">
-            </div>
-            <div>
-                <h2 class="text-3xl font-bold text-gray-900 dark:text-white">About AFNON</h2>
-                <p class="mt-4 text-lg text-gray-600 dark:text-gray-300">
-                    AFNON (Association of farmers in the Northeast of Nigeria) is a private-sector-led initiative that
-                    provides support to
-                    Nigerian farmers including seasonal inputs, loans, and access to mechanization through
-                    public-private partnerships.
-                </p>
-            </div>
-        </div>
-    </section>
-
-    <!-- How It Works -->
-    <section id="how-it-works" class="py-16 bg-gray-50 dark:bg-gray-800">
-        <div class="max-w-7xl mx-auto px-4">
-            <h2 class="text-3xl font-bold text-center text-gray-900 dark:text-white">How It Works</h2>
-            <div class="mt-12 grid md:grid-cols-3 gap-8">
-                <div class="text-center">
-                    <div
-                        class="flex items-center justify-center w-16 h-16 bg-emerald-100 dark:bg-emerald-900 rounded-full mx-auto mb-4">
-                        <span class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">1</span>
                     </div>
-                    <h3 class="text-lg font-semibold">Apply</h3>
-                    <p class="mt-2 text-gray-600 dark:text-gray-300">Fill the application form with your BVN, NIN, farm
-                        and location details.</p>
                 </div>
-                <div class="text-center">
-                    <div
-                        class="flex items-center justify-center w-16 h-16 bg-emerald-100 dark:bg-emerald-900 rounded-full mx-auto mb-4">
-                        <span class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">2</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="relative overflow-hidden bg-gradient-to-br from-emerald-50 via-white to-teal-50 min-h-screen flex items-center">
+        <!-- Background decorations -->
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <div class="floating-element w-64 h-64 top-20 -left-32" style="animation-delay: 0s;"></div>
+            <div class="floating-element w-96 h-96 top-1/2 -right-48" style="animation-delay: 2s;"></div>
+            <div class="floating-element w-32 h-32 bottom-20 left-1/4" style="animation-delay: 4s;"></div>
+        </div>
+
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <!-- Hero Content -->
+                <div class="animate-fade-in">
+                    <div class="inline-flex items-center gap-2 bg-emerald-100 text-emerald-800 px-4 py-2 rounded-full text-sm font-medium mb-6">
+                        <i class="fas fa-leaf"></i>
+                        Trusted by 50,000+ Farmers
                     </div>
-                    <h3 class="text-lg font-semibold">Get Approved</h3>
-                    <p class="mt-2 text-gray-600 dark:text-gray-300">Admin reviews and allocates commodities. You get
-                        notified by SMS.</p>
+                    <h1 class="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6">
+                        Empowering <span class="text-shimmer">Nigerian</span> Farmers
+                    </h1>
+                    <p class="text-xl text-gray-600 leading-relaxed mb-8 max-w-2xl">
+                        Access quality agricultural inputs, seasonal loans, and modern farming techniques through our innovative platform. Join thousands of farmers growing their productivity across Nigeria.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 mb-8">
+                        <a href="#" class="btn-primary text-white px-8 py-4 rounded-xl font-semibold text-lg inline-flex items-center gap-2 justify-center">
+                            <i class="fas fa-rocket"></i>
+                            Start Your Application
+                        </a>
+                        <a href="#how-it-works" class="border-2 border-emerald-600 text-emerald-600 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-emerald-50 transition-all duration-300 inline-flex items-center gap-2 justify-center">
+                            <i class="fas fa-play-circle"></i>
+                            Learn How It Works
+                        </a>
+                    </div>
+                    
+                    <!-- Statistics -->
+                    <div class="grid grid-cols-3 gap-8 pt-8 border-t border-gray-200">
+                        <div class="text-center">
+                            <div class="stat-number text-2xl font-bold text-emerald-600">50K+</div>
+                            <div class="text-sm text-gray-600">Active Farmers</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="stat-number text-2xl font-bold text-emerald-600">₦2.5B+</div>
+                            <div class="text-sm text-gray-600">Loans Disbursed</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="stat-number text-2xl font-bold text-emerald-600">95%</div>
+                            <div class="text-sm text-gray-600">Success Rate</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="text-center">
-                    <div
-                        class="flex items-center justify-center w-16 h-16 bg-emerald-100 dark:bg-emerald-900 rounded-full mx-auto mb-4">
-                        <span class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">3</span>
+
+                <!-- Hero Image -->
+                <div class="relative animate-slide-up">
+                    <div class="relative z-10">
+                        <img src="https://images.pexels.com/photos/2132250/pexels-photo-2132250.jpeg?auto=compress&cs=tinysrgb&w=1920"
+                             alt="Nigerian farmers working in field" 
+                             class="rounded-2xl shadow-2xl w-full h-auto object-cover">
+                        <!-- Play button overlay -->
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <button class="pulse-ring w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform">
+                                <i class="fas fa-play text-emerald-600 text-2xl ml-1"></i>
+                            </button>
+                        </div>
                     </div>
-                    <h3 class="text-lg font-semibold">Collect & Farm</h3>
-                    <p class="mt-2 text-gray-600 dark:text-gray-300">Collect from assigned center, plant, and return
-                        specified quota post-harvest.</p>
+                    <!-- Decorative elements -->
+                    <div class="absolute -top-6 -right-6 w-24 h-24 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full opacity-20"></div>
+                    <div class="absolute -bottom-6 -left-6 w-32 h-32 bg-gradient-to-br from-teal-400 to-teal-600 rounded-full opacity-20"></div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Eligibility -->
-    <section id="eligibility" class="py-16 bg-white dark:bg-gray-900">
-        <div class="max-w-7xl mx-auto px-4">
-            <h2 class="text-3xl font-bold text-center text-gray-900 dark:text-white">Eligibility</h2>
-            <div class="mt-8 grid md:grid-cols-2 gap-8 items-center">
-                <ul class="space-y-3 text-gray-700 dark:text-gray-300 text-lg">
-                    <li>✔ Must be a Nigerian citizen (NIN required)</li>
-                    <li>✔ Valid BVN linked to your phone</li>
-                    <li>✔ Age between 18–65 years</li>
-                    <li>✔ At least 0.5 hectares of farmland</li>
-                </ul>
-                <ul class="space-y-3 text-gray-700 dark:text-gray-300 text-lg">
-                    <li>✔ Reside in participating states/clusters</li>
-                    <li>✔ Must not owe previous seasons</li>
-                    <li>✔ Willingness to return commodities or pay equivalent value</li>
-                    <li>✔ Owns or leases agricultural land</li>
-                </ul>
-            </div>
-        </div>
-    </section>
+    <!-- Section Divider -->
+    <div class="section-divider"></div>
 
-    <!-- Contact -->
-    <section id="contact" class="py-16 bg-gray-100 dark:bg-gray-800">
-        <div class="max-w-4xl mx-auto px-4 text-center">
-            <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Contact Us</h2>
-            <p class="mt-4 text-gray-600 dark:text-gray-300">Have any questions or need assistance?</p>
+    <!-- About Section -->
+    <section id="about" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+                <!-- Content -->
+                <div class="animate-fade-in">
+                    <div class="inline-flex items-center gap-2 bg-emerald-100 text-emerald-800 px-4 py-2 rounded-full text-sm font-medium mb-6">
+                        <i class="fas fa-info-circle"></i>
+                        About AFNON
+                    </div>
+                    <h2 class="text-4xl font-bold text-gray-900 mb-6">
+                        Leading Agricultural Innovation in Nigeria
+                    </h2>
+                    <p class="text-lg text-gray-600 mb-6 leading-relaxed">
+                        AFNON (Association of Farmers in the Northeast of Nigeria) is a pioneering private-sector initiative that bridges the gap between Nigerian farmers and modern agricultural opportunities.
+                    </p>
+                    <p class="text-gray-600 mb-8 leading-relaxed">
+                        Through strategic public-private partnerships, we provide comprehensive support including seasonal inputs, accessible loans, mechanization services, and cutting-edge farming techniques to farmers across Nigeria.
+                    </p>
+                    
+                    <!-- Features Grid -->
+                    <div class="grid sm:grid-cols-2 gap-6 mb-8">
+                        <div class="flex items-start gap-3">
+                            <div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-check text-emerald-600"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-900 mb-1">Quality Inputs</h4>
+                                <p class="text-sm text-gray-600">Premium seeds, fertilizers, and farming equipment</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-check text-emerald-600"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-900 mb-1">Accessible Loans</h4>
+                                <p class="text-sm text-gray-600">Flexible financing options for all farm sizes</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-check text-emerald-600"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-900 mb-1">Expert Support</h4>
+                                <p class="text-sm text-gray-600">Technical guidance and farming best practices</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-check text-emerald-600"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-900 mb-1">Modern Technology</h4>
+                                <p class="text-sm text-gray-600">Digital platform for seamless transactions</p>
+                            </div>
+                        </div>
+                    </div>
 
-            @if ($setting)
-                <p class="mt-2 text-gray-700 dark:text-gray-200">Email:
-                    <a href="mailto:{{ $setting->email }}" class="text-emerald-600 hover:underline">
-                        {{ $setting->email }}
+                    <a href="#services" class="btn-primary text-white px-6 py-3 rounded-lg font-semibold inline-flex items-center gap-2">
+                        Explore Our Services
+                        <i class="fas fa-arrow-right"></i>
                     </a>
-                </p>
-                <p class="mt-1 text-gray-700 dark:text-gray-200">Phone:
-                    <a href="tel:{{ $setting->phone }}" class="text-emerald-600 hover:underline">
-                        {{ $setting->phone }}
-                    </a>
-                </p>
-                <p class="mt-1 text-gray-700 dark:text-gray-200">Address:
-                    <span class="text-emerald-600">{{ $setting->address }}</span>
-                </p>
-            @endif
+                </div>
+
+                <!-- Image -->
+                <div class="relative animate-slide-up">
+                    <img src="https://images.pexels.com/photos/1595104/pexels-photo-1595104.jpeg?auto=compress&cs=tinysrgb&w=800"
+                         alt="Farmers working together" 
+                         class="rounded-2xl shadow-xl w-full h-auto object-cover">
+                    <!-- Overlay badge -->
+                    <div class="absolute top-6 left-6 bg-white/90 backdrop-blur-sm rounded-lg px-4 py-2 shadow-lg">
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-award text-emerald-600"></i>
+                            <span class="text-sm font-semibold text-gray-900">Award Winning</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Section Header -->
+            <div class="text-center mb-16 animate-fade-in">
+                <div class="inline-flex items-center gap-2 bg-emerald-100 text-emerald-800 px-4 py-2 rounded-full text-sm font-medium mb-6">
+                    <i class="fas fa-cogs"></i>
+                    Our Services
+                </div>
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">
+                    Comprehensive Agricultural Solutions
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    From financing to harvest, we support every step of your agricultural journey
+                </p>
+            </div>
+
+            <!-- Services Grid -->
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Service 1 -->
+                <div class="feature-card bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl">
+                    <div class="w-16 h-16 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center mb-6">
+                        <i class="fas fa-coins text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Seasonal Loans</h3>
+                    <p class="text-gray-600 mb-6">Access flexible financing options tailored to your farming cycle with competitive rates and farmer-friendly terms.</p>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li class="flex items-center gap-2">
+                            <i class="fas fa-check text-emerald-500"></i>
+                            Low interest rates
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i class="fas fa-check text-emerald-500"></i>
+                            Flexible repayment
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i class="fas fa-check text-emerald-500"></i>
+                            Quick approval
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Service 2 -->
+                <div class="feature-card bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl">
+                    <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mb-6">
+                        <i class="fas fa-seedling text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Quality Inputs</h3>
+                    <p class="text-gray-600 mb-6">Premium seeds, fertilizers, pesticides, and farming equipment sourced from trusted suppliers worldwide.</p>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li class="flex items-center gap-2">
+                            <i class="fas fa-check text-emerald-500"></i>
+                            Certified seeds
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i class="fas fa-check text-emerald-500"></i>
+                            Organic fertilizers
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i class="fas fa-check text-emerald-500"></i>
+                            Modern equipment
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Service 3 -->
+                <div class="feature-card bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl">
+                    <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6">
+                        <i class="fas fa-tractor text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Mechanization</h3>
+                    <p class="text-gray-600 mb-6">Access modern farming machinery and equipment to increase efficiency and productivity on your farm.</p>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li class="flex items-center gap-2">
+                            <i class="fas fa-check text-emerald-500"></i>
+                            Land preparation
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i class="fas fa-check text-emerald-500"></i>
+                            Harvesting services
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i class="fas fa-check text-emerald-500"></i>
+                            Equipment rental
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Service 4 -->
+                <div class="feature-card bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl">
+                    <div class="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mb-6">
+                        <i class="fas fa-graduation-cap text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Training & Support</h3>
+                    <p class="text-gray-600 mb-6">Comprehensive training programs and ongoing support to help you adopt best farming practices and modern techniques.</p>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li class="flex items-center gap-2">
+                            <i class="fas fa-check text-emerald-500"></i>
+                            Technical training
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i class="fas fa-check text-emerald-500"></i>
+                            Expert consultation
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i class="fas fa-check text-emerald-500"></i>
+                            24/7 support
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Service 5 -->
+                <div class="feature-card bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl">
+                    <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mb-6">
+                        <i class="fas fa-chart-line text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Market Access</h3>
+                    <p class="text-gray-600 mb-6">Connect with buyers, access fair market prices, and secure contracts for your produce through our network.</p>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li class="flex items-center gap-2">
+                            <i class="fas fa-check text-emerald-500"></i>
+                            Direct buyer connection
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i class="fas fa-check text-emerald-500"></i>
+                            Fair pricing
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i class="fas fa-check text-emerald-500"></i>
+                            Contract farming
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Service 6 -->
+                <div class="feature-card bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl">
+                    <div class="w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl flex items-center justify-center mb-6">
+                        <i class="fas fa-shield-alt text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Insurance Coverage</h3>
+                    <p class="text-gray-600 mb-6">Protect your investment with comprehensive agricultural insurance covering weather risks and crop failures.</p>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li class="flex items-center gap-2">
+                            <i class="fas fa-check text-emerald-500"></i>
+                            Weather protection
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i class="fas fa-check text-emerald-500"></i>
+                            Crop insurance
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i class="fas fa-check text-emerald-500"></i>
+                            Quick claims
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Section Header -->
+            <div class="text-center mb-16 animate-fade-in">
+                <div class="inline-flex items-center gap-2 bg-emerald-100 text-emerald-800 px-4 py-2 rounded-full text-sm font-medium mb-6">
+                    <i class="fas fa-cog"></i>
+                    How It Works
+                </div>
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">
+                    Simple Process, Powerful Results
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Get started with our streamlined application process in just three easy steps
+                </p>
+            </div>
+
+            <!-- Process Steps -->
+            <div class="relative">
+                <!-- Connection Line -->
+                <div class="hidden lg:block absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-emerald-200 via-emerald-300 to-emerald-200 transform -translate-y-1/2 z-0"></div>
+                
+                <div class="grid md:grid-cols-3 gap-8 relative z-10">
+                    <!-- Step 1 -->
+                    <div class="text-center animate-slide-up" style="animation-delay: 0.2s;">
+                        <div class="relative inline-block">
+                            <div class="w-24 h-24 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl">
+                                <i class="fas fa-file-alt text-white text-2xl"></i>
+                            </div>
+                            <div class="absolute -top-2 -right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg">
+                                <span class="text-emerald-600 font-bold">1</span>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-4">Apply Online</h3>
+                        <p class="text-gray-600 leading-relaxed">
+                            Complete our simple online application form with your BVN, NIN, farm details, and location information. Takes less than 10 minutes.
+                        </p>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="text-center animate-slide-up" style="animation-delay: 0.4s;">
+                        <div class="relative inline-block">
+                            <div class="w-24 h-24 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl">
+                                <i class="fas fa-check-circle text-white text-2xl"></i>
+                            </div>
+                            <div class="absolute -top-2 -right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg">
+                                <span class="text-blue-600 font-bold">2</span>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-4">Get Approved</h3>
+                        <p class="text-gray-600 leading-relaxed">
+                            Our team reviews your application and allocates appropriate commodities based on your farm size. You'll receive SMS notification within 48 hours.
+                        </p>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="text-center animate-slide-up" style="animation-delay: 0.6s;">
+                        <div class="relative inline-block">
+                            <div class="w-24 h-24 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl">
+                                <i class="fas fa-seedling text-white text-2xl"></i>
+                            </div>
+                            <div class="absolute -top-2 -right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg">
+                                <span class="text-purple-600 font-bold">3</span>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-4">Start Farming</h3>
+                        <p class="text-gray-600 leading-relaxed">
+                            Collect your inputs from the assigned center, plant your crops, and return the specified quota post-harvest. It's that simple!
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA -->
+            <div class="text-center mt-12">
+                <a href="#" class="btn-primary text-white px-8 py-4 rounded-xl font-semibold text-lg inline-flex items-center gap-2">
+                    <i class="fas fa-rocket"></i>
+                    Start Your Journey Today
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Eligibility Section -->
+    <section id="eligibility" class="py-20 bg-gradient-to-br from-emerald-50 to-teal-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+                <!-- Content -->
+                <div class="animate-fade-in">
+                    <div class="inline-flex items-center gap-2 bg-emerald-100 text-emerald-800 px-4 py-2 rounded-full text-sm font-medium mb-6">
+                        <i class="fas fa-list-check"></i>
+                        Eligibility Requirements
+                    </div>
+                    <h2 class="text-4xl font-bold text-gray-900 mb-6">
+                        Are You Eligible?
+                    </h2>
+                    <p class="text-lg text-gray-600 mb-8 leading-relaxed">
+                        Check if you meet our simple requirements to join thousands of successful farmers in our program.
+                    </p>
+
+                    <div class="grid sm:grid-cols-2 gap-6">
+                        <div class="space-y-4">
+                            <div class="flex items-start gap-3">
+                                <div class="w-6 h-6 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                    <i class="fas fa-check text-emerald-600 text-sm"></i>
+                                </div>
+                                <span class="text-gray-700">Nigerian citizen with valid NIN</span>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <div class="w-6 h-6 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                    <i class="fas fa-check text-emerald-600 text-sm"></i>
+                                </div>
+                                <span class="text-gray-700">Valid BVN linked to your phone</span>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <div class="w-6 h-6 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                    <i class="fas fa-check text-emerald-600 text-sm"></i>
+                                </div>
+                                <span class="text-gray-700">Age between 18–65 years</span>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <div class="w-6 h-6 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                    <i class="fas fa-check text-emerald-600 text-sm"></i>
+                                </div>
+                                <span class="text-gray-700">Minimum 0.5 hectares of farmland</span>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex items-start gap-3">
+                                <div class="w-6 h-6 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                    <i class="fas fa-check text-emerald-600 text-sm"></i>
+                                </div>
+                                <span class="text-gray-700">Reside in participating states</span>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <div class="w-6 h-6 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                    <i class="fas fa-check text-emerald-600 text-sm"></i>
+                                </div>
+                                <span class="text-gray-700">No outstanding debt from previous seasons</span>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <div class="w-6 h-6 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                    <i class="fas fa-check text-emerald-600 text-sm"></i>
+                                </div>
+                                <span class="text-gray-700">Commitment to return specified quota</span>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <div class="w-6 h-6 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                    <i class="fas fa-check text-emerald-600 text-sm"></i>
+                                </div>
+                                <span class="text-gray-700">Own or lease agricultural land</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 p-6 bg-emerald-100 rounded-2xl border border-emerald-200">
+                        <div class="flex items-start gap-3">
+                            <i class="fas fa-lightbulb text-emerald-600 text-xl mt-1"></i>
+                            <div>
+                                <h4 class="font-semibold text-emerald-800 mb-1">Good to Know</h4>
+                                <p class="text-emerald-700 text-sm">
+                                    Don't meet all requirements? Contact our support team to discuss alternative options and special programs available in your area.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Visual Element -->
+                <div class="relative animate-slide-up">
+                    <div class="bg-white rounded-2xl p-8 shadow-xl">
+                        <h3 class="text-xl font-bold text-gray-900 mb-6 text-center">Quick Eligibility Check</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between p-4 bg-emerald-50 rounded-lg">
+                                <span class="text-gray-700">Valid NIN</span>
+                                <i class="fas fa-check-circle text-emerald-600"></i>
+                            </div>
+                            <div class="flex items-center justify-between p-4 bg-emerald-50 rounded-lg">
+                                <span class="text-gray-700">Active BVN</span>
+                                <i class="fas fa-check-circle text-emerald-600"></i>
+                            </div>
+                            <div class="flex items-center justify-between p-4 bg-emerald-50 rounded-lg">
+                                <span class="text-gray-700">Farm Owner</span>
+                                <i class="fas fa-check-circle text-emerald-600"></i>
+                            </div>
+                            <div class="flex items-center justify-between p-4 bg-emerald-50 rounded-lg">
+                                <span class="text-gray-700">18+ Years</span>
+                                <i class="fas fa-check-circle text-emerald-600"></i>
+                            </div>
+                        </div>
+                        <button class="w-full mt-6 btn-primary text-white py-3 rounded-lg font-semibold">
+                            Check My Eligibility
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 animate-fade-in">
+                <div class="inline-flex items-center gap-2 bg-emerald-100 text-emerald-800 px-4 py-2 rounded-full text-sm font-medium mb-6">
+                    <i class="fas fa-heart"></i>
+                    Success Stories
+                </div>
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">
+                    What Our Farmers Say
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Hear from farmers who have transformed their lives through AFNON's programs
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Testimonial 1 -->
+                <div class="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
+                    <div class="flex items-center gap-1 mb-4">
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                    </div>
+                    <p class="text-gray-600 mb-6 leading-relaxed italic">
+                        "AFNON transformed my farming business. The quality inputs and support helped me double my yield this season. I'm forever grateful!"
+                    </p>
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-user text-emerald-600"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-900">Aminu Kano</h4>
+                            <p class="text-sm text-gray-500">Rice Farmer, Kaduna</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 2 -->
+                <div class="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
+                    <div class="flex items-center gap-1 mb-4">
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                    </div>
+                    <p class="text-gray-600 mb-6 leading-relaxed italic">
+                        "The loan process was so simple and fast. Within a week, I had everything I needed to start my maize farming. Amazing service!"
+                    </p>
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-user text-emerald-600"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-900">Fatima Abdullahi</h4>
+                            <p class="text-sm text-gray-500">Maize Farmer, Bauchi</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 3 -->
+                <div class="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
+                    <div class="flex items-center gap-1 mb-4">
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                    </div>
+                    <p class="text-gray-600 mb-6 leading-relaxed italic">
+                        "The training and ongoing support made all the difference. I learned modern techniques that increased my productivity tremendously."
+                    </p>
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-user text-emerald-600"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-900">Ibrahim Musa</h4>
+                            <p class="text-sm text-gray-500">Mixed Farmer, Gombe</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 animate-fade-in">
+                <div class="inline-flex items-center gap-2 bg-emerald-100 text-emerald-800 px-4 py-2 rounded-full text-sm font-medium mb-6">
+                    <i class="fas fa-envelope"></i>
+                    Get In Touch
+                </div>
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">
+                    Contact Our Team
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Have questions or need assistance? Our dedicated support team is here to help you succeed.
+                </p>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+                <!-- Contact Info -->
+                <div class="space-y-8">
+                    <!-- Phone -->
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-phone text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-1">Phone Support</h3>
+                            <p class="text-gray-600 mb-2">Call us for immediate assistance</p>
+                            <a href="tel:+2341234567890" class="text-emerald-600 font-semibold hover:text-emerald-700">
+                                +234 123 456 7890
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-envelope text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-1">Email Support</h3>
+                            <p class="text-gray-600 mb-2">Send us your questions</p>
+                            <a href="mailto:info@afnon.ng" class="text-emerald-600 font-semibold hover:text-emerald-700">
+                                info@afnon.ng
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Address -->
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-map-marker-alt text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-1">Office Location</h3>
+                            <p class="text-gray-600 mb-2">Visit our headquarters</p>
+                            <address class="text-emerald-600 font-semibold not-italic">
+                                123 Agricultural Way<br>
+                                Abuja, FCT Nigeria
+                            </address>
+                        </div>
+                    </div>
+
+                    <!-- Hours -->
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-clock text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-1">Business Hours</h3>
+                            <p class="text-gray-600">
+                                Monday - Friday: 8:00 AM - 6:00 PM<br>
+                                Saturday: 9:00 AM - 2:00 PM<br>
+                                Sunday: Closed
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Form -->
+                <div class="bg-white rounded-2xl p-8 shadow-xl">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-6">Send us a Message</h3>
+                    <form class="space-y-6">
+                        <div class="grid sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                                <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200" placeholder="John">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+                                <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200" placeholder="Doe">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                            <input type="email" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200" placeholder="john@example.com">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                            <input type="tel" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200" placeholder="+234 xxx xxx xxxx">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Subject</label>
+                            <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200">
+                                <option>General Inquiry</option>
+                                <option>Application Support</option>
+                                <option>Technical Issue</option>
+                                <option>Partnership</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Message</label>
+                            <textarea rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200" placeholder="How can we help you?"></textarea>
+                        </div>
+                        <button type="submit" class="w-full btn-primary text-white py-3 rounded-lg font-semibold">
+                            Send Message
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 gradient-bg relative overflow-hidden">
+        <div class="absolute inset-0 bg-black/20"></div>
+        <div class="relative"></div>
     </section>
 
     <!-- Footer -->

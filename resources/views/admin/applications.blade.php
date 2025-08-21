@@ -8,40 +8,54 @@
                 <h3 class="text-lg font-medium text-gray-900 dark:text-white">Application Management</h3>
             </div>
             <div class="p-6">
-                <!-- Filters -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Season</label>
-                        <select
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                            <option>All Seasons</option>
-                            <option>2024 Dry Season</option>
-                            <option>2024 Wet Season</option>
-                        </select>
+                <!-- Toolbar: Bulk actions + Filters -->
+                <form id="bulkApproveForm" method="POST" action="{{ route('admin.applications.bulk-approve') }}" class="mb-6">
+                    @csrf
+                    <div class="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50/60 dark:bg-gray-800/50 p-4">
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+                            <div class="md:col-span-4">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Collection Center *</label>
+                                <select name="collection_center_id" id="bulkCollectionCenter" required
+                                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                    <option value="">Select collection center</option>
+                                    @foreach(\App\Models\Center::whereIn('type', ['collection', 'both'])->orderBy('name')->get(['id','name','type']) as $center)
+                                        <option value="{{ $center->id }}" data-type="{{ $center->type }}">{{ $center->name }} ({{ ucfirst($center->type) }})</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="md:col-span-4">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Return Center *</label>
+                                <select name="return_center_id" id="bulkReturnCenter" required
+                                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                    <option value="">Select return center</option>
+                                    @foreach(\App\Models\Center::whereIn('type', ['return', 'both'])->orderBy('name')->get(['id','name','type']) as $center)
+                                        <option value="{{ $center->id }}" data-type="{{ $center->type }}">{{ $center->name }} ({{ ucfirst($center->type) }})</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="md:col-span-4 flex items-end justify-between gap-3">
+                                <span id="selectedCount" class="inline-flex items-center px-2.5 py-1.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200">0 selected</span>
+                                <button id="bulkApproveBtn" type="submit" disabled
+                                    class="inline-flex items-center justify-center px-4 py-2 rounded-md bg-emerald-600 text-white shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-7.25 7.25a1 1 0 01-1.414 0l-3-3a1 1 0 111.414-1.414l2.293 2.293 6.543-6.543a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                                    Bulk Approve Selected
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
-                        <select
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                            <option>All Status</option>
-                            <option>Pending</option>
-                            <option>Approved</option>
-                            <option>Distributed</option>
-                            <option>Rejected</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Search</label>
-                        <input type="text" placeholder="Search farmer..."
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                    </div>
-                </div>
+                
+                    <!-- Hidden inputs holder for selected application IDs -->
+                    <div id="selectedIdsContainer"></div>
+                </form>
 
                 <!-- Applications Table -->
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                        <thead class="bg-gray-50 dark:bg-gray-700">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 rounded-lg overflow-hidden">
+                        <thead class="bg-gray-50 dark:bg-gray-700 sticky top-0 z-10">
                             <tr>
+                                <th class="px-6 py-3">
+                                    <input id="selectAllRows" type="checkbox" class="h-4 w-4 text-emerald-600 border-gray-300 rounded">
+                                </th>
                                 <th
                                     class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                     Farmer Details</th>
@@ -61,7 +75,11 @@
                         </thead>
                         <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                             @forelse($applications as $app)
-                                <tr>
+                                <tr class="odd:bg-gray-50/50 even:bg-white dark:odd:bg-gray-800 dark:even:bg-gray-800 hover:bg-emerald-50/60 dark:hover:bg-emerald-900/30 transition">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <input type="checkbox" class="rowCheckbox h-4 w-4 text-emerald-600 border-gray-300 rounded"
+                                            value="{{ $app->id }}">
+                                    </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
                                             <div class="flex-shrink-0 h-10 w-10">
@@ -75,12 +93,15 @@
                                             <div class="ml-4">
                                                 <div class="text-sm font-medium text-gray-900 dark:text-white">{{ $app->farmer->full_name ?? '—' }}</div>
                                                 <div class="text-sm text-gray-500 dark:text-gray-400">{{ $app->farmer->phone ?? '—' }}</div>
-                                                <div class="text-sm text-gray-500 dark:text-gray-400">BVN: {{ $app->farmer->bvn ?? '—' }}</div>
+                                                <div class="flex gap-1 mt-1">
+                                                    <div class="text-xs inline-flex items-center px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300">BVN: {{ $app->farmer->bvn ?? '—' }}</div>
+                                                    <div class="text-xs inline-flex items-center px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300">NIN: {{ $app->farmer->nin ?? '—' }}</div>
+                                                </div>
                                             </div>
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-900 dark:text-white">{{ $app->season->name ?? '—' }}</div>
+                                        <div class="text-sm font-medium text-gray-900 dark:text-white">{{ $app->season->name ?? '—' }}</div>
                                         <div class="text-sm text-gray-500 dark:text-gray-400">
                                             @php($summary = ($app->commodities ?? collect())->map(function($c){
                                                 $qty = $c->pivot->quantity ?? $c->quantity ?? null;
@@ -88,11 +109,12 @@
                                             })->take(2)->implode(', '))
                                             {{ $summary ?: '—' }}
                                         </div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Ref: {{ $app->reference_number ?? '—' }}</div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="text-sm text-gray-900 dark:text-white">{{ optional($app->farm)->size ? number_format($app->farm->size, 2) . ' hectares' : '—' }}</div>
-                                        <div class="text-sm text-gray-500 dark:text-gray-400">{{ $app->farmer->address ?? '—' }}</div>
-                                        <div class="text-sm text-gray-500 dark:text-gray-400">{{ $app->farmer->cluster ?? '—' }}</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ $app->farmer->address ?? '—' }}</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ $app->farmer->cluster ?? '—' }}</div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         @php($statusColors = [
@@ -105,12 +127,12 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                        <a href="{{ route('admin.applications.show', $app->uuid) }}" class="text-emerald-600 dark:text-emerald-400 hover:text-emerald-900 dark:hover:text-emerald-300 mr-3">View Full Info</a>
+                                        <a href="{{ route('admin.applications.show', $app->uuid) }}" class="inline-flex items-center px-3 py-1.5 rounded-md border border-emerald-200 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20">View Details</a>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">No applications found.</td>
+                                    <td colspan="6" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">No applications found.</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -238,4 +260,101 @@
             </div>
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const selectAll = document.getElementById('selectAllRows');
+            const rowChecks = document.querySelectorAll('.rowCheckbox');
+            const form = document.getElementById('bulkApproveForm');
+            const selectedIdsContainer = document.getElementById('selectedIdsContainer');
+            const bulkApproveBtn = document.getElementById('bulkApproveBtn');
+            const collectionSelect = document.getElementById('bulkCollectionCenter');
+            const returnSelect = document.getElementById('bulkReturnCenter');
+            const selectedCount = document.getElementById('selectedCount');
+
+            function updateSelectedIds() {
+                selectedIdsContainer.innerHTML = '';
+                const checked = Array.from(rowChecks).filter(cb => cb.checked);
+                const checkedValues = checked.map(cb => cb.value);
+                
+                checkedValues.forEach(id => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'application_ids[]';
+                    input.value = id;
+                    selectedIdsContainer.appendChild(input);
+                });
+
+                // Update selected count display
+                selectedCount.textContent = `${checked.length} selected`;
+                
+                // Update select-all checkbox state
+                if (selectAll) {
+                    if (checked.length === 0) {
+                        selectAll.indeterminate = false;
+                        selectAll.checked = false;
+                    } else if (checked.length === rowChecks.length) {
+                        selectAll.indeterminate = false;
+                        selectAll.checked = true;
+                    } else {
+                        selectAll.indeterminate = true;
+                        selectAll.checked = false;
+                    }
+                }
+                
+                toggleBulkApprove();
+            }
+
+            function toggleBulkApprove() {
+                const hasIds = selectedIdsContainer.querySelectorAll('input').length > 0;
+                const hasCollection = !!collectionSelect.value;
+                const hasReturn = !!returnSelect.value;
+                const canApprove = hasIds && hasCollection && hasReturn;
+                
+                bulkApproveBtn.disabled = !canApprove;
+                bulkApproveBtn.classList.toggle('opacity-50', !canApprove);
+                bulkApproveBtn.classList.toggle('cursor-not-allowed', !canApprove);
+            }
+
+            function syncBothTypeBehavior(changed, other) {
+                const opt = changed.options[changed.selectedIndex];
+                const type = opt ? opt.getAttribute('data-type') : null;
+                if (type === 'both' && changed.value) {
+                    other.value = changed.value;
+                    other.disabled = true;
+                } else {
+                    other.disabled = false;
+                }
+                toggleBulkApprove();
+            }
+
+            // Select-all behavior
+            if (selectAll) {
+                selectAll.addEventListener('change', function() {
+                    rowChecks.forEach(cb => cb.checked = selectAll.checked);
+                    updateSelectedIds();
+                });
+            }
+            
+            // Individual checkbox behavior
+            rowChecks.forEach(cb => {
+                cb.addEventListener('change', updateSelectedIds);
+            });
+
+            // Center select behavior
+            collectionSelect.addEventListener('change', () => syncBothTypeBehavior(collectionSelect, returnSelect));
+            returnSelect.addEventListener('change', () => syncBothTypeBehavior(returnSelect, collectionSelect));
+
+            // Initialize
+            updateSelectedIds();
+            toggleBulkApprove();
+
+            // Guard submit: prevent empty
+            form.addEventListener('submit', function(e) {
+                if (bulkApproveBtn.disabled) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+        });
+    </script>
 @endsection

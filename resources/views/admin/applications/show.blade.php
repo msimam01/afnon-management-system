@@ -89,35 +89,77 @@
                     </table>
                 </div>
             </div>
-            <form action="{{ route('admin.applications.approve', $application->uuid) }}" method="POST">
-                @csrf
-                @method('PUT')
             
-                <!-- Existing Farmer Info and Commodity Breakdown -->
-            
-                <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Collection Center *</label>
-                    <select name="collection_center_id" id="collectionCenter" required class="w-full px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                        <option value="">Select</option>
-                        @foreach ($collectionCenters as $center)
-                            <option value="{{ $center->id }}" data-type="{{ $center->type }}">{{ $center->name }}</option>
-                        @endforeach
-                    </select>
-                    
-            
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Return Center *</label>
-                    <select name="return_center_id" id="returnCenter" required class="w-full px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                        <option value="">Select</option>
-                        @foreach ($returnCenters as $center)
-                            <option value="{{ $center->id }}" data-type="{{ $center->type }}">{{ $center->name }}</option>
-                        @endforeach
-                    </select>
+            @if($application->status === 'pending')
+                <form action="{{ route('admin.applications.approve', $application->uuid) }}" method="POST">
+                    @csrf
+                    @method('PUT')
+                
+                    <!-- Existing Farmer Info and Commodity Breakdown -->
+                
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Collection Center *</label>
+                        <select name="collection_center_id" id="collectionCenter" required class="w-full px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            <option value="">Select</option>
+                            @foreach ($collectionCenters as $center)
+                                <option value="{{ $center->id }}" data-type="{{ $center->type }}">{{ $center->name }}</option>
+                            @endforeach
+                        </select>
+                        
+                
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Return Center *</label>
+                        <select name="return_center_id" id="returnCenter" required class="w-full px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            <option value="">Select</option>
+                            @foreach ($returnCenters as $center)
+                                <option value="{{ $center->id }}" data-type="{{ $center->type }}">{{ $center->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                
+                    <div class="flex justify-end space-x-3">
+                        <button id="approveBtn" type="submit" class="px-5 py-2 bg-emerald-600 text-white rounded-md opacity-50 cursor-not-allowed" disabled>Approve</button>
+                        <button type="button" id="rejectBtn" class="px-5 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Reject</button>
+                    </div>
+                </form>
+
+                <!-- Rejection Modal -->
+                <div id="rejectModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+                    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white dark:bg-gray-800">
+                        <div class="mt-3">
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Reject Application</h3>
+                            <form action="{{ route('admin.applications.reject', $application->uuid) }}" method="POST">
+                                @csrf
+                                @method('PUT')
+                                <div class="mb-4">
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Rejection Reason (Optional)</label>
+                                    <textarea name="rejection_note" rows="4" 
+                                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                                        placeholder="Enter reason for rejection..."></textarea>
+                                </div>
+                                <div class="flex justify-end space-x-3">
+                                    <button type="button" id="cancelReject" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400">Cancel</button>
+                                    <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Confirm Reject</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
-            
-                <div class="flex justify-end">
-                    <button type="submit" class="px-5 py-2 bg-emerald-600 text-white rounded-md">Approve</button>
+            @else
+                <div class="bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-blue-700 dark:text-blue-200">
+                                This application has already been <strong>{{ $application->status }}</strong> and cannot be modified.
+                            </p>
+                        </div>
+                    </div>
                 </div>
-            </form>
+            @endif
             
         </div>
     </div>
@@ -125,6 +167,33 @@
         document.addEventListener("DOMContentLoaded", function() {
             const collectionSelect = document.getElementById("collectionCenter");
             const returnSelect = document.getElementById("returnCenter");
+            const approveBtn = document.getElementById("approveBtn");
+            const rejectBtn = document.getElementById("rejectBtn");
+            const rejectModal = document.getElementById("rejectModal");
+            const cancelReject = document.getElementById("cancelReject");
+
+            // Only run if form elements exist (application is pending)
+            if (!collectionSelect || !returnSelect || !approveBtn) {
+                return;
+            }
+
+            // Rejection modal handlers
+            if (rejectBtn && rejectModal) {
+                rejectBtn.addEventListener("click", function() {
+                    rejectModal.classList.remove("hidden");
+                });
+
+                cancelReject.addEventListener("click", function() {
+                    rejectModal.classList.add("hidden");
+                });
+
+                // Close modal when clicking outside
+                rejectModal.addEventListener("click", function(e) {
+                    if (e.target === rejectModal) {
+                        rejectModal.classList.add("hidden");
+                    }
+                });
+            }
 
             function handleCenterSelection(changedSelect, otherSelect) {
                 const selectedOption = changedSelect.options[changedSelect.selectedIndex];
@@ -139,6 +208,16 @@
                         otherSelect.value = "";
                     }
                 }
+                toggleApprove();
+            }
+
+            function toggleApprove() {
+                const hasCollection = !!collectionSelect.value;
+                const hasReturn = !!returnSelect.value;
+                const canApprove = hasCollection && hasReturn;
+                approveBtn.disabled = !canApprove;
+                approveBtn.classList.toggle('opacity-50', !canApprove);
+                approveBtn.classList.toggle('cursor-not-allowed', !canApprove);
             }
 
             collectionSelect.addEventListener("change", function() {
@@ -148,6 +227,9 @@
             returnSelect.addEventListener("change", function() {
                 handleCenterSelection(returnSelect, collectionSelect);
             });
+
+            // Initialize state on load
+            toggleApprove();
         });
     </script>
 @endsection

@@ -108,8 +108,11 @@ Route::middleware([
             Route::get('/', [ApplicationController::class, 'index'])->name('index');
             Route::get('/{uuid}/show', [ApplicationController::class, 'show'])->name('show');
             Route::put('/{uuid}/approve', [ApplicationController::class, 'approve'])->name('approve');
+            Route::put('/{uuid}/reject', [ApplicationController::class, 'reject'])->name('reject');
             Route::post('/applications/bulk-approve', [ApplicationController::class, 'bulkApprove'])
                 ->name('bulk-approve');
+            Route::post('/applications/bulk-reject', [ApplicationController::class, 'bulkReject'])
+                ->name('bulk-reject');
         });
 
         Route::prefix('roles')->name('roles.')->group(function () {

@@ -24,6 +24,7 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\App;
+use Illuminate\Validation\Rule;
 
 class ApplicationController extends Controller
 {
@@ -58,9 +59,28 @@ class ApplicationController extends Controller
                          ->get();
         });
 
+        // Calculate statistics for the current season filter
+        $currentSeason = $filters['season'] ?? null;
+        $stats = Cache::remember($key('stats_' . ($currentSeason ?: 'all')), 300, function () use ($currentSeason) {
+            $query = Application::query();
+            
+            if ($currentSeason) {
+                $query->whereHas('season', function ($q) use ($currentSeason) {
+                    $q->where('name', $currentSeason);
+                });
+            }
+            
+            return [
+                'total_pending' => (clone $query)->where('status', 'pending')->count(),
+                'total_approved' => (clone $query)->where('status', 'approved')->count(),
+                'total_distributed' => (clone $query)->where('status', 'distributed')->count(),
+                'total_rejected' => (clone $query)->where('status', 'rejected')->count(),
+            ];
+        });
+
         // Add response caching headers for better performance
-        return Response::view('admin.applications', compact(
-            'applications', 'collectionCenters', 'returnCenters', 'seasons'
+        return Response::view('admin.applications.index', compact(
+            'applications', 'collectionCenters', 'returnCenters', 'seasons', 'stats'
         ))->header('Cache-Control', 'public, max-age=300'); // 5 minutes
     }
 
@@ -327,8 +347,13 @@ class ApplicationController extends Controller
      */
     public function show($uuid)
     {
-        $application = Application::whereUuid($uuid)->first();
-        $application->load(['farmer', 'farm', 'season', 'commodities']);
+        // Eager load to minimize queries
+        $application = Application::with([
+            'farmer:id,full_name,registration_number,phone,bvn,nin,address',
+            'farm:id,size,location',
+            'season',
+            'commodities:id,name,quantity_per_hectare,price_per_unit'
+        ])->whereUuid($uuid)->firstOrFail();
 
         // Auto-calculate allocation based on qty_per_hectare × farm size
         $allocations = $application->commodities->map(function ($commodity) use ($application) {
@@ -345,8 +370,13 @@ class ApplicationController extends Controller
                 'total_value' => $allocatedQty * ($commodity->price_per_unit ?? 0),
             ];
         });
-        $collectionCenters = Center::whereIn('type', ['collection', 'both'])->get();
-        $returnCenters = Center::whereIn('type', ['return', 'both'])->get();
+        // Fetch minimal center fields
+        $collectionCenters = Center::whereIn('type', ['collection', 'both'])
+            ->select('id', 'name', 'type')
+            ->get();
+        $returnCenters = Center::whereIn('type', ['return', 'both'])
+            ->select('id', 'name', 'type')
+            ->get();
 
         return view('admin.applications.show', [
             'application' => $application,
@@ -368,10 +398,29 @@ class ApplicationController extends Controller
             ToastMagic::error('No centers have been created yet. Please create a collection/return center before approving applications.');
             return back();
         }
-        $application = Application::whereUuid($uuid)->first();
-        $request->validate([
-            'collection_center_id' => 'nullable|exists:centers,id',
-            'return_center_id' => 'nullable|exists:centers,id',
+        $application = Application::with(['commodities:id,name,quantity_per_hectare,price_per_unit', 'farm:id,size', 'season', 'farmer:id,full_name,registration_number,phone'])
+            ->whereUuid($uuid)
+            ->firstOrFail();
+
+        // Prevent duplicate assignment
+        if (ApplicationCenter::where('application_id', $application->id)->exists()) {
+            ToastMagic::error('Centers have already been assigned to this application.');
+            return redirect()->route('admin.applications.index');
+        }
+
+        $validated = $request->validate([
+            'collection_center_id' => [
+                'required',
+                Rule::exists('centers', 'id')->where(function ($q) {
+                    $q->whereIn('type', ['collection', 'both']);
+                }),
+            ],
+            'return_center_id' => [
+                'required',
+                Rule::exists('centers', 'id')->where(function ($q) {
+                    $q->whereIn('type', ['return', 'both']);
+                }),
+            ],
         ]);
 
         // Skip if already approved
@@ -380,21 +429,16 @@ class ApplicationController extends Controller
             return redirect()->route('admin.applications.index');
         }
 
-        // Handle "both" center logic
-        $collectionCenterId = $request->collection_center_id;
-        $returnCenterId = $request->return_center_id;
+        // Center IDs
+        $collectionCenterId = (int) $validated['collection_center_id'];
+        $returnCenterId = (int) $validated['return_center_id'];
 
-        if ($collectionCenterId) {
-            $collectionCenter = Center::find($collectionCenterId);
-            if ($collectionCenter && $collectionCenter->type === 'both') {
-                $returnCenterId = $collectionCenterId;
-            }
-        }
-
-        if ($returnCenterId && !$collectionCenterId) {
-            $returnCenter = Center::find($returnCenterId);
-            if ($returnCenter && $returnCenter->type === 'both') {
-                $collectionCenterId = $returnCenterId;
+        // If same center selected, it must be of type 'both'
+        if ($collectionCenterId === $returnCenterId) {
+            $centerType = Center::where('id', $collectionCenterId)->value('type');
+            if ($centerType !== 'both') {
+                ToastMagic::error('The same center can only be used for both collection and return if its type is "both".');
+                return back();
             }
         }
 
@@ -454,10 +498,10 @@ class ApplicationController extends Controller
             // Update status
             $application->update(['status' => 'approved']);
 
-            // Send SMS
-            // Send SMS notification
-            $collectionCenterName = Center::find($collectionCenterId)->name;
-            $returnCenterName = Center::find($returnCenterId)->name;
+            // Send SMS notification (fetch names in one query)
+            $centers = Center::whereIn('id', [$collectionCenterId, $returnCenterId])->pluck('name', 'id');
+            $collectionCenterName = $centers[$collectionCenterId] ?? 'Collection Center';
+            $returnCenterName = $centers[$returnCenterId] ?? 'Return Center';
 
             $msg = "Dear {$application->farmer->full_name}, your application {$application->reference_number} has been approved.
 Reg No: {$application->farmer->registration_number}.
@@ -483,45 +527,59 @@ Return Date: {$returnDate} at {$returnCenterName}.";
             ToastMagic::error('No centers have been created yet. Please create a collection/return center before bulk approval.');
             return back();
         }
-        $request->validate([
+
+        $validated = $request->validate([
             'application_ids' => 'required|array',
-            'collection_center_id' => 'nullable|exists:centers,id',
-            'return_center_id' => 'nullable|exists:centers,id',
+            'application_ids.*' => 'integer',
+            'collection_center_id' => [
+                'required',
+                Rule::exists('centers', 'id')->where(function ($q) {
+                    $q->whereIn('type', ['collection', 'both']);
+                }),
+            ],
+            'return_center_id' => [
+                'required',
+                Rule::exists('centers', 'id')->where(function ($q) {
+                    $q->whereIn('type', ['return', 'both']);
+                }),
+            ],
         ]);
 
-        DB::transaction(function () use ($request) {
-            foreach ($request->application_ids as $appId) {
-                $application = Application::with(['commodities', 'farm', 'season', 'farmer'])->findOrFail($appId);
+        // If same center selected, it must be 'both'
+        if ((int)$validated['collection_center_id'] === (int)$validated['return_center_id']) {
+            $centerType = Center::where('id', $validated['collection_center_id'])->value('type');
+            if ($centerType !== 'both') {
+                ToastMagic::error('The same center can only be used for both collection and return if its type is "both".');
+                return back();
+            }
+        }
 
+        // Prefetch center names once
+        $collectionCenterId = (int) $validated['collection_center_id'];
+        $returnCenterId = (int) $validated['return_center_id'];
+        $centers = Center::whereIn('id', [$collectionCenterId, $returnCenterId])->pluck('name', 'id');
+
+        $approvedCount = 0;
+        $skippedCount = 0;
+
+        DB::transaction(function () use ($validated, $collectionCenterId, $returnCenterId, $centers, &$approvedCount, &$skippedCount) {
+            $applications = Application::with(['commodities:id,name,quantity_per_hectare,price_per_unit', 'farm:id,size', 'season', 'farmer:id,full_name,registration_number,phone'])
+                ->whereIn('id', $validated['application_ids'])
+                ->get();
+
+            foreach ($applications as $application) {
                 if ($application->status === 'approved') {
+                    $skippedCount++;
                     continue;
                 }
 
-                // Handle "both" type center logic
-                $collectionCenterId = $request->collection_center_id;
-                $returnCenterId = $request->return_center_id;
-
-                if ($collectionCenterId) {
-                    $collectionCenter = Center::find($collectionCenterId);
-                    if ($collectionCenter && $collectionCenter->type === 'both') {
-                        $returnCenterId = $collectionCenterId;
-                    }
-                }
-
-                if ($returnCenterId && !$collectionCenterId) {
-                    $returnCenter = Center::find($returnCenterId);
-                    if ($returnCenter && $returnCenter->type === 'both') {
-                        $collectionCenterId = $returnCenterId;
-                    }
-                }
-
-                if (!$collectionCenterId || !$returnCenterId) {
+                // Skip if already assigned
+                if (ApplicationCenter::where('application_id', $application->id)->exists()) {
+                    $skippedCount++;
                     continue;
                 }
 
-                // Generate random collection date
-                $season = $application->season;
-                // Pick random collection date
+                // Pick random collection date within season interval
                 $collectionDate = \Carbon\Carbon::parse($application->season->collection_start_date)
                     ->addDays(rand(
                         0,
@@ -530,15 +588,11 @@ Return Date: {$returnDate} at {$returnCenterName}.";
                     ))
                     ->toDateString();
 
-                // Get return deadline from season
                 $returnDate = $application->season->return_deadline;
-
-                // Ensure return date is after collection date
                 if (\Carbon\Carbon::parse($returnDate)->lte(\Carbon\Carbon::parse($collectionDate))) {
                     $returnDate = \Carbon\Carbon::parse($collectionDate)->addDays(180)->toDateString();
                 }
 
-                // Save center assignment
                 ApplicationCenter::create([
                     'application_id' => $application->id,
                     'collection_center_id' => $collectionCenterId,
@@ -547,8 +601,6 @@ Return Date: {$returnDate} at {$returnCenterName}.";
                     'return_date' => $returnDate,
                 ]);
 
-
-                // Save allocations
                 foreach ($application->commodities as $commodity) {
                     $qtyPerHectare = $commodity->quantity_per_hectare ?? 0;
                     $farmSize = $application->farm->size ?? 0;
@@ -566,14 +618,12 @@ Return Date: {$returnDate} at {$returnCenterName}.";
                 }
 
                 $application->update(['status' => 'approved']);
+                $approvedCount++;
 
-                $collectionCenterName = Center::find($collectionCenterId)->name;
-                $returnCenterName = Center::find($returnCenterId)->name;
+                $collectionCenterName = $centers[$collectionCenterId] ?? 'Collection Center';
+                $returnCenterName = $centers[$returnCenterId] ?? 'Return Center';
 
-                $msg = "Dear {$application->farmer->full_name}, your application {$application->reference_number} has been approved.
-Reg No: {$application->farmer->registration_number}.
-Collection Date: {$collectionDate} at {$collectionCenterName}.
-Return Date: {$returnDate} at {$returnCenterName}.";
+                $msg = "Dear {$application->farmer->full_name}, your application {$application->reference_number} has been approved.\nReg No: {$application->farmer->registration_number}.\nCollection Date: {$collectionDate} at {$collectionCenterName}.\nReturn Date: {$returnDate} at {$returnCenterName}.";
 
                 SmsHelper::send(
                     $application->farmer->phone,
@@ -583,12 +633,107 @@ Return Date: {$returnDate} at {$returnCenterName}.";
             }
         });
 
-        ToastMagic::success('Selected applications approved successfully.');
+        // Build feedback message
+        $message = "Bulk approval completed: {$approvedCount} applications approved";
+        if ($skippedCount > 0) {
+            $message .= ", {$skippedCount} skipped (already approved/assigned)";
+        }
+        $message .= ".";
+
+        ToastMagic::success($message);
         return back();
     }
 
+    public function reject(Request $request, $uuid)
+    {
+        $application = Application::with(['farmer:id,full_name,registration_number,phone'])
+            ->whereUuid($uuid)
+            ->firstOrFail();
 
+        // Skip if already rejected
+        if ($application->status === 'rejected') {
+            ToastMagic::error('This application is already rejected.');
+            return redirect()->route('admin.applications.index');
+        }
 
+        // Only pending applications can be rejected
+        if ($application->status !== 'pending') {
+            ToastMagic::error('Only pending applications can be rejected.');
+            return redirect()->route('admin.applications.index');
+        }
+
+        $validated = $request->validate([
+            'rejection_note' => 'nullable|string|max:1000',
+        ]);
+
+        $application->update([
+            'status' => 'rejected',
+            'note' => $validated['rejection_note'] ?? 'Application rejected by admin.'
+        ]);
+
+        // Send SMS notification
+        $msg = "Dear {$application->farmer->full_name}, your application {$application->reference_number} has been rejected.\nReg No: {$application->farmer->registration_number}.\nReason: " . ($validated['rejection_note'] ?? 'No specific reason provided.');
+
+        SmsHelper::send(
+            $application->farmer->phone,
+            $msg,
+            env('TERMII_SENDER_ID')
+        );
+
+        ToastMagic::success('Application rejected successfully.');
+        return redirect()->route('admin.applications.index');
+    }
+
+    public function bulkReject(Request $request)
+    {
+        $validated = $request->validate([
+            'application_ids' => 'required|array',
+            'application_ids.*' => 'integer',
+            'rejection_note' => 'nullable|string|max:1000',
+        ]);
+
+        $rejectedCount = 0;
+        $skippedCount = 0;
+
+        DB::transaction(function () use ($validated, &$rejectedCount, &$skippedCount) {
+            $applications = Application::with(['farmer:id,full_name,registration_number,phone'])
+                ->whereIn('id', $validated['application_ids'])
+                ->get();
+
+            foreach ($applications as $application) {
+                if ($application->status !== 'pending') {
+                    $skippedCount++;
+                    continue;
+                }
+
+                $application->update([
+                    'status' => 'rejected',
+                    'note' => $validated['rejection_note'] ?? 'Application rejected by admin.'
+                ]);
+
+                $rejectedCount++;
+
+                // Send SMS notification
+                $msg = "Dear {$application->farmer->full_name}, your application {$application->reference_number} has been rejected.\nReg No: {$application->farmer->registration_number}.\nReason: " . ($validated['rejection_note'] ?? 'No specific reason provided.');
+
+                SmsHelper::send(
+                    $application->farmer->phone,
+                    $msg,
+                    env('TERMII_SENDER_ID')
+                );
+            }
+        });
+
+        // Build feedback message
+        $message = "Bulk rejection completed: {$rejectedCount} applications rejected";
+        if ($skippedCount > 0) {
+            $message .= ", {$skippedCount} skipped (not pending)";
+        }
+        $message .= ".";
+
+        ToastMagic::success($message);
+        return back();
+    }
 
 
     /**

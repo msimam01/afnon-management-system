@@ -128,9 +128,9 @@ class ApplicationCacheService
 
         try {
             return Cache::remember($cacheKey, 300, function () use ($filters, $perPage) { // 5 min cache
-                $query = Application::with(['farmer:id,full_name,registration_number,phone',
+                $query = Application::with(['farmer:id,full_name,registration_number,phone,bvn,nin,address,cluster',
                                           'season:id,name',
-                                          'farm:id,size',
+                                          'farm:id,size,location',
                                           'commodities:id,name,unit']);
 
                 // Apply filters
@@ -157,9 +157,9 @@ class ApplicationCacheService
             });
         } catch (\Exception $e) {
             // Fallback to direct database query if caching fails
-            $query = Application::with(['farmer:id,full_name,registration_number,phone',
+            $query = Application::with(['farmer:id,full_name,registration_number,phone,bvn,nin,address,cluster',
                                       'season:id,name',
-                                      'farm:id,size',
+                                      'farm:id,size,location',
                                       'commodities:id,name,unit']);
 
             // Apply filters
