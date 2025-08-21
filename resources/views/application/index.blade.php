@@ -313,6 +313,10 @@
             border-color: rgba(16, 185, 129, 0.2);
         }
 
+        .dark .step-item {
+            background: transparent; /* prevent white boxes behind icons in dark mode */
+        }
+
         .dark .step-circle {
             background: #374151;
             color: #9ca3af;
@@ -835,18 +839,27 @@
         }
 
         function calculateLoanSummary() {
+            const totalLoanEl = document.getElementById('total-loan');
+            const equityEl = document.getElementById('equity-held');
+            const receiveEl = document.getElementById('you-receive');
             const farmSize = parseNumber(document.getElementById('farm-size')?.value);
             const selectedSeed = document.querySelector('input[name="selected_seed"]:checked');
-            let seedVal = 0;
-            if (selectedSeed && farmSize > 0) {
-                const qtyPerHectare = parseNumber(selectedSeed.dataset.qtyPerHectare);
-                const pricePerUnit = parseNumber(selectedSeed.dataset.pricePerUnit);
-                const seedQty = qtyPerHectare * farmSize;
-                seedVal = seedQty * pricePerUnit;
+
+            // Only show amounts after a seed is selected and farm size provided
+            if (!selectedSeed || farmSize <= 0) {
+                if (totalLoanEl) totalLoanEl.textContent = '—';
+                if (equityEl) equityEl.textContent = '—';
+                if (receiveEl) receiveEl.textContent = '—';
+                return;
             }
 
+            const qtyPerHectare = parseNumber(selectedSeed.dataset.qtyPerHectare);
+            const pricePerUnit = parseNumber(selectedSeed.dataset.pricePerUnit);
+            const seedQty = qtyPerHectare * farmSize;
+            const seedVal = seedQty * pricePerUnit;
+
             let othersTotal = 0;
-            if (Array.isArray(otherCommodities) && farmSize > 0) {
+            if (Array.isArray(otherCommodities)) {
                 for (const item of otherCommodities) {
                     const qty = parseNumber(item.quantity_per_hectare) * farmSize;
                     const val = qty * parseNumber(item.price_per_unit);
@@ -860,9 +873,6 @@
             const equity = finalTotal / 2;
             const youReceive = finalTotal - equity;
 
-            const totalLoanEl = document.getElementById('total-loan');
-            const equityEl = document.getElementById('equity-held');
-            const receiveEl = document.getElementById('you-receive');
             if (totalLoanEl) totalLoanEl.textContent = formatNaira(finalTotal);
             if (equityEl) equityEl.textContent = formatNaira(equity);
             if (receiveEl) receiveEl.textContent = formatNaira(youReceive);
@@ -1092,6 +1102,8 @@
             if (fs) {
                 fs.addEventListener('input', calculateLoanSummary);
             }
+            // Initialize loan summary placeholders
+            calculateLoanSummary();
         });
     </script>
 </body>
