@@ -60,47 +60,64 @@
                             </tr>
                         </thead>
                         <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <div class="flex-shrink-0 h-10 w-10">
-                                            <div
-                                                class="h-10 w-10 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
-                                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">JD</span>
+                            @forelse($applications as $app)
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="flex-shrink-0 h-10 w-10">
+                                                <div class="h-10 w-10 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
+                                                    @php($initials = collect(explode(' ', $app->farmer->full_name ?? ''))
+                                                        ->map(fn($s) => strtoupper(substr($s,0,1)))
+                                                        ->take(2)->implode(''))
+                                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ $initials }}</span>
+                                                </div>
+                                            </div>
+                                            <div class="ml-4">
+                                                <div class="text-sm font-medium text-gray-900 dark:text-white">{{ $app->farmer->full_name ?? '—' }}</div>
+                                                <div class="text-sm text-gray-500 dark:text-gray-400">{{ $app->farmer->phone ?? '—' }}</div>
+                                                <div class="text-sm text-gray-500 dark:text-gray-400">BVN: {{ $app->farmer->bvn ?? '—' }}</div>
                                             </div>
                                         </div>
-                                        <div class="ml-4">
-                                            <div class="text-sm font-medium text-gray-900 dark:text-white">John
-                                                Doe</div>
-                                            <div class="text-sm text-gray-500 dark:text-gray-400">+234 803 123
-                                                4567</div>
-                                            <div class="text-sm text-gray-500 dark:text-gray-400">BVN:
-                                                12345678901</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-white">{{ $app->season->name ?? '—' }}</div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                                            @php($summary = ($app->commodities ?? collect())->map(function($c){
+                                                $qty = $c->pivot->quantity ?? $c->quantity ?? null;
+                                                return trim($c->name . ($qty ? ' ('.$qty.')' : ''));
+                                            })->take(2)->implode(', '))
+                                            {{ $summary ?: '—' }}
                                         </div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900 dark:text-white">2024 Dry Season</div>
-                                    <div class="text-sm text-gray-500 dark:text-gray-400">Maize Seeds (5 bags)
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900 dark:text-white">5.2 hectares</div>
-                                    <div class="text-sm text-gray-500 dark:text-gray-400">Ikeja, Lagos</div>
-                                    <div class="text-sm text-gray-500 dark:text-gray-400">Cluster A</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span
-                                        class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200">Pending</span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                    <button onclick="openApplicationModal('app-001')"
-                                        class="text-emerald-600 dark:text-emerald-400 hover:text-emerald-900 dark:hover:text-emerald-300 mr-3">View
-                                        Full Info</button>
-                                </td>
-                            </tr>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-white">{{ optional($app->farm)->size ? number_format($app->farm->size, 2) . ' hectares' : '—' }}</div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">{{ $app->farmer->address ?? '—' }}</div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">{{ $app->farmer->cluster ?? '—' }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        @php($statusColors = [
+                                            'pending' => 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200',
+                                            'approved' => 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200',
+                                            'rejected' => 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200',
+                                        ])
+                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full {{ $statusColors[strtolower($app->status ?? 'pending')] ?? 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200' }}">
+                                            {{ ucfirst($app->status ?? 'pending') }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                        <a href="{{ route('admin.applications.show', $app->uuid) }}" class="text-emerald-600 dark:text-emerald-400 hover:text-emerald-900 dark:hover:text-emerald-300 mr-3">View Full Info</a>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">No applications found.</td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
+                </div>
+                <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+                    {{ $applications->links() }}
                 </div>
             </div>
         </div>

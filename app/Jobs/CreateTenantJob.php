@@ -13,6 +13,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Str;
 
 class CreateTenantJob implements ShouldQueue
 {
@@ -148,7 +149,6 @@ class CreateTenantJob implements ShouldQueue
                 Role::create([
                     'name' => $roleName,
                     'guard_name' => 'web',
-                    'tenant_id' => tenant('id')
                 ]);
                 Log::info("✅ Created role: {$roleName}");
             }
@@ -167,14 +167,30 @@ class CreateTenantJob implements ShouldQueue
         // Check if admin user already exists
         if (!User::where('email', $adminEmail)->exists()) {
             $user = User::create([
+                'uuid' => (string) Str::uuid(),
                 'name' => 'System Administrator',
                 'email' => $adminEmail,
                 'password' => bcrypt('admin123'), // Should be changed on first login
+                'email_verified_at' => now(),
                 'status' => 'active',
             ]);
 
-            $user->assignRole('admin');
-            Log::info("✅ Created admin user: {$adminEmail}");
+            // Ensure role exists before assignment
+            $adminRole = Role::where('name', 'admin')->first();
+            
+            if ($adminRole) {
+                $user->assignRole($adminRole);
+                Log::info("✅ Created admin user and assigned role: {$adminEmail}");
+            } else {
+                Log::warning("⚠️ Admin role not found for tenant: {$this->tenant->id}");
+                // Create the role if it doesn't exist
+                $adminRole = Role::create([
+                    'name' => 'admin',
+                    'guard_name' => 'web',
+                ]);
+                $user->assignRole($adminRole);
+                Log::info("✅ Created admin role and assigned to user: {$adminEmail}");
+            }
         }
     }
 

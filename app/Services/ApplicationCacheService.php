@@ -11,12 +11,22 @@ class ApplicationCacheService
     const CACHE_TTL = 3600; // 1 hour
     const CACHE_PREFIX = 'app_';
 
+    private static function prefix(): string
+    {
+        try {
+            $tid = function_exists('tenant') && tenant() ? tenant('id') : 'central';
+        } catch (\Throwable $e) {
+            $tid = 'central';
+        }
+        return self::CACHE_PREFIX . $tid . '_';
+    }
+
     /**
      * Get application with caching
      */
     public static function getByUuid(string $uuid, array $relations = [])
     {
-        $cacheKey = self::CACHE_PREFIX . "uuid_{$uuid}";
+        $cacheKey = self::prefix() . "uuid_{$uuid}";
 
         try {
             return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($uuid, $relations) {
@@ -45,7 +55,7 @@ class ApplicationCacheService
      */
     public static function getByReference(string $reference, array $relations = [])
     {
-        $cacheKey = self::CACHE_PREFIX . "ref_{$reference}";
+        $cacheKey = self::prefix() . "ref_{$reference}";
 
         try {
             return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($reference, $relations) {
@@ -78,11 +88,11 @@ class ApplicationCacheService
             $application->load(['farmer', 'farm', 'season', 'commodities']);
 
             // Cache by UUID
-            $uuidKey = self::CACHE_PREFIX . "uuid_{$application->uuid}";
+            $uuidKey = self::prefix() . "uuid_{$application->uuid}";
             Cache::put($uuidKey, $application, self::CACHE_TTL);
 
             // Cache by reference
-            $refKey = self::CACHE_PREFIX . "ref_{$application->reference_number}";
+            $refKey = self::prefix() . "ref_{$application->reference_number}";
             Cache::put($refKey, $application, self::CACHE_TTL);
         } catch (\Exception $e) {
             // Silently fail if caching doesn't work
@@ -98,8 +108,8 @@ class ApplicationCacheService
     public static function clearCache(Application $application)
     {
         try {
-            $uuidKey = self::CACHE_PREFIX . "uuid_{$application->uuid}";
-            $refKey = self::CACHE_PREFIX . "ref_{$application->reference_number}";
+            $uuidKey = self::prefix() . "uuid_{$application->uuid}";
+            $refKey = self::prefix() . "ref_{$application->reference_number}";
 
             Cache::forget($uuidKey);
             Cache::forget($refKey);
@@ -114,7 +124,7 @@ class ApplicationCacheService
      */
     public static function getPaginatedApplications(array $filters = [], int $perPage = 15)
     {
-        $cacheKey = self::CACHE_PREFIX . 'paginated_' . md5(serialize($filters) . $perPage);
+        $cacheKey = self::prefix() . 'paginated_' . md5(serialize($filters) . $perPage);
 
         try {
             return Cache::remember($cacheKey, 300, function () use ($filters, $perPage) { // 5 min cache
@@ -200,7 +210,7 @@ class ApplicationCacheService
     public static function getStatistics()
     {
         try {
-            return Cache::remember(self::CACHE_PREFIX . 'stats', 1800, function () { // 30 min cache
+            return Cache::remember(self::prefix() . 'stats', 1800, function () { // 30 min cache
                 return [
                     'total' => Application::count(),
                     'pending' => Application::where('status', 'pending')->count(),

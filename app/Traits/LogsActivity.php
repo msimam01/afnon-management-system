@@ -19,11 +19,28 @@ trait LogsActivity
             'tenant_id' => $this->getCurrentTenantId(),
         ], $properties);
 
-        activity($logName)
+        $logger = activity($logName)
             ->causedBy(auth()->user())
-            ->performedOn($subject)
-            ->withProperties($properties)
-            ->log($description);
+            ->withProperties($properties);
+
+        // Only attach subject if its primary key is numeric to match activity_log schema (bigint)
+        if ($subject) {
+            try {
+                $key = method_exists($subject, 'getKey') ? $subject->getKey() : null;
+                if (is_numeric($key)) {
+                    $logger->performedOn($subject);
+                } else {
+                    // keep subject details in properties instead
+                    $properties['subject_class'] = get_class($subject);
+                    $properties['subject_key'] = $key;
+                    $logger->withProperties($properties);
+                }
+            } catch (\Throwable $e) {
+                // ignore subject attachment errors and proceed
+            }
+        }
+
+        $logger->log($description);
     }
 
     /**

@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Role;
 use Devrabiul\ToastMagic\Facades\ToastMagic;
-use App\Jobs\CreateTenantJob;
+use App\Services\TenantProvisioner;
 
 class TenantController extends Controller
 {
@@ -78,13 +78,10 @@ class TenantController extends Controller
                 'description' => $request->description,
             ]);
 
-            // 🚀 Dispatch background job with proper queue
-            CreateTenantJob::dispatch($tenant)
-                ->afterCommit()
-                ->onQueue('tenant-creation')
-                ->delay(now()->addSeconds(5)); // Small delay to ensure DB commit
+            // 🚀 Provision synchronously to ensure deterministic setup
+            TenantProvisioner::provision($tenant);
 
-            ToastMagic::success('Tenant creation started! Setup will complete in the background.');
+            ToastMagic::success('Tenant created and provisioned successfully.');
             return redirect()->route('superadmin.tenants.index');
 
         } catch (\Throwable $e) {
@@ -94,7 +91,8 @@ class TenantController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
 
-            ToastMagic::error('Failed to create tenant. Please try again or contact support.');
+            // Surface the actual error to aid debugging (you may revert to generic message later)
+            ToastMagic::error('Failed to create tenant: ' . $e->getMessage());
             return redirect()->back()->withInput();
         }
     }
@@ -180,8 +178,8 @@ class TenantController extends Controller
         $stats = $this->getTenantStatistics($tenant);
 
         // Get recent activity logs
-        $recentLogs = activity()
-            ->where('properties->tenant_id', $tenant->id)
+        $recentLogs = \Spatie\Activitylog\Models\Activity::query()
+            ->whereJsonContains('properties->tenant_id', $tenant->id)
             ->latest()
             ->limit(5)
             ->get();

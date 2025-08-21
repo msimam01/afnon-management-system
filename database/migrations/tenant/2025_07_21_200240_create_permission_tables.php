@@ -115,9 +115,18 @@ return new class extends Migration
             $table->primary([$pivotPermission, $pivotRole], 'role_has_permissions_permission_id_role_id_primary');
         });
 
-        app('cache')
-            ->store(config('permission.cache.store') != 'default' ? config('permission.cache.store') : null)
-            ->forget(config('permission.cache.key'));
+        // Clear permission cache without relying on database cache store
+        try {
+            $store = config('permission.cache.store');
+            if ($store === 'database' || $store === null || $store === 'default') {
+                // Use in-memory cache to avoid touching tenant DB cache table
+                app('cache')->store('array')->forget(config('permission.cache.key'));
+            } else {
+                app('cache')->store($store)->forget(config('permission.cache.key'));
+            }
+        } catch (\Throwable $e) {
+            // Non-fatal during migrations
+        }
     }
 
     /**

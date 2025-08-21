@@ -38,25 +38,28 @@ class ApplicationController extends Controller
 
         $applications = ApplicationCacheService::getPaginatedApplications($filters, $perPage);
 
-        // Cache frequently accessed data
-        $seasons = Cache::remember('seasons_list', 1800, function () {
+        // Cache frequently accessed data (namespace by tenant)
+        $tid = (function () { try { return function_exists('tenant') && tenant() ? tenant('id') : 'central'; } catch (\Throwable $e) { return 'central'; } })();
+        $key = fn(string $suffix) => $tid . '_' . $suffix;
+
+        $seasons = Cache::remember($key('seasons_list'), 1800, function () {
             return Season::select('id', 'name', 'status')->get();
         });
 
-        $collectionCenters = Cache::remember('collection_centers', 1800, function () {
+        $collectionCenters = Cache::remember($key('collection_centers'), 1800, function () {
             return Center::whereIn('type', ['collection', 'both'])
                          ->select('id', 'name', 'type')
                          ->get();
         });
 
-        $returnCenters = Cache::remember('return_centers', 1800, function () {
+        $returnCenters = Cache::remember($key('return_centers'), 1800, function () {
             return Center::whereIn('type', ['return', 'both'])
                          ->select('id', 'name', 'type')
                          ->get();
         });
 
         // Add response caching headers for better performance
-        return Response::view('admin.applications.index', compact(
+        return Response::view('admin.applications', compact(
             'applications', 'collectionCenters', 'returnCenters', 'seasons'
         ))->header('Cache-Control', 'public, max-age=300'); // 5 minutes
     }
