@@ -845,7 +845,7 @@
             const farmSize = parseNumber(document.getElementById('farm-size')?.value);
             const selectedSeed = document.querySelector('input[name="selected_seed"]:checked');
 
-            // Only show amounts after a seed is selected and farm size provided
+            // Keep card visible, but show placeholders until ready
             if (!selectedSeed || farmSize <= 0) {
                 if (totalLoanEl) totalLoanEl.textContent = '—';
                 if (equityEl) equityEl.textContent = '—';
