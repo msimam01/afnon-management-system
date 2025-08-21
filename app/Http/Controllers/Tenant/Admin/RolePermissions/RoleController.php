@@ -8,6 +8,7 @@ use App\Models\Admin\Permission;
 use App\Http\Controllers\Controller;
 use Devrabiul\ToastMagic\Facades\ToastMagic;
 use Illuminate\Validation\Rule;
+use Spatie\Permission\PermissionRegistrar;
 
 class RoleController extends Controller
 {
@@ -82,30 +83,53 @@ class RoleController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255|unique:roles,name',
-            'permissions' => 'array'
-        ]);
-
-        $role = Role::create([
-            'name' => $request->name,
-            'guard_name' => 'web',
-            'tenant_id' => tenant('id')
-        ]);
-
-        if ($request->has('permissions')) {
-            $role->syncPermissions($request->permissions);
-        }
-
-        if ($request->ajax()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Role created successfully.',
-                'role' => $role
+        try {
+            $request->validate([
+                'name' => [
+                    'required', 'string', 'max:255',
+                    Rule::unique('roles', 'name')->where(fn($q) => $q->where('tenant_id', tenant('id'))),
+                ],
+                'permissions' => 'array'
             ]);
+
+            $role = Role::create([
+                'name' => $request->name,
+                'guard_name' => 'web',
+                'tenant_id' => tenant('id')
+            ]);
+
+            if ($request->has('permissions')) {
+                $role->syncPermissions($request->permissions);
+            }
+
+            // Clear permission cache for this tenant so the new role & permissions are visible immediately
+            app(PermissionRegistrar::class)->forgetCachedPermissions();
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Role created successfully.',
+                    'role' => $role
+                ]);
+            }
+            ToastMagic::success('Role created successfully.');
+            return redirect()->route('admin.roles.index');
+        } catch (\Throwable $e) {
+            \Log::error('Tenant role creation failed', [
+                'tenant' => tenant('id'),
+                'user_id' => optional($request->user())->id,
+                'payload' => $request->all(),
+                'error' => $e->getMessage(),
+            ]);
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to create role',
+                    'error' => $e->getMessage(),
+                ], 422);
+            }
+            return back()->withErrors(['role' => 'Failed to create role: ' . $e->getMessage()]);
         }
-        ToastMagic::success('Role created successfully.');
-        return redirect()->route('admin.roles.index');
     }
 
     public function update(Request $request, Role $role)
@@ -113,41 +137,87 @@ class RoleController extends Controller
         $this->authorizeRole($role);
 
         $request->validate([
-            'name' => 'required|string|max:255|unique:roles,name,' . $role->id,
+            'name' => [
+                'required', 'string', 'max:255',
+                Rule::unique('roles', 'name')
+                    ->where(fn($q) => $q->where('tenant_id', tenant('id')))
+                    ->ignore($role->id),
+            ],
             'permissions' => 'array'
         ]);
 
-        $role->update([
-            'name' => $request->name
-        ]);
-
-        $role->syncPermissions($request->permissions ?? []);
-
-        if ($request->ajax()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Role updated successfully.',
-                'role' => $role
+        try {
+            $role->update([
+                'name' => $request->name
             ]);
+
+            $role->syncPermissions($request->permissions ?? []);
+
+            // Clear cache to reflect updates immediately
+            app(PermissionRegistrar::class)->forgetCachedPermissions();
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Role updated successfully.',
+                    'role' => $role
+                ]);
+            }
+            ToastMagic::success('Role updated successfully.');
+            return redirect()->route('admin.roles.index');
+        } catch (\Throwable $e) {
+            \Log::error('Tenant role update failed', [
+                'tenant' => tenant('id'),
+                'role_id' => $role->id,
+                'user_id' => optional($request->user())->id,
+                'payload' => $request->all(),
+                'error' => $e->getMessage(),
+            ]);
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to update role',
+                    'error' => $e->getMessage(),
+                ], 422);
+            }
+            return back()->withErrors(['role' => 'Failed to update role: ' . $e->getMessage()]);
         }
-        ToastMagic::success('Role updated successfully.');
-        return redirect()->route('admin.roles.index');
     }
 
     public function destroy(Request $request, Role $role)
     {
         $this->authorizeRole($role);
 
-        $role->delete();
+        try {
+            $role->delete();
 
-        if ($request->ajax()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Role deleted successfully.'
+            // Clear cache to reflect deletion immediately
+            app(PermissionRegistrar::class)->forgetCachedPermissions();
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Role deleted successfully.'
+                ]);
+            }
+            ToastMagic::success('Role deleted successfully.');
+            return redirect()->route('admin.roles.index');
+        } catch (\Throwable $e) {
+            \Log::error('Tenant role deletion failed', [
+                'tenant' => tenant('id'),
+                'role_id' => $role->id,
+                'user_id' => optional($request->user())->id,
+                'error' => $e->getMessage(),
             ]);
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to delete role',
+                    'error' => $e->getMessage(),
+                ], 422);
+            }
+            return back()->withErrors(['role' => 'Failed to delete role: ' . $e->getMessage()]);
         }
-        ToastMagic::success('Role deleted successfully.');
-        return redirect()->route('admin.roles.index');
     }
 
     private function authorizeRole(Role $role)

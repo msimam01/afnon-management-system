@@ -154,16 +154,22 @@
                         method: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
                         },
                         body: JSON.stringify({
                             permission_id: permissionId,
                             grant
                         })
-                    }).then(res => res.json()).then(data => {
-                        if (data.granted) this.rolePermissions[roleId].push(permissionId)
-                        else this.rolePermissions[roleId] = this.rolePermissions[roleId].filter(
-                            id => id !== permissionId)
+                    }).then(async res => {
+                        if (!res.ok) {
+                            const data = await res.json().catch(() => ({}));
+                            alert(data.message || 'Failed to toggle permission');
+                            return;
+                        }
+                        const data = await res.json();
+                        if (data.granted) this.rolePermissions[roleId].push(permissionId);
+                        else this.rolePermissions[roleId] = this.rolePermissions[roleId].filter(id => id !== permissionId);
                     });
                 },
 
@@ -186,10 +192,18 @@
                         method,
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
                         },
                         body: JSON.stringify(this.roleForm)
-                    }).then(() => location.reload());
+                    }).then(async res => {
+                        if (!res.ok) {
+                            const data = await res.json().catch(() => ({}));
+                            alert(data.message || 'Failed to save role');
+                            return;
+                        }
+                        location.reload();
+                    });
                 },
                 editRole(id, name) {
                     this.roleForm = {
@@ -202,9 +216,17 @@
                     if (confirm('Are you sure?')) fetch(`/admin/roles/${id}/delete`, {
                         method: 'DELETE',
                         headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'X-Requested-With': 'XMLHttpRequest'
                         }
-                    }).then(() => location.reload())
+                    }).then(async res => {
+                        if (!res.ok) {
+                            const data = await res.json().catch(() => ({}));
+                            alert(data.message || 'Failed to delete role');
+                            return;
+                        }
+                        location.reload();
+                    })
                 },
 
                 // Permission actions
@@ -227,7 +249,8 @@
                         method,
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
                         },
                         body: JSON.stringify(this.permissionForm)
                     }).then(() => location.reload());
@@ -243,7 +266,8 @@
                     if (confirm('Are you sure?')) fetch(`/admin/permissions/${id}/delete`, {
                         method: 'DELETE',
                         headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'X-Requested-With': 'XMLHttpRequest'
                         }
                     }).then(() => location.reload())
                 }

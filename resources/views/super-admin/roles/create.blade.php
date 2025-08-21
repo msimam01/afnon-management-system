@@ -8,7 +8,7 @@
                     <h3 id="roleModalTitle" class="text-lg font-semibold text-gray-900 dark:text-white">Add New Role</h3>
                 </div>
                 <div class="p-6">
-                    <form action="{{ route('admin.roles.store') }}" method="POST" class="space-y-6">
+                    <form action="{{ route('superadmin.roles.store') }}" method="POST" class="space-y-6">
                         @csrf
                         <!-- Role Name -->
                         <div>

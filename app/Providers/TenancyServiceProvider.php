@@ -114,6 +114,29 @@ class TenancyServiceProvider extends ServiceProvider
                 Event::listen($event, $listener);
             }
         }
+
+        // Scope Spatie Permission cache per tenant to avoid leakage between central and tenants
+        Event::listen(Events\TenancyInitialized::class, function () {
+            try {
+                $tenantId = function_exists('tenant') && tenant() ? tenant('id') : 'central';
+                // Override cache key for this request lifecycle
+                config(['permission.cache.key' => 'spatie.permission.cache.' . $tenantId]);
+                // Clear any previously cached permissions bound to another context
+                app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
+            } catch (\Throwable $e) {
+                // No-op
+            }
+        });
+
+        Event::listen(Events\TenancyEnded::class, function () {
+            try {
+                // Reset to central cache key and clear
+                config(['permission.cache.key' => 'spatie.permission.cache.central']);
+                app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
+            } catch (\Throwable $e) {
+                // No-op
+            }
+        });
     }
 
     protected function mapRoutes()
