@@ -78,14 +78,19 @@ class SeasonController extends Controller
     public function show(Season $season)
     {
         // Application stats
-        $totalApplications = $season->applications()->count();
-        $approvedApplications = $season->applications()->where('status', 'approved')->count();
-        $pendingApplications = $totalApplications - $approvedApplications;
+        $applications = $season->applications();
+        $totalApplications = $applications->count();
+        $approvedApplications = $applications->clone()->where('status', 'approved')->count();
+        $pendingApplications = $applications->clone()->where('status', 'pending')->count();
+        $distributedApplications = $applications->clone()->where('status', 'distributed')->count();
+        $rejectedApplications = $applications->clone()->where('status', 'rejected')->count();
+        $totalFarmers = $applications->clone()->distinct('farmer_id')->count('farmer_id');
     
         // Commodity distribution stats
         $commodities = DB::table('commodities')
             ->join('commodity_allocations', 'commodities.name', '=', 'commodity_allocations.commodity_name')
             ->join('applications', 'commodity_allocations.application_id', '=', 'applications.id')
+            ->leftJoin('collection_verifications', 'commodity_allocations.application_id', '=', 'collection_verifications.application_id')
             ->where('applications.season_id', $season->id)
             ->select(
                 'commodities.id',
@@ -93,7 +98,7 @@ class SeasonController extends Controller
                 'commodities.category',
                 'commodities.unit',
                 DB::raw('SUM(commodity_allocations.allocated_quantity) as allocated'),
-                DB::raw('SUM(CASE WHEN commodity_allocations.status = "distributed" THEN commodity_allocations.allocated_quantity ELSE 0 END) as distributed')
+                DB::raw('SUM(CASE WHEN collection_verifications.id IS NOT NULL THEN commodity_allocations.allocated_quantity ELSE 0 END) as distributed')
             )
             ->groupBy('commodities.id', 'commodities.name', 'commodities.category', 'commodities.unit')
             ->get()
@@ -113,6 +118,9 @@ class SeasonController extends Controller
             'totalApplications',
             'approvedApplications',
             'pendingApplications',
+            'distributedApplications',
+            'rejectedApplications',
+            'totalFarmers',
             'totalAllocated',
             'totalDistributed',
             'totalRemaining'

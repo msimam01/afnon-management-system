@@ -72,9 +72,11 @@ Route::middleware([
             Route::post('/store', [UserController::class, 'store'])->name('store');
             Route::get('/{uuid}/edit', [UserController::class, 'edit'])->name('edit');
             Route::put('/{uuid}/update', [UserController::class, 'update'])->name('update');
-            Route::patch('/{uuid}/toggle-status', [UserController::class, 'toggleStatus'])->name('toggle-status');
-
+            Route::post('/toggle-status', [UserController::class, 'toggleStatus'])->name('toggle-status');
+            Route::delete('/{uuid}', [UserController::class, 'destroy'])->name('destroy'); // USE UUID
+            Route::post('/bulk-action', [UserController::class, 'bulkAction'])->name('bulk-action');
         });
+
         Route::prefix('agents')->name('agents.')->group(function () {
             Route::get('/', [AgentController::class, 'index'])->name('index');
             Route::post('/store', [AgentController::class, 'store'])->name('store');

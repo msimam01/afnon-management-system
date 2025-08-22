@@ -10,13 +10,14 @@ use App\Http\Controllers\Controller;
 use App\Models\CollectionVerification;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Collection; // <--- This line was missing
+use Illuminate\Support\Collection;
+use Devrabiul\ToastMagic\Facades\ToastMagic;
 
 class AdminVerificationController extends Controller
 {
     public function index()
     {
-        $seasons = Season::all();
+        $seasons = Season::orderBy('created_at', 'desc')->get();
         return view('admin.verifications.index', compact('seasons'));
     }
 
@@ -67,11 +68,12 @@ class AdminVerificationController extends Controller
             $collectionQuery->when($filter, function ($q) use ($filter) {
                 $q->whereHas('application.farmer', function ($query) use ($filter) {
                     $query->where('full_name', 'like', '%' . $filter . '%')
-                        ->orWhere('registration_number', 'like', '%' . $filter . '%');
+                        ->orWhere('registration_number', 'like', '%' . $filter . '%')
+                        ->orWhere('phone', 'like', '%' . $filter . '%');
                 });
             })->when($seasonName, function ($q) use ($seasonName) {
                 $q->whereHas('application.season', function ($query) use ($seasonName) {
-                    $query->where('name', $seasonName);
+                    $query->where('name', 'like', '%' . $seasonName . '%');
                 });
             })->when($status, function ($q) use ($status) {
                 $q->where('status', $status);
@@ -80,11 +82,12 @@ class AdminVerificationController extends Controller
             $returnQuery->when($filter, function ($q) use ($filter) {
                 $q->whereHas('application.farmer', function ($query) use ($filter) {
                     $query->where('full_name', 'like', '%' . $filter . '%')
-                        ->orWhere('registration_number', 'like', '%' . $filter . '%');
+                        ->orWhere('registration_number', 'like', '%' . $filter . '%')
+                        ->orWhere('phone', 'like', '%' . $filter . '%');
                 });
             })->when($seasonName, function ($q) use ($seasonName) {
                 $q->whereHas('application.season', function ($query) use ($seasonName) {
-                    $query->where('name', $seasonName);
+                    $query->where('name', 'like', '%' . $seasonName . '%');
                 });
             })->when($status, function ($q) use ($status) {
                 $q->where('status', $status);
@@ -124,13 +127,14 @@ class AdminVerificationController extends Controller
         $query->when($filter, function ($q) use ($filter) {
             $q->whereHas('application.farmer', function ($query) use ($filter) {
                 $query->where('full_name', 'like', '%' . $filter . '%')
-                    ->orWhere('registration_number', 'like', '%' . $filter . '%');
+                    ->orWhere('registration_number', 'like', '%' . $filter . '%')
+                    ->orWhere('phone', 'like', '%' . $filter . '%');
             });
         });
 
         $query->when($seasonName, function ($q) use ($seasonName) {
             $q->whereHas('application.season', function ($query) use ($seasonName) {
-                $query->where('name', $seasonName);
+                $query->where('name', 'like', '%' . $seasonName . '%');
             });
         });
 
@@ -177,13 +181,20 @@ class AdminVerificationController extends Controller
         try {
             DB::transaction(function () use ($model, $validated) {
                 $verification = $model::findOrFail($validated['id']);
+                
+                // Prevent duplicate approvals
+                if ($verification->status === 'approved') {
+                    throw new \Exception('This verification has already been approved.');
+                }
+                
                 $verification->status = $validated['status'];
                 $verification->save();
             });
 
-            return response()->json(['message' => 'Verification status updated successfully.']);
+            $message = $validated['status'] === 'approved' ? 'Verification approved successfully.' : 'Verification rejected successfully.';
+            return response()->json(['message' => $message, 'success' => true]);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Failed to update verification status.', 'error' => $e->getMessage()], 500);
+            return response()->json(['message' => $e->getMessage(), 'success' => false], 422);
         }
     }
 
@@ -197,22 +208,40 @@ class AdminVerificationController extends Controller
             'ids.*' => 'integer',
         ]);
 
-        // Assumes all items in the array are of the same type for simplicity.
-        // For a more robust solution, you would need a mechanism to determine the type for each ID.
-        // This example assumes they come from the filtered list.
         $type = $request->get('type');
         $model = ($type === 'collection') ? CollectionVerification::class : ReturnVerification::class;
 
+        $approvedCount = 0;
+        $skippedCount = 0;
+
         try {
-            DB::transaction(function () use ($model, $validated) {
-                $model::whereIn('id', $validated['ids'])
-                    ->where('status', 'pending')
-                    ->update(['status' => 'approved']);
+            DB::transaction(function () use ($model, $validated, &$approvedCount, &$skippedCount) {
+                $verifications = $model::whereIn('id', $validated['ids'])->get();
+                
+                foreach ($verifications as $verification) {
+                    if ($verification->status === 'approved') {
+                        $skippedCount++;
+                        continue;
+                    }
+                    
+                    if ($verification->status === 'pending') {
+                        $verification->update(['status' => 'approved']);
+                        $approvedCount++;
+                    } else {
+                        $skippedCount++;
+                    }
+                }
             });
 
-            return response()->json(['message' => 'Selected verifications approved successfully.']);
+            $message = "Bulk approval completed: {$approvedCount} verifications approved";
+            if ($skippedCount > 0) {
+                $message .= ", {$skippedCount} skipped (already approved or not pending)";
+            }
+            $message .= ".";
+
+            return response()->json(['message' => $message, 'success' => true]);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Failed to approve verifications.', 'error' => $e->getMessage()], 500);
+            return response()->json(['message' => 'Failed to approve verifications: ' . $e->getMessage(), 'success' => false], 422);
         }
     }
 }

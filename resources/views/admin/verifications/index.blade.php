@@ -1,6 +1,8 @@
 @extends('layouts.layout')
 
 @section('content')
+<!-- Include ToastMagic notifications -->
+<!--  -->
 <div x-data="verificationApp()" class="w-full min-h-screen px-4 py-6">
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
         <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
@@ -23,8 +25,9 @@
                     <select x-model="season" @change="goToPage(1)"
                         class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                         <option value="">All Seasons</option>
-                        <option value="Spring 2024">Spring 2024</option>
-                        <option value="Fall 2023">Fall 2023</option>
+                        @foreach($seasons as $seasonOption)
+                            <option value="{{ $seasonOption->name }}">{{ $seasonOption->name }}</option>
+                        @endforeach
                     </select>
                 </div>
                 <div>
@@ -39,7 +42,7 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Search</label>
-                    <input type="text" x-model.debounce.500ms="filter" placeholder="Search farmer..."
+                    <input type="text" x-model.debounce.500ms="filter" @input="goToPage(1)" placeholder="Search farmer name or registration number..."
                         class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                 </div>
             </div>
@@ -322,7 +325,7 @@
                     this.total = data.total;
 
                 } catch (error) {
-                    toastr.error("Error fetching verifications:", error)
+                    this.showToast('Error fetching verifications: ' + error.message, 'error');
                     
                 } finally {
                     this.loading = false;
@@ -346,7 +349,7 @@
 
             async bulkApprove() {
                 if (this.selectedItems.length === 0) {
-                    toastr.error('Please select at least one item to approve.')
+                    this.showToast('Please select at least one item to approve.', 'error');
                     return;
                 }
 
@@ -361,16 +364,18 @@
                         body: JSON.stringify({ ids: this.selectedItems, type: this.type })
                     });
 
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.message || 'Failed to perform bulk approval.');
-                        toastr.error("Failed to perform bulk approval.", errorData.message);
+                    const data = await response.json();
+                    
+                    if (!response.ok || !data.success) {
+                        throw new Error(data.message || 'Failed to perform bulk approval.');
                     }
-                    toastr.success('Selected items approved successfully.');
+                    
+                    this.showToast(data.message, 'success');
+                    this.selectedItems = [];
                     await this.fetchVerifications();
 
                 } catch (error) {
-                    toastr.error("Error with bulk approval:", error);
+                    this.showToast(error.message, 'error');
                 } finally {
                     this.loading = false;
                 }
@@ -400,20 +405,52 @@
                         body: JSON.stringify({ id: this.selectedItem.id, type: this.selectedItem.type, status: status })
                     });
 
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.message || 'Failed to update status.');
+                    const data = await response.json();
+                    
+                    if (!response.ok || !data.success) {
+                        throw new Error(data.message || 'Failed to update status.');
                     }
 
-                    toastr.success(`Item status updated to ${status}.`)
+                    this.showToast(data.message, 'success');
                     await this.fetchVerifications();
                     this.closeModal();
 
                 } catch (error) {
-                    toastr.error(`Error: ${error.message}`);
+                    this.showToast(error.message, 'error');
                 } finally {
                     this.loading = false;
                 }
+            },
+
+            showToast(message, type) {
+                // Create and show a simple toast notification
+                const toast = document.createElement('div');
+                toast.className = `fixed top-4 right-4 z-50 px-6 py-4 rounded-lg shadow-lg text-white font-medium transition-all duration-300 transform translate-x-full`;
+                
+                if (type === 'success') {
+                    toast.className += ' bg-green-500';
+                    toast.innerHTML = `<div class="flex items-center"><svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>${message}</div>`;
+                } else {
+                    toast.className += ' bg-red-500';
+                    toast.innerHTML = `<div class="flex items-center"><svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>${message}</div>`;
+                }
+                
+                document.body.appendChild(toast);
+                
+                // Animate in
+                setTimeout(() => {
+                    toast.classList.remove('translate-x-full');
+                }, 100);
+                
+                // Auto remove after 4 seconds
+                setTimeout(() => {
+                    toast.classList.add('translate-x-full');
+                    setTimeout(() => {
+                        if (document.body.contains(toast)) {
+                            document.body.removeChild(toast);
+                        }
+                    }, 300);
+                }, 4000);
             }
         }
     }

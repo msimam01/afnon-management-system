@@ -1033,16 +1033,315 @@
     <!-- CTA Section -->
     <section class="py-20 gradient-bg relative overflow-hidden">
         <div class="absolute inset-0 bg-black/20"></div>
-        <div class="relative"></div>
+        <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div class="animate-fade-in">
+                <h2 class="text-4xl lg:text-5xl font-bold text-white mb-6">
+                    Ready to Transform Your Farm?
+                </h2>
+                <p class="text-xl text-white/90 mb-8 max-w-2xl mx-auto leading-relaxed">
+                    Join thousands of successful farmers who have already improved their productivity and income through AFNON's comprehensive agricultural support program.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="#" class="bg-white text-emerald-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all duration-300 inline-flex items-center gap-2 justify-center">
+                        <i class="fas fa-rocket"></i>
+                        Apply Now - It's Free
+                    </a>
+                    <a href="tel:+2341234567890" class="glass text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white/20 transition-all duration-300 inline-flex items-center gap-2 justify-center">
+                        <i class="fas fa-phone"></i>
+                        Call Us Today
+                    </a>
+                </div>
+                
+                <!-- Quick Stats -->
+                <div class="grid grid-cols-3 gap-8 mt-12 pt-8 border-t border-white/20">
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-white">50,000+</div>
+                        <div class="text-white/80 text-sm">Happy Farmers</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-white">₦2.5B+</div>
+                        <div class="text-white/80 text-sm">Total Disbursed</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-white">95%</div>
+                        <div class="text-white/80 text-sm">Success Rate</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </section>
 
     <!-- Footer -->
-    <footer class="bg-gray-900 text-white text-sm py-8">
-        <div class="max-w-7xl mx-auto px-4 text-center">
-            <p>© {{ date('Y') }} {{ $setting->name ?? 'AFNON' }}. All rights reserved.</p>
+    <footer class="bg-gray-900 text-white">
+        <!-- Main Footer -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div class="grid lg:grid-cols-4 gap-8">
+                <!-- Company Info -->
+                <div class="lg:col-span-1">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-10 h-10 bg-gradient-to-br from-emerald-600 to-emerald-800 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-seedling text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold">AFNON</h3>
+                            <p class="text-xs text-emerald-400">Agricultural Finance Network</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-400 mb-6 leading-relaxed">
+                        Empowering Nigerian farmers with access to quality agricultural inputs, financing, and modern farming techniques.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-emerald-600 transition-colors">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-emerald-600 transition-colors">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-emerald-600 transition-colors">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-emerald-600 transition-colors">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div>
+                    <h4 class="text-lg font-semibold mb-4 text-emerald-400">Quick Links</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#home" class="text-gray-400 hover:text-emerald-400 transition-colors">Home</a></li>
+                        <li><a href="#about" class="text-gray-400 hover:text-emerald-400 transition-colors">About Us</a></li>
+                        <li><a href="#services" class="text-gray-400 hover:text-emerald-400 transition-colors">Our Services</a></li>
+                        <li><a href="#how-it-works" class="text-gray-400 hover:text-emerald-400 transition-colors">How It Works</a></li>
+                        <li><a href="#eligibility" class="text-gray-400 hover:text-emerald-400 transition-colors">Eligibility</a></li>
+                        <li><a href="#contact" class="text-gray-400 hover:text-emerald-400 transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+
+                <!-- Services -->
+                <div>
+                    <h4 class="text-lg font-semibold mb-4 text-emerald-400">Our Services</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-gray-400 hover:text-emerald-400 transition-colors">Seasonal Loans</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-emerald-400 transition-colors">Quality Inputs</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-emerald-400 transition-colors">Mechanization</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-emerald-400 transition-colors">Training & Support</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-emerald-400 transition-colors">Market Access</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-emerald-400 transition-colors">Insurance</a></li>
+                    </ul>
+                </div>
+
+                <!-- Contact Info -->
+                <div>
+                    <h4 class="text-lg font-semibold mb-4 text-emerald-400">Get In Touch</h4>
+                    <div class="space-y-3">
+                        <div class="flex items-start gap-3">
+                            <i class="fas fa-map-marker-alt text-emerald-400 mt-1"></i>
+                            <div>
+                                <p class="text-gray-400">123 Agricultural Way</p>
+                                <p class="text-gray-400">Abuja, FCT Nigeria</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-phone text-emerald-400"></i>
+                            <a href="tel:+2341234567890" class="text-gray-400 hover:text-emerald-400 transition-colors">
+                                +234 123 456 7890
+                            </a>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-envelope text-emerald-400"></i>
+                            <a href="mailto:info@afnon.ng" class="text-gray-400 hover:text-emerald-400 transition-colors">
+                                info@afnon.ng
+                            </a>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-globe text-emerald-400"></i>
+                            <a href="#" class="text-gray-400 hover:text-emerald-400 transition-colors">
+                                www.afnon.ng
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Footer -->
+        <div class="border-t border-gray-800">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <div class="text-gray-400 text-sm mb-4 md:mb-0">
+                        © 2024 AFNON (Association of Farmers in Northeast Nigeria). All rights reserved.
+                    </div>
+                    <div class="flex space-x-6 text-sm">
+                        <a href="#" class="text-gray-400 hover:text-emerald-400 transition-colors">Privacy Policy</a>
+                        <a href="#" class="text-gray-400 hover:text-emerald-400 transition-colors">Terms of Service</a>
+                        <a href="#" class="text-gray-400 hover:text-emerald-400 transition-colors">Cookie Policy</a>
+                    </div>
+                </div>
+            </div>
         </div>
     </footer>
-    {!! ToastMagic::scripts() !!}
-</body>
 
+    <!-- Scroll to Top Button -->
+    <button id="scrollToTop" class="fixed bottom-6 right-6 w-12 h-12 bg-emerald-600 text-white rounded-full shadow-lg hover:bg-emerald-700 transition-all duration-300 transform hover:scale-110 hidden z-50">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- JavaScript -->
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Scroll to top functionality
+        const scrollToTopBtn = document.getElementById('scrollToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                scrollToTopBtn.classList.remove('hidden');
+            } else {
+                scrollToTopBtn.classList.add('hidden');
+            }
+        });
+
+        scrollToTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // Animate numbers
+        function animateNumber(element, target, duration = 2000) {
+            const start = 0;
+            const startTime = performance.now();
+            
+            function updateNumber(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const current = Math.floor(progress * target);
+                
+                if (target >= 1000000000) {
+                    element.textContent = '₦' + (current / 1000000000).toFixed(1) + 'B+';
+                } else if (target >= 1000000) {
+                    element.textContent = '₦' + (current / 1000000).toFixed(1) + 'M+';
+                } else if (target >= 1000) {
+                    element.textContent = (current / 1000).toFixed(0) + 'K+';
+                } else if (target < 100) {
+                    element.textContent = current + '%';
+                } else {
+                    element.textContent = current.toLocaleString();
+                }
+                
+                if (progress < 1) {
+                    requestAnimationFrame(updateNumber);
+                }
+            }
+            
+            requestAnimationFrame(updateNumber);
+        }
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                    
+                    // Animate stats numbers
+                    if (entry.target.classList.contains('stat-number')) {
+                        const text = entry.target.textContent;
+                        let target = 0;
+                        
+                        if (text.includes('50K+')) target = 50000;
+                        else if (text.includes('₦2.5B+')) target = 2500000000;
+                        else if (text.includes('95%')) target = 95;
+                        
+                        if (target > 0) {
+                            animateNumber(entry.target, target);
+                        }
+                    }
+                }
+            });
+        }, observerOptions);
+
+        // Observe all animated elements
+        document.querySelectorAll('.animate-fade-in, .animate-slide-up, .animate-scale-in, .stat-number').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+            observer.observe(el);
+        });
+
+        // Enhanced form interactions
+        document.querySelectorAll('input, textarea, select').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.classList.add('focused');
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.classList.remove('focused');
+            });
+        });
+
+        // Parallax effect for background elements
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const parallaxElements = document.querySelectorAll('.floating-element');
+            
+            parallaxElements.forEach((element, index) => {
+                const speed = 0.5 + (index * 0.1);
+                element.style.transform = `translateY(${scrolled * speed}px)`;
+            });
+        });
+
+        // Loading animation
+        window.addEventListener('load', () => {
+            document.body.classList.add('loaded');
+        });
+    </script>
+
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="fixed inset-0 bg-emerald-600 flex items-center justify-center z-50 transition-opacity duration-500">
+        <div class="text-center text-white">
+            <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mb-4 mx-auto animate-bounce">
+                <i class="fas fa-seedling text-2xl"></i>
+            </div>
+            <h2 class="text-2xl font-bold mb-2">AFNON</h2>
+            <p class="text-emerald-100">Loading...</p>
+        </div>
+    </div>
+
+    <style>
+        #loading-screen {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        body.loaded #loading-screen {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .focused {
+            transform: scale(1.02);
+        }
+    </style>
+</body>
 </html>

@@ -4,34 +4,46 @@
 <div class="p-4 md:p-6 space-y-6">
 
     {{-- Application Stats --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
         <div class="bg-blue-100 dark:bg-blue-900 p-4 rounded-xl shadow text-center">
             <p class="text-sm text-blue-700 dark:text-blue-300 font-semibold">Total Applications</p>
-            <p class="text-2xl font-bold text-blue-900 dark:text-white">{{ $totalApplications }}</p>
+            <p class="text-2xl font-bold text-blue-900 dark:text-white">{{ number_format($totalApplications) }}</p>
         </div>
-        <div class="bg-green-100 dark:bg-green-900 p-4 rounded-xl shadow text-center">
-            <p class="text-sm text-green-700 dark:text-green-300 font-semibold">Approved</p>
-            <p class="text-2xl font-bold text-green-900 dark:text-white">{{ $approvedApplications }}</p>
+        <div class="bg-purple-100 dark:bg-purple-900 p-4 rounded-xl shadow text-center">
+            <p class="text-sm text-purple-700 dark:text-purple-300 font-semibold">Total Farmers</p>
+            <p class="text-2xl font-bold text-purple-900 dark:text-white">{{ number_format($totalFarmers) }}</p>
         </div>
         <div class="bg-yellow-100 dark:bg-yellow-900 p-4 rounded-xl shadow text-center">
             <p class="text-sm text-yellow-700 dark:text-yellow-300 font-semibold">Pending</p>
-            <p class="text-2xl font-bold text-yellow-900 dark:text-white">{{ $pendingApplications }}</p>
+            <p class="text-2xl font-bold text-yellow-900 dark:text-white">{{ number_format($pendingApplications) }}</p>
         </div>
-    </div>
-
-    {{-- Commodity Stats --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div class="bg-purple-100 dark:bg-purple-900 p-4 rounded-xl shadow text-center">
-            <p class="text-sm text-purple-700 dark:text-purple-300 font-semibold">Total Allocated</p>
-            <p class="text-2xl font-bold text-purple-900 dark:text-white">{{ $totalAllocated }}</p>
+        <div class="bg-green-100 dark:bg-green-900 p-4 rounded-xl shadow text-center">
+            <p class="text-sm text-green-700 dark:text-green-300 font-semibold">Approved</p>
+            <p class="text-2xl font-bold text-green-900 dark:text-white">{{ number_format($approvedApplications) }}</p>
         </div>
         <div class="bg-indigo-100 dark:bg-indigo-900 p-4 rounded-xl shadow text-center">
             <p class="text-sm text-indigo-700 dark:text-indigo-300 font-semibold">Distributed</p>
-            <p class="text-2xl font-bold text-indigo-900 dark:text-white">{{ $totalDistributed }}</p>
+            <p class="text-2xl font-bold text-indigo-900 dark:text-white">{{ number_format($distributedApplications) }}</p>
         </div>
         <div class="bg-red-100 dark:bg-red-900 p-4 rounded-xl shadow text-center">
-            <p class="text-sm text-red-700 dark:text-red-300 font-semibold">Remaining</p>
-            <p class="text-2xl font-bold text-red-900 dark:text-white">{{ $totalRemaining }}</p>
+            <p class="text-sm text-red-700 dark:text-red-300 font-semibold">Rejected</p>
+            <p class="text-2xl font-bold text-red-900 dark:text-white">{{ number_format($rejectedApplications) }}</p>
+        </div>
+    </div>
+
+    {{-- Commodity Allocation Stats --}}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="bg-cyan-100 dark:bg-cyan-900 p-4 rounded-xl shadow text-center">
+            <p class="text-sm text-cyan-700 dark:text-cyan-300 font-semibold">Total Allocated</p>
+            <p class="text-2xl font-bold text-cyan-900 dark:text-white">{{ number_format($totalAllocated) }}</p>
+        </div>
+        <div class="bg-emerald-100 dark:bg-emerald-900 p-4 rounded-xl shadow text-center">
+            <p class="text-sm text-emerald-700 dark:text-emerald-300 font-semibold">Distributed</p>
+            <p class="text-2xl font-bold text-emerald-900 dark:text-white">{{ number_format($totalDistributed) }}</p>
+        </div>
+        <div class="bg-orange-100 dark:bg-orange-900 p-4 rounded-xl shadow text-center">
+            <p class="text-sm text-orange-700 dark:text-orange-300 font-semibold">Remaining</p>
+            <p class="text-2xl font-bold text-orange-900 dark:text-white">{{ number_format($totalRemaining) }}</p>
         </div>
     </div>
 
