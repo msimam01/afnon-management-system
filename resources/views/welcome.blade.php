@@ -1,15 +1,42 @@
+@php
+    use App\Models\Setting;
+
+    $centralDomains = ['localhost', '127.0.0.1', 'afnon.com'];
+    $host = request()->getHost();
+    $isCentral = in_array($host, $centralDomains);
+
+    $tenant = null;
+    $setting = null;
+
+    if ($isCentral) {
+        // Central settings (still stored in central DB settings table)
+        $setting = Setting::first();
+    } else {
+        $tenant = \App\Models\SuperAdmin\Tenant::whereHas('domains', function ($q) use ($host) {
+            $q->where('domain', $host);
+        })->first();
+
+        if ($tenant) {
+            // Switch to tenant DB
+            tenancy()->initialize($tenant);
+
+            // Tenant settings (logo, phone, email, address, etc.)
+            $setting = Setting::first();
+        }
+    }
+@endphp
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AFNON - Empowering Nigerian Farmers</title>
+    <title>{{ $isCentral ? ($setting->name ?? 'AFNON - Empowering Nigerian Farmers') : ((ucfirst($tenant?->id) ?? 'Unknown') . ' Portal') }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/alpinejs" defer></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <script>
         tailwind.config = {
             theme: {
@@ -71,7 +98,7 @@
 
     <style>
         html { scroll-behavior: smooth; }
-        
+
         /* Custom gradient background */
         .gradient-bg {
             background: linear-gradient(-45deg, #065f46, #10b981, #059669, #047857);
@@ -209,20 +236,22 @@
     <div class="bg-emerald-800 text-white py-2 px-4">
         <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center text-sm">
             <div class="flex items-center gap-4 mb-2 sm:mb-0">
+                @if ($setting)
                 <span class="flex items-center gap-1">
                     <i class="fas fa-map-marker-alt text-emerald-300"></i>
-                    Nigeria
+                    {{ $setting->address ?? 'Nigeria' }}
                 </span>
                 <span class="flex items-center gap-1">
                     <i class="fas fa-phone text-emerald-300"></i>
-                    <a href="tel:+2341234567890" class="hover:text-emerald-300 transition-colors">+234 123 456 7890</a>
+                    <a href="tel:{{ $setting->phone }}" class="hover:text-emerald-300 transition-colors">{{ $setting->phone }}</a>
                 </span>
             </div>
             <div class="flex items-center gap-4">
                 <span class="flex items-center gap-1">
                     <i class="fas fa-envelope text-emerald-300"></i>
-                    <a href="mailto:info@afnon.ng" class="hover:text-emerald-300 transition-colors">info@afnon.ng</a>
+                    <a href="mailto:{{ $setting->email }}" class="hover:text-emerald-300 transition-colors">{{ $setting->email ?? 'info@afnon.com.ng' }}</a>
                 </span>
+                @endif
                 <div class="flex gap-2">
                     <a href="#" class="text-emerald-300 hover:text-white transition-colors">
                         <i class="fab fa-facebook-f"></i>
@@ -239,7 +268,7 @@
     </div>
 
     <!-- Navigation -->
-    <nav class="bg-white/95 backdrop-blur-lg shadow-lg sticky top-0 z-50 transition-all duration-300" 
+    <nav class="bg-white/95 backdrop-blur-lg shadow-lg sticky top-0 z-50 transition-all duration-300"
          x-data="{ open: false, scrolled: false }"
          x-init="window.addEventListener('scroll', () => { scrolled = window.scrollY > 50 })"
          :class="{ 'py-2': scrolled, 'py-4': !scrolled }">
@@ -251,7 +280,7 @@
                         <i class="fas fa-seedling text-white text-xl"></i>
                     </div>
                     <div>
-                        <h1 class="text-2xl font-bold text-emerald-800">AFNON</h1>
+                        <h1 class="text-2xl font-bold text-emerald-800">{{ $isCentral ? $setting->name ?? 'AFNON' : $tenant->short_name ?? strtoupper($tenant->id) }}</h1>
                         <p class="text-xs text-emerald-600 font-medium">Agricultural Finance Network</p>
                     </div>
                 </div>
@@ -264,10 +293,32 @@
                     <a href="#how-it-works" class="nav-link text-gray-700 hover:text-emerald-600 font-medium">How It Works</a>
                     <a href="#contact" class="nav-link text-gray-700 hover:text-emerald-600 font-medium">Contact</a>
                     <div class="flex items-center space-x-3">
-                        <a href="#" class="text-gray-600 hover:text-emerald-600 font-medium">Login</a>
-                        <a href="#" class="btn-primary text-white px-6 py-2 rounded-lg font-semibold">
-                            Apply Now
+                        @guest
+                            <a href="{{ $isCentral ? route('central.login.form') : route('tenant.login') }}" class="text-gray-600 hover:text-emerald-600 font-medium">Login</a>
+                        @endguest
+                        @auth
+                    @if (auth()->user()->hasRole('super-admin'))
+                        <a href="{{ route('superadmin.dashboard') }}"
+                            class="btn-primary text-white px-6 py-2 rounded-lg font-semibold">
+                            Dashboard
                         </a>
+                    @elseif(auth()->user()->hasRole('admin'))
+                        <a href="{{ route('admin.dashboard') }}"
+                            class="btn-primary text-white px-6 py-2 rounded-lg font-semibold">
+                            Admin Dashboard
+                        </a>
+                    @elseif(auth()->user()->hasRole('agent'))
+                        <a href="{{ route('agent.dashboard') }}"
+                            class="btn-primary text-white px-6 py-2 rounded-lg font-semibold">
+                            Agent Dashboard
+                        </a>
+                    @endif
+                @endauth
+                        @if (!$isCentral)
+                            <a href="{{ route('applications.create') }}" class="btn-primary text-white px-6 py-2 rounded-lg font-semibold">
+                                Apply Now
+                            </a>
+                        @endif
                     </div>
                 </nav>
 
@@ -281,9 +332,9 @@
             </div>
 
             <!-- Mobile Navigation -->
-            <div x-show="open" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform scale-95" 
-                 x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-150" 
-                 x-transition:leave-start="opacity-100 transform scale-100" x-transition:leave-end="opacity-0 transform scale-95" 
+            <div x-show="open" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform scale-95"
+                 x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-150"
+                 x-transition:leave-start="opacity-100 transform scale-100" x-transition:leave-end="opacity-0 transform scale-95"
                  class="lg:hidden mt-4 mobile-menu rounded-xl shadow-lg overflow-hidden">
                 <div class="px-6 py-4 space-y-4">
                     <a href="#home" class="block text-gray-700 hover:text-emerald-600 font-medium">Home</a>
@@ -292,10 +343,14 @@
                     <a href="#how-it-works" class="block text-gray-700 hover:text-emerald-600 font-medium">How It Works</a>
                     <a href="#contact" class="block text-gray-700 hover:text-emerald-600 font-medium">Contact</a>
                     <div class="pt-4 border-t border-gray-200 space-y-3">
-                        <a href="#" class="block text-gray-600 hover:text-emerald-600 font-medium">Login</a>
-                        <a href="#" class="btn-primary block text-center text-white px-6 py-3 rounded-lg font-semibold">
+                        @guest
+                        <a href="{{ $isCentral ? route('central.login.form') : route('tenant.login') }}" class="block text-gray-600 hover:text-emerald-600 font-medium">Login</a>
+                        @endguest
+                        @if (!$isCentral)
+                        <a href="{{ route('applications.create') }}" class="btn-primary block text-center text-white px-6 py-3 rounded-lg font-semibold">
                             Apply Now
                         </a>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -326,16 +381,18 @@
                         Access quality agricultural inputs, seasonal loans, and modern farming techniques through our innovative platform. Join thousands of farmers growing their productivity across Nigeria.
                     </p>
                     <div class="flex flex-col sm:flex-row gap-4 mb-8">
-                        <a href="#" class="btn-primary text-white px-8 py-4 rounded-xl font-semibold text-lg inline-flex items-center gap-2 justify-center">
+                        @if (!$isCentral)
+                        <a href="{{ route('applications.create') }}" class="btn-primary text-white px-8 py-4 rounded-xl font-semibold text-lg inline-flex items-center gap-2 justify-center">
                             <i class="fas fa-rocket"></i>
                             Start Your Application
                         </a>
+                        @endif
                         <a href="#how-it-works" class="border-2 border-emerald-600 text-emerald-600 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-emerald-50 transition-all duration-300 inline-flex items-center gap-2 justify-center">
                             <i class="fas fa-play-circle"></i>
                             Learn How It Works
                         </a>
                     </div>
-                    
+
                     <!-- Statistics -->
                     <div class="grid grid-cols-3 gap-8 pt-8 border-t border-gray-200">
                         <div class="text-center">
@@ -357,7 +414,7 @@
                 <div class="relative animate-slide-up">
                     <div class="relative z-10">
                         <img src="https://images.pexels.com/photos/2132250/pexels-photo-2132250.jpeg?auto=compress&cs=tinysrgb&w=1920"
-                             alt="Nigerian farmers working in field" 
+                             alt="Nigerian farmers working in field"
                              class="rounded-2xl shadow-2xl w-full h-auto object-cover">
                         <!-- Play button overlay -->
                         <div class="absolute inset-0 flex items-center justify-center">
@@ -396,7 +453,7 @@
                     <p class="text-gray-600 mb-8 leading-relaxed">
                         Through strategic public-private partnerships, we provide comprehensive support including seasonal inputs, accessible loans, mechanization services, and cutting-edge farming techniques to farmers across Nigeria.
                     </p>
-                    
+
                     <!-- Features Grid -->
                     <div class="grid sm:grid-cols-2 gap-6 mb-8">
                         <div class="flex items-start gap-3">
@@ -446,7 +503,7 @@
                 <!-- Image -->
                 <div class="relative animate-slide-up">
                     <img src="https://images.pexels.com/photos/1595104/pexels-photo-1595104.jpeg?auto=compress&cs=tinysrgb&w=800"
-                         alt="Farmers working together" 
+                         alt="Farmers working together"
                          class="rounded-2xl shadow-xl w-full h-auto object-cover">
                     <!-- Overlay badge -->
                     <div class="absolute top-6 left-6 bg-white/90 backdrop-blur-sm rounded-lg px-4 py-2 shadow-lg">
@@ -641,7 +698,7 @@
             <div class="relative">
                 <!-- Connection Line -->
                 <div class="hidden lg:block absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-emerald-200 via-emerald-300 to-emerald-200 transform -translate-y-1/2 z-0"></div>
-                
+
                 <div class="grid md:grid-cols-3 gap-8 relative z-10">
                     <!-- Step 1 -->
                     <div class="text-center animate-slide-up" style="animation-delay: 0.2s;">
@@ -695,7 +752,7 @@
 
             <!-- CTA -->
             <div class="text-center mt-12">
-                <a href="#" class="btn-primary text-white px-8 py-4 rounded-xl font-semibold text-lg inline-flex items-center gap-2">
+                <a href="#home" class="btn-primary text-white px-8 py-4 rounded-xl font-semibold text-lg inline-flex items-center gap-2">
                     <i class="fas fa-rocket"></i>
                     Start Your Journey Today
                 </a>
@@ -935,9 +992,15 @@
                         <div>
                             <h3 class="text-lg font-semibold text-gray-900 mb-1">Phone Support</h3>
                             <p class="text-gray-600 mb-2">Call us for immediate assistance</p>
-                            <a href="tel:+2341234567890" class="text-emerald-600 font-semibold hover:text-emerald-700">
-                                +234 123 456 7890
+                            @if ($setting->phone)
+                                <a href="tel:{{ $setting->phone }}" class="text-emerald-600 font-semibold hover:text-emerald-700">
+                                {{ $setting->phone }}
                             </a>
+                            @else
+                            <a href="tel:00000000000" class="text-emerald-600 font-semibold hover:text-emerald-700">
+                                +2348000000000
+                            </a>
+                            @endif
                         </div>
                     </div>
 
@@ -949,9 +1012,16 @@
                         <div>
                             <h3 class="text-lg font-semibold text-gray-900 mb-1">Email Support</h3>
                             <p class="text-gray-600 mb-2">Send us your questions</p>
-                            <a href="mailto:info@afnon.ng" class="text-emerald-600 font-semibold hover:text-emerald-700">
-                                info@afnon.ng
-                            </a>
+                            @if ($setting->email)
+                                <a href="mailto:{{ $setting->email }}" class="text-emerald-600 font-semibold hover:text-emerald-700">
+                                    {{ $setting->email }}
+                                </a>
+                            @else
+
+                                <a href="mailto:info@afnon.ng" class="text-emerald-600 font-semibold hover:text-emerald-700">
+                                    info@afnon.ng
+                                </a>
+                            @endif
                         </div>
                     </div>
 
@@ -963,10 +1033,16 @@
                         <div>
                             <h3 class="text-lg font-semibold text-gray-900 mb-1">Office Location</h3>
                             <p class="text-gray-600 mb-2">Visit our headquarters</p>
-                            <address class="text-emerald-600 font-semibold not-italic">
+                            @if ($setting->address)
+                                <address class="text-emerald-600 font-semibold not-italic">
+                                {{ $setting->address }}
+                            </address>
+                            @else
+<address class="text-emerald-600 font-semibold not-italic">
                                 123 Agricultural Way<br>
                                 Abuja, FCT Nigeria
                             </address>
+                            @endif
                         </div>
                     </div>
 
@@ -1042,16 +1118,25 @@
                     Join thousands of successful farmers who have already improved their productivity and income through AFNON's comprehensive agricultural support program.
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="#" class="bg-white text-emerald-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all duration-300 inline-flex items-center gap-2 justify-center">
+                    @if (!$isCentral)
+                        <a href="{{ route('applications.create') }}" class="bg-white text-emerald-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all duration-300 inline-flex items-center gap-2 justify-center">
                         <i class="fas fa-rocket"></i>
                         Apply Now - It's Free
                     </a>
-                    <a href="tel:+2341234567890" class="glass text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white/20 transition-all duration-300 inline-flex items-center gap-2 justify-center">
+                    @endif
+                    @if ($setting->phone)
+                        <a href="tel:{{ $setting->phone }}" class="glass text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white/20 transition-all duration-300 inline-flex items-center gap-2 justify-center">
                         <i class="fas fa-phone"></i>
                         Call Us Today
                     </a>
+                    @else
+<a href="tel:00000000000" class="glass text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white/20 transition-all duration-300 inline-flex items-center gap-2 justify-center">
+                        <i class="fas fa-phone"></i>
+                        Call Us Today
+                    </a>
+                    @endif
                 </div>
-                
+
                 <!-- Quick Stats -->
                 <div class="grid grid-cols-3 gap-8 mt-12 pt-8 border-t border-white/20">
                     <div class="text-center">
@@ -1171,7 +1256,7 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 <div class="flex flex-col md:flex-row justify-between items-center">
                     <div class="text-gray-400 text-sm mb-4 md:mb-0">
-                        © 2024 AFNON (Association of Farmers in Northeast Nigeria). All rights reserved.
+                        © 2025 AFNON (Association of Farmers in Northeast Nigeria). All rights reserved.
                     </div>
                     <div class="flex space-x-6 text-sm">
                         <a href="#" class="text-gray-400 hover:text-emerald-400 transition-colors">Privacy Policy</a>
@@ -1206,7 +1291,7 @@
 
         // Scroll to top functionality
         const scrollToTopBtn = document.getElementById('scrollToTop');
-        
+
         window.addEventListener('scroll', () => {
             if (window.pageYOffset > 300) {
                 scrollToTopBtn.classList.remove('hidden');
@@ -1226,12 +1311,12 @@
         function animateNumber(element, target, duration = 2000) {
             const start = 0;
             const startTime = performance.now();
-            
+
             function updateNumber(currentTime) {
                 const elapsed = currentTime - startTime;
                 const progress = Math.min(elapsed / duration, 1);
                 const current = Math.floor(progress * target);
-                
+
                 if (target >= 1000000000) {
                     element.textContent = '₦' + (current / 1000000000).toFixed(1) + 'B+';
                 } else if (target >= 1000000) {
@@ -1243,12 +1328,12 @@
                 } else {
                     element.textContent = current.toLocaleString();
                 }
-                
+
                 if (progress < 1) {
                     requestAnimationFrame(updateNumber);
                 }
             }
-            
+
             requestAnimationFrame(updateNumber);
         }
 
@@ -1263,16 +1348,16 @@
                 if (entry.isIntersecting) {
                     entry.target.style.opacity = '1';
                     entry.target.style.transform = 'translateY(0)';
-                    
+
                     // Animate stats numbers
                     if (entry.target.classList.contains('stat-number')) {
                         const text = entry.target.textContent;
                         let target = 0;
-                        
+
                         if (text.includes('50K+')) target = 50000;
                         else if (text.includes('₦2.5B+')) target = 2500000000;
                         else if (text.includes('95%')) target = 95;
-                        
+
                         if (target > 0) {
                             animateNumber(entry.target, target);
                         }
@@ -1294,7 +1379,7 @@
             input.addEventListener('focus', function() {
                 this.parentElement.classList.add('focused');
             });
-            
+
             input.addEventListener('blur', function() {
                 this.parentElement.classList.remove('focused');
             });
@@ -1304,7 +1389,7 @@
         window.addEventListener('scroll', () => {
             const scrolled = window.pageYOffset;
             const parallaxElements = document.querySelectorAll('.floating-element');
-            
+
             parallaxElements.forEach((element, index) => {
                 const speed = 0.5 + (index * 0.1);
                 element.style.transform = `translateY(${scrolled * speed}px)`;
@@ -1333,12 +1418,12 @@
             opacity: 1;
             pointer-events: all;
         }
-        
+
         body.loaded #loading-screen {
             opacity: 0;
             pointer-events: none;
         }
-        
+
         .focused {
             transform: scale(1.02);
         }

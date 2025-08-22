@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -31,30 +32,44 @@
         .gradient-bg {
             background: linear-gradient(135deg, #10b981 0%, #047857 100%);
         }
+
         .glass-effect {
             backdrop-filter: blur(10px);
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
+
         .card-hover {
             transition: all 0.3s ease;
         }
+
         .card-hover:hover {
             transform: translateY(-2px);
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
+
         .status-animation {
             animation: pulse-color 2s infinite;
         }
+
         @keyframes pulse-color {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.8; }
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.8;
+            }
         }
+
         .smooth-transition {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
     </style>
 </head>
+
 <body class="bg-gradient-to-br from-gray-50 via-emerald-50/30 to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 min-h-screen">
     <!-- Applications Section -->
     <div id="applications-section" class="w-full min-h-screen px-4 py-8">
@@ -116,7 +131,7 @@
                     </div>
                     <div class="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center">
                         <svg class="w-8 h-8 text-white/60" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+                            <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" />
                         </svg>
                     </div>
                 </div>
@@ -165,7 +180,7 @@
                     </div>
                     <div class="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center">
                         <svg class="w-8 h-8 text-white/60" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/>
+                            <path d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" />
                         </svg>
                     </div>
                 </div>
@@ -205,7 +220,7 @@
                             <div class="lg:col-span-4">
                                 <label class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3 flex items-center">
                                     <svg class="w-4 h-4 mr-2 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.84L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"/>
+                                        <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.84L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" />
                                     </svg>
                                     Collection Center *
                                 </label>
@@ -222,7 +237,7 @@
                             <div class="lg:col-span-4">
                                 <label class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3 flex items-center">
                                     <svg class="w-4 h-4 mr-2 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M8.445 14.832A1 1 0 0010 14v-2.798l5.445 3.63A1 1 0 0017 14V6a1 1 0 00-1.555-.832L10 8.798V6a1 1 0 00-1.555-.832l-6 4a1 1 0 000 1.664l6 4z"/>
+                                        <path d="M8.445 14.832A1 1 0 0010 14v-2.798l5.445 3.63A1 1 0 0017 14V6a1 1 0 00-1.555-.832L10 8.798V6a1 1 0 00-1.555-.832l-6 4a1 1 0 000 1.664l6 4z" />
                                     </svg>
                                     Return Center *
                                 </label>
@@ -237,14 +252,14 @@
 
                             <!-- Action Buttons -->
                             <div class="lg:col-span-4 flex items-end justify-end gap-3">
-                                <button id="bulkApproveBtn" type="submit" disabled 
+                                <button id="bulkApproveBtn" type="submit" disabled
                                     class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-semibold rounded-xl shadow-lg hover:from-emerald-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed smooth-transition transform hover:scale-105">
                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                     </svg>
                                     Approve Selected
                                 </button>
-                                <button id="bulkRejectBtn" type="button" disabled 
+                                <button id="bulkRejectBtn" type="button" disabled
                                     class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold rounded-xl shadow-lg hover:from-red-600 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed smooth-transition transform hover:scale-105">
                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -288,278 +303,279 @@
                             <span>Real-time filtering</span>
                         </div>
                     </div>
+                    <div class="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-900/50 dark:to-gray-800/50 rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50">
+                        <!-- Enhanced Table -->
+                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden border border-gray-200/50 dark:border-gray-700/50">
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                    <thead class="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800">
+                                        <tr>
+                                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                                                <div class="flex items-center space-x-2">
+                                                    <input type="checkbox" id="select-all" class="h-4 w-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500">
+                                                    <span>Select</span>
+                                                </div>
+                                            </th>
+                                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                                                Farmer Details
+                                            </th>
+                                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                                                Application Info
+                                            </th>
+                                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                                                Farm Details
+                                            </th>
+                                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                                                Status
+                                            </th>
+                                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                                                Actions
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                        <!-- Sample rows with enhanced design -->
+                                        <tr class="appRow hover:bg-gray-50 dark:hover:bg-gray-700/50 smooth-transition" data-status="pending" data-season="2024 dry season">
+                                            <td class="px-6 py-4">
+                                                <input type="checkbox" class="rowCheckbox h-4 w-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500" value="1">
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <div class="flex items-center">
+                                                    <div class="flex-shrink-0 h-12 w-12">
+                                                        <div class="h-12 w-12 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg">
+                                                            <span class="text-sm font-bold text-white">JD</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="ml-4">
+                                                        <div class="text-sm font-semibold text-gray-900 dark:text-white">John Doe</div>
+                                                        <div class="text-sm text-gray-600 dark:text-gray-400">+234 801 234 5678</div>
+                                                        <div class="flex gap-2 mt-2">
+                                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                                                                BVN: 22123456789
+                                                            </span>
+                                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                                                                NIN: 12345678901
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <div class="text-sm font-semibold text-gray-900 dark:text-white seasonText">2024 Dry Season</div>
+                                                <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                                    <div class="flex flex-wrap gap-1">
+                                                        <span class="inline-block bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 text-xs px-2 py-1 rounded-lg">Rice (50kg)</span>
+                                                        <span class="inline-block bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300 text-xs px-2 py-1 rounded-lg">Maize (25kg)</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <div class="text-sm font-semibold text-gray-900 dark:text-white">2.5 hectares</div>
+                                                <div class="text-sm text-gray-600 dark:text-gray-400">Lagos State, Ibeju-Lekki</div>
+                                                <div class="text-xs text-gray-500 dark:text-gray-500 mt-1">Cluster A-12</div>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-200 border border-yellow-200 dark:border-yellow-800 status-animation">
+                                                    <div class="w-2 h-2 bg-yellow-500 rounded-full mr-2"></div>
+                                                    Pending
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <button class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-sm font-medium rounded-lg hover:from-emerald-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 smooth-transition transform hover:scale-105 shadow-md">
+                                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                                    </svg>
+                                                    View Details
+                                                </button>
+                                            </td>
+                                        </tr>
 
-                    <!-- Enhanced Table -->
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden border border-gray-200/50 dark:border-gray-700/50">
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                                <thead class="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800">
-                                    <tr>
-                                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                                            <div class="flex items-center space-x-2">
-                                                <input type="checkbox" id="select-all" class="h-4 w-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500">
-                                                <span>Select</span>
-                                            </div>
-                                        </th>
-                                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                                            Farmer Details
-                                        </th>
-                                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                                            Application Info
-                                        </th>
-                                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                                            Farm Details
-                                        </th>
-                                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                                            Status
-                                        </th>
-                                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                                            Actions
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                                    <!-- Sample rows with enhanced design -->
-                                    <tr class="appRow hover:bg-gray-50 dark:hover:bg-gray-700/50 smooth-transition" data-status="pending" data-season="2024 dry season">
-                                        <td class="px-6 py-4">
-                                            <input type="checkbox" class="rowCheckbox h-4 w-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500" value="1">
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <div class="flex items-center">
-                                                <div class="flex-shrink-0 h-12 w-12">
-                                                    <div class="h-12 w-12 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg">
-                                                        <span class="text-sm font-bold text-white">JD</span>
+                                        <!-- Approved Application -->
+                                        <tr class="appRow hover:bg-gray-50 dark:hover:bg-gray-700/50 smooth-transition" data-status="approved" data-season="2024 wet season">
+                                            <td class="px-6 py-4">
+                                                <input type="checkbox" class="rowCheckbox h-4 w-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500" value="2">
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <div class="flex items-center">
+                                                    <div class="flex-shrink-0 h-12 w-12">
+                                                        <div class="h-12 w-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center shadow-lg">
+                                                            <span class="text-sm font-bold text-white">AS</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="ml-4">
+                                                        <div class="text-sm font-semibold text-gray-900 dark:text-white">Amina Sani</div>
+                                                        <div class="text-sm text-gray-600 dark:text-gray-400">+234 802 345 6789</div>
+                                                        <div class="flex gap-2 mt-2">
+                                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                                                                BVN: 22234567890
+                                                            </span>
+                                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                                                                NIN: 23456789012
+                                                            </span>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                <div class="ml-4">
-                                                    <div class="text-sm font-semibold text-gray-900 dark:text-white">John Doe</div>
-                                                    <div class="text-sm text-gray-600 dark:text-gray-400">+234 801 234 5678</div>
-                                                    <div class="flex gap-2 mt-2">
-                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-                                                            BVN: 22123456789
-                                                        </span>
-                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
-                                                            NIN: 12345678901
-                                                        </span>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <div class="text-sm font-semibold text-gray-900 dark:text-white seasonText">2024 Wet Season</div>
+                                                <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                                    <div class="flex flex-wrap gap-1">
+                                                        <span class="inline-block bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300 text-xs px-2 py-1 rounded-lg">Cassava (100kg)</span>
+                                                        <span class="inline-block bg-orange-100 dark:bg-orange-900/50 text-orange-800 dark:text-orange-300 text-xs px-2 py-1 rounded-lg">Yam (75kg)</span>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <div class="text-sm font-semibold text-gray-900 dark:text-white seasonText">2024 Dry Season</div>
-                                            <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                                <div class="flex flex-wrap gap-1">
-                                                    <span class="inline-block bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 text-xs px-2 py-1 rounded-lg">Rice (50kg)</span>
-                                                    <span class="inline-block bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300 text-xs px-2 py-1 rounded-lg">Maize (25kg)</span>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <div class="text-sm font-semibold text-gray-900 dark:text-white">2.5 hectares</div>
-                                            <div class="text-sm text-gray-600 dark:text-gray-400">Lagos State, Ibeju-Lekki</div>
-                                            <div class="text-xs text-gray-500 dark:text-gray-500 mt-1">Cluster A-12</div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-200 border border-yellow-200 dark:border-yellow-800 status-animation">
-                                                <div class="w-2 h-2 bg-yellow-500 rounded-full mr-2"></div>
-                                                Pending
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <button class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-sm font-medium rounded-lg hover:from-emerald-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 smooth-transition transform hover:scale-105 shadow-md">
-                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                                                </svg>
-                                                View Details
-                                            </button>
-                                        </td>
-                                    </tr>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <div class="text-sm font-semibold text-gray-900 dark:text-white">3.8 hectares</div>
+                                                <div class="text-sm text-gray-600 dark:text-gray-400">Kano State, Dambatta</div>
+                                                <div class="text-xs text-gray-500 dark:text-gray-500 mt-1">Cluster B-07</div>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-200 border border-green-200 dark:border-green-800">
+                                                    <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                                                    Approved
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <button class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-sm font-medium rounded-lg hover:from-emerald-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 smooth-transition transform hover:scale-105 shadow-md">
+                                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                                    </svg>
+                                                    View Details
+                                                </button>
+                                            </td>
+                                        </tr>
 
-                                    <!-- Approved Application -->
-                                    <tr class="appRow hover:bg-gray-50 dark:hover:bg-gray-700/50 smooth-transition" data-status="approved" data-season="2024 wet season">
-                                        <td class="px-6 py-4">
-                                            <input type="checkbox" class="rowCheckbox h-4 w-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500" value="2">
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <div class="flex items-center">
-                                                <div class="flex-shrink-0 h-12 w-12">
-                                                    <div class="h-12 w-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center shadow-lg">
-                                                        <span class="text-sm font-bold text-white">AS</span>
+                                        <!-- Distributed Application -->
+                                        <tr class="appRow hover:bg-gray-50 dark:hover:bg-gray-700/50 smooth-transition" data-status="distributed" data-season="2025 dry season">
+                                            <td class="px-6 py-4">
+                                                <input type="checkbox" class="rowCheckbox h-4 w-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500" value="3">
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <div class="flex items-center">
+                                                    <div class="flex-shrink-0 h-12 w-12">
+                                                        <div class="h-12 w-12 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center shadow-lg">
+                                                            <span class="text-sm font-bold text-white">OA</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="ml-4">
+                                                        <div class="text-sm font-semibold text-gray-900 dark:text-white">Olumide Adebayo</div>
+                                                        <div class="text-sm text-gray-600 dark:text-gray-400">+234 803 456 7890</div>
+                                                        <div class="flex gap-2 mt-2">
+                                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                                                                BVN: 22345678901
+                                                            </span>
+                                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                                                                NIN: 34567890123
+                                                            </span>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                <div class="ml-4">
-                                                    <div class="text-sm font-semibold text-gray-900 dark:text-white">Amina Sani</div>
-                                                    <div class="text-sm text-gray-600 dark:text-gray-400">+234 802 345 6789</div>
-                                                    <div class="flex gap-2 mt-2">
-                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-                                                            BVN: 22234567890
-                                                        </span>
-                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
-                                                            NIN: 23456789012
-                                                        </span>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <div class="text-sm font-semibold text-gray-900 dark:text-white seasonText">2025 Dry Season</div>
+                                                <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                                    <div class="flex flex-wrap gap-1">
+                                                        <span class="inline-block bg-indigo-100 dark:bg-indigo-900/50 text-indigo-800 dark:text-indigo-300 text-xs px-2 py-1 rounded-lg">Soybeans (40kg)</span>
+                                                        <span class="inline-block bg-pink-100 dark:bg-pink-900/50 text-pink-800 dark:text-pink-300 text-xs px-2 py-1 rounded-lg">Cowpea (30kg)</span>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <div class="text-sm font-semibold text-gray-900 dark:text-white seasonText">2024 Wet Season</div>
-                                            <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                                <div class="flex flex-wrap gap-1">
-                                                    <span class="inline-block bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300 text-xs px-2 py-1 rounded-lg">Cassava (100kg)</span>
-                                                    <span class="inline-block bg-orange-100 dark:bg-orange-900/50 text-orange-800 dark:text-orange-300 text-xs px-2 py-1 rounded-lg">Yam (75kg)</span>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <div class="text-sm font-semibold text-gray-900 dark:text-white">3.8 hectares</div>
-                                            <div class="text-sm text-gray-600 dark:text-gray-400">Kano State, Dambatta</div>
-                                            <div class="text-xs text-gray-500 dark:text-gray-500 mt-1">Cluster B-07</div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-200 border border-green-200 dark:border-green-800">
-                                                <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                                                Approved
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <button class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-sm font-medium rounded-lg hover:from-emerald-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 smooth-transition transform hover:scale-105 shadow-md">
-                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                                                </svg>
-                                                View Details
-                                            </button>
-                                        </td>
-                                    </tr>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <div class="text-sm font-semibold text-gray-900 dark:text-white">1.5 hectares</div>
+                                                <div class="text-sm text-gray-600 dark:text-gray-400">Ogun State, Abeokuta</div>
+                                                <div class="text-xs text-gray-500 dark:text-gray-500 mt-1">Cluster C-03</div>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200 border border-blue-200 dark:border-blue-800">
+                                                    <div class="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+                                                    Distributed
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <button class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-sm font-medium rounded-lg hover:from-emerald-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 smooth-transition transform hover:scale-105 shadow-md">
+                                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                                    </svg>
+                                                    View Details
+                                                </button>
+                                            </td>
+                                        </tr>
 
-                                    <!-- Distributed Application -->
-                                    <tr class="appRow hover:bg-gray-50 dark:hover:bg-gray-700/50 smooth-transition" data-status="distributed" data-season="2025 dry season">
-                                        <td class="px-6 py-4">
-                                            <input type="checkbox" class="rowCheckbox h-4 w-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500" value="3">
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <div class="flex items-center">
-                                                <div class="flex-shrink-0 h-12 w-12">
-                                                    <div class="h-12 w-12 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center shadow-lg">
-                                                        <span class="text-sm font-bold text-white">OA</span>
+                                        <!-- Rejected Application -->
+                                        <tr class="appRow hover:bg-gray-50 dark:hover:bg-gray-700/50 smooth-transition" data-status="rejected" data-season="2024 dry season">
+                                            <td class="px-6 py-4">
+                                                <input type="checkbox" class="rowCheckbox h-4 w-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500" value="4">
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <div class="flex items-center">
+                                                    <div class="flex-shrink-0 h-12 w-12">
+                                                        <div class="h-12 w-12 rounded-full bg-gradient-to-br from-red-400 to-red-600 flex items-center justify-center shadow-lg">
+                                                            <span class="text-sm font-bold text-white">MU</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="ml-4">
+                                                        <div class="text-sm font-semibold text-gray-900 dark:text-white">Mohammed Usman</div>
+                                                        <div class="text-sm text-gray-600 dark:text-gray-400">+234 804 567 8901</div>
+                                                        <div class="flex gap-2 mt-2">
+                                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
+                                                                BVN: —
+                                                            </span>
+                                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
+                                                                NIN: —
+                                                            </span>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                <div class="ml-4">
-                                                    <div class="text-sm font-semibold text-gray-900 dark:text-white">Olumide Adebayo</div>
-                                                    <div class="text-sm text-gray-600 dark:text-gray-400">+234 803 456 7890</div>
-                                                    <div class="flex gap-2 mt-2">
-                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-                                                            BVN: 22345678901
-                                                        </span>
-                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
-                                                            NIN: 34567890123
-                                                        </span>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <div class="text-sm font-semibold text-gray-900 dark:text-white seasonText">2024 Dry Season</div>
+                                                <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                                    <div class="flex flex-wrap gap-1">
+                                                        <span class="inline-block bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs px-2 py-1 rounded-lg">Rice (25kg)</span>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <div class="text-sm font-semibold text-gray-900 dark:text-white seasonText">2025 Dry Season</div>
-                                            <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                                <div class="flex flex-wrap gap-1">
-                                                    <span class="inline-block bg-indigo-100 dark:bg-indigo-900/50 text-indigo-800 dark:text-indigo-300 text-xs px-2 py-1 rounded-lg">Soybeans (40kg)</span>
-                                                    <span class="inline-block bg-pink-100 dark:bg-pink-900/50 text-pink-800 dark:text-pink-300 text-xs px-2 py-1 rounded-lg">Cowpea (30kg)</span>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <div class="text-sm font-semibold text-gray-900 dark:text-white">1.5 hectares</div>
-                                            <div class="text-sm text-gray-600 dark:text-gray-400">Ogun State, Abeokuta</div>
-                                            <div class="text-xs text-gray-500 dark:text-gray-500 mt-1">Cluster C-03</div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200 border border-blue-200 dark:border-blue-800">
-                                                <div class="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
-                                                Distributed
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <button class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-sm font-medium rounded-lg hover:from-emerald-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 smooth-transition transform hover:scale-105 shadow-md">
-                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                                                </svg>
-                                                View Details
-                                            </button>
-                                        </td>
-                                    </tr>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <div class="text-sm font-semibold text-gray-900 dark:text-white">0.8 hectares</div>
+                                                <div class="text-sm text-gray-600 dark:text-gray-400">Kaduna State, Zaria</div>
+                                                <div class="text-xs text-gray-500 dark:text-gray-500 mt-1">Cluster D-15</div>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-200 border border-red-200 dark:border-red-800">
+                                                    <div class="w-2 h-2 bg-red-500 rounded-full mr-2"></div>
+                                                    Rejected
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <button class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-sm font-medium rounded-lg hover:from-emerald-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 smooth-transition transform hover:scale-105 shadow-md">
+                                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                                    </svg>
+                                                    View Details
+                                                </button>
+                                            </td>
+                                        </tr>
 
-                                    <!-- Rejected Application -->
-                                    <tr class="appRow hover:bg-gray-50 dark:hover:bg-gray-700/50 smooth-transition" data-status="rejected" data-season="2024 dry season">
-                                        <td class="px-6 py-4">
-                                            <input type="checkbox" class="rowCheckbox h-4 w-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500" value="4">
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <div class="flex items-center">
-                                                <div class="flex-shrink-0 h-12 w-12">
-                                                    <div class="h-12 w-12 rounded-full bg-gradient-to-br from-red-400 to-red-600 flex items-center justify-center shadow-lg">
-                                                        <span class="text-sm font-bold text-white">MU</span>
-                                                    </div>
+                                        <!-- Empty state row (hidden by default) -->
+                                        <tr id="emptyStateRow" class="hidden">
+                                            <td colspan="6" class="px-6 py-12 text-center">
+                                                <div class="flex flex-col items-center justify-center">
+                                                    <svg class="w-16 h-16 text-gray-300 dark:text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                                    </svg>
+                                                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No applications found</h3>
+                                                    <p class="text-gray-500 dark:text-gray-400">Try adjusting your search criteria or filters</p>
                                                 </div>
-                                                <div class="ml-4">
-                                                    <div class="text-sm font-semibold text-gray-900 dark:text-white">Mohammed Usman</div>
-                                                    <div class="text-sm text-gray-600 dark:text-gray-400">+234 804 567 8901</div>
-                                                    <div class="flex gap-2 mt-2">
-                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
-                                                            BVN: —
-                                                        </span>
-                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
-                                                            NIN: —
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <div class="text-sm font-semibold text-gray-900 dark:text-white seasonText">2024 Dry Season</div>
-                                            <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                                <div class="flex flex-wrap gap-1">
-                                                    <span class="inline-block bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs px-2 py-1 rounded-lg">Rice (25kg)</span>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <div class="text-sm font-semibold text-gray-900 dark:text-white">0.8 hectares</div>
-                                            <div class="text-sm text-gray-600 dark:text-gray-400">Kaduna State, Zaria</div>
-                                            <div class="text-xs text-gray-500 dark:text-gray-500 mt-1">Cluster D-15</div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-200 border border-red-200 dark:border-red-800">
-                                                <div class="w-2 h-2 bg-red-500 rounded-full mr-2"></div>
-                                                Rejected
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <button class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-sm font-medium rounded-lg hover:from-emerald-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 smooth-transition transform hover:scale-105 shadow-md">
-                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                                                </svg>
-                                                View Details
-                                            </button>
-                                        </td>
-                                    </tr>
-
-                                    <!-- Empty state row (hidden by default) -->
-                                    <tr id="emptyStateRow" class="hidden">
-                                        <td colspan="6" class="px-6 py-12 text-center">
-                                            <div class="flex flex-col items-center justify-center">
-                                                <svg class="w-16 h-16 text-gray-300 dark:text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                                </svg>
-                                                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No applications found</h3>
-                                                <p class="text-gray-500 dark:text-gray-400">Try adjusting your search criteria or filters</p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </form>
@@ -591,7 +607,7 @@
                             <div class="p-6">
                                 <form id="bulkRejectForm" action="#" method="POST" class="space-y-4">
                                     <div id="bulkRejectIdsContainer"></div>
-                                    
+
                                     <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4">
                                         <div class="flex items-start space-x-3">
                                             <svg class="w-5 h-5 text-amber-500 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
@@ -606,17 +622,17 @@
 
                                     <div>
                                         <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Rejection Reason (Optional)</label>
-                                        <textarea name="rejection_note" rows="4" 
+                                        <textarea name="rejection_note" rows="4"
                                             class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none smooth-transition"
                                             placeholder="Enter reason for rejection (e.g., incomplete documentation, invalid farm size, etc.)"></textarea>
                                     </div>
 
                                     <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-                                        <button type="button" id="cancelBulkReject" 
+                                        <button type="button" id="cancelBulkReject"
                                             class="px-6 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-xl smooth-transition">
                                             Cancel
                                         </button>
-                                        <button type="submit" 
+                                        <button type="submit"
                                             class="px-6 py-2.5 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold rounded-xl smooth-transition transform hover:scale-105 shadow-lg">
                                             <span class="flex items-center">
                                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -762,7 +778,7 @@
             // Bulk reject handlers
             bulkRejectBtn.addEventListener('click', function() {
                 if (bulkRejectBtn.disabled) return;
-                
+
                 bulkRejectIdsContainer.innerHTML = '';
                 const checked = Array.from(rowChecks).filter(cb => cb.checked);
                 checked.forEach(cb => {
@@ -772,7 +788,7 @@
                     input.value = cb.value;
                     bulkRejectIdsContainer.appendChild(input);
                 });
-                
+
                 bulkRejectModal.classList.remove('hidden');
             });
 
@@ -810,7 +826,7 @@
 
             function applyFilters() {
                 let visibleCount = 0;
-                
+
                 rows.forEach(row => {
                     const show = rowMatchesFilters(row);
                     row.style.display = show ? '' : 'none';
@@ -899,7 +915,7 @@
                     ${text}
                 `;
                 button.disabled = true;
-                
+
                 return () => {
                     button.innerHTML = originalText;
                     button.disabled = false;
@@ -910,7 +926,7 @@
             form.addEventListener('submit', function(e) {
                 if (!bulkApproveBtn.disabled) {
                     const resetLoading = addLoadingState(bulkApproveBtn, 'Approving...');
-                    
+
                     // Simulate processing time
                     setTimeout(() => {
                         resetLoading();
@@ -923,7 +939,7 @@
                 e.preventDefault();
                 const submitBtn = this.querySelector('button[type="submit"]');
                 const resetLoading = addLoadingState(submitBtn, 'Rejecting...');
-                
+
                 setTimeout(() => {
                     resetLoading();
                     bulkRejectModal.classList.add('hidden');
@@ -960,4 +976,5 @@
         });
     </script>
 </body>
+
 </html>
