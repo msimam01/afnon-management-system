@@ -3,36 +3,36 @@
 @section('content')
 <div class="max-w-7xl mx-auto mt-10 p-6 bg-white dark:bg-gray-800 shadow rounded-lg">
     <!-- Header -->
+    <div class="bg-gradient-to-r from-green-600 to-emerald-600 -m-6 mb-6 p-6 rounded-t-xl">
     <div class="flex justify-between items-center mb-6">
         <div>
             <h2 class="text-2xl font-semibold text-gray-800 dark:text-white">Activity Logs</h2>
-            <p class="text-sm text-gray-600 dark:text-gray-400">Monitor all system activities and user actions</p>
+            <p class="text-blue-100">Monitor all system activities and user actions</p>
         </div>
         <div class="flex space-x-3">
             <button onclick="showStatistics()"
-                    class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                    class="bg-white/20 backdrop-blur-sm text-white px-6 py-3 rounded-lg hover:bg-white/30 transition-all duration-200 flex items-center justify-center space-x-2 border border-white/20">
                 📊 Statistics
             </button>
             <a href="{{ route('superadmin.logs.export', request()->query()) }}"
-               class="bg-emerald-600 text-white px-4 py-2 rounded hover:bg-emerald-700">
+               class="bg-emerald-500 text-white px-6 py-3 rounded-lg hover:bg-emerald-600 transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg">
                 📥 Export CSV
             </a>
         </div>
     </div>
-
     <!-- Filters -->
-    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-6">
+    <div class="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
         <form method="GET" action="{{ route('superadmin.logs.index') }}" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Search</label>
                 <input type="text" name="search" value="{{ request('search') }}"
                        placeholder="Search in descriptions..."
-                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-800 dark:text-white">
+                       class="w-full bg-white/20 text-white placeholder-white/70 border border-white/30 rounded-lg px-4 py-2 focus:bg-white/30 focus:outline-none focus:ring-2 focus:ring-white/50">
             </div>
 
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tenant</label>
-                <select name="tenant_id" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-800 dark:text-white">
+                <select name="tenant_id" class="w-full bg-white/20 text-white border border-white/30 rounded-lg px-4 py-2 focus:bg-white/30 focus:outline-none focus:ring-2 focus:ring-white/50">
                     <option value="">All Tenants</option>
                     <option value="central" {{ request('tenant_id') === 'central' ? 'selected' : '' }}>Central System</option>
                     @foreach($tenants as $tenant)
@@ -45,7 +45,7 @@
 
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Action Type</label>
-                <select name="log_name" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-800 dark:text-white">
+                <select name="log_name" class="w-full bg-white/20 text-white border border-white/30 rounded-lg px-4 py-2 focus:bg-white/30 focus:outline-none focus:ring-2 focus:ring-white/50">
                     <option value="">All Actions</option>
                     @foreach($logTypes as $type)
                         <option value="{{ $type }}" {{ request('log_name') === $type ? 'selected' : '' }}>
@@ -56,10 +56,10 @@
             </div>
 
             <div class="flex items-end space-x-2">
-                <button type="submit" class="bg-emerald-600 text-white px-4 py-2 rounded hover:bg-emerald-700">
+                <button type="submit" class="flex-1 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
                     🔍 Filter
                 </button>
-                <a href="{{ route('superadmin.logs.index') }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+                <a href="{{ route('superadmin.logs.index') }}" class="px-4 py-2 bg-white/20 text-white rounded-lg hover:bg-white/30 transition-colors flex items-center justify-center">
                     Clear
                 </a>
             </div>
@@ -70,15 +70,16 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">From Date</label>
                 <input type="date" name="date_from" value="{{ request('date_from') }}"
-                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-800 dark:text-white">
+                       class="w-full bg-white/20 text-white border border-white/30 rounded-lg px-4 py-2 focus:bg-white/30 focus:outline-none focus:ring-2 focus:ring-white/50">
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">To Date</label>
                 <input type="date" name="date_to" value="{{ request('date_to') }}"
-                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-800 dark:text-white">
+                       class="w-full bg-white/20 text-white border border-white/30 rounded-lg px-4 py-2 focus:bg-white/30 focus:outline-none focus:ring-2 focus:ring-white/50">
             </div>
         </div>
     </div>
+</div>
 
     <!-- Logs Table -->
     <div class="overflow-x-auto">
