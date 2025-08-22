@@ -17,14 +17,7 @@ class UserController extends Controller
     public function index()
     {
         $roles = Role::all();
-
-        $users = User::with('roles')->get()->transform(fn($user) => [
-            'uuid' => $user->uuid ?? null,
-            'name' => $user->name ?? null,
-            'email' => $user->email ?? null,
-            'role' => $user->roles->pluck('name')->implode(', ') ?: 'No Role Assigned',
-            'status' => $user->status,
-        ]);
+        $users = User::with('roles')->get();
 
         return view('super-admin.users.index', compact('roles', 'users'));
     }
@@ -116,23 +109,88 @@ class UserController extends Controller
     }
 
 
-    public function toggleStatus($uuid)
+    public function toggleStatus(Request $request)
     {
-        $user = User::whereUuid($uuid)->firstOrFail();
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'action' => 'required|in:activate,deactivate'
+        ]);
 
-        $user->status = $user->status === 'active' ? 'inactive' : 'active';
-        $user->save();
+        $user = User::findOrFail($request->user_id);
+        $newStatus = $request->action === 'activate' ? 'active' : 'inactive';
+        
+        $user->update(['status' => $newStatus]);
 
-        ToastMagic::success("User status updated to {$user->status}");
-        return redirect()->back();
+        return response()->json([
+            'success' => true,
+            'message' => "User {$request->action}d successfully"
+        ]);
     }
 
     /**
-     * 
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+   // In your UserController.php
+
+public function destroy($uuid)
+{
+    $user = User::whereUuid($uuid)->firstOrFail();
+
+    // Prevent deleting the current user
+    if ($user->id === auth()->id()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'You cannot delete your own account'
+        ]);
+    }
+
+    $user->delete();
+
+    return response()->json([
+        'success' => true,
+        'message' => 'User deleted successfully'
+    ]);
+}
+
+    /**
+     * Handle bulk actions on users
+     */
+    public function bulkAction(Request $request)
     {
-        //
+        $request->validate([
+            'action' => 'required|in:activate,deactivate,delete',
+            'user_ids' => 'required|array',
+            'user_ids.*' => 'exists:users,id'
+        ]);
+
+        $userIds = $request->user_ids;
+        $action = $request->action;
+        
+        // Prevent actions on current user
+        if (in_array(auth()->id(), $userIds)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You cannot perform this action on your own account'
+            ]);
+        }
+
+        $count = 0;
+        
+        switch ($action) {
+            case 'activate':
+                $count = User::whereIn('id', $userIds)->update(['status' => 'active']);
+                break;
+            case 'deactivate':
+                $count = User::whereIn('id', $userIds)->update(['status' => 'inactive']);
+                break;
+            case 'delete':
+                $count = User::whereIn('id', $userIds)->delete();
+                break;
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => "{$count} user(s) {$action}d successfully"
+        ]);
     }
 }

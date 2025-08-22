@@ -17,21 +17,23 @@
 @extends('layouts.layout')
 
 @section('content')
-    <div class="w-full min-h-screen px-4 py-6 space-y-8 bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+
+<div class="w-75 min-h-screen px-4 py-6 space-y-8 bg-gradient-to-br from-slate-50 via-emerald-50/30 to-green-50/20 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
         <!-- Enhanced Header Section with Glassmorphism -->
+         
         <div class="relative">
-            <div class="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-emerald-600/10 rounded-2xl blur-xl"></div>
+            <div class="absolute inset-0 rounded-2xl blur-xl"></div>
             <div class="relative bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-gray-700/50 p-8 shadow-xl">
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
                     <div class="space-y-2">
                         <div class="flex items-center gap-3">
-                            <div class="p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl shadow-lg">
+                            <div class="p-3 bg-gradient-to-br rounded-xl shadow-lg">
                                 <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                                 </svg>
                             </div>
                             <div>
-                                <h1 class="text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent dark:from-white dark:via-blue-100 dark:to-purple-100">
+                                <h1 class="text-3xl font-bold bg-gradient-to-r from-gray-900 via-emerald-900 to-emerald-900 bg-clip-text text-transparent dark:from-white dark:via-emerald-100 dark:to-emerald-100">
                                     Application Reports
                                 </h1>
                                 <p class="text-gray-600 dark:text-gray-400 font-medium">Comprehensive insights into farmer applications and analytics</p>
@@ -41,7 +43,7 @@
                     
                     <div class="flex gap-3">
                         <button onclick="toggleAdvancedFilters()" 
-                            class="group inline-flex items-center px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-xl hover:from-gray-700 hover:to-gray-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                            class="group inline-flex items-center px-6 py-3  text-white rounded-xl hover:from-gray-700 hover:to-gray-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                             <svg class="w-5 h-5 mr-2 group-hover:rotate-180 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
                             </svg>
@@ -64,17 +66,17 @@
         @if(isset($statistics))
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <div class="group relative overflow-hidden">
-                <div class="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-indigo-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-500"></div>
+                <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-green-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-500"></div>
                 <div class="relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl p-8 rounded-2xl border border-white/20 dark:border-gray-700/50 shadow-xl hover:shadow-2xl transition-all duration-500 group-hover:-translate-y-2">
                     <div class="flex items-center justify-between">
                         <div class="space-y-2">
                             <p class="text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Total Applications</p>
-                            <p class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                            <p class="text-4xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent">
                                 {{ number_format($statistics['total'] ?? $applications->total()) }}
                             </p>
                             <p class="text-xs text-gray-500 dark:text-gray-400">All time records</p>
                         </div>
-                        <div class="p-4 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-500">
+                        <div class="p-4 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-500">
                             <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                             </svg>
@@ -104,17 +106,17 @@
             </div>
 
             <div class="group relative overflow-hidden">
-                <div class="absolute inset-0 bg-gradient-to-br from-amber-500/20 to-orange-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-500"></div>
+                <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-green-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-500"></div>
                 <div class="relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl p-8 rounded-2xl border border-white/20 dark:border-gray-700/50 shadow-xl hover:shadow-2xl transition-all duration-500 group-hover:-translate-y-2">
                     <div class="flex items-center justify-between">
                         <div class="space-y-2">
                             <p class="text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Pending Review</p>
-                            <p class="text-4xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
+                            <p class="text-4xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent">
                                 {{ number_format($statistics['pending'] ?? 0) }}
                             </p>
                             <p class="text-xs text-gray-500 dark:text-gray-400">Awaiting approval</p>
                         </div>
-                        <div class="p-4 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-500">
+                        <div class="p-4 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-500">
                             <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
@@ -124,17 +126,17 @@
             </div>
 
             <div class="group relative overflow-hidden">
-                <div class="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-pink-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-500"></div>
+                <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-green-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-500"></div>
                 <div class="relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl p-8 rounded-2xl border border-white/20 dark:border-gray-700/50 shadow-xl hover:shadow-2xl transition-all duration-500 group-hover:-translate-y-2">
                     <div class="flex items-center justify-between">
                         <div class="space-y-2">
                             <p class="text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Total Loan Value</p>
-                            <p class="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                            <p class="text-4xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent">
                                 ₦{{ number_format($statistics['total_loan'] ?? 0, 2) }}
                             </p>
                             <p class="text-xs text-gray-500 dark:text-gray-400">Cumulative amount</p>
                         </div>
-                        <div class="p-4 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-500">
+                        <div class="p-4 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-500">
                             <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
                             </svg>
@@ -147,12 +149,12 @@
 
         <!-- Enhanced Filters Section with Collapsible Design -->
         <div id="filtersSection" class="relative transition-all duration-500 ease-in-out">
-            <div class="absolute inset-0 bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 rounded-2xl blur-xl"></div>
+            <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/10 via-green-500/10 to-pink-500/10 rounded-2xl blur-xl"></div>
             <div class="relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-gray-700/50 shadow-xl overflow-hidden">
                 <div class="p-6 border-b border-gray-200/50 dark:border-gray-700/50">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-3">
-                            <div class="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg">
+                            <div class="p-2 bg-gradient-to-br from-emerald-500 to-green-600 rounded-lg">
                                 <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
                                 </svg>
@@ -249,7 +251,7 @@
 
                         <div class="flex flex-col sm:flex-row gap-4 pt-4 border-t border-gray-200/50 dark:border-gray-700/50">
                             <button type="submit"
-                                class="group inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 font-semibold">
+                                class="group inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-emerald-600 to-green-600 text-white rounded-xl hover:from-emerald-700 hover:to-green-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 font-semibold">
                                 <svg class="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
                                 </svg>
@@ -275,7 +277,7 @@
                 <div class="px-8 py-6 border-b border-gray-200/50 dark:border-gray-700/50 bg-gradient-to-r from-white/50 to-gray-50/50 dark:from-gray-800/50 dark:to-gray-700/50">
                     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                         <div class="flex items-center gap-3">
-                            <div class="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
+                            <div class="p-2 bg-gradient-to-br from-emerald-500 to-green-600 rounded-lg">
                                 <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                 </svg>
@@ -283,8 +285,8 @@
                             <h3 class="text-xl font-bold text-gray-900 dark:text-white">Application Results</h3>
                         </div>
                         <div class="flex items-center gap-4">
-                            <div class="px-4 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border border-blue-200 dark:border-blue-700">
-                                <span class="text-sm font-semibold text-blue-700 dark:text-blue-300">
+                            <div class="px-4 py-2 bg-gradient-to-r from-emerald-50 to-green-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border border-blue-200 dark:border-blue-700">
+                                <span class="text-sm font-semibold text-emerald-700 dark:text-green-300">
                                     Showing {{ $applications->firstItem() ?? 0 }} to {{ $applications->lastItem() ?? 0 }} of {{ $applications->total() }} results
                                 </span>
                             </div>
@@ -295,7 +297,7 @@
                 <div class="overflow-x-auto">
                     <table class="min-w-full">
                         <thead>
-                            <tr class="bg-gradient-to-r from-gray-50 via-blue-50/30 to-indigo-50/30 dark:from-gray-700 dark:via-gray-600/30 dark:to-gray-500/30 border-b border-gray-200/50 dark:border-gray-600/50">
+                            <tr class="bg-gradient-to-r from-gray-50 via-emerald-50/30 to-green-50/30 dark:from-gray-700 dark:via-gray-600/30 dark:to-gray-500/30 border-b border-gray-200/50 dark:border-gray-600/50">
                                 <th class="px-8 py-4 text-left text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                                     <div class="flex items-center gap-2">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -348,7 +350,7 @@
                         </thead>
                         <tbody class="divide-y divide-gray-200/50 dark:divide-gray-700/50">
                             @forelse($applications as $app)
-                                <tr class="group hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-indigo-50/30 dark:hover:from-blue-900/10 dark:hover:to-indigo-900/5 transition-all duration-300">
+                                <tr class="group hover:bg-gradient-to-r hover:from-emerald-50/50 hover:to-green-50/30 dark:hover:from-emerald-900/10 dark:hover:to-green-900/5 transition-all duration-300">
                                     <td class="px-8 py-6">
                                         <div class="flex items-center gap-3">
                                             <div class="p-2 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 rounded-lg group-hover:scale-105 transition-transform duration-300">
@@ -364,7 +366,7 @@
                                     <td class="px-8 py-6">
                                         <div class="flex items-center gap-4">
                                             <div class="relative">
-                                                <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                                                <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-emerald-400 to-green-500 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
                                                     <span class="text-sm font-bold text-white">
                                                         {{ substr($app->farmer->full_name, 0, 2) }}
                                                     </span>
@@ -474,6 +476,8 @@
             </div>
         </div>
     </div>
+
+
 
     <!-- Enhanced JavaScript for Interactions -->
     <script>

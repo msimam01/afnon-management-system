@@ -3,7 +3,7 @@
 @section('content')
 <div class="max-w-7xl mx-auto mt-6 p-6 bg-white dark:bg-gray-900 shadow-xl rounded-xl">
     <!-- Enhanced Header with Search and Filters -->
-    <div class="bg-gradient-to-r from-blue-600 to-purple-600 -m-6 mb-6 p-6 rounded-t-xl">
+    <div class="bg-gradient-to-r from-green-600 to-emerald-600 -m-6 mb-6 p-6 rounded-t-xl">
         <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-4">
             <div class="text-white mb-4 md:mb-0">
                 <h2 class="text-3xl font-bold mb-2">Activity Logs</h2>

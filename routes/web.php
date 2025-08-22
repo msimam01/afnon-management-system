@@ -50,8 +50,9 @@ Route::middleware(['web', 'auth', 'check-user-status', 'role:super-admin', 'bloc
         Route::post('/store', [UserController::class, 'store'])->name('store');
         Route::get('/{uuid}/edit', [UserController::class, 'edit'])->name('edit');
         Route::put('/{uuid}/update', [UserController::class, 'update'])->name('update');
-        Route::patch('/{uuid}/toggle-status', [UserController::class, 'toggleStatus'])->name('toggle-status');
-
+        Route::post('/toggle-status', [UserController::class, 'toggleStatus'])->name('toggle-status');
+        Route::delete('/{uuid}', [UserController::class, 'destroy'])->name('destroy'); // USE UUID
+        Route::post('/bulk-action', [UserController::class, 'bulkAction'])->name('bulk-action');
     });
     Route::prefix('roles')->name('roles.')->group(function () {
         Route::get('/', [RoleController::class, 'index'])->name('index');
