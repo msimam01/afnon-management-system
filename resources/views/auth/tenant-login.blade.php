@@ -101,8 +101,8 @@
                     </div>
 
                     <div class="text-sm">
-                        @if (Route::has('password.request'))
-                            <a href="{{ route('password.request') }}" class="font-medium text-emerald-600 hover:text-emerald-500">
+                        @if (Route::has('tenant.password.request'))
+                            <a href="{{ route('tenant.password.request') }}" class="font-medium text-emerald-600 hover:text-emerald-500">
                             Forgot your password?
                         </a>
                         @endif

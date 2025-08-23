@@ -24,7 +24,7 @@ require __DIR__ . '/auth.php';
 
 
 // Super Admin routes
-Route::middleware(['web', 'auth', 'check-user-status', 'role:super-admin', 'block-tenant-access'])->prefix('super-admin')->name('superadmin.')->group(function () {
+Route::middleware(['web', 'auth', 'central.user.active', 'role:super-admin', 'block-tenant-access'])->prefix('super-admin')->name('superadmin.')->group(function () {
     Route::get('/dashboard', [SuperAdminDashboard::class, 'index'])->name('dashboard');
     Route::get('/tenants', [TenantController::class, 'index'])->name('tenants.index');
     Route::get('/tenants/create', [TenantController::class, 'create'])->name('tenants.create');
@@ -78,6 +78,3 @@ Route::middleware(['web', 'auth', 'check-user-status', 'role:super-admin', 'bloc
 
 // Route::get('/apply', fn() => view('apply'))->name('apply');
 Route::get('/farmer/register', fn() => view('farmer.register'))->name('farmer-register');
-
-
-require __DIR__ . '/auth.php';

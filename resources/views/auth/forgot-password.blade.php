@@ -70,7 +70,7 @@
                     Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.
                 </p>
             </div>
-            <form class="mt-8 space-y-6" action="{{ route('central.password.email') }}" method="POST">
+            <form class="mt-8 space-y-6" action="{{ route('central.send.reset.link') }}" method="POST">
                 @csrf
                 <div class="space-y-4">
                     <div>
@@ -85,7 +85,7 @@
                         @enderror
                     </div>
                 </div>
-            
+
                 <div>
                     <button type="submit"
                         class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors">

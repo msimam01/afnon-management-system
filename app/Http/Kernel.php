@@ -52,6 +52,8 @@ class Kernel extends HttpKernel
         'block-tenant-access' => \App\Http\Middleware\PreventAccessFromTenantDomains::class,
         'check-user-status' => \App\Http\Middleware\CheckUserStatus::class,
         'check-tenant-status' => \App\Http\Middleware\CheckTenantStatus::class,
+        'central.user.active' => \App\Http\Middleware\CheckCentralUserStatus::class,
+        'tenant.user.active'  => \App\Http\Middleware\CheckTenantUserStatus::class,
 
         // ✅ Spatie Permissions middleware
         'role' => RoleMiddleware::class,

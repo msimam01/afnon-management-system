@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Password;
 // use Illuminate\Auth\Events\PasswordReset;
 use Stancl\Tenancy\Features\PasswordReset;
 use Devrabiul\ToastMagic\Facades\ToastMagic;
+use Illuminate\Auth\Notifications\ResetPassword as ResetPasswordNotification;
+use Illuminate\Support\Facades\URL;
 
 class TenantForgotPasswordController extends Controller
 {
@@ -33,7 +35,11 @@ class TenantForgotPasswordController extends Controller
 
         // Use the Password facade directly. Stancl's package overrides
         // this to be tenant-aware.
-        $response = Password::broker()->sendResetLink(
+        ResetPasswordNotification::createUrlUsing(function ($user, string $token) {
+        // Generate tenant-aware URL
+            return URL::route('tenant.password.reset', ['token' => $token, 'email' => $user->email]);
+        });
+        $response = Password::broker('tenant_users')->sendResetLink(
             $request->only('email')
         );
 
@@ -75,7 +81,7 @@ class TenantForgotPasswordController extends Controller
         ]);
 
         // Use the Password facade for resetting as well.
-        $response = Password::broker()->reset(
+        $response = Password::broker('tenant_users')->reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function ($user, $password) {
                 $user->forceFill([

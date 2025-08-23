@@ -205,7 +205,7 @@ class TenantController extends Controller
                 tenancy()->initialize($tenant);
 
                 $stats['users'] = \App\Models\User::count();
-                $stats['applications'] = \App\Models\LoanApplication::count() ?? 0;
+                $stats['applications'] = \App\Models\Application::count() ?? 0;
                 $stats['seasons'] = \App\Models\Season::count() ?? 0;
                 $stats['centers'] = \App\Models\CollectionCenter::count() ?? 0;
 

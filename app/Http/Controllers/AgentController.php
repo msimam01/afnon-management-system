@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
+use App\Models\Tenant\User;
 use App\Models\Agent;
 use App\Models\Center;
 use App\Models\Admin\Role;

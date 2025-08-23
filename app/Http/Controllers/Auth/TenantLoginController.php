@@ -12,7 +12,7 @@ class TenantLoginController extends Controller
 {
     public function showLoginForm()
     {
-        return view('auth.tenant-login'); // 
+        return view('auth.tenant-login'); //
     }
 
     public function login(Request $request)
@@ -22,31 +22,28 @@ class TenantLoginController extends Controller
             'password' => 'required|string',
         ]);
 
-        if (Auth::guard('web')->attempt($request->only('email', 'password'), $request->filled('remember'))) {
-            $user = Auth::user();
-            if ($user->status == 'active') {
-                // Log the successful login right here
-                activity()
-                    ->causedBy($user)
-                    ->log('logged in');
+        if (Auth::guard('tenant')->attempt($request->only('email', 'password'), $request->filled('remember'))) {
+            Auth::shouldUse('tenant');
+            $user = Auth::guard('tenant')->user();
 
-                // Redirect based on role
+            if ($user->status == 'active') {
+                activity()->causedBy($user)->log('logged in');
+
                 if ($user->hasRole('admin')) {
                     return redirect()->route('admin.dashboard');
                 } elseif ($user->hasRole('agent')) {
                     return redirect()->route('agent.dashboard');
                 } else {
-                    Auth::logout();
+                    Auth::guard('tenant')->logout();
                     ToastMagic::error('Unauthorized role');
                     return redirect()->route('tenant.login')->withErrors(['access' => 'Unauthorized role.']);
                 }
-
             } else {
                 ToastMagic::error('Your account has been deactivated!');
                 return redirect()->route('tenant.login')->withErrors(['access' => 'Unauthorized role.']);
             }
-
         }
+
         ToastMagic::error('The provided credentials are incorrect.');
         return back()->withErrors([
             'email' => 'The provided credentials are incorrect.',
@@ -56,14 +53,13 @@ class TenantLoginController extends Controller
     public function logout(Request $request)
     {
         // Log the logout action as well
-        if (Auth::check()) {
+        if (Auth::guard('tenant')->check()) {
             activity()
-                ->causedBy(Auth::user())
+                ->causedBy(Auth::guard('tenant')->user())
                 ->log('logged out');
         }
 
-        Auth::logout();
+        Auth::guard('tenant')->logout();
         return redirect()->route('tenant.login');
     }
 }
-

@@ -13,7 +13,7 @@ use App\Http\Controllers\Auth\CustomForgotPasswordController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 
-Route::middleware(['guest', 'block-tenant-access'])->group(function () {
+Route::middleware(['guest'])->group(function () {
     Route::get('register', [RegisteredUserController::class, 'create'])
         ->name('register');
 
@@ -23,14 +23,19 @@ Route::middleware(['guest', 'block-tenant-access'])->group(function () {
 
     // Route::post('login', [AuthenticatedSessionController::class, 'store']);
     Route::post('/central/login', [CustomLoginController::class, 'store'])->middleware('guest')->name('central.login');
-    Route::get('/forgot-password', [CustomForgotPasswordController::class, 'showLinkRequestForm'])->name('central.password.request');
-    Route::post('/forgot-password', [CustomForgotPasswordController::class, 'sendResetLinkEmail'])->name('central.password.email');
-    Route::get('/reset-password/{token}', [CustomForgotPasswordController::class, 'showResetForm'])->name('central.password.reset');
-    Route::put('/reset-password', [CustomForgotPasswordController::class, 'reset'])->name('central.password.update');
+    // Central password reset routes
+    Route::get('/central/forgot-password', [CustomForgotPasswordController::class, 'showLinkRequestForm'])->name('central.forgot.password');
+    Route::post('/central/forgot-password', [CustomForgotPasswordController::class, 'sendResetLinkEmail'])->name('central.send.reset.link');
+    Route::get('/central/reset-password/{token}', [CustomForgotPasswordController::class, 'showResetForm'])->name('central.show.reset.form');
+    Route::put('/central/reset-password', [CustomForgotPasswordController::class, 'reset'])->name('central.reset.password');
+
+    // Laravel Password facade compatibility routes for central domain
+    Route::get('/password/reset/{token}', [CustomForgotPasswordController::class, 'showResetForm'])->name('password.reset');
+    Route::post('/password/email', [CustomForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
 
 });
 
-Route::middleware(['auth', 'check-user-status', 'block-tenant-access'])->group(function () {
+Route::middleware(['auth', 'central.user.active', 'block-tenant-access'])->group(function () {
     Route::get('verify-email', EmailVerificationPromptController::class)
         ->name('verification.notice');
 
@@ -52,5 +57,5 @@ Route::middleware(['auth', 'check-user-status', 'block-tenant-access'])->group(f
 
 // Central logout route (needs to be accessible for authenticated users)
 Route::post('central/logout', [CustomLoginController::class, 'destroy'])
-    ->middleware(['auth', 'check-user-status', 'block-tenant-access'])
+    ->middleware(['auth', 'central.user.active', 'block-tenant-access'])
     ->name('central.logout');

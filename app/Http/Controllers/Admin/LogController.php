@@ -45,7 +45,7 @@ class LogController extends Controller
         $logs = $query->paginate(50);
 
         // Get filter options (only for current tenant)
-        $users = \App\Models\User::select('id', 'name', 'email')->get();
+        $users = \App\Models\Tenant\User::select('id', 'name', 'email')->get();
         $logTypes = Activity::where('properties->tenant_id', tenant('id'))
             ->distinct('log_name')
             ->pluck('log_name');

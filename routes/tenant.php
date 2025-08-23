@@ -32,10 +32,9 @@ use App\Http\Controllers\Tenant\Admin\Applications\ApplicationApprovalController
 
 // Apply tenancy middleware
 Route::middleware([
-    'web',
     InitializeTenancyByDomain::class,
     PreventAccessFromCentralDomains::class,
-    'check-tenant-status',
+    'tenant.user.active',
 ])->group(function () {
 
     // Public tenant landing (can be same view)
@@ -49,17 +48,17 @@ Route::middleware([
     Route::get('/login', [App\Http\Controllers\Auth\TenantLoginController::class, 'showLoginForm'])->name('tenant.login');
     Route::post('/login', [App\Http\Controllers\Auth\TenantLoginController::class, 'login']);
     Route::post('/logout', [App\Http\Controllers\Auth\TenantLoginController::class, 'logout'])->name('tenant.logout');
-    Route::get('/forgot-password', [TenantForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
-    Route::post('/forgot-password', [TenantForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
-    Route::get('/reset-password/{token}', [TenantForgotPasswordController::class, 'showResetForm'])->name('password.reset');
-    Route::put('/reset-password', [TenantForgotPasswordController::class, 'reset'])->name('password.update');
+    Route::get('/forgot-password', [TenantForgotPasswordController::class, 'showLinkRequestForm'])->name('tenant.password.request');
+    Route::post('/forgot-password', [TenantForgotPasswordController::class, 'sendResetLinkEmail'])->name('tenant.password.email');
+    Route::get('/reset-password/{token}', [TenantForgotPasswordController::class, 'showResetForm'])->name('tenant.password.reset');
+    Route::put('/reset-password', [TenantForgotPasswordController::class, 'reset'])->name('tenant.password.update');
 
-    Route::middleware(['auth', 'check-user-status'])->group(function () {
+    Route::middleware(['auth:tenant', 'tenant.user.active'])->group(function () {
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     });
     // Admin routes inside tenant
-    Route::middleware(['auth', 'check-user-status', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::middleware(['auth:tenant', 'tenant.user.active', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('settings', [\App\Http\Controllers\Tenant\Admin\SettingController::class, 'index'])->name('settings');
         Route::post('settings', [\App\Http\Controllers\Tenant\Admin\SettingController::class, 'store'])->name('settings.store');
 
@@ -187,16 +186,7 @@ Route::middleware([
         ->name('bvn.verify');
 
 
-
-    // Farmer routes inside tenant
-    Route::middleware(['auth', 'check-user-status', 'role:farmer'])->prefix('farmer')->name('farmer.')->group(function () {
-        Route::get('/dashboard', [FarmerDashboard::class, 'index'])->name('dashboard');
-        // Add more farmer routes here
-    });
-
-
-
-    Route::middleware(['auth', 'check-user-status', 'role:agent'])->prefix('agent')->name('agent.')->group(function () {
+    Route::middleware(['auth:tenant', 'tenant.user.active', 'role:agent'])->prefix('agent')->name('agent.')->group(function () {
         Route::get('dashboard', [AgentDashboardController::class, 'index'])->name('dashboard');
 
         Route::get('verify-collection', [AgentVerificationController::class, 'assignedFarmers'])->name('verify.collection');

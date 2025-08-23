@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\User;
+use App\Models\Tenant\User;
 use App\Models\Admin\Role;
 use Illuminate\Http\Request;
 use App\Mail\UserCreatedMail;

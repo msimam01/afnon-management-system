@@ -48,7 +48,7 @@ class RoleController extends Controller
                 'integer',
                 Rule::exists('permissions', 'id')->where(
                     fn($q) =>
-                    $q->where('tenant_id', tenant('id'))->where('guard_name', 'web')
+                    $q->where('tenant_id', tenant('id'))->where('guard_name', 'tenant')
                 ),
             ],
             'grant' => ['required', 'boolean'],
@@ -86,7 +86,9 @@ class RoleController extends Controller
         try {
             $request->validate([
                 'name' => [
-                    'required', 'string', 'max:255',
+                    'required',
+                    'string',
+                    'max:255',
                     Rule::unique('roles', 'name')->where(fn($q) => $q->where('tenant_id', tenant('id'))),
                 ],
                 'permissions' => 'array'
@@ -94,12 +96,15 @@ class RoleController extends Controller
 
             $role = Role::create([
                 'name' => $request->name,
-                'guard_name' => 'web',
+                'guard_name' => 'tenant',
                 'tenant_id' => tenant('id')
             ]);
 
             if ($request->has('permissions')) {
-                $role->syncPermissions($request->permissions);
+                $role->syncPermissions(Permission::whereIn('id', $request->permissions ?? [])
+                    ->where('tenant_id', tenant('id'))
+                    ->where('guard_name', 'tenant')
+                    ->get());
             }
 
             // Clear permission cache for this tenant so the new role & permissions are visible immediately
@@ -138,7 +143,9 @@ class RoleController extends Controller
 
         $request->validate([
             'name' => [
-                'required', 'string', 'max:255',
+                'required',
+                'string',
+                'max:255',
                 Rule::unique('roles', 'name')
                     ->where(fn($q) => $q->where('tenant_id', tenant('id')))
                     ->ignore($role->id),
@@ -151,7 +158,10 @@ class RoleController extends Controller
                 'name' => $request->name
             ]);
 
-            $role->syncPermissions($request->permissions ?? []);
+            $role->syncPermissions(Permission::whereIn('id', $request->permissions ?? [])
+                ->where('tenant_id', tenant('id'))
+                ->where('guard_name', 'tenant')
+                ->get());
 
             // Clear cache to reflect updates immediately
             app(PermissionRegistrar::class)->forgetCachedPermissions();

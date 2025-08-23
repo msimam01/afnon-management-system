@@ -24,9 +24,9 @@ class CustomForgotPasswordController extends Controller
     {
         $request->validate(['email' => 'required|email']);
 
-        // Use the Password facade directly. Stancl's package overrides
-        // this to be tenant-aware.
-        $response = Password::broker()->sendResetLink(
+        // Use the Password facade directly. Laravel will use the password.reset route
+        // which is now properly configured for the central domain.
+        $response = Password::broker('users')->sendResetLink(
             $request->only('email')
         );
 
@@ -68,7 +68,7 @@ class CustomForgotPasswordController extends Controller
         ]);
 
         // Use the Password facade for resetting as well.
-        $response = Password::broker()->reset(
+        $response = Password::broker('users')->reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function ($user, $password) {
                 $user->forceFill([

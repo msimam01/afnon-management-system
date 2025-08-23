@@ -3,12 +3,12 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Devrabiul\ToastMagic\Facades\ToastMagic;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Devrabiul\ToastMagic\Facades\ToastMagic;
 use Symfony\Component\HttpFoundation\Response;
 
-class CheckUserStatus
+class CheckCentralUserStatus
 {
     /**
      * Handle an incoming request.
@@ -16,34 +16,24 @@ class CheckUserStatus
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
-{
-    $guards = ['web', 'tenant']; // adjust if you have more guards
-
-    foreach ($guards as $guard) {
-        if (Auth::guard($guard)->check()) {
-            $user = Auth::guard($guard)->user();
+    {
+        if (Auth::guard('web')->check()) {
+            $user = Auth::guard('web')->user();
 
             if ($user->status !== 'active') {
                 activity()->causedBy($user)->log('automatically logged out due to account deactivation');
 
-                Auth::guard($guard)->logout();
+                Auth::guard('web')->logout();
 
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
 
                 ToastMagic::error('Your account has been deactivated. You have been logged out.');
 
-                $centralDomains = config('tenancy.central_domains');
-                if (in_array($request->getHost(), $centralDomains)) {
-                    return redirect()->route('central.login.form');
-                } else {
-                    return redirect()->route('tenant.login');
-                }
+                return redirect()->route('central.login.form');
             }
         }
+
+        return $next($request);
     }
-
-    return $next($request);
-}
-
 }

@@ -26,7 +26,7 @@
                 <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">Enter your new password below.</p>
             </div>
 
-            <form class="mt-8 space-y-6" action="{{ route('central.password.update') }}" method="POST">
+            <form class="mt-8 space-y-6" action="{{ route('central.reset.password') }}" method="POST">
                 @csrf
                 @method('PUT')
                 <input type="hidden" name="token" value="{{ $token }}">

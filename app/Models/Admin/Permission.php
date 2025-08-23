@@ -12,4 +12,8 @@ class Permission extends SpatiePermission
     use BelongsToTenant;
 
     protected $fillable = ['name', 'guard_name', 'tenant_id'];
+    // Always default to tenant guard
+    protected $attributes = [
+        'guard_name' => 'tenant',
+    ];
 }
