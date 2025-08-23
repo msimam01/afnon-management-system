@@ -18,7 +18,7 @@ class AgentVerificationController extends Controller
 {
     public function assignedFarmers(Request $request)
     {
-        $agent = Auth::user()->agent;
+        $agent = Auth::guard('tenant')->user()->agent;
         $filter = $request->get('filter');
         $season = $request->get('season');
         $status = $request->get('status');
@@ -65,7 +65,7 @@ class AgentVerificationController extends Controller
             'commodityPhoto' => 'required|image|max:4096',
         ]);
 
-        $agent = Auth::user()->agent;
+        $agent = Auth::guard('tenant')->user()->agent;
         $application = Application::findOrFail($request->application_id);
 
         if ($application->applicationCenter->collection_center_id !== $agent->center_id) {
@@ -86,57 +86,56 @@ class AgentVerificationController extends Controller
         return response()->json(['message' => 'Collection submitted successfully']);
     }
 
-    public function assignedReturns(Request $request)
-    {
-        $agent = Auth::user()->agent;
-        $filter = $request->get('filter');
-        $season = $request->get('season');
-        $status = $request->get('status');
+public function assignedReturns(Request $request)
+{
+    $agent = Auth::guard('tenant')->user()->agent;
+    $filter = $request->get('filter');
+    $season = $request->get('season');
+    $status = $request->get('status');
 
-        $apps = Application::with(['farmer', 'farm', 'season', 'applicationCenter', 'commodity_allocations'])
-            ->whereHas('applicationCenter', fn($q) => $q->where('return_center_id', $agent->center_id))
-            ->when($filter, function ($q) use ($filter) {
-                $q->whereHas(
-                    'farmer',
-                    fn($f) =>
-                    $f->where('full_name', 'like', "%$filter%")
-                        ->orWhere('registration_number', 'like', "%$filter%")
-                );
-            })
-            ->when(
-                $season,
-                fn($q) =>
-                $q->whereHas('season', fn($s) => $s->where('slug', $season))
-            )
-            ->get()
-            ->map(function ($app) {
-                $app->return_status = $app->returnVerification()->exists() ? 'verified' : 'pending';
-                return $app;
-            })
-            ->filter(function ($app) use ($status) {
-                return !$status || $app->return_status === $status;
-            })
-            ->values();
+    $apps = Application::with([
+            'farmer',
+            'farm',
+            'season',
+            'applicationCenter',
+            'commodity_allocations',
+            'collectionVerification' // eager load for checking collection
+        ])
+        ->whereHas('applicationCenter', fn($q) => $q->where('return_center_id', $agent->center_id))
+        ->whereHas('collectionVerification') // <--- Only include if farmer collected commodity
+        ->when($filter, fn($q) => $q->whereHas('farmer', fn($f) =>
+            $f->where('full_name', 'like', "%$filter%")
+              ->orWhere('registration_number', 'like', "%$filter%")
+        ))
+        ->when($season, fn($q) => $q->whereHas('season', fn($s) => $s->where('slug', $season)))
+        ->get()
+        ->map(function ($app) {
+            $app->return_status = $app->returnVerification()->exists() ? 'verified' : 'pending';
+            return $app;
+        })
+        ->filter(fn($app) => !$status || $app->return_status === $status)
+        ->values();
 
-        if ($request->ajax()) {
-            $perPage = 10;
-            $page = $request->get('page', 1);
-            $paged = $apps->slice(($page - 1) * $perPage, $perPage)->values();
-            return response()->json([
-                'data' => $paged,
-                'current_page' => $page,
-                'last_page' => ceil($apps->count() / $perPage),
-                'total' => $apps->count(),
-            ]);
-        }
-
-        $seasons = Season::all();
-        return view('agent.verify-return', compact('seasons'));
+    if ($request->ajax()) {
+        $perPage = 10;
+        $page = $request->get('page', 1);
+        $paged = $apps->slice(($page - 1) * $perPage, $perPage)->values();
+        return response()->json([
+            'data' => $paged,
+            'current_page' => $page,
+            'last_page' => ceil($apps->count() / $perPage),
+            'total' => $apps->count(),
+        ]);
     }
+
+    $seasons = Season::all();
+    return view('agent.verify-return', compact('seasons'));
+}
+
 
     public function storeReturn(Request $request)
     {
-        
+
         $rules = [
             'application_id' => 'required|exists:applications,id',
             'idCard' => 'nullable|image|max:2048',
@@ -145,7 +144,7 @@ class AgentVerificationController extends Controller
 
         $request->validate($rules);
 
-        $agent = Auth::user()->agent;
+        $agent = Auth::guard('tenant')->user()->agent;
         $application = Application::findOrFail($request->application_id);
 
         if ($application->applicationCenter->return_center_id !== $agent->center_id) {
@@ -169,7 +168,7 @@ class AgentVerificationController extends Controller
         }
 
         $returnVerification = ReturnVerification::create($data);
-        
+
         ToastMagic::success('Return submitted successfully');
         return response()->json(['message' => 'Return submitted successfully']);
     }

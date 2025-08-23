@@ -35,6 +35,7 @@ Route::middleware([
     InitializeTenancyByDomain::class,
     PreventAccessFromCentralDomains::class,
     'tenant.user.active',
+    'check-tenant-status',
 ])->group(function () {
 
     // Public tenant landing (can be same view)

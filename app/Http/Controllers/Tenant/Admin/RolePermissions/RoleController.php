@@ -166,7 +166,7 @@ class RoleController extends Controller
             // Clear cache to reflect updates immediately
             app(PermissionRegistrar::class)->forgetCachedPermissions();
 
-            
+
             if ($request->ajax()) {
                 return response()->json([
                     'success' => true,
