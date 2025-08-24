@@ -36,6 +36,7 @@ Route::middleware([
     PreventAccessFromCentralDomains::class,
     'tenant.user.active',
     'check-tenant-status',
+    'tenant-activity-log',
 ])->group(function () {
 
     // Public tenant landing (can be same view)
@@ -59,7 +60,7 @@ Route::middleware([
         Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     });
     // Admin routes inside tenant
-    Route::middleware(['auth:tenant', 'tenant.user.active', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::middleware(['auth:tenant', 'tenant.user.active', 'tenant-activity-log', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('settings', [\App\Http\Controllers\Tenant\Admin\SettingController::class, 'index'])->name('settings');
         Route::post('settings', [\App\Http\Controllers\Tenant\Admin\SettingController::class, 'store'])->name('settings.store');
 

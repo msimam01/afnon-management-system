@@ -27,7 +27,16 @@ class TenantLoginController extends Controller
             $user = Auth::guard('tenant')->user();
 
             if ($user->status == 'active') {
-                activity()->causedBy($user)->log('logged in');
+                activity()
+                    ->causedBy($user)
+                    ->withProperties([
+                        'tenant_id' => tenant('id'),
+                        'ip_address' => request()->ip(),
+                        'user_agent' => request()->userAgent(),
+                        'additional_info' => $extraInfo ?? null,
+                    ])
+                    ->log('logged in');
+
 
                 if ($user->hasRole('admin')) {
                     return redirect()->route('admin.dashboard');
@@ -55,8 +64,14 @@ class TenantLoginController extends Controller
         // Log the logout action as well
         if (Auth::guard('tenant')->check()) {
             activity()
-                ->causedBy(Auth::guard('tenant')->user())
-                ->log('logged out');
+                    ->causedBy(Auth::guard('tenant')->user()->id)
+                    ->withProperties([
+                        'tenant_id' => tenant('id'),
+                        'ip_address' => request()->ip(),
+                        'user_agent' => request()->userAgent(),
+                        'additional_info' => $extraInfo ?? null,
+                    ])
+                    ->log('logged out');
         }
 
         Auth::guard('tenant')->logout();

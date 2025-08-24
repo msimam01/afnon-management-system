@@ -26,35 +26,34 @@
                 </a>
             </div>
         </div>
-        
+
         <!-- Advanced Search and Filter Bar -->
         <div class="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
             <form method="GET" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div class="relative">
-                    <input type="text" name="search" placeholder="Search logs..." 
+                    <input type="text" name="search" placeholder="Search logs..."
                            value="{{ request('search') }}"
                            class="w-full bg-white/20 text-white placeholder-white/70 border border-white/30 rounded-lg px-4 py-2 focus:bg-white/30 focus:outline-none focus:ring-2 focus:ring-white/50">
                     <svg class="absolute right-3 top-2.5 w-5 h-5 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
                 </div>
-                <select name="action_type" 
+                <select name="action_type"
                         class="bg-white/20 text-white border border-white/30 rounded-lg px-4 py-2 focus:bg-white/30 focus:outline-none focus:ring-2 focus:ring-white/50">
-                    <option value="">All Actions</option>
-                    <option value="user_management" {{ request('action_type') == 'user_management' ? 'selected' : '' }}>User Management</option>
-                    <option value="loan_management" {{ request('action_type') == 'loan_management' ? 'selected' : '' }}>Loan Management</option>
-                    <option value="authentication" {{ request('action_type') == 'authentication' ? 'selected' : '' }}>Authentication</option>
-                    <option value="system" {{ request('action_type') == 'system' ? 'selected' : '' }}>System</option>
+                        <option value="">All Actions</option>
+                        {{-- @foreach ($logTypes as $item)
+                        <option value="{{ $item['log_name'] }}">{{ $item['log_name'] }}</option>
+                        @endforeach --}}
                 </select>
-                <input type="date" name="date_from" 
+                <input type="date" name="date_from"
                        value="{{ request('date_from') }}"
                        class="bg-white/20 text-white border border-white/30 rounded-lg px-4 py-2 focus:bg-white/30 focus:outline-none focus:ring-2 focus:ring-white/50">
                 <div class="flex space-x-2">
-                    <button type="submit" 
+                    <button type="submit"
                             class="flex-1 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
                         Filter
                     </button>
-                    <a href="{{ route('admin.logs.index') }}" 
+                    <a href="{{ route('admin.logs.index') }}"
                        class="px-4 py-2 bg-white/20 text-white rounded-lg hover:bg-white/30 transition-colors flex items-center justify-center">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
@@ -71,7 +70,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-blue-600 dark:text-blue-400">Today's Actions</p>
-                    <p class="text-2xl font-bold text-blue-700 dark:text-blue-300">{{ $todayLogs ?? '0' }}</p>
+                    <p class="text-2xl font-bold text-blue-700 dark:text-blue-300">{{ $today_activities ?? '0' }}</p>
                 </div>
                 <div class="p-3 bg-blue-500 rounded-full">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -80,12 +79,12 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900 dark:to-emerald-800 p-4 rounded-lg border border-emerald-200 dark:border-emerald-700">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-emerald-600 dark:text-emerald-400">Active Users</p>
-                    <p class="text-2xl font-bold text-emerald-700 dark:text-emerald-300">{{ $activeUsers ?? '0' }}</p>
+                    <p class="text-sm text-emerald-600 dark:text-emerald-400">Total Activities</p>
+                    <p class="text-2xl font-bold text-emerald-700 dark:text-emerald-300">{{ $total_activities ?? '0' }}</p>
                 </div>
                 <div class="p-3 bg-emerald-500 rounded-full">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -94,12 +93,12 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900 dark:to-purple-800 p-4 rounded-lg border border-purple-200 dark:border-purple-700">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-purple-600 dark:text-purple-400">Failed Logins</p>
-                    <p class="text-2xl font-bold text-purple-700 dark:text-purple-300">{{ $failedLogins ?? '0' }}</p>
+                    <p class="text-sm text-purple-600 dark:text-purple-400">This Weeks Activities</p>
+                    <p class="text-2xl font-bold text-purple-700 dark:text-purple-300">{{ $this_week_activities ?? '0' }}</p>
                 </div>
                 <div class="p-3 bg-purple-500 rounded-full">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -108,12 +107,12 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900 dark:to-orange-800 p-4 rounded-lg border border-orange-200 dark:border-orange-700">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-orange-600 dark:text-orange-400">System Alerts</p>
-                    <p class="text-2xl font-bold text-orange-700 dark:text-orange-300">{{ $systemAlerts ?? '0' }}</p>
+                    <p class="text-sm text-orange-600 dark:text-orange-400">This Month Activities</p>
+                    <p class="text-2xl font-bold text-orange-700 dark:text-orange-300">{{ $this_month_activities ?? '0' }}</p>
                 </div>
                 <div class="p-3 bg-orange-500 rounded-full">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -230,7 +229,7 @@
                             </td>
                             <td class="px-6 py-4">
                                 <div class="max-w-xs">
-                                    <p class="text-sm text-gray-900 dark:text-gray-100 truncate" 
+                                    <p class="text-sm text-gray-900 dark:text-gray-100 truncate"
                                        title="{{ $log->description }}">
                                         {{ $log->description }}
                                     </p>
@@ -305,7 +304,7 @@
                         </svg>
                     </button>
                 </div>
-                
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Activity Timeline Chart -->
                     <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800 p-6 rounded-lg">
@@ -333,13 +332,13 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Action Types Distribution -->
                     <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900 dark:to-emerald-800 p-6 rounded-lg">
                         <h4 class="text-lg font-semibold text-emerald-800 dark:text-emerald-200 mb-4">Action Distribution</h4>
                         <div class="space-y-3">
                             <div class="flex items-center justify-between">
-                                <span class="text-sm text-emerald-700 dark:text-emerald-300">User Management</span>
+                                <span class="text-sm text-emerald-700 dark:text-emerald-300">Total Activities</span>
                                 <div class="flex items-center space-x-2">
                                     <div class="w-24 h-2 bg-emerald-200 rounded-full">
                                         <div class="w-3/4 h-2 bg-emerald-500 rounded-full"></div>
@@ -394,7 +393,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Auto-submit search after typing stops
     let searchTimeout;
     const searchInput = document.querySelector('input[name="search"]');
-    
+
     if (searchInput) {
         searchInput.addEventListener('input', function() {
             clearTimeout(searchTimeout);
@@ -404,7 +403,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 1000);
         });
     }
-    
+
     // Animate table rows on load
     const tableRows = document.querySelectorAll('tbody tr');
     tableRows.forEach((row, index) => {
@@ -416,7 +415,7 @@ document.addEventListener('DOMContentLoaded', function() {
             row.style.transform = 'translateY(0)';
         }, index * 50);
     });
-    
+
     // Enhanced tooltips for truncated text
     const truncatedElements = document.querySelectorAll('[title]');
     truncatedElements.forEach(element => {
@@ -425,19 +424,19 @@ document.addEventListener('DOMContentLoaded', function() {
             tooltip.className = 'absolute z-50 bg-gray-900 text-white text-xs rounded py-2 px-3 shadow-lg max-w-xs';
             tooltip.textContent = this.getAttribute('title');
             tooltip.style.pointerEvents = 'none';
-            
+
             document.body.appendChild(tooltip);
-            
+
             const rect = this.getBoundingClientRect();
             tooltip.style.top = (rect.top - tooltip.offsetHeight - 5) + 'px';
             tooltip.style.left = rect.left + 'px';
-            
+
             this.addEventListener('mouseleave', function() {
                 tooltip.remove();
             }, { once: true });
         });
     });
-    
+
     // Live time updates
     updateRelativeTimes();
     setInterval(updateRelativeTimes, 60000); // Update every minute
@@ -455,7 +454,7 @@ function updateRelativeTimes() {
 function getRelativeTime(date) {
     const now = new Date();
     const diffInSeconds = Math.floor((now - date) / 1000);
-    
+
     if (diffInSeconds < 60) return 'Just now';
     if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
     if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
@@ -470,12 +469,12 @@ document.addEventListener('keydown', function(e) {
         e.preventDefault();
         document.querySelector('input[name="search"]').focus();
     }
-    
+
     // Escape to close modals
     if (e.key === 'Escape') {
         closeStatistics();
     }
-    
+
     // Ctrl/Cmd + E to export
     if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
         e.preventDefault();
@@ -517,7 +516,7 @@ function showLoadingState(element) {
         </svg>
         Loading...
     `;
-    
+
     setTimeout(() => {
         element.textContent = originalText;
     }, 2000);
@@ -537,7 +536,7 @@ function toggleTheme() {
 }
 
 // Initialize theme from localStorage
-if (localStorage.getItem('theme') === 'dark' || 
+if (localStorage.getItem('theme') === 'dark' ||
     (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
     document.documentElement.classList.add('dark');
 }
@@ -547,12 +546,12 @@ document.querySelectorAll('a[href*="page="]').forEach(link => {
     link.addEventListener('click', function(e) {
         e.preventDefault();
         const url = new URL(this.href);
-        
+
         // Show loading state
         const tbody = document.querySelector('tbody');
         tbody.style.opacity = '0.5';
         tbody.style.pointerEvents = 'none';
-        
+
         // Navigate to new page
         window.location.href = this.href;
     });
@@ -564,7 +563,7 @@ function startAutoRefresh(interval = 30000) {
     autoRefreshInterval = setInterval(() => {
         // Only refresh if no modals are open and user is active
         if (!document.getElementById('statisticsModal').classList.contains('hidden')) return;
-        
+
         const lastActivity = Date.now() - (window.lastActivityTime || Date.now());
         if (lastActivity < 60000) { // User was active in last minute
             location.reload();
@@ -724,7 +723,7 @@ button:focus, a:focus, input:focus, select:focus {
         border: none;
         padding: 8px 16px;
     }
-    
+
     .table-mobile-stack td:before {
         content: attr(data-label) ": ";
         float: left;

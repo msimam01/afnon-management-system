@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Activity;
+use App\Models\Tenant\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class LogController extends Controller
 {
@@ -15,7 +17,7 @@ class LogController extends Controller
     public function index(Request $request)
     {
         $query = Activity::with(['causer', 'subject'])
-            ->where('properties->tenant_id', tenant('id'))
+            // ->where('properties->tenant_id', tenant('id'))
             ->latest();
 
         // Filter by user if specified
@@ -46,11 +48,27 @@ class LogController extends Controller
 
         // Get filter options (only for current tenant)
         $users = \App\Models\Tenant\User::select('id', 'name', 'email')->get();
-        $logTypes = Activity::where('properties->tenant_id', tenant('id'))
-            ->distinct('log_name')
+        $logTypes = Activity::distinct('log_name')
             ->pluck('log_name');
+        $total_activities = Activity::count();
+        $today_activities = Activity::whereDate('created_at', today())->count();
+        $this_week_activities = Activity::whereBetween('created_at', [
+            now()->startOfWeek(),
+            now()->endOfWeek()
+        ])->count();
+        $this_month_activities = Activity::whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->count();
 
-        return view('admin.logs.index', compact('logs', 'users', 'logTypes'));
+        return view('admin.logs.index', compact(
+            'logs',
+            'users',
+            'logTypes',
+            'total_activities',
+            'today_activities',
+            'this_week_activities',
+            'this_month_activities'
+        ));
     }
 
     /**
@@ -62,17 +80,17 @@ class LogController extends Controller
             // Find log by UUID and ensure it belongs to current tenant
             $log = Activity::findByUuid($uuid);
 
-            if ($log->properties['tenant_id'] !== tenant('id')) {
-                abort(403, 'Unauthorized access to log entry');
-            }
+            // if ($log->properties['tenant_id'] !== tenant('id')) {
+            //     abort(403, 'Unauthorized access to log entry');
+            // }
 
             $log->load(['causer', 'subject']);
             return view('admin.logs.show', compact('log'));
         } catch (\Exception $e) {
             // Log the error for debugging
-            \Log::error('Failed to show tenant log details', [
+            Log::error('Failed to show tenant log details', [
                 'uuid' => $uuid,
-                'tenant_id' => tenant('id'),
+                // 'tenant_id' => tenant('id'),
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
@@ -87,7 +105,7 @@ class LogController extends Controller
     public function export(Request $request)
     {
         $query = Activity::with(['causer', 'subject'])
-            ->where('properties->tenant_id', tenant('id'))
+            // ->where('properties->tenant_id', tenant('id'))
             ->latest();
 
         // Apply same filters as index
@@ -160,33 +178,30 @@ class LogController extends Controller
         $tenantId = tenant('id');
 
         $stats = [
-            'total_activities' => Activity::where('properties->tenant_id', $tenantId)->count(),
-            'today_activities' => Activity::where('properties->tenant_id', $tenantId)
-                ->whereDate('created_at', today())->count(),
-            'this_week_activities' => Activity::where('properties->tenant_id', $tenantId)
-                ->whereBetween('created_at', [
-                    now()->startOfWeek(),
-                    now()->endOfWeek()
-                ])->count(),
-            'this_month_activities' => Activity::where('properties->tenant_id', $tenantId)
-                ->whereMonth('created_at', now()->month)
+            'total_activities' => Activity::count(),
+            'today_activities' => Activity::whereDate('created_at', today())->count(),
+            'this_week_activities' => Activity::whereBetween('created_at', [
+                now()->startOfWeek(),
+                now()->endOfWeek()
+            ])->count(),
+            'this_month_activities' => Activity::whereMonth('created_at', now()->month)
                 ->whereYear('created_at', now()->year)
                 ->count(),
         ];
 
         // Activity by type (tenant-specific)
         $activityByType = Activity::select('log_name', DB::raw('count(*) as count'))
-            ->where('properties->tenant_id', $tenantId)
+            // ->where('properties->tenant_id', $tenantId)
             ->groupBy('log_name')
             ->orderBy('count', 'desc')
             ->get();
 
         // Activity by day (last 30 days, tenant-specific)
         $activityByDay = Activity::select(
-                DB::raw('DATE(created_at) as date'),
-                DB::raw('count(*) as count')
-            )
-            ->where('properties->tenant_id', $tenantId)
+            DB::raw('DATE(created_at) as date'),
+            DB::raw('count(*) as count')
+        )
+            // ->where('properties->tenant_id', $tenantId)
             ->where('created_at', '>=', now()->subDays(30))
             ->groupBy('date')
             ->orderBy('date')

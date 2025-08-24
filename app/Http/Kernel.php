@@ -54,6 +54,8 @@ class Kernel extends HttpKernel
         'check-tenant-status' => \App\Http\Middleware\CheckTenantStatus::class,
         'central.user.active' => \App\Http\Middleware\CheckCentralUserStatus::class,
         'tenant.user.active'  => \App\Http\Middleware\CheckTenantUserStatus::class,
+        'tenant-activity-log' => \App\Http\Middleware\TenantActivityLogger::class,
+        'central-activity-log' => \App\Http\Middleware\CentralActivityLogger::class,
 
         // ✅ Spatie Permissions middleware
         'role' => RoleMiddleware::class,

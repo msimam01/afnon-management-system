@@ -24,7 +24,7 @@ require __DIR__ . '/auth.php';
 
 
 // Super Admin routes
-Route::middleware(['web', 'auth', 'central.user.active', 'role:super-admin', 'block-tenant-access'])->prefix('super-admin')->name('superadmin.')->group(function () {
+Route::middleware(['web', 'auth', 'central.user.active', 'central-activity-log', 'role:super-admin', 'block-tenant-access'])->prefix('super-admin')->name('superadmin.')->group(function () {
     Route::get('/dashboard', [SuperAdminDashboard::class, 'index'])->name('dashboard');
     Route::get('/tenants', [TenantController::class, 'index'])->name('tenants.index');
     Route::get('/tenants/create', [TenantController::class, 'create'])->name('tenants.create');
