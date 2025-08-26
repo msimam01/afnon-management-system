@@ -180,45 +180,188 @@
         </div>
     </div>
 
-    <!-- Commodities Table -->
-    <table>
-        <thead>
-            <tr>
-                <th>Commodity</th>
-                <th>Quantity</th>
-                <th>Unit Price</th>
-                <th>Total</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($application->commodities as $commodity)
-                <tr>
-                    <td>{{ $commodity->name }}</td>
-                    <td>{{ number_format($commodity->pivot->quantity) }} {{ $commodity->unit }}</td>
-                    <td>₦{{ number_format($commodity->price_per_unit, 2) }}</td>
-                    <td>₦{{ number_format($commodity->pivot->quantity * $commodity->price_per_unit, 2) }}</td>
+    <!-- Enhanced Commodity Breakdown Section -->
+    <div style="margin: 25px 0;">
+        <div style="background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; padding: 12px 20px; margin: 0 0 15px 0; font-size: 16px; font-weight: bold; border-radius: 8px; text-align: center; letter-spacing: 0.5px;">
+            📦 COMMODITY VERIFICATION BREAKDOWN
+        </div>
+
+        <!-- Check for commodity allocations first (approved applications) -->
+        @if($application->commodity_allocations && $application->commodity_allocations->count() > 0)
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+            <thead>
+                <tr style="background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white;">
+                    <th style="padding: 12px 8px; text-align: left; font-size: 11px; font-weight: bold; border-right: 1px solid rgba(255,255,255,0.2);">COMMODITY</th>
+                    <th style="padding: 12px 8px; text-align: center; font-size: 11px; font-weight: bold; border-right: 1px solid rgba(255,255,255,0.2);">QTY/HA</th>
+                    <th style="padding: 12px 8px; text-align: center; font-size: 11px; font-weight: bold; border-right: 1px solid rgba(255,255,255,0.2);">FARM SIZE</th>
+                    <th style="padding: 12px 8px; text-align: center; font-size: 11px; font-weight: bold; border-right: 1px solid rgba(255,255,255,0.2);">ALLOCATED</th>
+                    <th style="padding: 12px 8px; text-align: center; font-size: 11px; font-weight: bold; border-right: 1px solid rgba(255,255,255,0.2);">UNIT PRICE</th>
+                    <th style="padding: 12px 8px; text-align: right; font-size: 11px; font-weight: bold;">TOTAL VALUE</th>
                 </tr>
-            @endforeach
-        </tbody>
-        <tfoot>
-            <tr>
-                <td colspan="3">Insurance ({{ $application->insurance_rate }}%)</td>
-                <td>₦{{ number_format($application->insurance_amount, 2) }}</td>
-            </tr>
-            <tr>
-                <td colspan="3">Total Loan</td>
-                <td>₦{{ number_format($application->total_loan, 2) }}</td>
-            </tr>
-            <tr>
-                <td colspan="3">Equity Held</td>
-                <td>₦{{ number_format($application->equity, 2) }}</td>
-            </tr>
-            <tr>
-                <td colspan="3">Disbursed Amount</td>
-                <td>₦{{ number_format($application->disbursed_amount, 2) }}</td>
-            </tr>
-        </tfoot>
-    </table>
+            </thead>
+            <tbody>
+                @foreach($application->commodity_allocations as $index => $allocation)
+                <tr style="border-bottom: 1px solid #e5e7eb; {{ $index % 2 == 0 ? 'background: #f9fafb;' : 'background: white;' }}">
+                    <td style="padding: 10px 8px; font-weight: bold; color: #1f2937;">
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 20px; height: 20px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 4px; display: flex; align-items: center; justify-content: center; margin-right: 8px; color: white; font-size: 10px; font-weight: bold;">
+                                {{ substr($allocation->commodity_name, 0, 1) }}
+                            </div>
+                            {{ $allocation->commodity_name }}
+                        </div>
+                    </td>
+                    <td style="padding: 10px 8px; text-align: center; color: #4b5563;">{{ $allocation->qty_per_hectare }}</td>
+                    <td style="padding: 10px 8px; text-align: center; color: #4b5563;">{{ $application->farm->size }} ha</td>
+                    <td style="padding: 10px 8px; text-align: center;">
+                        <span style="background: #dbeafe; color: #1e40af; padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: bold;">
+                            {{ $allocation->allocated_quantity }}
+                        </span>
+                    </td>
+                    <td style="padding: 10px 8px; text-align: center; font-family: monospace; color: #4b5563;">₦{{ number_format($allocation->unit_price, 2) }}</td>
+                    <td style="padding: 10px 8px; text-align: right; font-weight: bold; color: #059669;">₦{{ number_format($allocation->total_value, 2) }}</td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+        @else
+        <!-- Fallback to application commodities (pending applications) -->
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+            <thead>
+                <tr style="background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white;">
+                    <th style="padding: 12px 8px; text-align: left; font-size: 11px; font-weight: bold; border-right: 1px solid rgba(255,255,255,0.2);">COMMODITY</th>
+                    <th style="padding: 12px 8px; text-align: center; font-size: 11px; font-weight: bold; border-right: 1px solid rgba(255,255,255,0.2);">QTY/HA</th>
+                    <th style="padding: 12px 8px; text-align: center; font-size: 11px; font-weight: bold; border-right: 1px solid rgba(255,255,255,0.2);">FARM SIZE</th>
+                    <th style="padding: 12px 8px; text-align: center; font-size: 11px; font-weight: bold; border-right: 1px solid rgba(255,255,255,0.2);">REQUESTED</th>
+                    <th style="padding: 12px 8px; text-align: center; font-size: 11px; font-weight: bold; border-right: 1px solid rgba(255,255,255,0.2);">UNIT PRICE</th>
+                    <th style="padding: 12px 8px; text-align: right; font-size: 11px; font-weight: bold;">TOTAL VALUE</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($application->commodities as $index => $commodity)
+                @php
+                    $requestedQty = $commodity->pivot->quantity ?? 0;
+                    $qtyPerHectare = $commodity->quantity_per_hectare ?? 0;
+                    $unitPrice = $commodity->price_per_unit ?? 0;
+                    $totalValue = $requestedQty * $unitPrice;
+                @endphp
+                <tr style="border-bottom: 1px solid #e5e7eb; {{ $index % 2 == 0 ? 'background: #f9fafb;' : 'background: white;' }}">
+                    <td style="padding: 10px 8px; font-weight: bold; color: #1f2937;">
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 20px; height: 20px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 4px; display: flex; align-items: center; justify-content: center; margin-right: 8px; color: white; font-size: 10px; font-weight: bold;">
+                                {{ substr($commodity->name, 0, 1) }}
+                            </div>
+                            {{ $commodity->name }}
+                        </div>
+                    </td>
+                    <td style="padding: 10px 8px; text-align: center; color: #4b5563;">{{ $qtyPerHectare }}</td>
+                    <td style="padding: 10px 8px; text-align: center; color: #4b5563;">{{ $application->farm->size }} ha</td>
+                    <td style="padding: 10px 8px; text-align: center;">
+                        <span style="background: #dbeafe; color: #1e40af; padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: bold;">
+                            {{ $requestedQty }}
+                        </span>
+                    </td>
+                    <td style="padding: 10px 8px; text-align: center; font-family: monospace; color: #4b5563;">₦{{ number_format($unitPrice, 2) }}</td>
+                    <td style="padding: 10px 8px; text-align: right; font-weight: bold; color: #059669;">₦{{ number_format($totalValue, 2) }}</td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+        @endif
+
+        <!-- Loan Summary Table -->
+        <div style="margin-top: 25px;">
+            <div style="background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; padding: 12px 20px; margin: 0 0 15px 0; font-size: 16px; font-weight: bold; border-radius: 8px; text-align: center; letter-spacing: 0.5px;">
+                💰 LOAN SUMMARY & BREAKDOWN
+            </div>
+
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                <thead>
+                    <tr style="background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white;">
+                        <th style="padding: 12px 15px; text-align: left; font-size: 12px; font-weight: bold; border-right: 1px solid rgba(255,255,255,0.2);">DESCRIPTION</th>
+                        <th style="padding: 12px 15px; text-align: center; font-size: 12px; font-weight: bold; border-right: 1px solid rgba(255,255,255,0.2);">RATE/PERCENTAGE</th>
+                        <th style="padding: 12px 15px; text-align: right; font-size: 12px; font-weight: bold;">AMOUNT (₦)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @php
+                        $commodityTotal = 0;
+                        if($application->commodity_allocations && $application->commodity_allocations->count() > 0) {
+                            $commodityTotal = $application->commodity_allocations->sum('total_value');
+                        } else {
+                            foreach($application->commodities as $commodity) {
+                                $commodityTotal += ($commodity->pivot->quantity ?? 0) * ($commodity->price_per_unit ?? 0);
+                            }
+                        }
+                    @endphp
+
+                    <tr style="background: #f9fafb; border-bottom: 1px solid #e5e7eb;">
+                        <td style="padding: 12px 15px; font-weight: bold; color: #1f2937;">
+                            <div style="display: flex; align-items: center;">
+                                <div style="width: 20px; height: 20px; background: #10b981; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin-right: 8px; color: white; font-size: 10px; font-weight: bold;">C</div>
+                                Commodity Value
+                            </div>
+                        </td>
+                        <td style="padding: 12px 15px; text-align: center; color: #6b7280; font-style: italic;">Base Amount</td>
+                        <td style="padding: 12px 15px; text-align: right; font-weight: bold; color: #059669;">{{ number_format($commodityTotal, 2) }}</td>
+                    </tr>
+
+                    @if($application->insurance_amount)
+                    <tr style="background: white; border-bottom: 1px solid #e5e7eb;">
+                        <td style="padding: 12px 15px; font-weight: bold; color: #1f2937;">
+                            <div style="display: flex; align-items: center;">
+                                <div style="width: 20px; height: 20px; background: #f97316; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin-right: 8px; color: white; font-size: 10px; font-weight: bold;">I</div>
+                                Insurance Premium
+                            </div>
+                        </td>
+                        <td style="padding: 12px 15px; text-align: center; color: #f97316; font-weight: bold;">
+                            {{ $application->insurance_rate ?? 0 }}%
+                        </td>
+                        <td style="padding: 12px 15px; text-align: right; font-weight: bold; color: #f97316;">{{ number_format($application->insurance_amount, 2) }}</td>
+                    </tr>
+                    @endif
+
+                    @if($application->equity)
+                    <tr style="background: #f9fafb; border-bottom: 1px solid #e5e7eb;">
+                        <td style="padding: 12px 15px; font-weight: bold; color: #1f2937;">
+                            <div style="display: flex; align-items: center;">
+                                <div style="width: 20px; height: 20px; background: #a855f7; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin-right: 8px; color: white; font-size: 10px; font-weight: bold;">E</div>
+                                Equity Contribution (Held)
+                            </div>
+                        </td>
+                        <td style="padding: 12px 15px; text-align: center; color: #6b7280; font-style: italic;">Farmer's Share</td>
+                        <td style="padding: 12px 15px; text-align: right; font-weight: bold; color: #a855f7;">{{ number_format($application->equity, 2) }}</td>
+                    </tr>
+                    @endif
+
+                    @if($application->total_loan)
+                    <tr style="background: white; border-bottom: 2px solid #059669;">
+                        <td style="padding: 15px; font-weight: bold; color: #1f2937; font-size: 13px;">
+                            <div style="display: flex; align-items: center;">
+                                <div style="width: 22px; height: 22px; background: #3b82f6; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin-right: 8px; color: white; font-size: 11px; font-weight: bold;">T</div>
+                                TOTAL LOAN AMOUNT
+                            </div>
+                        </td>
+                        <td style="padding: 15px; text-align: center; color: #6b7280; font-style: italic;">Final Amount</td>
+                        <td style="padding: 15px; text-align: right; font-weight: bold; color: #3b82f6; font-size: 16px;">{{ number_format($application->total_loan, 2) }}</td>
+                    </tr>
+                    @endif
+
+                    @if($application->disbursed_amount)
+                    <tr style="background: #dcfce7; border-bottom: 1px solid #10b981;">
+                        <td style="padding: 15px; font-weight: bold; color: #1f2937; font-size: 13px;">
+                            <div style="display: flex; align-items: center;">
+                                <div style="width: 22px; height: 22px; background: #10b981; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin-right: 8px; color: white; font-size: 11px; font-weight: bold;">D</div>
+                                AMOUNT DISBURSED
+                            </div>
+                        </td>
+                        <td style="padding: 15px; text-align: center; color: #6b7280; font-style: italic;">Actually Paid</td>
+                        <td style="padding: 15px; text-align: right; font-weight: bold; color: #10b981; font-size: 16px;">{{ number_format($application->disbursed_amount, 2) }}</td>
+                    </tr>
+                    @endif
+                </tbody>
+            </table>
+        </div>
+    </div>
 
     <!-- QR Code -->
     <div class="qr">

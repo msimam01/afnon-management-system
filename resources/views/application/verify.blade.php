@@ -228,7 +228,77 @@
                         Commodities & Financial Summary
                     </h2>
 
-                    <!-- Enhanced Commodities Table -->
+                    <!-- Enhanced Commodity Allocation Table -->
+                    @if($application->commodity_allocations && $application->commodity_allocations->count() > 0)
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden mb-8">
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="bg-gradient-to-r from-emerald-500 to-green-600 text-white">
+                                        <th class="px-6 py-4 text-left font-semibold">
+                                            <i class="fas fa-leaf mr-2"></i>Commodity
+                                        </th>
+                                        <th class="px-6 py-4 text-left font-semibold">
+                                            <i class="fas fa-chart-bar mr-2"></i>Qty/Ha
+                                        </th>
+                                        <th class="px-6 py-4 text-left font-semibold">
+                                            <i class="fas fa-map mr-2"></i>Farm Size
+                                        </th>
+                                        <th class="px-6 py-4 text-left font-semibold">
+                                            <i class="fas fa-weight mr-2"></i>Allocated Qty
+                                        </th>
+                                        <th class="px-6 py-4 text-left font-semibold">
+                                            <i class="fas fa-tag mr-2"></i>Unit Price
+                                        </th>
+                                        <th class="px-6 py-4 text-left font-semibold">
+                                            <i class="fas fa-calculator mr-2"></i>Total Value
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                                    @foreach ($application->commodity_allocations as $index => $allocation)
+                                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 animate-fade-in" style="animation-delay: {{ $index * 0.1 + 1 }}s;">
+                                            <td class="px-6 py-4">
+                                                <div class="flex items-center space-x-3">
+                                                    <div class="w-10 h-10 bg-gradient-to-br from-green-400 to-emerald-500 rounded-xl flex items-center justify-center">
+                                                        <span class="text-white text-sm font-bold">{{ substr($allocation->commodity_name, 0, 1) }}</span>
+                                                    </div>
+                                                    <div>
+                                                        <p class="font-semibold text-gray-900 dark:text-white">{{ $allocation->commodity_name }}</p>
+                                                        <p class="text-sm text-gray-500 dark:text-gray-400">Premium Quality</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <span class="text-lg font-bold text-gray-900 dark:text-white">{{ $allocation->qty_per_hectare }}</span>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <span class="text-lg font-bold text-gray-900 dark:text-white">{{ $application->farm->size }} ha</span>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <div class="flex items-center space-x-2">
+                                                    <span class="text-lg font-bold text-gray-900 dark:text-white">{{ $allocation->allocated_quantity }}</span>
+                                                    <span class="text-sm text-gray-500 dark:text-gray-400 bg-blue-100 dark:bg-blue-900 px-2 py-1 rounded-full">bags</span>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <span class="text-lg font-semibold text-emerald-600 dark:text-emerald-400">
+                                                    ₦{{ number_format($allocation->unit_price, 2) }}
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <span class="text-lg font-bold text-gray-900 dark:text-white">
+                                                    ₦{{ number_format($allocation->total_value, 2) }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    @else
+                    <!-- Fallback to old commodity structure if allocations don't exist -->
                     <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden mb-8">
                         <div class="overflow-x-auto">
                             <table class="w-full">
@@ -288,6 +358,7 @@
                             </table>
                         </div>
                     </div>
+                    @endif
 
                     <!-- Financial Summary Cards -->
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

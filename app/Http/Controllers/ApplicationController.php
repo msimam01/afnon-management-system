@@ -63,13 +63,13 @@ class ApplicationController extends Controller
         $currentSeason = $filters['season'] ?? null;
         $stats = Cache::remember($key('stats_' . ($currentSeason ?: 'all')), 300, function () use ($currentSeason) {
             $query = Application::query();
-            
+
             if ($currentSeason) {
                 $query->whereHas('season', function ($q) use ($currentSeason) {
                     $q->where('name', $currentSeason);
                 });
             }
-            
+
             return [
                 'total_pending' => (clone $query)->where('status', 'pending')->count(),
                 'total_approved' => (clone $query)->where('status', 'approved')->count(),
@@ -116,17 +116,29 @@ class ApplicationController extends Controller
     protected function generateRegistrationNumber($seasonType, $year)
     {
         $tenantPrefix = strtoupper(tenant()->id ?? 'TN');
-        $tenantName = substr($tenantPrefix, 0, 1) . substr($tenantPrefix, -2, length: 1);
+        $shortYear = substr($year, -2); // Get last 2 digits of year
+
+        // Get the last farmer for this year to generate sequence
         $lastFarmer = Farmer::whereYear('created_at', $year)->latest()->first();
-        $sequence = $lastFarmer ? intval(substr($lastFarmer->registration_number, -6)) + 1 : 1;
-        return "AF-" . $tenantName . '-' . strtoupper($seasonType) . "-$year-" . str_pad($sequence, 6, '0', STR_PAD_LEFT);
+        $sequence = $lastFarmer ? intval(substr($lastFarmer->registration_number, -4)) + 1 : 1;
+
+        // Format: REG/KN/DRY/25/AF-0001
+        return "REG-" . $tenantPrefix . "-" . strtoupper($seasonType) . "-" . $shortYear . "-AF" . str_pad($sequence, 4, '0', STR_PAD_LEFT);
     }
 
-    protected function generateReferenceNumber()
+    protected function generateReferenceNumber($seasonType)
     {
         $tenantPrefix = strtoupper(tenant()->id ?? 'TN');
-        $tenantName = substr($tenantPrefix, 0, 1) . substr($tenantPrefix, -2, length: 1);
-        return 'REF-' . $tenantName . '-AFNON-' . rand(100000, 999999);
+        $shortYear = substr(now()->year, -2); // Get last 2 digits of current year
+
+        // Get current season to determine season type
+        $currentSeason = Season::where('status', 'active')->first();
+
+        // Generate unique 4-digit sequence
+        $sequence = rand(1000, 9999);
+
+        // Format: AF/REF/KN/DRY/25/0001
+        return "AF:REF-" . $tenantPrefix . "-" . strtoupper($seasonType) . "-" . $shortYear . "-" . str_pad($sequence, 4, '0', STR_PAD_LEFT);
     }
     public function store(Request $request)
     {
@@ -200,7 +212,7 @@ class ApplicationController extends Controller
 
 
             // Reference
-            $refNumber = $this->generateReferenceNumber();
+            $refNumber = $this->generateReferenceNumber($season->type);
 
             // Seed Commodity
             $seed = Commodity::findOrFail($validated['selected_seed']);

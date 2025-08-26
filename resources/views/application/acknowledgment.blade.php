@@ -343,6 +343,94 @@
                     </div>
                 </div>
 
+                <!-- Commodity Breakdown Section -->
+                @if($application->commodities && $application->commodities->count() > 0)
+                <div class="mt-8 animate-fade-in" style="animation-delay: 0.6s;">
+                    <div class="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-2xl p-6 border border-purple-200 dark:border-purple-800">
+                        <div class="flex items-center mb-4">
+                            <div class="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fas fa-boxes text-white text-sm"></i>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Commodity Details</h3>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead class="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left font-semibold rounded-tl-lg">Commodity</th>
+                                        <th class="px-4 py-3 text-left font-semibold">Qty/Ha</th>
+                                        <th class="px-4 py-3 text-left font-semibold">Farm Size</th>
+                                        <th class="px-4 py-3 text-left font-semibold">Requested Qty</th>
+                                        <th class="px-4 py-3 text-left font-semibold">Unit Price</th>
+                                        <th class="px-4 py-3 text-left font-semibold rounded-tr-lg">Total Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                    @foreach($application->commodities as $commodity)
+                                    @php
+                                        $requestedQty = $commodity->pivot->quantity ?? 0;
+                                        $qtyPerHectare = $commodity->quantity_per_hectare ?? 0;
+                                        $unitPrice = $commodity->price_per_unit ?? 0;
+                                        $totalValue = $requestedQty * $unitPrice;
+                                    @endphp
+                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+                                        <td class="px-4 py-3">
+                                            <div class="flex items-center">
+                                                <div class="w-6 h-6 bg-gradient-to-br from-green-400 to-green-500 rounded-lg flex items-center justify-center mr-2">
+                                                    <span class="text-white text-xs font-bold">{{ substr($commodity->name, 0, 1) }}</span>
+                                                </div>
+                                                <span class="font-medium text-gray-900 dark:text-white">{{ $commodity->name }}</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3 text-gray-700 dark:text-gray-300">{{ $qtyPerHectare }}</td>
+                                        <td class="px-4 py-3 text-gray-700 dark:text-gray-300">{{ $application->farm->size }} ha</td>
+                                        <td class="px-4 py-3">
+                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                                {{ $requestedQty }}
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3 font-mono text-gray-700 dark:text-gray-300">₦{{ number_format($unitPrice, 2) }}</td>
+                                        <td class="px-4 py-3 font-semibold text-emerald-600 dark:text-emerald-400">₦{{ number_format($totalValue, 2) }}</td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Financial Summary -->
+                        @if($application->total_loan || $application->insurance_amount || $application->equity || $application->disbursed_amount)
+                        <div class="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+                            @if($application->total_loan)
+                            <div class="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-600">
+                                <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Total Loan</p>
+                                <p class="text-sm font-bold text-gray-900 dark:text-white">₦{{ number_format($application->total_loan) }}</p>
+                            </div>
+                            @endif
+                            @if($application->insurance_amount)
+                            <div class="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-600">
+                                <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Insurance</p>
+                                <p class="text-sm font-bold text-orange-600 dark:text-orange-400">₦{{ number_format($application->insurance_amount) }}</p>
+                            </div>
+                            @endif
+                            @if($application->equity)
+                            <div class="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-600">
+                                <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Equity Held</p>
+                                <p class="text-sm font-bold text-purple-600 dark:text-purple-400">₦{{ number_format($application->equity) }}</p>
+                            </div>
+                            @endif
+                            @if($application->disbursed_amount)
+                            <div class="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-600">
+                                <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Disbursed</p>
+                                <p class="text-sm font-bold text-emerald-600 dark:text-emerald-400">₦{{ number_format($application->disbursed_amount) }}</p>
+                            </div>
+                            @endif
+                        </div>
+                        @endif
+                    </div>
+                </div>
+                @endif
+
                 <!-- Action Buttons -->
                 <div class="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8 border-t border-gray-200 dark:border-gray-700">
                     <!-- Print Button -->

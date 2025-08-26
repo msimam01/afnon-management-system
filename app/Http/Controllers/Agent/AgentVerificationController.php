@@ -24,7 +24,15 @@ class AgentVerificationController extends Controller
         $status = $request->get('status');
         $seasons = Season::where('status', 'open')->get();
 
-        $appsQuery = Application::with(['farmer', 'farm', 'season', 'commodity_allocations', 'applicationCenter', 'collectionVerification'])
+        $appsQuery = Application::with([
+                'farmer:id,full_name,registration_number,phone,bvn,nin,address',
+                'farm:id,size,location',
+                'season:id,name,status',
+                'commodity_allocations',
+                'applicationCenter',
+                'collectionVerification'
+            ])
+            ->select(['id', 'uuid', 'reference_number', 'farmer_id', 'farm_id', 'season_id', 'status', 'total_loan', 'insurance_rate', 'insurance_amount', 'equity', 'disbursed_amount'])
             ->whereHas('applicationCenter', fn($q) => $q->where('collection_center_id', $agent->center_id))
             ->where('status', 'approved')
             ->when($filter, fn($q) => $q->whereHas('farmer', fn($f) =>
@@ -94,13 +102,14 @@ public function assignedReturns(Request $request)
     $status = $request->get('status');
 
     $apps = Application::with([
-            'farmer',
-            'farm',
-            'season',
+            'farmer:id,full_name,registration_number,phone,bvn,nin,address',
+            'farm:id,size,location',
+            'season:id,name,status',
             'applicationCenter',
             'commodity_allocations',
             'collectionVerification' // eager load for checking collection
         ])
+        ->select(['id', 'uuid', 'reference_number', 'farmer_id', 'farm_id', 'season_id', 'status', 'total_loan', 'insurance_rate', 'insurance_amount', 'equity', 'disbursed_amount'])
         ->whereHas('applicationCenter', fn($q) => $q->where('return_center_id', $agent->center_id))
         ->whereHas('collectionVerification') // <--- Only include if farmer collected commodity
         ->when($filter, fn($q) => $q->whereHas('farmer', fn($f) =>

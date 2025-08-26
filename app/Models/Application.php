@@ -128,14 +128,14 @@ class Application extends Model
     public static function findByUuidCached(string $uuid)
     {
         return ApplicationCacheService::getByUuid($uuid, [
-            'farmer', 'farm', 'season', 'commodities'
+            'farmer', 'farm', 'season', 'commodities', 'commodity_allocations'
         ]);
     }
 
     public static function findByReferenceCached(string $reference)
     {
         return ApplicationCacheService::getByReference($reference, [
-            'farmer', 'farm', 'season', 'commodities'
+            'farmer', 'farm', 'season', 'commodities', 'commodity_allocations'
         ]);
     }
 

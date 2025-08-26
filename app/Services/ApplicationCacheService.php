@@ -85,7 +85,7 @@ class ApplicationCacheService
     public static function cacheApplication(Application $application)
     {
         try {
-            $application->load(['farmer', 'farm', 'season', 'commodities']);
+            $application->load(['farmer', 'farm', 'season', 'commodities', 'commodity_allocations']);
 
             // Cache by UUID
             $uuidKey = self::prefix() . "uuid_{$application->uuid}";

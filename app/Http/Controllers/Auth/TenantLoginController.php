@@ -64,7 +64,7 @@ class TenantLoginController extends Controller
         // Log the logout action as well
         if (Auth::guard('tenant')->check()) {
             activity()
-                    ->causedBy(Auth::guard('tenant')->user()->id)
+                    ->causedBy(Auth::guard('tenant')->user())
                     ->withProperties([
                         'tenant_id' => tenant('id'),
                         'ip_address' => request()->ip(),
