@@ -23,7 +23,9 @@ class Application extends Model
         'equity',
         'disbursed_amount',
         'reference_number',
-        'status'
+        'status',
+        'payment_status'
+
     ];
 
     public function applicationCommodities()
@@ -68,6 +70,11 @@ class Application extends Model
     {
         return $this->hasOne(\App\Models\ReturnVerification::class, 'application_id');
     }
+    public function monetaryReturn()
+    {
+        return $this->hasOne(\App\Models\MonetaryReturn::class, 'application_id');
+    }
+
 
     protected static function boot()
     {
@@ -104,8 +111,15 @@ class Application extends Model
     public function scopeForListing(Builder $query)
     {
         return $query->select([
-            'id', 'uuid', 'reference_number', 'status', 'total_loan',
-            'disbursed_amount', 'farmer_id', 'season_id', 'created_at'
+            'id',
+            'uuid',
+            'reference_number',
+            'status',
+            'total_loan',
+            'disbursed_amount',
+            'farmer_id',
+            'season_id',
+            'created_at'
         ])->withOptimizedRelations();
     }
 
@@ -128,14 +142,22 @@ class Application extends Model
     public static function findByUuidCached(string $uuid)
     {
         return ApplicationCacheService::getByUuid($uuid, [
-            'farmer', 'farm', 'season', 'commodities', 'commodity_allocations'
+            'farmer',
+            'farm',
+            'season',
+            'commodities',
+            'commodity_allocations'
         ]);
     }
 
     public static function findByReferenceCached(string $reference)
     {
         return ApplicationCacheService::getByReference($reference, [
-            'farmer', 'farm', 'season', 'commodities', 'commodity_allocations'
+            'farmer',
+            'farm',
+            'season',
+            'commodities',
+            'commodity_allocations'
         ]);
     }
 

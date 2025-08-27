@@ -10,10 +10,11 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\Admin\CenterController;
 use App\Http\Controllers\AgentDashboardController;
-use App\Http\Controllers\MonetaryReturnController;
 use App\Http\Controllers\Admin\AuditLogsController;
 use App\Http\Controllers\AgentCollectionController;
+use App\Http\Controllers\Auth\TenantLoginController;
 use App\Http\Controllers\Admin\AdminReportController;
+use App\Http\Controllers\Admin\MonetaryReturnController;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use App\Http\Controllers\Tenant\Admin\CommodityController;
 use App\Http\Controllers\Admin\AdminVerificationController;
@@ -29,6 +30,7 @@ use App\Http\Controllers\Tenant\Admin\Centers\ReturningCenterController;
 use App\Http\Controllers\Tenant\Admin\Centers\CollectionCenterController;
 use App\Http\Controllers\Tenant\Admin\RolePermissions\PermissionController;
 use App\Http\Controllers\Tenant\Admin\Applications\ApplicationApprovalController;
+
 
 // Apply tenancy middleware
 Route::middleware([
@@ -140,7 +142,6 @@ Route::middleware([
             Route::get('applications', [AdminReportController::class, 'applications'])->name('applications');
             Route::get('export', [AdminReportController::class, 'export'])
                 ->name('export');
-
         });
 
         Route::prefix('logs')->name('logs.')->group(function () {
@@ -169,10 +170,10 @@ Route::middleware([
         Route::get('farmers', fn() => view('admin.farmers'))->name('farmers');
         Route::get('returns', fn() => view('admin.return'))->name('returns');
         Route::get('reports', fn() => view('admin.reports'))->name('reports');
-        Route::get('receipts', [MonetaryReturnController::class, 'index'])->name('receipts');
-        Route::get('receipts/{id}', [MonetaryReturnController::class, 'show'])->name('eceipts.show');
-        Route::post('receipts/{id}/verify', [MonetaryReturnController::class, 'verify'])->name('receipts.verify');
-        Route::post('receipts/{id}/reject', [MonetaryReturnController::class, 'reject'])->name('receipts.reject');
+        Route::get('monetary-returns', [MonetaryReturnController::class, 'index'])->name('monetary-returns');
+        // Route::get('receipts/{id}', [MonetaryReturnController::class, 'show'])->name('eceipts.show');
+        // Route::post('receipts/{id}/verify', [MonetaryReturnController::class, 'verify'])->name('receipts.verify');
+        // Route::post('receipts/{id}/reject', [MonetaryReturnController::class, 'reject'])->name('receipts.reject');
     });
 
 
@@ -197,6 +198,15 @@ Route::middleware([
         Route::get('verify-return', [AgentVerificationController::class, 'assignedReturns'])->name('verify.return');
         Route::post('verify-return', [AgentVerificationController::class, 'storeReturn'])->name('verify.return.submit');
 
+        Route::get('monetary-return', [MonetaryReturnController::class, 'index'])->name('monetary-return');
+
+        // Start payment (creates payment session & redirects)
+        Route::post('generate-payment/{application}', [MonetaryReturnController::class, 'generatePayment'])
+            ->name('generatePayment');
+
+        // Callback (redirect_url after payment)
+        Route::get('/payment/callback', [MonetaryReturnController::class, 'paymentCallback'])
+            ->name('payment.callback');
     });
     // Additional tenant-specific routes...
 });

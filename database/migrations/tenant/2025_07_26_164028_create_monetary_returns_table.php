@@ -16,8 +16,9 @@ return new class extends Migration
             $table->uuid('uuid')->unique(); // UUID colum
             $table->foreignId('application_id')->constrained()->onDelete('cascade');
             $table->decimal('amount', 12, 2);
-            $table->string('payment_proof')->nullable(); // upload path
-            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+            $table->string(column: 'payment_proof')->nullable(); // upload path
+            $table->enum('status', ['pending', 'paid'])->default('pending');
+            $table->string('payment_link')->nullable();
             $table->foreignId('verified_by')->nullable()->constrained('users');
             $table->timestamp('verified_at')->nullable();
             $table->string('invoice_number')->unique()->nullable(); // Optional, generated on save

@@ -8,6 +8,13 @@ use Illuminate\Support\Str;
 class MonetaryReturn extends Model
 {
     use HasFactory;
+
+    protected $fillable = ['uuid', 'tx_ref', 'application_id', 'amount', 'payment_proof', 'payment_link', 'verified_by', 'verified_at', 'invoice_number', 'status'];
+
+    public function application()
+    {
+        return $this->belongsTo(Application::class);
+    }
     protected static function boot()
     {
         parent::boot();

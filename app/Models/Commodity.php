@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use App\Models\CommodityMarketPrice;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Commodity extends Model
 {
@@ -15,6 +16,10 @@ class Commodity extends Model
     {
         return $this->belongsToMany(Season::class, 'commodity_seasons')
             ->withTimestamps();
+    }
+    public function marketPrices()
+    {
+        return $this->hasMany(CommodityMarketPrice::class, 'commodity_id', 'id');
     }
 
 

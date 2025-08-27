@@ -13,7 +13,7 @@ class MonetaryReturnController extends Controller
     public function index()
     {
         $returns = MonetaryReturn::with('application.farmer')->where('status', 'paid')->latest()->get();
-        return view('admin.reciepts.index', compact('returns'));
+        return view(view: 'admin.reciepts.index', compact('returns'));
     }
 
     public function show($id)

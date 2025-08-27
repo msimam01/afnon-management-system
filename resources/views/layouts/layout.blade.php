@@ -444,8 +444,8 @@
                             </a>
                         </li>
                         <li>
-                            <a href="{{ route('admin.receipts') }}"
-                                class="{{ Route::is('admin.receipts') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
+                            <a href="{{ route('admin.monetary-returns') }}"
+                                class="{{ Route::is('admin.monetary-returns') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
                                 <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z">
@@ -543,6 +543,17 @@
                                     </path>
                                 </svg>
                                 Verify Return
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('agent.monetary-return') }}"
+                                class="{{ Route::is('agent.monetary-return') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
+                                <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z">
+                                    </path>
+                                </svg>
+                                Monetary Return
                             </a>
                         </li>
                     @endrole
