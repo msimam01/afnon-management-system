@@ -14,6 +14,10 @@ class ApplicationCommodity extends Model
         'commodity_id',
         'quantity'
     ];
+    public function commodity()
+{
+    return $this->belongsTo(Commodity::class);
+}
     protected static function boot()
     {
         parent::boot();

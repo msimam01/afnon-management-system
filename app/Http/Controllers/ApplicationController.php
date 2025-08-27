@@ -364,7 +364,8 @@ class ApplicationController extends Controller
             'farmer:id,full_name,registration_number,phone,bvn,nin,address',
             'farm:id,size,location',
             'season',
-            'commodities:id,name,quantity_per_hectare,price_per_unit'
+            'commodities:id,name,quantity_per_hectare,price_per_unit',
+            'applicationCommodities.commodity'
         ])->whereUuid($uuid)->firstOrFail();
 
         // Auto-calculate allocation based on qty_per_hectare × farm size

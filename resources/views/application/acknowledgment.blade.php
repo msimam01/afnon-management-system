@@ -261,6 +261,7 @@
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+
                                     @foreach ($application->commodities as $index => $commodity)
                                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 animate-fade-in" style="animation-delay: {{ $index * 0.1 }}s;">
                                             <td class="px-6 py-4">
