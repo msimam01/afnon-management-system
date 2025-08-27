@@ -14,7 +14,7 @@ use App\Http\Controllers\Admin\AuditLogsController;
 use App\Http\Controllers\AgentCollectionController;
 use App\Http\Controllers\Auth\TenantLoginController;
 use App\Http\Controllers\Admin\AdminReportController;
-use App\Http\Controllers\Admin\MonetaryReturnController;
+use App\Http\Controllers\Agent\MonetaryReturnController;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use App\Http\Controllers\Tenant\Admin\CommodityController;
 use App\Http\Controllers\Admin\AdminVerificationController;
@@ -22,6 +22,7 @@ use App\Http\Controllers\Agent\AgentVerificationController;
 use App\Http\Controllers\Auth\TenantForgotPasswordController;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 use App\Http\Controllers\Tenant\Admin\Centers\CollectionCenters;
+use App\Http\Controllers\Admin\MonetaryReturnVerificationController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Agent\DashboardController as AgentDashboard;
 use App\Http\Controllers\Tenant\Admin\RolePermissions\RoleController;
@@ -142,6 +143,7 @@ Route::middleware([
             Route::get('applications', [AdminReportController::class, 'applications'])->name('applications');
             Route::get('export', [AdminReportController::class, 'export'])
                 ->name('export');
+            Route::get('export-excel', [AdminReportController::class, 'exportExcel'])->name('exportExcel');
         });
 
         Route::prefix('logs')->name('logs.')->group(function () {
@@ -170,7 +172,7 @@ Route::middleware([
         Route::get('farmers', fn() => view('admin.farmers'))->name('farmers');
         Route::get('returns', fn() => view('admin.return'))->name('returns');
         Route::get('reports', fn() => view('admin.reports'))->name('reports');
-        Route::get('monetary-returns', [MonetaryReturnController::class, 'index'])->name('monetary-returns');
+        Route::get('monetary-returns', [MonetaryReturnVerificationController::class, 'index'])->name('monetary-returns');
         // Route::get('receipts/{id}', [MonetaryReturnController::class, 'show'])->name('eceipts.show');
         // Route::post('receipts/{id}/verify', [MonetaryReturnController::class, 'verify'])->name('receipts.verify');
         // Route::post('receipts/{id}/reject', [MonetaryReturnController::class, 'reject'])->name('receipts.reject');

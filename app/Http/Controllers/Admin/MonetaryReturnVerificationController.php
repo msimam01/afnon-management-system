@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
+use App\Models\Season;
 use Illuminate\Http\Request;
 use App\Models\MonetaryReturn;
-use App\Models\Season;
+use App\Http\Controllers\Controller;
 
-class MonetaryReturnController extends Controller
+class MonetaryReturnVerificationController extends Controller
 {
-    public function index(Request $request)
+     public function index(Request $request)
     {
         $query = MonetaryReturn::with(['application.farmer', 'application.commodity_allocations'])
             ->where('status', 'paid');

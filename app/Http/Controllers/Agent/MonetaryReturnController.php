@@ -16,34 +16,35 @@ use Illuminate\Support\Facades\Http;
 class MonetaryReturnController extends Controller
 {
     public function index(Request $request)
-    {
-        $seasons = Season::all();
+{
+    $seasons = Season::all();
 
-        $query = Application::with(['farmer', 'commodity_allocations', 'season'])
-            ->whereHas('collectionVerification', function ($q) {});
+    $query = Application::with(['farmer', 'commodity_allocations', 'season'])
+        ->whereHas('collectionVerification', function ($q) {})
+        ->whereDoesntHave('returnVerification'); // Exclude applications in return verifications
 
-        if ($request->season) {
-            $query->whereHas('season', fn($q) => $q->where('slug', $request->season));
-        }
-
-        if ($request->status) {
-            $query->where('status', $request->status);
-        }
-
-        if ($request->filter) {
-            $filter = $request->filter;
-            $query->whereHas(
-                'farmer',
-                fn($q) =>
-                $q->where('full_name', 'like', "%$filter%")
-                    ->orWhere('registration_number', 'like', "%$filter%")
-            );
-        }
-
-        $applications = $query->latest()->paginate(15);
-
-        return view('agent.monetary-return', compact('applications', 'seasons'));
+    if ($request->season) {
+        $query->whereHas('season', fn($q) => $q->where('slug', $request->season));
     }
+
+    if ($request->status) {
+        $query->where('status', $request->status);
+    }
+
+    if ($request->filter) {
+        $filter = $request->filter;
+        $query->whereHas(
+            'farmer',
+            fn($q) =>
+            $q->where('full_name', 'like', "%$filter%")
+                ->orWhere('registration_number', 'like', "%$filter%")
+        );
+    }
+
+    $applications = $query->latest()->paginate(15);
+
+    return view('agent.monetary-return', compact('applications', 'seasons'));
+}
     public function generatePayment(Application $application, FlutterwaveService $flutterwave)
 {
     // 🚫 Prevent duplicate payments
@@ -71,7 +72,7 @@ class MonetaryReturnController extends Controller
         $application->farmer->phone ?? '08000000000',
         $txRef,
         route('agent.payment.callback'),
-        'card,banktransfer,ussd,opay'
+        paymentOptions: 'card,banktransfer,ussd,opay'
     );
 
     if (!empty($response['error'])) {

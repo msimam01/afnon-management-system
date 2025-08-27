@@ -112,6 +112,7 @@ public function assignedReturns(Request $request)
         ->select(['id', 'uuid', 'reference_number', 'farmer_id', 'farm_id', 'season_id', 'status', 'total_loan', 'insurance_rate', 'insurance_amount', 'equity', 'disbursed_amount'])
         ->whereHas('applicationCenter', fn($q) => $q->where('return_center_id', $agent->center_id))
         ->whereHas('collectionVerification') // <--- Only include if farmer collected commodity
+        ->whereDoesntHave('monetaryReturn')
         ->when($filter, fn($q) => $q->whereHas('farmer', fn($f) =>
             $f->where('full_name', 'like', "%$filter%")
               ->orWhere('registration_number', 'like', "%$filter%")

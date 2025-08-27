@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Devrabiul\ToastMagic\Facades\ToastMagic;
+use Illuminate\Support\Str;
 
 class AdminVerificationController extends Controller
 {
@@ -93,29 +94,36 @@ class AdminVerificationController extends Controller
                 $q->where('status', $status);
             });
 
-            // The fix: Add the transformation for media_files here before merging.
+            // Transform media paths to public URLs
             $collectionData = $collectionQuery->get()->transform(function ($item) {
-                $item->type = 'collection';
-                $item->media_files = [
-                    Storage::url($item->id_card_photo),
-                    Storage::url($item->commodities_photo)
-                ];
-                return $item;
-            });
+    $item->type = 'collection';
+    $imagePaths = [];
+    foreach ([$item->id_card_photo, $item->commodity_photo] as $path) {
+        if ($path) {
+            // Use the path directly
+            $imagePaths[] = asset('storage/' . $path);
+        }
+    }
+    $item->image_paths = $imagePaths;
+    return $item;
+});
 
-            $returnData = $returnQuery->get()->transform(function ($item) {
-                $item->type = 'return';
-                $item->media_files = [
-                    Storage::url($item->id_card_photo),
-                    Storage::url($item->returned_commodity_photo)
-                ];
-                return $item;
-            });
+$returnData = $returnQuery->get()->transform(function ($item) {
+    $item->type = 'return';
+    $imagePaths = [];
+    foreach ([$item->id_card_photo, $item->returned_commodity_photo] as $path) {
+        if ($path) {
+            $imagePaths[] = asset('storage/' . $path);
+        }
+    }
+    $item->image_paths = $imagePaths;
+    return $item;
+});
 
             $allData = $collectionData->merge($returnData);
             $total = $allData->count();
             $paginatedData = $allData->forPage($page, $perPage);
-            $pagedData = new LengthAwarePaginator($paginatedData, $total, $perPage, $page, [
+            $pagedData = new \Illuminate\Pagination\LengthAwarePaginator($paginatedData, $total, $perPage, $page, [
                 'path' => $request->url(),
                 'query' => $request->query(),
             ]);
@@ -147,20 +155,24 @@ class AdminVerificationController extends Controller
 
         // Normalize the type and image URLs for the single type query.
         $pagedData->getCollection()->transform(function ($item) use ($type) {
-            $item->type = $type;
-            if ($type === 'collection') {
-                $item->media_files = [
-                    Storage::url($item->id_card_photo),
-                    Storage::url($item->commodities_photo)
-                ];
-            } elseif ($type === 'return') {
-                $item->media_files = [
-                    Storage::url($item->id_card_photo),
-                    Storage::url($item->returned_commodity_photo)
-                ];
+    $item->type = $type;
+    $imagePaths = [];
+    if ($type === 'collection') {
+        foreach ([$item->id_card_photo, $item->commodity_photo] as $path) {
+            if ($path) {
+                $imagePaths[] = asset('storage/' . $path);
             }
-            return $item;
-        });
+        }
+    } elseif ($type === 'return') {
+        foreach ([$item->id_card_photo, $item->returned_commodity_photo] as $path) {
+            if ($path) {
+                $imagePaths[] = asset('storage/' . $path);
+            }
+        }
+    }
+    $item->image_paths = $imagePaths;
+    return $item;
+});
 
         return response()->json($pagedData);
     }
@@ -181,12 +193,12 @@ class AdminVerificationController extends Controller
         try {
             DB::transaction(function () use ($model, $validated) {
                 $verification = $model::findOrFail($validated['id']);
-                
+
                 // Prevent duplicate approvals
                 if ($verification->status === 'approved') {
                     throw new \Exception('This verification has already been approved.');
                 }
-                
+
                 $verification->status = $validated['status'];
                 $verification->save();
             });
@@ -217,13 +229,13 @@ class AdminVerificationController extends Controller
         try {
             DB::transaction(function () use ($model, $validated, &$approvedCount, &$skippedCount) {
                 $verifications = $model::whereIn('id', $validated['ids'])->get();
-                
+
                 foreach ($verifications as $verification) {
                     if ($verification->status === 'approved') {
                         $skippedCount++;
                         continue;
                     }
-                    
+
                     if ($verification->status === 'pending') {
                         $verification->update(['status' => 'approved']);
                         $approvedCount++;

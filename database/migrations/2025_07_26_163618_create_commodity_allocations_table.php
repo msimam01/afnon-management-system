@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->uuid('uuid')->unique(); // UUID colum
             $table->foreignId('application_id')->constrained()->onDelete('cascade');
-            $table->foreignId('commodity_id')->constrained()->onDelete('cascade');
+            $table->string('commodity_name');
             $table->foreignId('center_id')->nullable()->constrained();
             $table->integer('allocated_quantity');
             $table->decimal('unit_price', 10, 2)->nullable(); // For tracking

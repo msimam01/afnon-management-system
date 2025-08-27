@@ -1,24 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reset Password</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    {!! ToastMagic::styles() !!}
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                fontFamily: {
-                    'sans': ['Inter', 'system-ui', 'sans-serif'],
-                }
-            }
-        }
-    </script>
-</head>
-<body class="bg-gray-50 dark:bg-gray-900 font-sans transition-colors duration-200">
+@extends('auth.includes.app')
+@section('content')
     <div class="min-h-screen flex items-center justify-center py-20 px-4 sm:px-6 lg:px-8">
         <div class="max-w-md w-full space-y-8">
             <div class="text-center">
@@ -63,10 +44,4 @@
             </form>
         </div>
     </div>
-    <script>
-        // Dark mode functionality
-        // ... (your existing dark mode script)
-    </script>
-    {!! ToastMagic::scripts() !!}
-</body>
-</html>
+   @endsection

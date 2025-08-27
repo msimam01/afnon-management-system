@@ -4,10 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Acknowledgement Slip - AFNON</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    {!! ToastMagic::styles() !!}
+    @include('application.includes.app')
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -463,14 +460,14 @@
 
         <!-- Signature / Stamp Section -->
         <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="text-center">
+            {{-- <div class="text-center">
                 <div class="h-16 border-b border-dashed border-gray-300 dark:border-gray-600"></div>
                 <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">Applicant Signature</p>
             </div>
             <div class="text-center">
                 <div class="h-16 border-b border-dashed border-gray-300 dark:border-gray-600"></div>
                 <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">Officer Signature</p>
-            </div>
+            </div> --}}
             <div class="text-center">
                 <div class="h-16 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded"></div>
                 <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">Official Stamp</p>

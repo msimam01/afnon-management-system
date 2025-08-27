@@ -68,7 +68,6 @@
         </div>
     </div>
     <script>
-        
         //Fetch all States
         fetch('https://nga-states-lga.onrender.com/fetch')
             .then((res) => res.json())

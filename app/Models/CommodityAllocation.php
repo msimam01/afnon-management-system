@@ -10,6 +10,7 @@ class CommodityAllocation extends Model
 {
     use HasFactory;
     protected $fillable = [
+        'uuid',
         'application_id',
         'commodity_name',
         'qty_per_hectare',

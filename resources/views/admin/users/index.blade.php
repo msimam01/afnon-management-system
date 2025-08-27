@@ -1,7 +1,6 @@
 @extends('layouts.layout')
 
 @section('content')
-    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         <!-- Header Section -->
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
