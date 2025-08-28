@@ -7,54 +7,42 @@ use Illuminate\Support\Facades\Http;
 
 class SmsHelper
 {
-    public static function send($to, $message, $sender = null)
+    public static function sendSms($to, $message)
     {
-        $apiKey = env('TERMII_API_KEY');
-        $baseUrl = 'https://v3.api.termii.com/api/sms/send';
 
-        // Convert number to international format
-        $to = preg_replace('/^0/', '234', $to);
+        $response = Http::withHeaders([
+            'Authorization' => 'App ' . env('INFOBIP_API_KEY'),
+        ])->get('https://{base_url}.api.infobip.com/sms/1/reports');
 
-        // If no custom sender, use .env sender ID
-        if (empty($sender)) {
-            $sender = env('TERMII_SENDER_ID', 'Termii');
-        }
+        $logs = $response->json();
+        dd($logs);
 
-        // 1️⃣ First attempt with custom sender
-        $response = Http::post($baseUrl, [
-            'to'      => $to,
-            'from'    => $sender,
-            'sms'     => $message,
-            'type'    => 'plain',
-            'channel' => 'generic',
-            'api_key' => $apiKey
-        ]);
-
-        $result = $response->json();
-        Log::info("Termii first attempt response", $result ?? []);
-
-        // 2️⃣ If sender not approved, retry with Termii default sender
-        if (
-            isset($result['message']) &&
-            str_contains(strtolower($result['message']), 'sender id not approved')
-        ) {
-            Log::warning("Sender ID not approved, retrying with Termii default sender");
-
-            $fallbackResponse = Http::post($baseUrl, [
-                'to'      => $to,
-                'from'    => 'Termii', // fallback
-                'sms'     => $message,
-                'type'    => 'plain',
-                'channel' => 'generic',
-                'api_key' => $apiKey
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => env('INFOBIP_API_KEY'),
+                'Content-Type'  => 'application/json',
+                'Accept'        => 'application/json',
+            ])->post(env('INFOBIP_BASE_URL') . '/sms/2/text/advanced', [
+                'messages' => [
+                    [
+                        'from' => env('INFOBIP_SENDER', 'AFNON'),
+                        'destinations' => [
+                            ['to' => $to]
+                        ],
+                        'text' => $message,
+                    ]
+                ]
             ]);
 
-            $fallbackResult = $fallbackResponse->json();
-            Log::info("Termii fallback response", $fallbackResult ?? []);
+            if ($response->failed()) {
+                Log::error('Infobip SMS failed: ' . $response->body());
+                return false;
+            }
 
-            return $fallbackResponse->successful();
+            return true;
+        } catch (\Throwable $e) {
+            Log::error('SMS sending error: ' . $e->getMessage());
+            return false;
         }
-
-        return $response->successful();
     }
 }

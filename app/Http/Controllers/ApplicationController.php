@@ -432,6 +432,7 @@ class ApplicationController extends Controller
 
     public function approve(Request $request, $uuid)
     {
+
         $application = Application::with(['farm', 'season', 'farmer', 'commodities'])->where('uuid', $uuid)->firstOrFail();
 
         if ($application->status === 'approved') {
@@ -488,14 +489,16 @@ class ApplicationController extends Controller
 
             // Update status
             $application->update(['status' => 'approved']);
+            // $message = "Dear {$application->farmer->full_name}, your application {$application->reference_number} has been approved. 
+            // Reg No: {$application->farmer->registration_number}. 
+            // Collection Date: {$collectionDate}. 
+            // Return Date: {$returnDate}.";
+            //                 // Queue SMS job (use Laravel Jobs)
+            //             dispatch(new \App\Jobs\SendSmsJob(
+            //     $application->farmer->phone,
+            //     $message
+            // ))->afterCommit();
         });
-
-        // Queue SMS job (use Laravel Jobs)
-        // dispatch(new \App\Jobs\SendSmsJob([
-        //     'phone' => $application->farmer->phone,
-        //     'message' => "Dear {$application->farmer->full_name}, your application {$application->reference_number} has been approved.\nReg No: {$application->farmer->registration_number}.\nCollection Date: {$collectionDate}.\nReturn Date: {$returnDate}."
-        // ]));
-
         ToastMagic::success('Application approved successfully.');
         return back();
     }
@@ -594,7 +597,7 @@ class ApplicationController extends Controller
             // dispatch(new \App\Jobs\SendSmsJob([
             //     'phone' => $application->farmer->phone,
             //     'message' => "Dear {$application->farmer->full_name}, your application {$application->reference_number} has been approved.\nReg No: {$application->farmer->registration_number}.\nCollection Date: {$collectionDate}.\nReturn Date: {$returnDate}."
-            // ]));
+            // ]))->afterCommit();
         }
 
         // Bulk insert centers and allocations
