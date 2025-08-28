@@ -33,11 +33,27 @@ class ApplicationController extends Controller
      */
     public function index(Request $request)
     {
-        // Use cached paginated results for better performance
         $filters = $request->only(['season', 'status', 'search']);
-        $perPage = $request->get('per_page', 15);
+        $perPage = 15;
 
-        $applications = ApplicationCacheService::getPaginatedApplications($filters, $perPage);
+        $query = Application::with(['farmer', 'season', 'commodities', 'farm']);
+
+        if (!empty($filters['season'])) {
+            $query->whereHas('season', function ($q) use ($filters) {
+                $q->where('name', $filters['season']);
+            });
+        }
+        if (!empty($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+        if (!empty($filters['search'])) {
+            $query->whereHas('farmer', function ($q) use ($filters) {
+                $q->where('full_name', 'like', '%' . $filters['search'] . '%')
+                  ->orWhere('phone', 'like', '%' . $filters['search'] . '%');
+            });
+        }
+
+        $applications = $query->paginate($perPage);
 
         // Cache frequently accessed data (namespace by tenant)
         $tid = (function () {
