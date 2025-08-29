@@ -11,6 +11,11 @@ class MonetaryReturn extends Model
 
     protected $fillable = ['uuid', 'tx_ref', 'application_id', 'amount', 'payment_proof', 'payment_link', 'verified_by', 'verified_at', 'invoice_number', 'status'];
 
+    protected $casts = [
+        'verified_at' => 'datetime',
+        'amount' => 'decimal:2',
+    ];
+
     public function application()
     {
         return $this->belongsTo(Application::class);

@@ -8,6 +8,7 @@ use App\Http\Controllers\SeasonController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\FarmerPaymentController;
 use App\Http\Controllers\Admin\CenterController;
 use App\Http\Controllers\AgentDashboardController;
 use App\Http\Controllers\Admin\AuditLogsController;
@@ -189,6 +190,14 @@ Route::middleware([
     Route::post('/verify-bvn', [BVNController::class, 'verifyBVN'])
         ->name('bvn.verify');
 
+    // Farmer Payment Portal Routes (Public - no authentication required)
+    Route::prefix('farmer/payment')->name('farmer.payment.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\FarmerPaymentController::class, 'index'])->name('index');
+        Route::post('/lookup', [\App\Http\Controllers\FarmerPaymentController::class, 'lookup'])->name('lookup');
+        Route::post('/initiate', [\App\Http\Controllers\FarmerPaymentController::class, 'initiatePayment'])->name('initiate');
+        Route::get('/callback', [\App\Http\Controllers\FarmerPaymentController::class, 'paymentCallback'])->name('callback');
+        Route::get('/receipt/{txRef}', [\App\Http\Controllers\FarmerPaymentController::class, 'receipt'])->name('receipt');
+    });
 
     Route::middleware(['auth:tenant', 'tenant.user.active', 'role:agent'])->prefix('agent')->name('agent.')->group(function () {
         Route::get('dashboard', [AgentDashboardController::class, 'index'])->name('dashboard');
