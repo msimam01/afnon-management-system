@@ -36,7 +36,7 @@
     <script src="https://unpkg.com/alpinejs" defer></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+{!! ToastMagic::styles() !!}
     <script>
         tailwind.config = {
             theme: {
@@ -992,15 +992,12 @@
                         <div>
                             <h3 class="text-lg font-semibold text-gray-900 mb-1">Phone Support</h3>
                             <p class="text-gray-600 mb-2">Call us for immediate assistance</p>
-                            @if ($setting->phone)
-                                <a href="tel:{{ $setting->phone }}" class="text-emerald-600 font-semibold hover:text-emerald-700">
-                                {{ $setting->phone }}
-                            </a>
-                            @else
-                            <a href="tel:00000000000" class="text-emerald-600 font-semibold hover:text-emerald-700">
-                                +2348000000000
-                            </a>
-                            @endif
+                            @if ($setting && $setting->phone)
+    <a href="tel:{{ $setting->phone }}">{{ $setting->phone }}</a>
+@else
+    <a href="tel:00000000000">+2348000000000</a>
+@endif
+
                         </div>
                     </div>
 
@@ -1012,7 +1009,7 @@
                         <div>
                             <h3 class="text-lg font-semibold text-gray-900 mb-1">Email Support</h3>
                             <p class="text-gray-600 mb-2">Send us your questions</p>
-                            @if ($setting->email)
+                            @if ($setting && $setting->email)
                                 <a href="mailto:{{ $setting->email }}" class="text-emerald-600 font-semibold hover:text-emerald-700">
                                     {{ $setting->email }}
                                 </a>
@@ -1033,7 +1030,7 @@
                         <div>
                             <h3 class="text-lg font-semibold text-gray-900 mb-1">Office Location</h3>
                             <p class="text-gray-600 mb-2">Visit our headquarters</p>
-                            @if ($setting->address)
+                            @if ($setting &&$setting->address)
                                 <address class="text-emerald-600 font-semibold not-italic">
                                 {{ $setting->address }}
                             </address>
@@ -1124,17 +1121,19 @@
                         Apply Now - It's Free
                     </a>
                     @endif
-                    @if ($setting->phone)
-                        <a href="tel:{{ $setting->phone }}" class="glass text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white/20 transition-all duration-300 inline-flex items-center gap-2 justify-center">
+                    @if ($setting && $setting->phone)
+    <a href="tel:{{ $setting->phone }}" class="glass text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white/20 transition-all duration-300 inline-flex items-center gap-2 justify-center">
                         <i class="fas fa-phone"></i>
                         Call Us Today
                     </a>
-                    @else
-<a href="tel:00000000000" class="glass text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white/20 transition-all duration-300 inline-flex items-center gap-2 justify-center">
+@else
+    <a href="tel:00000000000" class="glass text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white/20 transition-all duration-300 inline-flex items-center gap-2 justify-center">
                         <i class="fas fa-phone"></i>
                         Call Us Today
                     </a>
-                    @endif
+@endif
+
+
                 </div>
 
                 <!-- Quick Stats -->
@@ -1428,5 +1427,6 @@
             transform: scale(1.02);
         }
     </style>
+    {!! ToastMagic::scripts() !!}
 </body>
 </html>

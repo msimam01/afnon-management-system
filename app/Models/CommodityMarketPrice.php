@@ -11,7 +11,7 @@ class CommodityMarketPrice extends Model
     protected $fillable = [
         'commodity_id',
         'season_id', // Add the new column to the fillable array
-        'market_price'
+        'current_price'
     ];
 
     // You should also add the relationship to the Season model

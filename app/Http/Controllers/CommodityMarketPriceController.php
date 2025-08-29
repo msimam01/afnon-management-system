@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CommodityMarketPrice;
 use Illuminate\Http\Request;
+use App\Models\CommodityMarketPrice;
+use Devrabiul\ToastMagic\Facades\ToastMagic;
 
 class CommodityMarketPriceController extends Controller
 {
@@ -27,9 +28,26 @@ class CommodityMarketPriceController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
-        //
-    }
+{
+    $request->validate([
+        'commodity_id' => 'required|exists:commodities,id',
+        'season_id'    => 'nullable|exists:seasons,id',
+        'current_price'=> 'numeric|required'
+    ]);
+
+    CommodityMarketPrice::updateOrCreate(
+        [
+            'commodity_id' => $request->commodity_id,
+            'season_id'    => $request->season_id, // can be null
+        ],
+        [
+            'current_price' => $request->current_price,
+        ]
+    );
+
+    ToastMagic::success('Market price saved successfully');
+    return redirect()->back();
+}
 
     /**
      * Display the specified resource.

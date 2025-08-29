@@ -14,7 +14,9 @@ use App\Http\Controllers\Admin\AuditLogsController;
 use App\Http\Controllers\AgentCollectionController;
 use App\Http\Controllers\Auth\TenantLoginController;
 use App\Http\Controllers\Admin\AdminReportController;
+use App\Http\Controllers\CommodityCategoryController;
 use App\Http\Controllers\Agent\MonetaryReturnController;
+use App\Http\Controllers\CommodityMarketPriceController;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use App\Http\Controllers\Tenant\Admin\CommodityController;
 use App\Http\Controllers\Admin\AdminVerificationController;
@@ -95,12 +97,9 @@ Route::middleware([
             Route::get('/{uuid}/edit', [CommodityController::class, 'edit'])->name('edit');
             Route::put('/{uuid}', [CommodityController::class, 'update'])->name('update');
             Route::delete('/{uuid}', [CommodityController::class, 'destroy'])->name('destroy');
+            Route::post('/market-price', [CommodityMarketPriceController::class, 'store'])->name('market-price');
+            Route::post('/category', [CommodityCategoryController::class, 'store'])->name('category');
 
-            // Import
-            Route::get('/import/global', [CommodityController::class, 'importForm'])->name('importForm');
-            Route::post('/import/{id}', [CommodityController::class, 'import'])->name('import');
-            Route::post('/import-bulk', [CommodityController::class, 'importBulk'])->name('importBulk');
-            Route::post('/{uuid}/sync', [CommodityController::class, 'sync'])->name('sync');
         });
         Route::prefix('centers')->name('centers.')->group(function () {
             Route::get('/', [CollectionCenters::class, 'index'])->name('index');

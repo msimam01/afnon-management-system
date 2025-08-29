@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Farm;
+use App\Models\CommodityCategory;
+use Devrabiul\ToastMagic\Facades\ToastMagic;
 use Illuminate\Http\Request;
 
-class FarmController extends Controller
+class CommodityCategoryController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -28,13 +29,17 @@ class FarmController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->all();
+        $data['name'] = strtolower($data['name']);
+        CommodityCategory::create($data);
+        ToastMagic::success('Commodity category created successfully.');
+        return redirect()->back();
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Farm $farm)
+    public function show(CommodityCategory $commodityCategory)
     {
         //
     }
@@ -42,7 +47,7 @@ class FarmController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Farm $farm)
+    public function edit(CommodityCategory $commodityCategory)
     {
         //
     }
@@ -50,7 +55,7 @@ class FarmController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Farm $farm)
+    public function update(Request $request, CommodityCategory $commodityCategory)
     {
         //
     }
@@ -58,7 +63,7 @@ class FarmController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Farm $farm)
+    public function destroy(CommodityCategory $commodityCategory)
     {
         //
     }

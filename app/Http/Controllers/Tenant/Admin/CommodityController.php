@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Tenant\Admin;
 
+use App\Models\Season;
 use App\Models\Commodity;
 use Illuminate\Http\Request;
+use App\Models\CommodityCategory;
 use App\Http\Controllers\Controller;
 use Devrabiul\ToastMagic\Facades\ToastMagic;
 
@@ -22,14 +24,15 @@ class CommodityController extends Controller
         }
 
         $commodities = $query->latest()->paginate(15);
-        $seasons = []; // load actual seasons if needed for filtering
+        $seasons = Season::all(); // load actual seasons if needed for filtering
 
         return view('admin.commodities.index', compact('commodities', 'seasons'));
     }
 
     public function create()
     {
-        return view('admin.commodities.create');
+        $categories = CommodityCategory::all();
+        return view('admin.commodities.create', compact('categories'));
     }
 
     public function store(Request $request)

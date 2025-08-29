@@ -12,6 +12,7 @@ class TenantLoginController extends Controller
 {
     public function showLoginForm()
     {
+        
         return view('auth.tenant-login'); //
     }
 
