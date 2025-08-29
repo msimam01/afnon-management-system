@@ -144,7 +144,7 @@ class TenantProvisioner
             if (!Role::where('name', $role)->exists()) {
                 Role::create([
                     'name' => $role,
-                    'guard_name' => 'web',
+                    'guard_name' => 'tenant',
                 ]);
                 Log::info("[TenantProvisioner] Created role {$role}");
             }

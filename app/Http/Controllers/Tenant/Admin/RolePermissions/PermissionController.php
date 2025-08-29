@@ -26,7 +26,7 @@ class PermissionController extends Controller
         $request->validate([
             'name' => [
                 'required', 'string', 'max:255',
-                Rule::unique('permissions', 'name')->where(fn($q) => 
+                Rule::unique('permissions', 'name')->where(fn($q) =>
                     $q->where('tenant_id', tenant('id'))
                 )
             ]
@@ -34,7 +34,7 @@ class PermissionController extends Controller
 
         $permission = Permission::create([
             'name'       => $request->name,
-            'guard_name' => 'web',
+            'guard_name' => 'tenant',
             'tenant_id'  => tenant('id')
         ]);
 
