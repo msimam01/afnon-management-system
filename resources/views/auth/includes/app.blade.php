@@ -1,3 +1,30 @@
+@php
+    use App\Models\Setting;
+
+    $centralDomains = ['localhost', '127.0.0.1', 'afnon.com'];
+    $host = request()->getHost();
+    $isCentral = in_array($host, $centralDomains);
+
+    $tenant = null;
+    $setting = null;
+
+    if ($isCentral) {
+        // Central settings (still stored in central DB settings table)
+        $setting = Setting::first();
+    } else {
+        $tenant = \App\Models\SuperAdmin\Tenant::whereHas('domains', function ($q) use ($host) {
+            $q->where('domain', $host);
+        })->first();
+
+        if ($tenant) {
+            // Switch to tenant DB
+            tenancy()->initialize($tenant);
+
+            // Tenant settings (logo, phone, email, address, etc.)
+            $setting = Setting::first();
+        }
+    }
+@endphp
 <!DOCTYPE html>
 <html lang="en" class="h-full">
 <head>
@@ -7,7 +34,8 @@
     <meta name="robots" content="noindex, nofollow">
     <title>AFNON Management Software - Authentication</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     {!! ToastMagic::styles() !!}
     <script>
         tailwind.config = {
@@ -95,16 +123,14 @@
                         </svg>
                     </button>
                     <div class="flex items-center space-x-3">
-                        <div class="h-8 w-8 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center shadow-lg">
-                            <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <h1 class="text-xl font-bold text-gray-900 dark:text-white">AFNON</h1>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">Loan Management System</p>
-                        </div>
+                    <div class="w-12 h-12 bg-gradient-to-br from-emerald-600 to-emerald-800 rounded-xl flex items-center justify-center shadow-lg">
+                        <i class="fas fa-seedling text-white text-xl"></i>
                     </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-emerald-800">{{ $isCentral ? $setting->name ?? 'AFNON' : $tenant->short_name ?? strtoupper($tenant->id) }}</h1>
+                        <p class="text-xs text-emerald-600 font-medium">Agricultural Finance Network</p>
+                    </div>
+                </div>
                 </div>
                 <div class="flex items-center space-x-4">
                     <!-- Connection Status Indicator -->

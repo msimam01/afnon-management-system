@@ -54,8 +54,10 @@ class TenantLoginController extends Controller
                 $user->update(['last_login_at' => Carbon::now()]);
 
                 if ($user->hasRole('admin')) {
+                                        ToastMagic::success('Welcome back! Login successful.');
                     return redirect()->route('admin.dashboard');
                 } elseif ($user->hasRole('agent')) {
+                                        ToastMagic::success('Welcome back! Login successful.');
                     return redirect()->route('agent.dashboard');
                 } else {
                     Auth::guard('tenant')->logout();
@@ -105,7 +107,7 @@ class TenantLoginController extends Controller
         Auth::guard('tenant')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-
+ToastMagic::success('You have been logged out successfully.');
         return redirect()->route('tenant.login');
     }
 
