@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Database\Seeders\TenantSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -20,8 +21,10 @@ class DatabaseSeeder extends Seeder
         // ]);
 
         $this->call([
-            RoleSeeder::class,
+            // RoleSeeder::class,
             // DemoSeeder::class,
+            // TenantSeeder::class,
+            PermissionSeeder::class,
     ]);
     }
 }
