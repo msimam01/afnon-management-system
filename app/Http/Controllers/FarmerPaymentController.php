@@ -50,7 +50,7 @@ class FarmerPaymentController extends Controller
         }
 
         // Check if application has been collected (must have approved collection verification)
-        if (!$application->collectionVerification || $application->collectionVerification->status !== 'approved') {
+        if (!$application->collectionVerification) {
             ToastMagic::error('This application has not been collected yet. Payment is only required after commodity collection.');
             return back()->withInput();
         }
@@ -96,7 +96,7 @@ class FarmerPaymentController extends Controller
         }
 
         // Re-validate payment eligibility (in case someone bypassed the lookup)
-        if (!$application->collectionVerification || $application->collectionVerification->status !== 'approved') {
+        if (!$application->collectionVerification ) {
             ToastMagic::error('This application has not been collected yet. Payment is only required after commodity collection.');
             return redirect()->route('farmer.payment.index');
         }
