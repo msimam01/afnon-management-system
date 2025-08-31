@@ -66,7 +66,7 @@ class MonetaryReturnController extends Controller
         ?? 'farmer' . $application->farmer->id . '@afnon.com';
 
     $response = $flutterwave->initiatePayment(
-        $application->total_loan,
+        $application->disbursed_amount,
         $application->farmer->full_name,
         $customerEmail,
         $application->farmer->phone ?? '08000000000',
@@ -85,7 +85,7 @@ class MonetaryReturnController extends Controller
     $application->monetaryReturn()->create([
         'tx_ref'       => $txRef,
         'payment_link' => $link,
-        'amount'       => $application->total_loan,
+        'amount'       => $application->disbursed_amount,
         'status'       => 'pending',
     ]);
 

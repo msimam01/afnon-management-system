@@ -48,9 +48,19 @@ class AdminReportController extends Controller
             ->paginate(15)
             ->withQueryString();
 
-        $seasons = Season::all();
+        $seasons = Season::select('id', 'name', 'type')->get();
 
-        return view('admin.reports.applications', compact('applications', 'seasons'));
+        // Calculate statistics for better performance
+        $statistics = [
+            'total' => $applications->total(),
+            'approved' => Application::where('status', 'approved')->count(),
+            'pending' => Application::where('status', 'pending')->count(),
+            'rejected' => Application::where('status', 'rejected')->count(),
+            'total_loan' => Application::sum('total_loan'),
+            'total_disbursed' => Application::sum('disbursed_amount'),
+        ];
+
+        return view('admin.reports.applications', compact('applications', 'seasons', 'statistics'));
     }
 
     public function export(Request $request): StreamedResponse

@@ -94,10 +94,10 @@
         <div x-show="showModal" x-cloak class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
             <div @click.away="closeModal()"
                 class="bg-white dark:bg-gray-800 rounded-xl p-6 w-96 shadow-lg transform transition-all">
-                <h2 class="text-lg font-bold mb-4 dark:text-white" x-text="form.id ? 'Edit Agent' : 'Add Agent'"></h2>
-                <form :action="form.id ? `/admin/agents/${form.id}/update` : '/admin/agents/store'" method="POST">
+                <h2 class="text-lg font-bold mb-4 dark:text-white" x-text="form.uuid ? 'Edit Agent' : 'Add Agent'"></h2>
+                <form :action="form.uuid ? `/admin/agents/${form.uuid}/update` : '/admin/agents/store'" method="POST">
                     @csrf
-                    <input type="hidden" name="_method" :value="form.id ? 'PUT' : 'POST'">
+                    <input type="hidden" name="_method" :value="form.uuid ? 'PUT' : 'POST'">
                     <div class="mb-4">
                         <label class="block text-sm text-gray-700 dark:text-gray-300">User</label>
                         <select name="user_id" x-model="form.user_id"
@@ -146,7 +146,7 @@
                 search: '',
                 showModal: false,
                 form: {
-                    id: null,
+                    uuid: null,
                     user_id: '',
                     center_id: '',
                     status: 'active'
@@ -185,7 +185,7 @@
 
                 openModal() {
                     this.form = {
-                        id: null,
+                        uuid: null,
                         user_id: '',
                         center_id: '',
                         status: 'active'
@@ -196,15 +196,43 @@
                     this.showModal = false
                 },
 
-                editAgent(uuid) {
-                    let agent = this.agents.find(a => a.uuid === uuid);
-                    this.form = {
-                        id: agent.uuid,
-                        user_id: agent.user.id,
-                        center_id: agent.center ? agent.center.id : '',
-                        status: agent.status
-                    };
-                    this.showModal = true;
+                async editAgent(uuid) {
+                    try {
+                        // Fetch fresh agent data from server
+                        const response = await fetch(`/admin/agents/${uuid}/edit`);
+                        const data = await response.json();
+
+                        if (data.agent) {
+                            this.form = {
+                                uuid: data.agent.uuid,
+                                user_id: data.agent.user_id || '',
+                                center_id: data.agent.center_id || '',
+                                status: data.agent.status || 'active'
+                            };
+
+                            // Update users and centers if provided
+                            if (data.users) this.users = data.users;
+                            if (data.centers) this.centers = data.centers;
+
+                            console.log('Editing agent with fresh data:', this.form);
+                            this.showModal = true;
+                        } else {
+                            console.error('No agent data received');
+                        }
+                    } catch (error) {
+                        console.error('Error fetching agent data:', error);
+                        // Fallback to client-side data
+                        let agent = this.agents.find(a => a.uuid === uuid);
+                        if (agent) {
+                            this.form = {
+                                uuid: agent.uuid,
+                                user_id: agent.user ? agent.user.id : '',
+                                center_id: agent.center ? agent.center.id : '',
+                                status: agent.status || 'active'
+                            };
+                            this.showModal = true;
+                        }
+                    }
                 },
 
                 deleteAgent(uuid) {

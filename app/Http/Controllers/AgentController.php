@@ -53,36 +53,42 @@ class AgentController extends Controller
 
     public function edit($uuid)
     {
-        $agent = Agent::whereUuid($uuid)->firstOrFail();
+        $agent = Agent::with('user', 'center')->whereUuid($uuid)->firstOrFail();
 
         $users = User::role('agent')
-            ->doesntHave('agent')
-            ->orWhere('id', $agent->user_id) // Include current assigned user
+            ->where(function($query) use ($agent) {
+                $query->doesntHave('agent')
+                      ->orWhere('id', $agent->user_id);
+            })
             ->get();
 
         $centers = Center::all();
 
         return response()->json([
-            'agent' => $agent,
+            'agent' => $agent->load('user', 'center'),
             'users' => $users,
             'centers' => $centers
         ]);
-
     }
 
     public function update(Request $request, $uuid)
     {
-        $agent = Agent::whereUuid($uuid)->firstOrFail();
+        try {
+            $agent = Agent::whereUuid($uuid)->firstOrFail();
 
-        $request->validate([
-            'user_id' => 'required|exists:users,id|unique:agents,user_id,' . $agent->id,
-            'center_id' => 'nullable|exists:centers,id',
-            'status' => 'required|in:active,inactive',
-        ]);
+            $validated = $request->validate([
+                'user_id' => 'required|exists:users,id|unique:agents,user_id,' . $agent->id,
+                'center_id' => 'nullable|exists:centers,id',
+                'status' => 'required|in:active,inactive',
+            ]);
 
-        $agent->update($request->only(['user_id', 'center_id', 'status']));
-        ToastMagic::success('Agent updated successfully');
-        return redirect()->back();
+            $agent->update($validated);
+            ToastMagic::success('Agent updated successfully');
+            return redirect()->route('admin.agents.index');
+        } catch (\Exception $e) {
+            ToastMagic::error('Failed to update agent: ' . $e->getMessage());
+            return redirect()->back()->withInput();
+        }
     }
 
     public function destroy($uuid)

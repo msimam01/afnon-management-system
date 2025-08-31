@@ -126,8 +126,8 @@ class FarmerPaymentController extends Controller
 
             $customerEmail = $request->farmer_email ?: $application->farmer->phone . '@afnon.com';
 
-            // Determine payment amount - use total_loan from application
-            $paymentAmount = $application->total_loan;
+            // Determine payment amount - use disbursed_amount (50% of total loan)
+            $paymentAmount = $application->disbursed_amount;
 
             // Initialize payment with Flutterwave
             $response = $flutterwave->initiatePayment(

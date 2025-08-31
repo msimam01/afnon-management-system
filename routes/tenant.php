@@ -182,8 +182,8 @@ Route::middleware([
     });
 
 
-    Route::get('applications', [ApplicationController::class, 'create'])->name('applications.create');
-    Route::post('applications/store', [ApplicationController::class, 'store'])->name('applications.store');
+    Route::get('applications', [ApplicationController::class, 'create'])->name('applications.create')->middleware('app.rate.limit');
+    Route::post('applications/store', [ApplicationController::class, 'store'])->name('applications.store')->middleware('app.rate.limit');
     Route::get('applications/{uuid}/slip', [ApplicationController::class, 'acknowledgment'])->name('applications.slip');
     Route::get('/verify/{reference}', [ApplicationController::class, 'verify'])->name('applications.verify');
     Route::get('/applications/{uuid}/slip/pdf', [ApplicationController::class, 'downloadSlip'])

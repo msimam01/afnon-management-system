@@ -126,9 +126,8 @@ class ApplicationController extends Controller
                     ->route('admin.seasons.create');
             }
 
-            // If public user → show friendly message
-            ToastMagic::error('Applications are not open yet. Please check back later.');
-            return redirect('/');
+            // If public user → show custom no-season page
+            return view('application.no-season');
         }
 
         $commodities = $season->commodities()->get();

@@ -46,6 +46,7 @@ class SeasonController extends Controller
             'budget' => 'nullable|numeric|min:0',
             'insurance_rate' => 'required|numeric|min:0|max:100',
             'send_reminder_after_days' => 'required|integer|min:1',
+            'status' => 'nullable|in:open,closed',
             'commodities' => 'required|array|min:1',
             'commodities.*' => 'exists:commodities,id',
         ]);
@@ -60,6 +61,19 @@ class SeasonController extends Controller
             ToastMagic::error("A {$data['type']} season already exists for the year {$year}.");
             return redirect()->back()->withInput(); // ✅ stop execution
         }
+
+        // If creating an open season, close any existing open seasons
+        if (($data['status'] ?? 'open') === 'open') {
+            $openSeasons = Season::where('status', 'open')->get();
+            if ($openSeasons->count() > 0) {
+                Season::where('status', 'open')->update(['status' => 'closed']);
+                $seasonNames = $openSeasons->pluck('name')->join(', ');
+                ToastMagic::info("Closed existing open season(s): {$seasonNames}");
+            }
+        }
+
+        // Set default status to 'open' if not provided
+        $data['status'] = $data['status'] ?? 'open';
 
         $season = Season::create($data);
 
@@ -85,7 +99,7 @@ class SeasonController extends Controller
         $distributedApplications = $applications->clone()->where('status', 'distributed')->count();
         $rejectedApplications = $applications->clone()->where('status', 'rejected')->count();
         $totalFarmers = $applications->clone()->distinct('farmer_id')->count('farmer_id');
-    
+
         // Commodity distribution stats
         $commodities = DB::table('commodities')
             ->join('commodity_allocations', 'commodities.name', '=', 'commodity_allocations.commodity_name')
@@ -106,12 +120,12 @@ class SeasonController extends Controller
                 $item->remaining = ($item->allocated ?? 0) - ($item->distributed ?? 0);
                 return $item;
             });
-    
+
         // Totals
         $totalAllocated = $commodities->sum('allocated');
         $totalDistributed = $commodities->sum('distributed');
         $totalRemaining = $commodities->sum('remaining');
-    
+
         return view('admin.seasons.show', compact(
             'season',
             'commodities',
@@ -126,7 +140,7 @@ class SeasonController extends Controller
             'totalRemaining'
         ));
     }
-    
+
 
 
     public function edit(Season $season)
@@ -149,6 +163,7 @@ class SeasonController extends Controller
             'budget' => 'nullable|numeric|min:0',
             'insurance_rate' => 'required|numeric|min:0|max:100',
             'send_reminder_after_days' => 'required|integer|min:1',
+            'status' => 'nullable|in:open,closed',
             'commodities' => 'required|array|min:1',
             'commodities.*' => 'exists:commodities,id',
         ]);
@@ -164,6 +179,16 @@ class SeasonController extends Controller
         if ($exists) {
             ToastMagic::error("A {$data['type']} season already exists for the year {$year}.");
             return redirect()->back()->withInput();
+        }
+
+        // If updating to open status, close any other open seasons
+        if (($data['status'] ?? $season->status) === 'open' && $season->status !== 'open') {
+            $openSeasons = Season::where('status', 'open')->where('id', '!=', $season->id)->get();
+            if ($openSeasons->count() > 0) {
+                Season::where('status', 'open')->where('id', '!=', $season->id)->update(['status' => 'closed']);
+                $seasonNames = $openSeasons->pluck('name')->join(', ');
+                ToastMagic::info("Closed existing open season(s): {$seasonNames}");
+            }
         }
 
         $season->update($data);
@@ -201,6 +226,14 @@ class SeasonController extends Controller
 
     public function reopen(Season $season)
     {
+        // Check if there's already an open season
+        $openSeason = Season::where('status', 'open')->where('id', '!=', $season->id)->first();
+
+        if ($openSeason) {
+            ToastMagic::error("Cannot reopen season. '{$openSeason->name}' is already open. Please close it first.");
+            return back();
+        }
+
         $season->update(['status' => 'open']);
         ToastMagic::success('Season reopened.');
         return back();
