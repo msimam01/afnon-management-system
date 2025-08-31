@@ -347,8 +347,11 @@
                         <a href="{{ $isCentral ? route('central.login.form') : route('tenant.login') }}" class="block text-gray-600 hover:text-emerald-600 font-medium">Login</a>
                         @endguest
                         @if (!$isCentral)
-                        <a href="{{ route('applications.create') }}" class="btn-primary block text-center text-white px-6 py-3 rounded-lg font-semibold">
+                        <a href="{{ route('applications.create') }}" class="btn-primary block text-center text-white px-6 py-3 rounded-lg font-semibold mb-3">
                             Apply Now
+                        </a>
+                        <a href="{{ route('farmer.payment.index') }}" class="bg-gradient-to-r from-blue-600 to-purple-600 block text-center text-white px-6 py-3 rounded-lg font-semibold">
+                            Make Payment
                         </a>
                         @endif
                     </div>
@@ -385,6 +388,10 @@
                         <a href="{{ route('applications.create') }}" class="btn-primary text-white px-8 py-4 rounded-xl font-semibold text-lg inline-flex items-center gap-2 justify-center">
                             <i class="fas fa-rocket"></i>
                             Start Your Application
+                        </a>
+                        <a href="{{ route('farmer.payment.index') }}" class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-semibold text-lg inline-flex items-center gap-2 justify-center transition-all duration-300 transform hover:scale-105 shadow-lg">
+                            <i class="fas fa-credit-card"></i>
+                            Make Payment
                         </a>
                         @endif
                         <a href="#how-it-works" class="border-2 border-emerald-600 text-emerald-600 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-emerald-50 transition-all duration-300 inline-flex items-center gap-2 justify-center">
@@ -1119,6 +1126,10 @@
                         <a href="{{ route('applications.create') }}" class="bg-white text-emerald-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all duration-300 inline-flex items-center gap-2 justify-center">
                         <i class="fas fa-rocket"></i>
                         Apply Now - It's Free
+                    </a>
+                    <a href="{{ route('farmer.payment.index') }}" class="glass text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white/20 transition-all duration-300 inline-flex items-center gap-2 justify-center">
+                        <i class="fas fa-credit-card"></i>
+                        Make Payment
                     </a>
                     @endif
                     @if ($setting && $setting->phone)

@@ -2,14 +2,14 @@
 
 namespace App\Services;
 
-use App\Models\SuperAdmin\Tenant;
-use App\Models\User;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Log;
-use Spatie\Permission\Models\Role;
+use App\Models\Admin\Role;
+use App\Models\Tenant\User;
 use Illuminate\Support\Str;
+use App\Models\SuperAdmin\Tenant;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Artisan;
 
 class TenantProvisioner
 {
@@ -141,10 +141,11 @@ class TenantProvisioner
     {
         $roles = ['admin', 'agent', 'farmer'];
         foreach ($roles as $role) {
-            if (!Role::where('name', $role)->exists()) {
+            if (!Role::where('name', $role)->where('guard_name', 'tenant')->exists()) {
                 Role::create([
                     'name' => $role,
                     'guard_name' => 'tenant',
+                    'tenant_id' => tenant('id'),
                 ]);
                 Log::info("[TenantProvisioner] Created role {$role}");
             }
@@ -153,23 +154,48 @@ class TenantProvisioner
 
     private static function ensureDefaultAdmin(Tenant $tenant): void
     {
-        $email = "admin@{$tenant->id}.afnon.com";
-        if (!User::where('email', $email)->exists()) {
-            $user = User::create([
+        // Create default admin user
+        $adminEmail = "admin@{$tenant->id}.afnon.com";
+        if (!User::where('email', $adminEmail)->exists()) {
+            $adminUser = User::create([
                 'uuid' => (string) Str::uuid(),
                 'name' => 'System Administrator',
-                'email' => $email,
+                'email' => $adminEmail,
                 'password' => bcrypt('admin123'),
                 'email_verified_at' => now(),
                 'status' => 'active',
             ]);
 
-            $adminRole = Role::where('name', 'admin')->first();
+            $adminRole = Role::where('name', 'admin')->where('guard_name', 'tenant')->first();
             if ($adminRole) {
-                $user->assignRole($adminRole);
+                // Use the tenant guard when assigning roles
+                $adminUser->assignRole($adminRole);
+                Log::info("[TenantProvisioner] Created default admin {$adminEmail} with admin role");
+            } else {
+                Log::warning("[TenantProvisioner] Admin role not found when creating user {$adminEmail}");
             }
+        }
 
-            Log::info("[TenantProvisioner] Created default admin {$email}");
+        // Create default agent user
+        $agentEmail = "agent@{$tenant->id}.afnon.com";
+        if (!User::where('email', $agentEmail)->exists()) {
+            $agentUser = User::create([
+                'uuid' => (string) Str::uuid(),
+                'name' => 'Default Agent',
+                'email' => $agentEmail,
+                'password' => bcrypt('agent123'),
+                'email_verified_at' => now(),
+                'status' => 'active',
+            ]);
+
+            $agentRole = Role::where('name', 'agent')->where('guard_name', 'tenant')->first();
+            if ($agentRole) {
+                // Use the tenant guard when assigning roles
+                $agentUser->assignRole($agentRole);
+                Log::info("[TenantProvisioner] Created default agent {$agentEmail} with agent role");
+            } else {
+                Log::warning("[TenantProvisioner] Agent role not found when creating user {$agentEmail}");
+            }
         }
     }
 

@@ -432,46 +432,59 @@ class ApplicationController extends Controller
 
     public function approve(Request $request, $uuid)
     {
+        $request->validate([
+            'collection_center_id' => 'required|exists:centers,id',
+            'return_center_id' => 'required|exists:centers,id',
+        ]);
 
-        $application = Application::with(['farm', 'season', 'farmer', 'commodities'])->where('uuid', $uuid)->firstOrFail();
+        // Use select to limit data fetched
+        $application = Application::select('id', 'uuid', 'status', 'season_id', 'farm_id', 'farmer_id')
+            ->with([
+                'farm:id,size',
+                'season:id,collection_start_date,collection_end_date,return_deadline',
+                'farmer:id,full_name,phone,registration_number',
+                'commodities:id,name,quantity_per_hectare,price_per_unit'
+            ])
+            ->where('uuid', $uuid)
+            ->firstOrFail();
 
         if ($application->status === 'approved') {
             ToastMagic::info('Application already approved.');
             return back();
         }
 
-        // Generate dates
-        $collectionDate = \Carbon\Carbon::parse($application->season->collection_start_date)
-            ->addDays(rand(0, \Carbon\Carbon::parse($application->season->collection_start_date)
-                ->diffInDays($application->season->collection_end_date)))
-            ->toDateString();
+        // Optimize date generation
+        $collectionStartDate = \Carbon\Carbon::parse($application->season->collection_start_date);
+        $collectionEndDate = \Carbon\Carbon::parse($application->season->collection_end_date);
+        $daysDiff = $collectionStartDate->diffInDays($collectionEndDate);
 
-        $returnDate = $application->season->return_deadline;
-        if (\Carbon\Carbon::parse($returnDate)->lte(\Carbon\Carbon::parse($collectionDate))) {
-            $returnDate = \Carbon\Carbon::parse($collectionDate)->addDays(180)->toDateString();
-        }
+        $collectionDate = $collectionStartDate->addDays(rand(0, $daysDiff))->toDateString();
+        $returnDate = max($application->season->return_deadline, \Carbon\Carbon::parse($collectionDate)->addDays(180)->toDateString());
 
-        // Prepare allocation data
-        $allocations = [];
-        foreach ($application->commodities as $commodity) {
+        // Pre-calculate farm size to avoid repeated access
+        $farmSize = $application->farm->size ?? 0;
+
+        // Prepare allocation data with optimized loop
+        $allocations = $application->commodities->map(function ($commodity) use ($application, $farmSize) {
             $qtyPerHectare = $commodity->quantity_per_hectare ?? 0;
-            $farmSize = $application->farm->size ?? 0;
             $allocatedQty = $qtyPerHectare * $farmSize;
-            $totalValue = $allocatedQty * ($commodity->price_per_unit ?? 0);
+            $unitPrice = $commodity->price_per_unit ?? 0;
 
-            $allocations[] = [
-                'uuid' => (string) \Illuminate\Support\Str::uuid(),  // 👈 required
+            return [
+                'uuid' => (string) \Illuminate\Support\Str::uuid(),
                 'application_id' => $application->id,
                 'commodity_name' => $commodity->name,
-                'qty_per_hectare' => $qtyPerHectare,                    // 👈 required
+                'qty_per_hectare' => $qtyPerHectare,
                 'allocated_quantity' => $allocatedQty,
-                'unit_price' => $commodity->price_per_unit ?? 0,
-                'total_value' => $totalValue,
+                'unit_price' => $unitPrice,
+                'total_value' => $allocatedQty * $unitPrice,
+                'created_at' => now(),
+                'updated_at' => now(),
             ];
-        }
+        })->toArray();
 
         DB::transaction(function () use ($application, $allocations, $collectionDate, $returnDate, $request) {
-            // Insert ApplicationCenter
+            // Insert or update ApplicationCenter
             \App\Models\ApplicationCenter::updateOrInsert(
                 ['application_id' => $application->id],
                 [
@@ -479,26 +492,19 @@ class ApplicationController extends Controller
                     'return_center_id' => $request->input('return_center_id'),
                     'collection_date' => $collectionDate,
                     'return_date' => $returnDate,
+                    'updated_at' => now(),
                 ]
             );
 
-            // Bulk insert allocations
-            if ($allocations) {
+            // Bulk insert allocations if any
+            if (!empty($allocations)) {
                 \App\Models\CommodityAllocation::insert($allocations);
             }
 
-            // Update status
-            $application->update(['status' => 'approved']);
-            // $message = "Dear {$application->farmer->full_name}, your application {$application->reference_number} has been approved. 
-            // Reg No: {$application->farmer->registration_number}. 
-            // Collection Date: {$collectionDate}. 
-            // Return Date: {$returnDate}.";
-            //                 // Queue SMS job (use Laravel Jobs)
-            //             dispatch(new \App\Jobs\SendSmsJob(
-            //     $application->farmer->phone,
-            //     $message
-            // ))->afterCommit();
+            // Update status with minimal query
+            $application->update(['status' => 'approved', 'updated_at' => now()]);
         });
+
         ToastMagic::success('Application approved successfully.');
         return back();
     }
@@ -507,14 +513,14 @@ class ApplicationController extends Controller
 
     public function bulkApprove(Request $request)
     {
-        // Check if at least one center exists
-        if (Center::count() === 0) {
+        // Optimize center check with exists()
+        if (!Center::exists()) {
             ToastMagic::error('No centers have been created yet. Please create a collection/return center before bulk approval.');
             return back();
         }
 
         $validated = $request->validate([
-            'application_ids' => 'required|array',
+            'application_ids' => 'required|array|max:100', // Limit bulk operations
             'application_ids.*' => 'integer',
             'collection_center_id' => [
                 'required',
@@ -534,86 +540,108 @@ class ApplicationController extends Controller
         $collectionCenterId = (int) $validated['collection_center_id'];
         $returnCenterId = (int) $validated['return_center_id'];
 
-        // Prefetch assigned applications
+        // Optimize: Get already assigned applications in one query
         $assignedIds = ApplicationCenter::whereIn('application_id', $applicationIds)
             ->pluck('application_id')
             ->toArray();
 
-        $applications = Application::with(['farm', 'season', 'farmer', 'commodities'])
+        // Optimize: Select only needed fields and use efficient eager loading
+        $applications = Application::select('id', 'status', 'season_id', 'farm_id', 'farmer_id')
+            ->with([
+                'farm:id,size',
+                'season:id,collection_start_date,collection_end_date,return_deadline',
+                'farmer:id,full_name,phone,registration_number',
+                'commodities:id,name,quantity_per_hectare,price_per_unit'
+            ])
             ->whereIn('id', $applicationIds)
+            ->where('status', 'pending') // Only get pending applications
+            ->whereNotIn('id', $assignedIds) // Exclude already assigned
             ->get();
+
+        if ($applications->isEmpty()) {
+            ToastMagic::info('No eligible applications found for bulk approval.');
+            return back();
+        }
 
         $bulkAllocations = [];
         $bulkCenters = [];
         $bulkUpdates = [];
-        $smsJobs = [];
+        $now = now();
 
-        foreach ($applications as $application) {
-            if ($application->status === 'approved' || in_array($application->id, $assignedIds)) {
-                continue;
-            }
+        // Optimize: Process applications in chunks to reduce memory usage
+        $applications->chunk(50)->each(function ($chunk) use (&$bulkAllocations, &$bulkCenters, &$bulkUpdates, $collectionCenterId, $returnCenterId, $now) {
+            foreach ($chunk as $application) {
+                // Optimize date generation
+                $collectionStartDate = \Carbon\Carbon::parse($application->season->collection_start_date);
+                $collectionEndDate = \Carbon\Carbon::parse($application->season->collection_end_date);
+                $daysDiff = $collectionStartDate->diffInDays($collectionEndDate);
 
-            // Generate dates
-            $collectionDate = \Carbon\Carbon::parse($application->season->collection_start_date)
-                ->addDays(rand(0, \Carbon\Carbon::parse($application->season->collection_start_date)
-                    ->diffInDays($application->season->collection_end_date)))
-                ->toDateString();
+                $collectionDate = $collectionStartDate->addDays(rand(0, $daysDiff))->toDateString();
+                $returnDate = max($application->season->return_deadline, \Carbon\Carbon::parse($collectionDate)->addDays(180)->toDateString());
 
-            $returnDate = $application->season->return_deadline;
-            if (\Carbon\Carbon::parse($returnDate)->lte(\Carbon\Carbon::parse($collectionDate))) {
-                $returnDate = \Carbon\Carbon::parse($collectionDate)->addDays(180)->toDateString();
-            }
-
-            $bulkCenters[] = [
-                'application_id' => $application->id,
-                'collection_center_id' => $collectionCenterId,
-                'return_center_id' => $returnCenterId,
-                'collection_date' => $collectionDate,
-                'return_date' => $returnDate,
-            ];
-
-            foreach ($application->commodities as $commodity) {
-                $qtyPerHectare = $commodity->quantity_per_hectare ?? 0;
-                $farmSize = $application->farm->size ?? 0;
-                $allocatedQty = $qtyPerHectare * $farmSize;
-                $totalValue = $allocatedQty * ($commodity->price_per_unit ?? 0);
-
-                $bulkAllocations[] = [
-                    'uuid' => (string) \Illuminate\Support\Str::uuid(),  // 👈 required
+                $bulkCenters[] = [
                     'application_id' => $application->id,
-                    'commodity_name' => $commodity->name,
-                    'qty_per_hectare' => $qtyPerHectare,                    // 👈 required
-                    'allocated_quantity' => $allocatedQty,
-                    'unit_price' => $commodity->price_per_unit ?? 0,
-                    'total_value' => $totalValue,                              // 👈 matches your migration
-                    // 'status' => 'pending',
+                    'collection_center_id' => $collectionCenterId,
+                    'return_center_id' => $returnCenterId,
+                    'collection_date' => $collectionDate,
+                    'return_date' => $returnDate,
+                    'created_at' => $now,
+                    'updated_at' => $now,
                 ];
-            }
 
+                // Pre-calculate farm size
+                $farmSize = $application->farm->size ?? 0;
 
-            $bulkUpdates[] = $application->id;
+                // Optimize commodity processing
+                foreach ($application->commodities as $commodity) {
+                    $qtyPerHectare = $commodity->quantity_per_hectare ?? 0;
+                    $allocatedQty = $qtyPerHectare * $farmSize;
+                    $unitPrice = $commodity->price_per_unit ?? 0;
 
-            // Queue SMS job (pseudo-code, implement with Laravel Jobs)
-            // dispatch(new \App\Jobs\SendSmsJob([
-            //     'phone' => $application->farmer->phone,
-            //     'message' => "Dear {$application->farmer->full_name}, your application {$application->reference_number} has been approved.\nReg No: {$application->farmer->registration_number}.\nCollection Date: {$collectionDate}.\nReturn Date: {$returnDate}."
-            // ]))->afterCommit();
-        }
+                    $bulkAllocations[] = [
+                        'uuid' => (string) \Illuminate\Support\Str::uuid(),
+                        'application_id' => $application->id,
+                        'commodity_name' => $commodity->name,
+                        'qty_per_hectare' => $qtyPerHectare,
+                        'allocated_quantity' => $allocatedQty,
+                        'unit_price' => $unitPrice,
+                        'total_value' => $allocatedQty * $unitPrice,
+                        'created_at' => $now,
+                        'updated_at' => $now,
+                    ];
+                }
 
-        // Bulk insert centers and allocations
-        DB::transaction(function () use ($bulkCenters, $bulkAllocations, $bulkUpdates) {
-            if ($bulkCenters) {
-                \App\Models\ApplicationCenter::insert($bulkCenters);
-            }
-            if ($bulkAllocations) {
-                \App\Models\CommodityAllocation::insert($bulkAllocations);
-            }
-            if ($bulkUpdates) {
-                \App\Models\Application::whereIn('id', $bulkUpdates)->update(['status' => 'approved']);
+                $bulkUpdates[] = $application->id;
             }
         });
 
-        ToastMagic::success('Bulk approval completed.');
+        // Optimize: Use single transaction with chunked inserts
+        DB::transaction(function () use ($bulkCenters, $bulkAllocations, $bulkUpdates, $now) {
+            // Insert centers in chunks
+            if (!empty($bulkCenters)) {
+                collect($bulkCenters)->chunk(500)->each(function ($chunk) {
+                    \App\Models\ApplicationCenter::insert($chunk->toArray());
+                });
+            }
+
+            // Insert allocations in chunks
+            if (!empty($bulkAllocations)) {
+                collect($bulkAllocations)->chunk(500)->each(function ($chunk) {
+                    \App\Models\CommodityAllocation::insert($chunk->toArray());
+                });
+            }
+
+            // Update application statuses in chunks
+            if (!empty($bulkUpdates)) {
+                collect($bulkUpdates)->chunk(500)->each(function ($chunk) use ($now) {
+                    \App\Models\Application::whereIn('id', $chunk->toArray())
+                        ->update(['status' => 'approved', 'updated_at' => $now]);
+                });
+            }
+        });
+
+        $processedCount = count($bulkUpdates);
+        ToastMagic::success("Bulk approval completed successfully. {$processedCount} applications approved.");
         return back();
     }
 

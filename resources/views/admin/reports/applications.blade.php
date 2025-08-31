@@ -93,15 +93,15 @@
             </div>
         </div>
 
-        <!-- Enhanced Statistics Cards with Animation -->
+        <!-- Enhanced Statistics Cards with Reduced Animation -->
         @if (isset($statistics))
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div class="group relative overflow-hidden">
                     <div
-                        class="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-green-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-500">
+                        class="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-green-600/10 rounded-2xl blur-lg">
                     </div>
                     <div
-                        class="relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl p-8 rounded-2xl border border-white/20 dark:border-gray-700/50 shadow-xl hover:shadow-2xl transition-all duration-500 group-hover:-translate-y-2">
+                        class="relative bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-6 rounded-2xl border border-white/20 dark:border-gray-700/50 shadow-lg hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1">
                         <div class="flex items-center justify-between">
                             <div class="space-y-2">
                                 <p class="text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
@@ -113,7 +113,7 @@
                                 <p class="text-xs text-gray-500 dark:text-gray-400">All time records</p>
                             </div>
                             <div
-                                class="p-4 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-500">
+                                class="p-3 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl shadow-md group-hover:scale-105 transition-transform duration-300">
                                 <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
@@ -126,10 +126,10 @@
 
                 <div class="group relative overflow-hidden">
                     <div
-                        class="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-green-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-500">
+                        class="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-green-600/10 rounded-2xl blur-lg">
                     </div>
                     <div
-                        class="relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl p-8 rounded-2xl border border-white/20 dark:border-gray-700/50 shadow-xl hover:shadow-2xl transition-all duration-500 group-hover:-translate-y-2">
+                        class="relative bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-6 rounded-2xl border border-white/20 dark:border-gray-700/50 shadow-lg hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1">
                         <div class="flex items-center justify-between">
                             <div class="space-y-2">
                                 <p class="text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
@@ -141,7 +141,7 @@
                                 <p class="text-xs text-gray-500 dark:text-gray-400">Ready for distribution</p>
                             </div>
                             <div
-                                class="p-4 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-500">
+                                class="p-3 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl shadow-md group-hover:scale-105 transition-transform duration-300">
                                 <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -153,10 +153,10 @@
 
                 <div class="group relative overflow-hidden">
                     <div
-                        class="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-green-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-500">
+                        class="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-yellow-600/10 rounded-2xl blur-lg">
                     </div>
                     <div
-                        class="relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl p-8 rounded-2xl border border-white/20 dark:border-gray-700/50 shadow-xl hover:shadow-2xl transition-all duration-500 group-hover:-translate-y-2">
+                        class="relative bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-6 rounded-2xl border border-white/20 dark:border-gray-700/50 shadow-lg hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1">
                         <div class="flex items-center justify-between">
                             <div class="space-y-2">
                                 <p class="text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
@@ -168,7 +168,7 @@
                                 <p class="text-xs text-gray-500 dark:text-gray-400">Awaiting approval</p>
                             </div>
                             <div
-                                class="p-4 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-500">
+                                class="p-3 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-xl shadow-md group-hover:scale-105 transition-transform duration-300">
                                 <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -180,10 +180,10 @@
 
                 <div class="group relative overflow-hidden">
                     <div
-                        class="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-green-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-500">
+                        class="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-indigo-600/10 rounded-2xl blur-lg">
                     </div>
                     <div
-                        class="relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl p-8 rounded-2xl border border-white/20 dark:border-gray-700/50 shadow-xl hover:shadow-2xl transition-all duration-500 group-hover:-translate-y-2">
+                        class="relative bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-6 rounded-2xl border border-white/20 dark:border-gray-700/50 shadow-lg hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1">
                         <div class="flex items-center justify-between">
                             <div class="space-y-2">
                                 <p class="text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
@@ -195,7 +195,7 @@
                                 <p class="text-xs text-gray-500 dark:text-gray-400">Cumulative amount</p>
                             </div>
                             <div
-                                class="p-4 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-500">
+                                class="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-md group-hover:scale-105 transition-transform duration-300">
                                 <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

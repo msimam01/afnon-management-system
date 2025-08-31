@@ -15,63 +15,34 @@
                 },
                 extend: {
                     animation: {
-                        'fade-in': 'fadeIn 0.8s ease-in-out',
-                        'slide-up': 'slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
-                        'scale-in': 'scaleIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-                        'pulse-slow': 'pulse 3s infinite',
-                        'bounce-gentle': 'bounceGentle 2s infinite',
-                        'progress-fill': 'progressFill 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
-                        'step-activate': 'stepActivate 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-                        'step-complete': 'stepComplete 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
-                        'float': 'float 6s ease-in-out infinite',
-                        'glow': 'glow 2s ease-in-out infinite alternate',
+                        'fade-in': 'fadeIn 0.3s ease-out',
+                        'slide-up': 'slideUp 0.3s ease-out',
+                        'scale-in': 'scaleIn 0.2s ease-out',
+                        'progress-fill': 'progressFill 0.4s ease-out',
                     },
                     keyframes: {
                         fadeIn: {
-                            '0%': { opacity: '0', transform: 'translateY(10px)' },
-                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' }
                         },
                         slideUp: {
-                            '0%': { transform: 'translateY(30px)', opacity: '0' },
+                            '0%': { transform: 'translateY(10px)', opacity: '0' },
                             '100%': { transform: 'translateY(0)', opacity: '1' }
                         },
                         scaleIn: {
-                            '0%': { transform: 'scale(0.9)', opacity: '0' },
+                            '0%': { transform: 'scale(0.95)', opacity: '0' },
                             '100%': { transform: 'scale(1)', opacity: '1' }
-                        },
-                        bounceGentle: {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-5px)' }
                         },
                         progressFill: {
                             '0%': { width: '0%' },
                             '100%': { width: '100%' }
-                        },
-                        stepActivate: {
-                            '0%': { transform: 'scale(1)', background: 'rgb(229, 231, 235)' },
-                            '50%': { transform: 'scale(1.1)' },
-                            '100%': { transform: 'scale(1)', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }
-                        },
-                        stepComplete: {
-                            '0%': { transform: 'scale(1)' },
-                            '50%': { transform: 'scale(1.15)' },
-                            '100%': { transform: 'scale(1)' }
-                        },
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
-                            '33%': { transform: 'translateY(-10px) rotate(1deg)' },
-                            '66%': { transform: 'translateY(5px) rotate(-1deg)' }
-                        },
-                        glow: {
-                            '0%': { boxShadow: '0 0 20px rgba(16, 185, 129, 0.3)' },
-                            '100%': { boxShadow: '0 0 40px rgba(16, 185, 129, 0.6)' }
                         }
                     }
                 }
             }
         }
     </script>
-    
+
     <style>
         /* Enhanced Stepper Styles */
         .stepper-container {
@@ -102,21 +73,7 @@
             overflow: hidden;
         }
 
-        .stepper-progress::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
-            animation: shimmer 2s infinite;
-        }
-
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
+        /* Removed shimmer animation for better performance */
 
         .stepper-steps {
             display: flex;
@@ -173,8 +130,7 @@
         .step-item.active .step-circle {
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
-            transform: scale(1.05);
-            animation: glow 2s ease-in-out infinite alternate;
+            transform: scale(1.02);
         }
 
         .step-item.active .step-circle::before {
@@ -229,7 +185,7 @@
         .form-step {
             display: none;
         }
-        
+
         .form-step.active {
             display: block;
             animation: fadeIn 0.8s ease-in-out;
@@ -328,18 +284,18 @@
             .stepper-steps {
                 padding: 0 5%;
             }
-            
+
             .step-circle {
                 width: 3rem;
                 height: 3rem;
                 font-size: 1rem;
             }
-            
+
             .step-title {
                 font-size: 0.8rem;
                 max-width: 80px;
             }
-            
+
             .step-description {
                 display: none;
             }
@@ -393,7 +349,7 @@
                         class="mr-4 p-2 rounded-lg text-gray-400 dark:text-gray-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-gray-700 transition-all duration-200">
                         <i class="fas fa-arrow-left text-lg"></i>
                     </button>
-                    <div class="h-10 w-10 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-xl flex items-center justify-center shadow-lg animate-bounce-gentle">
+                    <div class="h-10 w-10 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-xl flex items-center justify-center shadow-lg">
                         <i class="fas fa-seedling text-white text-lg"></i>
                     </div>
                     <div class="ml-3">
@@ -421,7 +377,7 @@
         <div class="max-w-4xl mx-auto">
             <!-- Header -->
             <div class="text-center mb-12 animate-fade-in">
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl shadow-lg mb-6 animate-bounce-gentle">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl shadow-lg mb-6">
                     <i class="fas fa-file-contract text-white text-2xl"></i>
                 </div>
                 <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">
@@ -490,7 +446,7 @@
                                 <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Personal Information</h2>
                                 <p class="text-gray-600 dark:text-gray-300">Please provide your personal details for verification</p>
                             </div>
-                            
+
                             <div class="grid md:grid-cols-2 gap-6">
                                 <div>
                                     <label class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">Full Name *</label>
@@ -539,7 +495,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Step 1 Navigation -->
                         <div class="flex justify-end mt-8">
                             <button type="button" id="next-step-1" class="btn-primary px-8 py-3 text-white font-semibold rounded-lg transition-all duration-300">
@@ -559,7 +515,7 @@
                                 <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Farm Information</h2>
                                 <p class="text-gray-600 dark:text-gray-300">Tell us about your farm details</p>
                             </div>
-                            
+
                             <div class="grid md:grid-cols-2 gap-6">
                                 <div>
                                     <label class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">Farm Location *</label>
@@ -581,7 +537,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Step 2 Navigation -->
                         <div class="flex justify-between mt-8">
                             <button type="button" id="prev-step-2" class="px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg transition-all duration-300">
@@ -711,9 +667,15 @@
                                 Previous
                             </button>
                             <button type="submit" id="submit-btn" aria-label="Submit application"
-                                class="btn-primary px-8 py-4 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg">
-                                <i class="fas fa-paper-plane mr-2"></i>
-                                Submit Application
+                                class="btn-primary px-8 py-4 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+                                <span id="submit-btn-content">
+                                    <i class="fas fa-paper-plane mr-2"></i>
+                                    Submit Application
+                                </span>
+                                <span id="submit-btn-loading" class="hidden">
+                                    <i class="fas fa-spinner fa-spin mr-2"></i>
+                                    Submitting...
+                                </span>
                             </button>
                         </div>
                     </div>
@@ -749,7 +711,7 @@
         const html = document.documentElement;
         const savedTheme = localStorage.getItem('theme') || 'light';
         if (savedTheme === 'dark') html.classList.add('dark');
-        
+
         if (darkModeToggle) {
             darkModeToggle.addEventListener('click', () => {
                 html.classList.toggle('dark');
@@ -887,15 +849,15 @@
             document.querySelectorAll('.form-step').forEach(step => {
                 step.classList.remove('active');
             });
-            
+
             // Show current step
             document.getElementById(`step-${stepNumber}`).classList.add('active');
-            
+
             // Update stepper visual state
             document.querySelectorAll('.step-item').forEach((step, index) => {
                 const stepIndex = index + 1;
                 step.classList.remove('active', 'completed');
-                
+
                 if (stepIndex < stepNumber) {
                     step.classList.add('completed');
                     // Add checkmark for completed steps
@@ -916,7 +878,7 @@
                     else if (stepIndex === 3) circle.innerHTML = '<i class="fas fa-check-circle"></i>';
                 }
             });
-            
+
             currentStep = stepNumber;
             updateStepperProgress();
         }
@@ -925,12 +887,12 @@
             const step = document.getElementById(`step-${stepNumber}`);
             const requiredFields = step.querySelectorAll('input[required], select[required], textarea[required]');
             let isValid = true;
-            
+
             requiredFields.forEach(field => {
                 if (!field.value.trim()) {
                     field.classList.add('border-red-500', 'bg-red-50');
                     isValid = false;
-                    
+
                     // Add shake animation
                     field.style.animation = 'shake 0.5s ease-in-out';
                     setTimeout(() => {
@@ -940,7 +902,7 @@
                     field.classList.remove('border-red-500', 'bg-red-50');
                 }
             });
-            
+
             return isValid;
         }
 
@@ -954,7 +916,7 @@
                 if (bvn.length === 11) {
                     bvnStatus.classList.remove('hidden');
                     bvnStatus.innerHTML = '<span class="text-yellow-600"><i class="fas fa-spinner fa-spin mr-2"></i>Verifying BVN...</span>';
-                    
+
                     // Simulate BVN verification
                     setTimeout(() => {
                         const isValid = Math.random() > 0.3; // 70% success rate for demo
@@ -980,7 +942,7 @@
                         opt.querySelector('.w-3').classList.add('hidden');
                         opt.querySelector('.w-6').classList.remove('border-emerald-500');
                     });
-                    
+
                     // Select current option
                     this.classList.add('border-emerald-500', 'bg-emerald-50', 'dark:bg-emerald-900/20');
                     this.querySelector('.w-3').classList.remove('hidden');
@@ -988,7 +950,7 @@
                     this.querySelector('input[type="radio"]').checked = true;
                     // Recalculate loan summary when seed changes
                     calculateLoanSummary();
-                    
+
                     // Add selection animation
                     this.style.transform = 'scale(1.02)';
                     setTimeout(() => {
@@ -1034,11 +996,27 @@
         // Form Submission - allow real submission, block only if invalid
         (function() {
             const form = document.getElementById('application-form');
+            const submitBtn = document.getElementById('submit-btn');
+            const submitBtnContent = document.getElementById('submit-btn-content');
+            const submitBtnLoading = document.getElementById('submit-btn-loading');
+
             if (!form) return;
+
             form.addEventListener('submit', (e) => {
                 if (!validateStep(3)) {
                     e.preventDefault();
                     showNotification('Please complete all required fields and accept the terms.', 'error');
+                    return;
+                }
+
+                // Show loading state
+                if (submitBtn && submitBtnContent && submitBtnLoading) {
+                    submitBtn.disabled = true;
+                    submitBtnContent.classList.add('hidden');
+                    submitBtnLoading.classList.remove('hidden');
+
+                    // Prevent double submission
+                    submitBtn.style.pointerEvents = 'none';
                 }
             });
         })();
@@ -1047,8 +1025,8 @@
         function showNotification(message, type = 'info') {
             const notification = document.createElement('div');
             notification.className = `fixed top-24 right-4 z-50 p-4 rounded-lg shadow-lg transition-all duration-300 ${
-                type === 'error' ? 'bg-red-500 text-white' : 
-                type === 'success' ? 'bg-green-500 text-white' : 
+                type === 'error' ? 'bg-red-500 text-white' :
+                type === 'success' ? 'bg-green-500 text-white' :
                 'bg-blue-500 text-white'
             }`;
             notification.innerHTML = `
@@ -1057,14 +1035,14 @@
                     ${message}
                 </div>
             `;
-            
+
             document.body.appendChild(notification);
-            
+
             // Animate in
             setTimeout(() => {
                 notification.style.transform = 'translateX(-100%)';
             }, 100);
-            
+
             // Remove after 5 seconds
             setTimeout(() => {
                 notification.style.transform = 'translateX(100%)';

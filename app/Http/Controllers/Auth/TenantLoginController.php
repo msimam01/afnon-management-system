@@ -53,17 +53,19 @@ class TenantLoginController extends Controller
 
                 $user->update(['last_login_at' => Carbon::now()]);
 
-                if ($user->hasRole('admin')) {
-                                        ToastMagic::success('Welcome back! Login successful.');
-                    return redirect()->route('admin.dashboard');
-                } elseif ($user->hasRole('agent')) {
-                                        ToastMagic::success('Welcome back! Login successful.');
-                    return redirect()->route('agent.dashboard');
-                } else {
+                // Redirect all authenticated users to a unified dashboard
+                // Their role and permissions will determine what they can see and do
+                ToastMagic::success('Welcome back! Login successful.');
+
+                // Check if user has any valid role, if not, deny access
+                if (!$user->hasAnyRole(['admin', 'agent', 'farmer'])) {
                     Auth::guard('tenant')->logout();
-                    ToastMagic::error('Unauthorized role');
-                    return redirect()->route('tenant.login')->withErrors(['access' => 'Unauthorized role.']);
+                    ToastMagic::error('Your account does not have the necessary permissions to access this system.');
+                    return redirect()->route('tenant.login')->withErrors(['access' => 'Insufficient permissions.']);
                 }
+
+                // Redirect to unified dashboard - role-based content will be handled by the dashboard
+                return redirect()->route('dashboard');
             } else {
                 Auth::guard('tenant')->logout();
                 ToastMagic::error('Your account has been deactivated!');

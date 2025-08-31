@@ -157,6 +157,7 @@ class TenantSeeder extends Seeder
                 'read_agent',
                 'update_agent',
                 'delete_agent',
+                'manage_reports'
             ]);
         }
 
