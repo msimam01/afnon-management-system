@@ -239,7 +239,7 @@
                             <div class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
                                 <span class="text-gray-600 dark:text-gray-400">Amount Due</span>
                                 <span class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-                                    ₦{{ number_format($application->total_loan, 2) }}
+                                    ₦{{ number_format($application->disbursed_amount, 2) }}
                                 </span>
                             </div>
                             <div class="flex justify-between items-center py-2">
@@ -298,7 +298,7 @@
                                     class="mt-1 h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded">
                                 <label for="payment-terms" class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
                                     I confirm that the information provided is accurate and I agree to proceed with the payment of
-                                    <strong>₦{{ number_format($application->total_loan, 2) }}</strong> for my monetary return obligation.
+                                    <strong>₦{{ number_format($application->disbursed_amount, 2) }}</strong> for my monetary return obligation.
                                 </label>
                             </div>
 

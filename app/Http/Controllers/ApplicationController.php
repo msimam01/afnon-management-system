@@ -34,10 +34,20 @@ class ApplicationController extends Controller
     public function index(Request $request)
     {
         $filters = $request->only(['season', 'status', 'search']);
-        $perPage = 15;
+        $perPage = 20; // Increased for better UX
 
-        $query = Application::with(['farmer', 'season', 'commodities', 'farm']);
+        // Optimized query with selective loading
+        $query = Application::with([
+            'farmer:id,full_name,phone,bvn,nin,registration_number,cluster',
+            'season:id,name,status',
+            'commodities:id,name,unit,price_per_unit',
+            'farm:id,size,location'
+        ])->select([
+            'id', 'uuid', 'farmer_id', 'farm_id', 'season_id', 'status', 
+            'total_loan', 'disbursed_amount', 'created_at', 'reference_number'
+        ]);
 
+        // Apply filters with optimized queries
         if (!empty($filters['season'])) {
             $query->whereHas('season', function ($q) use ($filters) {
                 $q->where('name', $filters['season']);
@@ -49,11 +59,12 @@ class ApplicationController extends Controller
         if (!empty($filters['search'])) {
             $query->whereHas('farmer', function ($q) use ($filters) {
                 $q->where('full_name', 'like', '%' . $filters['search'] . '%')
-                  ->orWhere('phone', 'like', '%' . $filters['search'] . '%');
+                  ->orWhere('phone', 'like', '%' . $filters['search'] . '%')
+                  ->orWhere('registration_number', 'like', '%' . $filters['search'] . '%');
             });
         }
 
-        $applications = $query->paginate($perPage);
+        $applications = $query->orderBy('created_at', 'desc')->paginate($perPage);
 
         // Cache frequently accessed data (namespace by tenant)
         $tid = (function () {

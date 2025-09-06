@@ -15,35 +15,7 @@
                     'sans': ['Inter', 'system-ui', 'sans-serif'],
                 },
                 extend: {
-                    animation: {
-                        'fade-in': 'fadeIn 0.3s ease-out',
-                        'slide-up': 'slideUp 0.3s ease-out',
-                        'scale-in': 'scaleIn 0.2s ease-out',
-                        'progress-fill': 'progressFill 0.4s ease-out',
-                        'pulse-soft': 'pulseSoft 2s ease-in-out infinite',
-                    },
-                    keyframes: {
-                        fadeIn: {
-                            '0%': { opacity: '0' },
-                            '100%': { opacity: '1' }
-                        },
-                        slideUp: {
-                            '0%': { transform: 'translateY(10px)', opacity: '0' },
-                            '100%': { transform: 'translateY(0)', opacity: '1' }
-                        },
-                        scaleIn: {
-                            '0%': { transform: 'scale(0.95)', opacity: '0' },
-                            '100%': { transform: 'scale(1)', opacity: '1' }
-                        },
-                        progressFill: {
-                            '0%': { width: '0%' },
-                            '100%': { width: '100%' }
-                        },
-                        pulseSoft: {
-                            '0%, 100%': { opacity: '1' },
-                            '50%': { opacity: '0.8' }
-                        }
-                    }
+                    // Removed heavy animations for better performance
                 }
             }
         }
@@ -74,7 +46,7 @@
             background: linear-gradient(90deg, #10b981 0%, #059669 100%);
             border-radius: 2px;
             width: 0%;
-            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: width 0.3s ease;
         }
 
         .stepper-steps {
@@ -93,7 +65,6 @@
             position: relative;
             background: white;
             padding: 0 1rem;
-            transition: all 0.3s ease;
         }
 
         .step-circle {
@@ -108,7 +79,6 @@
             font-weight: 600;
             font-size: 1.1rem;
             margin-bottom: 0.75rem;
-            transition: all 0.4s ease;
             border: 2px solid transparent;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
@@ -116,7 +86,6 @@
         .step-item.active .step-circle {
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
-            transform: scale(1.05);
             box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
         }
 
@@ -129,7 +98,6 @@
             font-size: 0.9rem;
             font-weight: 600;
             color: #6b7280;
-            transition: all 0.3s ease;
             text-align: center;
             max-width: 100px;
         }
@@ -149,7 +117,6 @@
 
         .form-step.active {
             display: block;
-            animation: fadeIn 0.5s ease-in-out;
         }
 
         .form-section {
@@ -160,39 +127,22 @@
             padding: 2rem;
             margin-bottom: 1.5rem;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
-        }
-
-        .form-section:hover {
-            box-shadow: 0 12px 30px rgba(16, 185, 129, 0.08);
-            transform: translateY(-1px);
         }
 
         /* Input enhancements - Simplified */
-        .form-input {
-            transition: all 0.3s ease;
-        }
-
         .form-input:focus {
-            transform: translateY(-1px);
             box-shadow: 0 6px 20px rgba(16, 185, 129, 0.12);
         }
 
         /* Button enhancements - Optimized */
         .btn-primary {
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(16, 185, 129, 0.25);
-        }
-
-        .btn-primary:active {
-            transform: translateY(0);
         }
 
         /* Dark mode enhancements */
@@ -238,13 +188,7 @@
 
         /* Seed selection enhancements - Simplified */
         .seed-option {
-            transition: all 0.3s ease;
             cursor: pointer;
-        }
-
-        .seed-option:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.12);
         }
 
         .seed-option.selected {
@@ -288,7 +232,6 @@
             width: 100%;
             height: 100%;
             background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, transparent 70%);
-            animation: float 20s ease-in-out infinite;
         }
 
         .floating-bg::after {
@@ -299,18 +242,11 @@
             width: 100%;
             height: 100%;
             background: radial-gradient(circle, rgba(14, 165, 233, 0.1) 0%, transparent 70%);
-            animation: float 25s ease-in-out infinite reverse;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translate(0, 0) rotate(0deg); }
-            33% { transform: translate(30px, -30px) rotate(120deg); }
-            66% { transform: translate(-20px, 20px) rotate(240deg); }
         }
     </style>
 </head>
 
-<body class="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-all duration-300">
+<body class="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
     <!-- Optimized Background -->
     <div class="floating-bg"></div>
 
@@ -320,7 +256,7 @@
             <div class="flex justify-between items-center py-4">
                 <div class="flex items-center">
                     <button onclick="history.back()" aria-label="Go back"
-                        class="mr-4 p-2 rounded-lg text-gray-400 dark:text-gray-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-gray-700 transition-all duration-200">
+                        class="mr-4 p-2 rounded-lg text-gray-400 dark:text-gray-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-gray-700">
                         <i class="fas fa-arrow-left text-lg"></i>
                     </button>
                     <div class="h-10 w-10 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-xl flex items-center justify-center shadow-lg">
@@ -337,7 +273,7 @@
                         <span class="text-sm font-medium text-emerald-800 dark:text-emerald-300">{{ $season->name ?? 'Season' }}</span>
                     </div>
                     <button id="darkModeToggle" aria-label="Toggle dark mode"
-                        class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-emerald-100 dark:hover:bg-gray-600 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-200">
+                        class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-emerald-100 dark:hover:bg-gray-600 hover:text-emerald-600 dark:hover:text-emerald-400">
                         <i id="sunIcon" class="fas fa-sun hidden dark:block"></i>
                         <i id="moonIcon" class="fas fa-moon block dark:hidden"></i>
                     </button>
@@ -350,7 +286,7 @@
     <div class="pt-24 pb-12 px-4 sm:px-6 lg:px-8">
         <div class="max-w-4xl mx-auto">
             <!-- Header -->
-            <div class="text-center mb-8 animate-fade-in">
+            <div class="text-center mb-8">
                 <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl shadow-lg mb-6">
                     <i class="fas fa-file-contract text-white text-2xl"></i>
                 </div>
@@ -363,7 +299,7 @@
             </div>
 
             <!-- Enhanced Form Container -->
-            <div class="bg-white/95 dark:bg-gray-800/95 backdrop-blur-lg shadow-2xl rounded-3xl overflow-hidden border border-emerald-100 dark:border-gray-700 animate-scale-in">
+            <div class="bg-white/95 dark:bg-gray-800/95 backdrop-blur-lg shadow-2xl rounded-3xl overflow-hidden border border-emerald-100 dark:border-gray-700">
                 <form id="application-form" method="POST" action="{{ route('applications.store') }}" class="p-6 sm:p-8">
                     @csrf
                     @if ($errors->any())
@@ -511,7 +447,7 @@
 
                         <!-- Step 2 Navigation -->
                         <div class="flex justify-between mt-6">
-                            <button type="button" id="prev-step-2" class="px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg transition-all duration-300">
+                            <button type="button" id="prev-step-2" class="px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg">
                                 <i class="fas fa-arrow-left mr-2"></i>
                                 Previous
                             </button>
@@ -541,7 +477,7 @@
                                 </h3>
                                 <div class="grid md:grid-cols-2 gap-4" id="seed-options">
                                     @forelse(($seeds ?? []) as $seed)
-                                        <label class="seed-option block border-2 border-gray-200 dark:border-gray-700 rounded-xl p-4 cursor-pointer hover:border-emerald-500 transition-all duration-300"
+                                        <label class="seed-option block border-2 border-gray-200 dark:border-gray-700 rounded-xl p-4 cursor-pointer hover:border-emerald-500"
                                                tabindex="0" role="radio" aria-label="Select {{ $seed->name }}">
                                             <input type="radio" name="selected_seed" value="{{ $seed->id }}" class="hidden"
                                                    data-qty-per-hectare="{{ $seed->quantity_per_hectare }}"
@@ -616,7 +552,7 @@
                             <div class="space-y-4 mb-6">
                                 <div class="flex items-start gap-3">
                                     <input type="checkbox" required id="terms-agreement"
-                                        class="mt-1 h-5 w-5 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded transition-all duration-200">
+                                        class="mt-1 h-5 w-5 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded">
                                     <label for="terms-agreement" class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
                                         I agree to the <a href="#" class="text-emerald-600 hover:text-emerald-800 underline font-medium">Terms and Conditions</a>
                                         and confirm that all provided information is accurate and complete.
@@ -624,7 +560,7 @@
                                 </div>
                                 <div class="flex items-start gap-3">
                                     <input type="checkbox" required id="equity-agreement"
-                                        class="mt-1 h-5 w-5 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded transition-all duration-200">
+                                        class="mt-1 h-5 w-5 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded">
                                     <label for="equity-agreement" class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
                                         I understand and accept that 50% of the loan value will be held as equity by AFNON as part of the loan structure.
                                     </label>
@@ -634,12 +570,12 @@
 
                         <!-- Step 3 Navigation -->
                         <div class="flex justify-between items-center mt-6">
-                            <button type="button" id="prev-step-3" class="px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg transition-all duration-300">
+                            <button type="button" id="prev-step-3" class="px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg">
                                 <i class="fas fa-arrow-left mr-2"></i>
                                 Previous
                             </button>
                             <button type="submit" id="submit-btn" aria-label="Submit application"
-                                class="btn-primary px-8 py-4 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+                                class="btn-primary px-8 py-4 text-white font-bold rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
                                 <span id="submit-btn-content">
                                     <i class="fas fa-paper-plane mr-2"></i>
                                     Submit Application
@@ -963,7 +899,7 @@
             const bgColor = type === 'error' ? 'bg-red-500' : type === 'success' ? 'bg-green-500' : 'bg-blue-500';
             const icon = type === 'error' ? 'exclamation-circle' : type === 'success' ? 'check-circle' : 'info-circle';
 
-            notification.className = `fixed top-24 right-4 z-50 p-4 rounded-lg shadow-lg transition-all duration-300 ${bgColor} text-white transform translate-x-full`;
+            notification.className = `fixed top-24 right-4 z-50 p-4 rounded-lg shadow-lg ${bgColor} text-white`;
             notification.innerHTML = `
                 <div class="flex items-center">
                     <i class="fas fa-${icon} mr-2"></i>
@@ -973,13 +909,11 @@
 
             document.body.appendChild(notification);
 
-            // Animate in
-            setTimeout(() => notification.classList.remove('translate-x-full'), 100);
-
             // Remove after 5 seconds
             setTimeout(() => {
-                notification.classList.add('translate-x-full');
-                setTimeout(() => document.body.removeChild(notification), 300);
+                if (document.body.contains(notification)) {
+                    document.body.removeChild(notification);
+                }
             }, 5000);
         }
 
