@@ -16,95 +16,30 @@
                     'sans': ['Inter', 'system-ui', 'sans-serif'],
                 },
                 extend: {
-                    animation: {
-                        'fade-in': 'fadeIn 0.8s ease-in-out',
-                        'scale-in': 'scaleIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-                        'bounce-gentle': 'bounceGentle 2s infinite',
-                        'float': 'float 6s ease-in-out infinite',
-                        'error-pulse': 'errorPulse 2s ease-in-out infinite',
-                    },
-                    keyframes: {
-                        fadeIn: {
-                            '0%': { opacity: '0', transform: 'translateY(10px)' },
-                            '100%': { opacity: '1', transform: 'translateY(0)' }
-                        },
-                        scaleIn: {
-                            '0%': { transform: 'scale(0.9)', opacity: '0' },
-                            '100%': { transform: 'scale(1)', opacity: '1' }
-                        },
-                        bounceGentle: {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-5px)' }
-                        },
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
-                            '33%': { transform: 'translateY(-10px) rotate(1deg)' },
-                            '66%': { transform: 'translateY(5px) rotate(-1deg)' }
-                        },
-                        errorPulse: {
-                            '0%, 100%': { transform: 'scale(1)', boxShadow: '0 0 0 0 rgba(239, 68, 68, 0.7)' },
-                            '50%': { transform: 'scale(1.05)', boxShadow: '0 0 0 20px rgba(239, 68, 68, 0)' }
-                        }
-                    }
+                    // Removed heavy animations for better performance
                 }
             }
         }
     </script>
 
     <style>
-        .floating-element {
-            position: absolute;
-            border-radius: 50%;
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1));
-            animation: float 8s ease-in-out infinite;
-            pointer-events: none;
-        }
-
-        .floating-element:nth-child(1) { width: 100px; height: 100px; top: 10%; left: 5%; animation-delay: 0s; }
-        .floating-element:nth-child(2) { width: 150px; height: 150px; top: 60%; right: 10%; animation-delay: 2s; }
-        .floating-element:nth-child(3) { width: 80px; height: 80px; bottom: 20%; left: 15%; animation-delay: 4s; }
-
+        /* Simplified styles - removed heavy animations */
         .btn-primary {
             background: linear-gradient(135deg, #10b981 0%, #059669 50%, #0ea5e9 100%);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-primary::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s ease;
-        }
-
-        .btn-primary:hover::before {
-            left: 100%;
+            transition: background-color 0.2s ease;
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
-        }
-
-        .error-icon {
-            animation: errorPulse 2s ease-in-out infinite;
+            background: linear-gradient(135deg, #059669 0%, #047857 50%, #0284c7 100%);
         }
     </style>
 </head>
 
-<body class="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-all duration-300">
-    <!-- Floating Background Elements -->
+<body class="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <!-- Simplified Background -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none">
-        <div class="floating-element"></div>
-        <div class="floating-element"></div>
-        <div class="floating-element"></div>
-        <div class="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-float"></div>
-        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-float" style="animation-delay: 2s;"></div>
+        <div class="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-20"></div>
+        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-20"></div>
     </div>
 
     <!-- Navigation -->
@@ -112,7 +47,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center py-4">
                 <div class="flex items-center">
-                    <div class="h-10 w-10 bg-gradient-to-br from-red-600 to-orange-600 rounded-xl flex items-center justify-center shadow-lg animate-bounce-gentle">
+                    <div class="h-10 w-10 bg-gradient-to-br from-red-600 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
                         <i class="fas fa-exclamation-triangle text-white text-lg"></i>
                     </div>
                     <div class="ml-3">
@@ -122,7 +57,7 @@
                 </div>
                 <div class="flex items-center space-x-4">
                     <button id="darkModeToggle" aria-label="Toggle dark mode"
-                        class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-red-100 dark:hover:bg-gray-600 hover:text-red-600 dark:hover:text-red-400 transition-all duration-200">
+                        class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-red-100 dark:hover:bg-gray-600 hover:text-red-600 dark:hover:text-red-400">
                         <i id="sunIcon" class="fas fa-sun hidden dark:block"></i>
                         <i id="moonIcon" class="fas fa-moon block dark:hidden"></i>
                     </button>
@@ -135,8 +70,8 @@
     <div class="pt-24 pb-12 px-4 sm:px-6 lg:px-8">
         <div class="max-w-3xl mx-auto">
             <!-- Error Header -->
-            <div class="text-center mb-12 animate-fade-in">
-                <div class="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-red-500 to-orange-600 rounded-full shadow-lg mb-6 error-icon">
+            <div class="text-center mb-12">
+                <div class="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-red-500 to-orange-600 rounded-full shadow-lg mb-6">
                     <i class="fas fa-times text-white text-4xl"></i>
                 </div>
                 <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">
@@ -148,7 +83,7 @@
             </div>
 
             <!-- Error Details Card -->
-            <div class="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg shadow-2xl rounded-3xl overflow-hidden border border-red-100 dark:border-gray-700 animate-scale-in mb-8">
+            <div class="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg shadow-2xl rounded-3xl overflow-hidden border border-red-100 dark:border-gray-700 mb-8">
                 <div class="p-8">
                     <div class="flex items-center mb-6">
                         <div class="w-12 h-12 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center mr-4">
@@ -208,12 +143,12 @@
                     <div class="flex flex-col sm:flex-row gap-4 justify-center">
                         <a href="{{ route('farmer.payment.lookup') }}"
                            method="POST"
-                           class="btn-primary px-6 py-3 text-white font-semibold rounded-lg text-center transition-all duration-300 flex items-center justify-center">
+                           class="btn-primary px-6 py-3 text-white font-semibold rounded-lg text-center flex items-center justify-center">
                             <i class="fas fa-redo mr-2"></i>
                             Try Again
                         </a>
                         <a href="{{ route('farmer.payment.index') }}"
-                           class="px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg text-center transition-all duration-300 flex items-center justify-center">
+                           class="px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg text-center flex items-center justify-center">
                             <i class="fas fa-home mr-2"></i>
                             Back to Portal
                         </a>
@@ -222,7 +157,7 @@
             </div>
 
             <!-- Troubleshooting Tips -->
-            <div class="bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 border-l-4 border-yellow-400 rounded-lg p-6 animate-fade-in mb-8">
+            <div class="bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 border-l-4 border-yellow-400 rounded-lg p-6 mb-8">
                 <div class="flex items-start">
                     <i class="fas fa-lightbulb text-yellow-600 mr-4 mt-1"></i>
                     <div>
@@ -244,11 +179,11 @@
                     Still having trouble? Our support team is here to help
                 </p>
                 <div class="flex justify-center space-x-6">
-                    <a href="tel:+2348000000000" class="flex items-center text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors">
+                    <a href="tel:+2348000000000" class="flex items-center text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300">
                         <i class="fas fa-phone mr-2"></i>
                         <span class="text-sm font-medium">Call Support</span>
                     </a>
-                    <a href="mailto:support@afnon.com" class="flex items-center text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors">
+                    <a href="mailto:support@afnon.com" class="flex items-center text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300">
                         <i class="fas fa-envelope mr-2"></i>
                         <span class="text-sm font-medium">Email Support</span>
                     </a>
