@@ -213,6 +213,18 @@
             background-color: rgba(16, 185, 129, 0.05) !important;
         }
 
+        /* Commodity cards styling */
+        .commodity-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .commodity-card:hover {
+            border-color: #10b981;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1);
+            transform: translateY(-2px);
+        }
+
         /* Performance optimizations */
         .floating-bg {
             position: fixed;
@@ -504,6 +516,28 @@
                                 </div>
                             </div>
 
+                            <!-- Other Commodities Display -->
+                            <div class="mb-6" id="other-commodities-section" style="display: none;">
+                                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+                                    <i class="fas fa-boxes text-emerald-600 mr-3"></i>
+                                    Additional Commodities (Auto-allocated)
+                                </h3>
+                                <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-xl p-4 mb-4">
+                                    <div class="flex items-start">
+                                        <i class="fas fa-info-circle text-blue-600 mr-3 mt-1"></i>
+                                        <div>
+                                            <p class="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-1">Automatic Allocation</p>
+                                            <p class="text-sm text-blue-700 dark:text-blue-300">
+                                                The following commodities will be automatically allocated based on your farm size. These are included in your loan calculation.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="other-commodities-list" class="grid md:grid-cols-2 gap-4">
+                                    <!-- Commodities will be populated here via JavaScript -->
+                                </div>
+                            </div>
+
                             <!-- Loan Summary -->
                             <div class="mb-6" id="loan-summary">
                                 <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center">
@@ -683,13 +717,9 @@
         }
 
         // Optimized Loan Summary Calculation
-        const otherCommodities = @json(collect($others ?? [])->map(function($c){
-            return [
-                'quantity_per_hectare' => $c->quantity_per_hectare,
-                'price_per_unit' => $c->price_per_unit,
-            ];
-        })->values());
+        const otherCommodities = @json($others ?? []);
         const insuranceRate = {{ $season->insurance_rate ?? 0 }};
+        const seasonId = {{ $season->id ?? 0 }};
 
         function parseNumber(n) {
             const x = parseFloat(n);
@@ -816,6 +846,75 @@
             return isValid;
         }
 
+        // Display Other Commodities
+        function displayOtherCommodities() {
+            const otherCommoditiesSection = document.getElementById('other-commodities-section');
+            const otherCommoditiesList = document.getElementById('other-commodities-list');
+            const farmSize = parseNumber(document.getElementById('farm-size')?.value);
+
+            if (!otherCommoditiesSection || !otherCommoditiesList) return;
+
+            // Show section if there are other commodities
+            if (Array.isArray(otherCommodities) && otherCommodities.length > 0) {
+                otherCommoditiesSection.style.display = 'block';
+                
+                // Clear existing content
+                otherCommoditiesList.innerHTML = '';
+
+                // Add each commodity
+                otherCommodities.forEach(commodity => {
+                    const qtyPerHectare = parseNumber(commodity.quantity_per_hectare);
+                    const pricePerUnit = parseNumber(commodity.price_per_unit);
+                    const totalQty = farmSize > 0 ? qtyPerHectare * farmSize : 0;
+                    const totalValue = totalQty * pricePerUnit;
+                    const unit = commodity.unit || 'unit';
+                    const category = commodity.category || 'commodity';
+
+                    const commodityCard = document.createElement('div');
+                    commodityCard.className = 'commodity-card bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4';
+                    commodityCard.innerHTML = `
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center">
+                                <i class="fas fa-box text-blue-600 mr-2"></i>
+                                <h4 class="font-bold text-gray-900 dark:text-white">${commodity.name || 'Unknown Commodity'}</h4>
+                            </div>
+                            <span class="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full">
+                                ${category}
+                            </span>
+                        </div>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-400">Rate per hectare:</span>
+                                <span class="font-medium text-gray-900 dark:text-white">${qtyPerHectare} ${unit}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-400">Your allocation:</span>
+                                <span class="font-medium text-gray-900 dark:text-white">${totalQty.toFixed(1)} ${unit}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-400">Unit price:</span>
+                                <span class="font-medium text-gray-900 dark:text-white">₦${formatNaira(pricePerUnit).replace('₦', '')}</span>
+                            </div>
+                            <div class="flex justify-between border-t border-gray-200 dark:border-gray-700 pt-2">
+                                <span class="text-gray-600 dark:text-gray-400">Total value:</span>
+                                <span class="font-bold text-emerald-600 dark:text-emerald-400">₦${formatNaira(totalValue).replace('₦', '')}</span>
+                            </div>
+                        </div>
+                    `;
+                    otherCommoditiesList.appendChild(commodityCard);
+                });
+            } else {
+                // Show message when no other commodities
+                otherCommoditiesList.innerHTML = `
+                    <div class="col-span-2 text-center py-8">
+                        <i class="fas fa-info-circle text-gray-400 text-3xl mb-3"></i>
+                        <p class="text-gray-600 dark:text-gray-400">No additional commodities are allocated for this season.</p>
+                    </div>
+                `;
+                otherCommoditiesSection.style.display = 'block';
+            }
+        }
+
         // Optimized Seed Selection
         function setupSeedSelection() {
             document.querySelectorAll('.seed-option').forEach(option => {
@@ -839,6 +938,8 @@
                     if (circle) circle.classList.add('border-emerald-500');
                     if (radio) radio.checked = true;
 
+                    // Display other commodities and calculate loan summary
+                    displayOtherCommodities();
                     calculateLoanSummary();
                 });
 
@@ -931,7 +1032,10 @@
 
             const farmSizeInput = document.getElementById('farm-size');
             if (farmSizeInput) {
-                farmSizeInput.addEventListener('input', calculateLoanSummary);
+                farmSizeInput.addEventListener('input', () => {
+                    displayOtherCommodities();
+                    calculateLoanSummary();
+                });
             }
 
             // Initialize loan summary
@@ -941,6 +1045,9 @@
             const checkedSeed = document.querySelector('input[name="selected_seed"]:checked');
             if (checkedSeed) {
                 checkedSeed.closest('.seed-option').click();
+            } else {
+                // Display other commodities even if no seed is selected yet
+                displayOtherCommodities();
             }
         });
     </script>

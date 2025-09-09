@@ -22,8 +22,8 @@ class FlutterwaveService
     {
         $payload = [
             "tx_ref"      => $txRef,
-            "amount"      => '500000',
-            // "amount"      => $amount,
+            // "amount"      => '500000',
+            "amount"      => $amount,
             "currency"    => "NGN",
             "redirect_url"=> $redirectUrl,
             "customer"    => [

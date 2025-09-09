@@ -16,117 +16,44 @@
                     'sans': ['Inter', 'system-ui', 'sans-serif'],
                 },
                 extend: {
-                    animation: {
-                        'fade-in': 'fadeIn 0.8s ease-in-out',
-                        'slide-up': 'slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
-                        'scale-in': 'scaleIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-                        'bounce-gentle': 'bounceGentle 2s infinite',
-                        'float': 'float 6s ease-in-out infinite',
-                        'glow': 'glow 2s ease-in-out infinite alternate',
-                    },
-                    keyframes: {
-                        fadeIn: {
-                            '0%': { opacity: '0', transform: 'translateY(10px)' },
-                            '100%': { opacity: '1', transform: 'translateY(0)' }
-                        },
-                        slideUp: {
-                            '0%': { transform: 'translateY(30px)', opacity: '0' },
-                            '100%': { transform: 'translateY(0)', opacity: '1' }
-                        },
-                        scaleIn: {
-                            '0%': { transform: 'scale(0.9)', opacity: '0' },
-                            '100%': { transform: 'scale(1)', opacity: '1' }
-                        },
-                        bounceGentle: {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-5px)' }
-                        },
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
-                            '33%': { transform: 'translateY(-10px) rotate(1deg)' },
-                            '66%': { transform: 'translateY(5px) rotate(-1deg)' }
-                        },
-                        glow: {
-                            '0%': { boxShadow: '0 0 20px rgba(16, 185, 129, 0.3)' },
-                            '100%': { boxShadow: '0 0 40px rgba(16, 185, 129, 0.6)' }
-                        }
-                    }
+                    // Removed heavy animations for better performance
                 }
             }
         }
     </script>
 
     <style>
-        .floating-element {
-            position: absolute;
-            border-radius: 50%;
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(14, 165, 233, 0.1));
-            animation: float 8s ease-in-out infinite;
-            pointer-events: none;
-        }
-
-        .floating-element:nth-child(1) { width: 100px; height: 100px; top: 10%; left: 5%; animation-delay: 0s; }
-        .floating-element:nth-child(2) { width: 150px; height: 150px; top: 60%; right: 10%; animation-delay: 2s; }
-        .floating-element:nth-child(3) { width: 80px; height: 80px; bottom: 20%; left: 15%; animation-delay: 4s; }
-
+        /* Simplified styles - removed heavy animations */
         .btn-primary {
             background: linear-gradient(135deg, #10b981 0%, #059669 50%, #0ea5e9 100%);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-primary::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s ease;
-        }
-
-        .btn-primary:hover::before {
-            left: 100%;
+            transition: background-color 0.2s ease;
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+            background: linear-gradient(135deg, #059669 0%, #047857 50%, #0284c7 100%);
         }
 
         .form-input {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
 
         .form-input:focus {
-            transform: translateY(-1px);
-            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.15);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
         }
 
         .info-card {
             background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(16, 185, 129, 0.1);
-            transition: all 0.3s ease;
-        }
-
-        .info-card:hover {
-            box-shadow: 0 15px 40px rgba(16, 185, 129, 0.1);
-            transform: translateY(-2px);
         }
     </style>
 </head>
 
-<body class="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-all duration-300">
-    <!-- Floating Background Elements -->
+<body class="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <!-- Simplified Background -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none">
-        <div class="floating-element"></div>
-        <div class="floating-element"></div>
-        <div class="floating-element"></div>
-        <div class="absolute -top-40 -right-40 w-80 h-80 bg-emerald-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-float"></div>
-        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-float" style="animation-delay: 2s;"></div>
+        <div class="absolute -top-40 -right-40 w-80 h-80 bg-emerald-300 rounded-full mix-blend-multiply filter blur-xl opacity-20"></div>
+        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-20"></div>
     </div>
 
     <!-- Navigation -->
@@ -135,10 +62,10 @@
             <div class="flex justify-between items-center py-4">
                 <div class="flex items-center">
                     <a href="{{ route('farmer.payment.index') }}" aria-label="Go back"
-                        class="mr-4 p-2 rounded-lg text-gray-400 dark:text-gray-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-gray-700 transition-all duration-200">
+                        class="mr-4 p-2 rounded-lg text-gray-400 dark:text-gray-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-gray-700">
                         <i class="fas fa-arrow-left text-lg"></i>
                     </a>
-                    <div class="h-10 w-10 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-xl flex items-center justify-center shadow-lg animate-bounce-gentle">
+                    <div class="h-10 w-10 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-xl flex items-center justify-center shadow-lg">
                         <i class="fas fa-credit-card text-white text-lg"></i>
                     </div>
                     <div class="ml-3">
@@ -148,7 +75,7 @@
                 </div>
                 <div class="flex items-center space-x-4">
                     <button id="darkModeToggle" aria-label="Toggle dark mode"
-                        class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-emerald-100 dark:hover:bg-gray-600 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-200">
+                        class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-emerald-100 dark:hover:bg-gray-600 hover:text-emerald-600 dark:hover:text-emerald-400">
                         <i id="sunIcon" class="fas fa-sun hidden dark:block"></i>
                         <i id="moonIcon" class="fas fa-moon block dark:hidden"></i>
                     </button>
@@ -161,8 +88,8 @@
     <div class="pt-24 pb-12 px-4 sm:px-6 lg:px-8">
         <div class="max-w-4xl mx-auto">
             <!-- Header -->
-            <div class="text-center mb-8 animate-fade-in">
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl shadow-lg mb-4 animate-bounce-gentle">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl shadow-lg mb-4">
                     <i class="fas fa-file-invoice-dollar text-white text-2xl"></i>
                 </div>
                 <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
@@ -177,7 +104,7 @@
                 <!-- Application Details -->
                 <div class="lg:col-span-2 space-y-6">
                     <!-- Farmer Information -->
-                    <div class="info-card rounded-2xl p-6 animate-slide-up">
+                    <div class="info-card rounded-2xl p-6">
                         <div class="flex items-center mb-4">
                             <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mr-3">
                                 <i class="fas fa-user text-white"></i>
@@ -205,7 +132,7 @@
                     </div>
 
                     <!-- Season Information -->
-                    <div class="info-card rounded-2xl p-6 animate-slide-up" style="animation-delay: 0.1s;">
+                    <div class="info-card rounded-2xl p-6">
                         <div class="flex items-center mb-4">
                             <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center mr-3">
                                 <i class="fas fa-calendar-alt text-white"></i>
@@ -227,7 +154,7 @@
 
                 <!-- Payment Summary -->
                 <div class="lg:col-span-1">
-                    <div class="info-card rounded-2xl p-6 animate-slide-up sticky top-24" style="animation-delay: 0.2s;">
+                    <div class="info-card rounded-2xl p-6 sticky top-24">
                         <div class="flex items-center mb-6">
                             <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center mr-3">
                                 <i class="fas fa-money-bill-wave text-white"></i>
@@ -302,7 +229,7 @@
                                 </label>
                             </div>
 
-                            <button type="submit" class="btn-primary w-full py-4 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg">
+                            <button type="submit" class="btn-primary w-full py-4 text-white font-bold rounded-xl shadow-lg">
                                 <i class="fas fa-credit-card mr-3"></i>
                                 Proceed to Payment
                             </button>
@@ -322,7 +249,7 @@
             </div>
 
             <!-- Important Information -->
-            <div class="mt-8 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 border-l-4 border-yellow-400 rounded-lg p-6 animate-fade-in">
+            <div class="mt-8 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 border-l-4 border-yellow-400 rounded-lg p-6">
                 <div class="flex items-start">
                     <i class="fas fa-info-circle text-yellow-600 mr-4 mt-1"></i>
                     <div>
@@ -389,7 +316,7 @@
         // Utility function for notifications
         function showNotification(message, type = 'info') {
             const notification = document.createElement('div');
-            notification.className = `fixed top-24 right-4 z-50 p-4 rounded-lg shadow-lg transition-all duration-300 ${
+            notification.className = `fixed top-24 right-4 z-50 p-4 rounded-lg shadow-lg ${
                 type === 'error' ? 'bg-red-500 text-white' :
                 type === 'success' ? 'bg-green-500 text-white' :
                 'bg-blue-500 text-white'
@@ -403,19 +330,11 @@
 
             document.body.appendChild(notification);
 
-            // Animate in
-            setTimeout(() => {
-                notification.style.transform = 'translateX(-100%)';
-            }, 100);
-
             // Remove after 5 seconds
             setTimeout(() => {
-                notification.style.transform = 'translateX(100%)';
-                setTimeout(() => {
-                    if (document.body.contains(notification)) {
-                        document.body.removeChild(notification);
-                    }
-                }, 300);
+                if (document.body.contains(notification)) {
+                    document.body.removeChild(notification);
+                }
             }, 5000);
         }
     </script>
