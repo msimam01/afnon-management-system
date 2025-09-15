@@ -403,6 +403,60 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Proportional Disbursement Breakdown -->
+                        <div x-show="modalData.disbursed_amount && modalData.total_loan && (modalData.disbursed_amount / modalData.total_loan) < 1" class="mt-8">
+                            <div class="flex items-center mb-6">
+                                <div class="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center mr-3">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                    </svg>
+                                </div>
+                                <h4 class="text-xl font-semibold text-gray-900 dark:text-white">
+                                    Proportional Disbursement (<span x-text="`${((modalData.disbursed_amount / modalData.total_loan) * 100).toFixed(1)}%`"></span>)
+                                </h4>
+                            </div>
+
+                            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-sm">
+                                        <thead class="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
+                                            <tr>
+                                                <th class="px-6 py-4 text-left font-semibold">Commodity</th>
+                                                <th class="px-6 py-4 text-left font-semibold">Original Qty</th>
+                                                <th class="px-6 py-4 text-left font-semibold">Disbursed Qty</th>
+                                                <th class="px-6 py-4 text-left font-semibold">Unit Price</th>
+                                                <th class="px-6 py-4 text-left font-semibold">Original Value</th>
+                                                <th class="px-6 py-4 text-left font-semibold">Disbursed Value</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                            <template x-for="c in modalData.commodity_allocations" :key="c.id">
+                                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+                                                    <td class="px-6 py-4">
+                                                        <div class="flex items-center">
+                                                            <div class="w-8 h-8 bg-gradient-to-br from-orange-400 to-orange-500 rounded-lg flex items-center justify-center mr-3">
+                                                                <span class="text-white text-xs font-bold" x-text="c.commodity?.name?.charAt(0) || 'C'"></span>
+                                                            </div>
+                                                            <span class="font-medium text-gray-900 dark:text-white" x-text="c.commodity?.name || 'Unknown'"></span>
+                                                        </div>
+                                                    </td>
+                                                    <td class="px-6 py-4 text-gray-700 dark:text-gray-300" x-text="`${c.allocated_quantity || 0} ${c.commodity?.unit || 'unit'}`"></td>
+                                                    <td class="px-6 py-4">
+                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
+                                                            <span x-text="`${((c.allocated_quantity || 0) * (modalData.disbursed_amount / modalData.total_loan)).toFixed(2)} ${c.commodity?.unit || 'unit'}`"></span>
+                                                        </span>
+                                                    </td>
+                                                    <td class="px-6 py-4 font-mono text-gray-700 dark:text-gray-300" x-text="`₦${(c.unit_price || 0).toLocaleString()}`"></td>
+                                                    <td class="px-6 py-4 font-semibold text-gray-600 dark:text-gray-400" x-text="`₦${((c.allocated_quantity || 0) * (c.unit_price || 0)).toLocaleString()}`"></td>
+                                                    <td class="px-6 py-4 font-semibold text-orange-600 dark:text-orange-400" x-text="`₦${(((c.allocated_quantity || 0) * (c.unit_price || 0)) * (modalData.disbursed_amount / modalData.total_loan)).toLocaleString()}`"></td>
+                                                </tr>
+                                            </template>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <!-- Enhanced File Upload Section -->
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -431,13 +485,18 @@
 
                         <!-- Commodity Photo Upload -->
                         <div class="space-y-4">
-                            <label for="commodityPhotoInput" class="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
-                                <svg class="w-4 h-4 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.828-1.472A2 2 0 0110.153 4h3.694a2 2 0 011.664.89l.828 1.472A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                </svg>
-                                Upload Commodity Photo *
-                            </label>
+                            <div class="flex items-center justify-between">
+                                <label for="commodityPhotoInput" class="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    <svg class="w-4 h-4 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.828-1.472A2 2 0 0110.153 4h3.694a2 2 0 011.664.89l.828 1.472A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    </svg>
+                                    Upload Commodity Photo *
+                                </label>
+
+
+                            </div>
+
                             <div class="relative border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-8 text-center cursor-pointer hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 transition-all duration-200 group">
                                 <input type="file" name="commodityPhoto" id="commodityPhotoInput" accept="image/*" required @change="previewImage($event, 'commodityPreview')" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                                 <div class="flex flex-col items-center">
@@ -447,12 +506,19 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                         </svg>
                                     </div>
-                                    <p class="text-gray-600 dark:text-gray-400 text-sm font-medium mb-1">Drag & drop or click to upload</p>
+                                    <p class="text-gray-600 dark:text-gray-400 text-sm font-medium mb-1">Click to capture or upload photo</p>
                                     <p class="text-gray-500 dark:text-gray-500 text-xs">PNG, JPG up to 2MB</p>
                                     <img id="commodityPreview" class="mt-4 w-40 h-40 object-cover rounded-lg hidden border-2 border-gray-300 dark:border-gray-600 shadow-sm" />
                                 </div>
                             </div>
+
                         </div>
+                        <!-- Camera Capture Button -->
+                        <button type="button" id="captureCommodityBtn"
+                        class="flex items-center justify-center px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors shadow-sm">
+                        <i class="fas fa-camera mr-2"></i>
+                        Capture Photo
+                    </button>
                     </div>
 
                     <!-- Enhanced Submit Section -->
@@ -676,5 +742,126 @@
                 setTimeout(() => toast.remove(), 300);
             });
         }
+
+        // Camera capture functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const captureCommodityBtn = document.getElementById('captureCommodityBtn');
+            const commodityPhotoInput = document.getElementById('commodityPhotoInput');
+            const commodityPreview = document.getElementById('commodityPreview');
+
+            // Camera capture for commodity photo
+            if (captureCommodityBtn) {
+                captureCommodityBtn.addEventListener('click', function() {
+                    // Check if getUserMedia is supported
+                    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                        // Request camera access - try back camera first, fallback to any camera
+                        const constraints = {
+                            video: {
+                                facingMode: { ideal: 'environment' }, // Prefer back camera
+                                width: { ideal: 1280 },
+                                height: { ideal: 720 }
+                            }
+                        };
+
+                        navigator.mediaDevices.getUserMedia(constraints)
+                        .then(function(stream) {
+                            // Create camera modal
+                            const cameraModal = document.createElement('div');
+                            cameraModal.className = 'fixed inset-0 z-50 bg-black bg-opacity-75 flex items-center justify-center';
+                            cameraModal.innerHTML = `
+                                <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-lg w-full mx-4">
+                                    <div class="flex justify-between items-center mb-4">
+                                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Capture Commodity Photo</h3>
+                                        <button id="closeCamera" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                                            <i class="fas fa-times text-xl"></i>
+                                        </button>
+                                    </div>
+                                    <div class="relative">
+                                        <video id="cameraVideo" autoplay playsinline class="w-full h-80 bg-gray-200 dark:bg-gray-700 rounded-lg object-cover"></video>
+                                        <canvas id="cameraCanvas" class="hidden"></canvas>
+                                        <div class="absolute top-4 left-4 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-sm">
+                                            <i class="fas fa-camera mr-1"></i>Live Camera
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-center mt-4 space-x-4">
+                                        <button id="captureBtn" class="px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors shadow-lg">
+                                            <i class="fas fa-camera mr-2"></i>Capture Photo
+                                        </button>
+                                        <button id="retakeBtn" class="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors hidden">
+                                            <i class="fas fa-redo mr-2"></i>Retake
+                                        </button>
+                                    </div>
+                                    <p class="text-center text-sm text-gray-500 dark:text-gray-400 mt-2">
+                                        Position the commodity clearly in the camera view
+                                    </p>
+                                </div>
+                            `;
+
+                            document.body.appendChild(cameraModal);
+
+                            const video = document.getElementById('cameraVideo');
+                            const canvas = document.getElementById('cameraCanvas');
+                            const captureBtn = document.getElementById('captureBtn');
+                            const retakeBtn = document.getElementById('retakeBtn');
+                            const closeCamera = document.getElementById('closeCamera');
+
+                            video.srcObject = stream;
+
+                            // Capture photo
+                            captureBtn.addEventListener('click', function() {
+                                canvas.width = video.videoWidth;
+                                canvas.height = video.videoHeight;
+                                const ctx = canvas.getContext('2d');
+                                ctx.drawImage(video, 0, 0);
+
+                                // Convert to blob and create file
+                                canvas.toBlob(function(blob) {
+                                    const file = new File([blob], 'captured-photo.jpg', { type: 'image/jpeg' });
+
+                                    // Create a new FileList-like object
+                                    const dataTransfer = new DataTransfer();
+                                    dataTransfer.items.add(file);
+                                    commodityPhotoInput.files = dataTransfer.files;
+
+                                    // Trigger change event
+                                    const event = new Event('change', { bubbles: true });
+                                    commodityPhotoInput.dispatchEvent(event);
+
+                                    // Show preview
+                                    const url = URL.createObjectURL(blob);
+                                    commodityPreview.src = url;
+                                    commodityPreview.classList.remove('hidden');
+
+                                    // Stop camera and close modal
+                                    stream.getTracks().forEach(track => track.stop());
+                                    document.body.removeChild(cameraModal);
+                                }, 'image/jpeg', 0.8);
+                            });
+
+                            // Close camera
+                            closeCamera.addEventListener('click', function() {
+                                stream.getTracks().forEach(track => track.stop());
+                                document.body.removeChild(cameraModal);
+                            });
+
+                            // Close on outside click
+                            cameraModal.addEventListener('click', function(e) {
+                                if (e.target === cameraModal) {
+                                    stream.getTracks().forEach(track => track.stop());
+                                    document.body.removeChild(cameraModal);
+                                }
+                            });
+                        })
+                        .catch(function(error) {
+                            console.error('Error accessing camera:', error);
+                            alert('Unable to access camera. Please check permissions or use file upload instead.');
+                        });
+                    } else {
+                        alert('Camera not supported on this device. Please use file upload instead.');
+                    }
+                });
+            }
+
+        });
     </script>
 @endsection

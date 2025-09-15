@@ -362,6 +362,168 @@
                 </div>
             </div>
 
+            <!-- Proportional Commodity Disbursement Section -->
+            @if(isset($disbursementSummary) && $disbursementSummary['disbursement_percentage'] < 100)
+            <div class="mb-8">
+                <div class="flex items-center mb-6">
+                    <div class="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center mr-3">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                    <h4 class="text-xl font-semibold text-gray-900 dark:text-white">
+                        Proportional Commodity Disbursement ({{ number_format($disbursementSummary['disbursement_percentage'], 1) }}%)
+                    </h4>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
+                                <tr>
+                                    <th class="px-6 py-4 text-left font-semibold">Commodity</th>
+                                    <th class="px-6 py-4 text-left font-semibold">Original Qty</th>
+                                    <th class="px-6 py-4 text-left font-semibold">Disbursed Qty</th>
+                                    <th class="px-6 py-4 text-left font-semibold">Unit Price</th>
+                                    <th class="px-6 py-4 text-left font-semibold">Original Value</th>
+                                    <th class="px-6 py-4 text-left font-semibold">Disbursed Value</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                @foreach ($disbursementSummary['commodity_disbursement']['commodities'] as $commodity)
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 {{ $commodity['commodity_id'] === 'insurance' ? 'bg-blue-50 dark:bg-blue-900/20' : '' }}">
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center">
+                                            @if($commodity['commodity_id'] === 'insurance')
+                                                <div class="w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-500 rounded-lg flex items-center justify-center mr-3">
+                                                    <i class="fas fa-shield-alt text-white text-xs"></i>
+                                                </div>
+                                            @else
+                                                <div class="w-8 h-8 bg-gradient-to-br from-orange-400 to-orange-500 rounded-lg flex items-center justify-center mr-3">
+                                                    <span class="text-white text-xs font-bold">{{ substr($commodity['commodity_name'], 0, 1) }}</span>
+                                                </div>
+                                            @endif
+                                            <span class="font-medium text-gray-900 dark:text-white {{ $commodity['commodity_id'] === 'insurance' ? 'text-blue-800 dark:text-blue-200' : '' }}">
+                                                {{ $commodity['commodity_name'] }}
+                                                @if($commodity['commodity_id'] === 'insurance')
+                                                    <span class="text-xs text-blue-600 dark:text-blue-400 ml-2">({{ $application->insurance_rate ?? 0 }}%)</span>
+                                                @endif
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 text-gray-700 dark:text-gray-300">
+                                        @if($commodity['commodity_id'] === 'insurance')
+                                            <span class="text-blue-600 dark:text-blue-400">-</span>
+                                        @else
+                                            {{ number_format($commodity['original_quantity'], 2) }} {{ $commodity['unit'] }}
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        @if($commodity['commodity_id'] === 'insurance')
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                                <i class="fas fa-shield-alt mr-1"></i>Included
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
+                                                {{ number_format($commodity['disbursed_quantity'], 2) }} {{ $commodity['unit'] }}
+                                            </span>
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4 font-mono text-gray-700 dark:text-gray-300">
+                                        @if($commodity['commodity_id'] === 'insurance')
+                                            <span class="text-blue-600 dark:text-blue-400">-</span>
+                                        @else
+                                            ₦{{ number_format($commodity['unit_price'], 2) }}
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4 font-semibold text-gray-600 dark:text-gray-400">
+                                        ₦{{ number_format($commodity['original_value'], 2) }}
+                                    </td>
+                                    <td class="px-6 py-4 font-semibold {{ $commodity['commodity_id'] === 'insurance' ? 'text-blue-600 dark:text-blue-400' : 'text-orange-600 dark:text-orange-400' }}">
+                                        ₦{{ number_format($commodity['disbursed_value'], 2) }}
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Disbursement Summary -->
+                    <div class="bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 border-t border-orange-200 dark:border-orange-700">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 p-6">
+                            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-orange-200 dark:border-orange-700 shadow-sm">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-xs font-medium text-orange-600 dark:text-orange-400 uppercase tracking-wide">Total Original Value</p>
+                                        <p class="text-lg font-bold text-gray-900 dark:text-white">
+                                            ₦{{ number_format($disbursementSummary['commodity_disbursement']['total_original_value'], 2) }}
+                                        </p>
+                                    </div>
+                                    <div class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-orange-200 dark:border-orange-700 shadow-sm">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-xs font-medium text-orange-600 dark:text-orange-400 uppercase tracking-wide">Disbursed Value</p>
+                                        <p class="text-lg font-bold text-orange-600 dark:text-orange-400">
+                                            ₦{{ number_format($disbursementSummary['commodity_disbursement']['total_disbursed_value'], 2) }}
+                                        </p>
+                                    </div>
+                                    <div class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-orange-200 dark:border-orange-700 shadow-sm">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-xs font-medium text-orange-600 dark:text-orange-400 uppercase tracking-wide">Disbursement %</p>
+                                        <p class="text-lg font-bold text-orange-600 dark:text-orange-400">
+                                            {{ number_format($disbursementSummary['disbursement_percentage'], 1) }}%
+                                        </p>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                            Includes {{ $application->insurance_rate ?? 0 }}% insurance
+                                        </p>
+                                    </div>
+                                    <div class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-blue-200 dark:border-blue-700 shadow-sm">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-xs font-medium text-blue-600 dark:text-blue-400 uppercase tracking-wide">Insurance Disbursed</p>
+                                        <p class="text-lg font-bold text-blue-600 dark:text-blue-400">
+                                            ₦{{ number_format($disbursementSummary['commodity_disbursement']['disbursed_insurance_amount'] ?? 0, 2) }}
+                                        </p>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                            Original: ₦{{ number_format($disbursementSummary['commodity_disbursement']['original_insurance_amount'] ?? 0, 2) }}
+                                        </p>
+                                    </div>
+                                    <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-shield-alt text-white text-sm"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endif
+
             @if ($application->status === 'pending')
                 <!-- Enhanced Approval Form -->
                 <div

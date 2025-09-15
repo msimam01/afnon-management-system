@@ -17,6 +17,8 @@ use App\Models\{
 use App\Helpers\SmsHelper;
 use App\Models\Center;
 use App\Services\ApplicationCacheService;
+use App\Services\CommodityDisbursementService;
+use App\Services\PerformanceOptimizationService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Response;
@@ -36,16 +38,16 @@ class ApplicationController extends Controller
         $filters = $request->only(['season', 'status', 'search']);
         $perPage = 20; // Increased for better UX
 
-        // Optimized query with selective loading
+        // Optimized query with selective loading and eager loading
         $query = Application::with([
             'farmer:id,full_name,phone,bvn,nin,registration_number,cluster',
             'season:id,name,status',
             'commodities:id,name,unit,price_per_unit',
             'farm:id,size,location'
         ])->select([
-            'id', 'uuid', 'farmer_id', 'farm_id', 'season_id', 'status', 
+            'id', 'uuid', 'farmer_id', 'farm_id', 'season_id', 'status',
             'total_loan', 'disbursed_amount', 'created_at', 'reference_number'
-        ]);
+        ])->orderBy('created_at', 'desc');
 
         // Apply filters with optimized queries
         if (!empty($filters['season'])) {
@@ -64,61 +66,22 @@ class ApplicationController extends Controller
             });
         }
 
-        $applications = $query->orderBy('created_at', 'desc')->paginate($perPage);
+        $applications = $query->paginate($perPage);
 
-        // Cache frequently accessed data (namespace by tenant)
-        $tid = (function () {
-            try {
-                return function_exists('tenant') && tenant() ? tenant('id') : 'central';
-            } catch (\Throwable $e) {
-                return 'central';
-            }
-        })();
-        $key = fn(string $suffix) => $tid . '_' . $suffix;
-
-        $seasons = Cache::remember($key('seasons_list'), 1800, function () {
-            return Season::select('id', 'name', 'status')->get();
-        });
-
-        $collectionCenters = Cache::remember($key('collection_centers'), 1800, function () {
-            return Center::whereIn('type', ['collection', 'both'])
-                ->select('id', 'name', 'type')
-                ->get();
-        });
-
-        $returnCenters = Cache::remember($key('return_centers'), 1800, function () {
-            return Center::whereIn('type', ['return', 'both'])
-                ->select('id', 'name', 'type')
-                ->get();
-        });
-
-        // Calculate statistics for the current season filter
-        $currentSeason = $filters['season'] ?? null;
-        $stats = Cache::remember($key('stats_' . ($currentSeason ?: 'all')), 300, function () use ($currentSeason) {
-            $query = Application::query();
-
-            if ($currentSeason) {
-                $query->whereHas('season', function ($q) use ($currentSeason) {
-                    $q->where('name', $currentSeason);
-                });
-            }
-
-            return [
-                'total_pending' => (clone $query)->where('status', 'pending')->count(),
-                'total_approved' => (clone $query)->where('status', 'approved')->count(),
-                'total_distributed' => (clone $query)->where('status', 'distributed')->count(),
-                'total_rejected' => (clone $query)->where('status', 'rejected')->count(),
-            ];
-        });
+        // Use performance optimization service for cached data
+        $seasons = PerformanceOptimizationService::getSeasonsList();
+        $centers = PerformanceOptimizationService::getCentersList();
+        $stats = PerformanceOptimizationService::getApplicationStats($filters['season'] ?? null);
 
         // Add response caching headers for better performance
         return Response::view('admin.applications.index', compact(
             'applications',
-            'collectionCenters',
-            'returnCenters',
             'seasons',
             'stats'
-        ))->header('Cache-Control', 'public, max-age=300'); // 5 minutes
+        ) + [
+            'collectionCenters' => $centers['collection'],
+            'returnCenters' => $centers['return']
+        ])->header('Cache-Control', 'public, max-age=300'); // 5 minutes
     }
 
 
@@ -151,20 +114,46 @@ class ApplicationController extends Controller
 
     protected function generateRegistrationNumber($seasonType, $year)
     {
-        $tenantPrefix = strtoupper(tenant()->id ?? 'TN');
+        // Generate tenant prefix dynamically from tenant name
+        $tenantPrefix = 'TN'; // Default fallback
+        if (tenant()) {
+            $tenantName = tenant()->id ?? '';
+            if (!empty($tenantName)) {
+                $prefix = strtoupper(substr($tenantName, 0, 2));
+                // If name is too short, pad with 'X'
+                if (strlen($prefix) < 2) {
+                    $prefix = str_pad($prefix, 2, 'X', STR_PAD_RIGHT);
+                }
+                $tenantPrefix = $prefix;
+            }
+        }
+
         $shortYear = substr($year, -2); // Get last 2 digits of year
 
         // Get the last farmer for this year to generate sequence
         $lastFarmer = Farmer::whereYear('created_at', $year)->latest()->first();
         $sequence = $lastFarmer ? intval(substr($lastFarmer->registration_number, -4)) + 1 : 1;
 
-        // Format: REG/KN/DRY/25/AF-0001
+        // Format: REG-KN-DRY-25-AF-0001
         return "REG-" . $tenantPrefix . "-" . strtoupper($seasonType) . "-" . $shortYear . "-AF" . str_pad($sequence, 4, '0', STR_PAD_LEFT);
     }
 
     protected function generateReferenceNumber($seasonType)
     {
-        $tenantPrefix = strtoupper(tenant()->id ?? 'TN');
+        // Generate tenant prefix dynamically from tenant name
+        $tenantPrefix = 'TN'; // Default fallback
+        if (tenant()) {
+            $tenantName = tenant()->id ?? '';
+            if (!empty($tenantName)) {
+                $prefix = strtoupper(substr($tenantName, 0, 2));
+                // If name is too short, pad with 'X'
+                if (strlen($prefix) < 2) {
+                    $prefix = str_pad($prefix, 2, 'X', STR_PAD_RIGHT);
+                }
+                $tenantPrefix = $prefix;
+            }
+        }
+
         $shortYear = substr(now()->year, -2); // Get last 2 digits of current year
 
         // Get current season to determine season type
@@ -173,7 +162,7 @@ class ApplicationController extends Controller
         // Generate unique 4-digit sequence
         $sequence = rand(1000, 9999);
 
-        // Format: AF/REF/KN/DRY/25/0001
+        // Format: AF:REF-KN-DRY-25-0001
         return "AF:REF-" . $tenantPrefix . "-" . strtoupper($seasonType) . "-" . $shortYear . "-" . str_pad($sequence, 4, '0', STR_PAD_LEFT);
     }
     public function store(Request $request)
@@ -400,8 +389,9 @@ class ApplicationController extends Controller
             'farmer:id,full_name,registration_number,phone,bvn,nin,address',
             'farm:id,size,location',
             'season',
-            'commodities:id,name,quantity_per_hectare,price_per_unit',
-            'applicationCommodities.commodity'
+            'commodities:id,name,quantity_per_hectare,price_per_unit,unit',
+            'applicationCommodities.commodity',
+            'commodity_allocations.commodity'
         ])->whereUuid($uuid)->firstOrFail();
 
         // Auto-calculate allocation based on qty_per_hectare × farm size
@@ -427,6 +417,9 @@ class ApplicationController extends Controller
             ->select('id', 'name', 'type')
             ->get();
 
+        // Calculate proportional commodity disbursement
+        $disbursementSummary = CommodityDisbursementService::getDisbursementSummary($application);
+
         return view('admin.applications.show', [
             'application' => $application,
             'allocations' => $allocations,
@@ -436,7 +429,8 @@ class ApplicationController extends Controller
             'disbursed_amount' => $application->disbursed_amount,
             'total_loan' => $application->total_loan,
             'collectionCenters' => $collectionCenters,
-            'returnCenters' => $returnCenters
+            'returnCenters' => $returnCenters,
+            'disbursementSummary' => $disbursementSummary
         ]);
     }
 

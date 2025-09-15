@@ -64,6 +64,22 @@
             line-height: 1.6;
             background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f0fdf4 100%);
             min-height: 100vh;
+            position: relative;
+        }
+
+        /* MOTTO Background */
+        .motto-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.08;
+            background-image: url('{{ asset('images/motto-background.jpg') }}');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center top;
         }
 
         /* Enhanced Container */
@@ -71,7 +87,7 @@
             max-width: 900px;
             margin: 2rem auto;
             background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(3px);
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
             border-radius: 20px;
             overflow: hidden;
@@ -599,6 +615,9 @@
 </head>
 
 <body class="animate-fade-in">
+    <!-- MOTTO Background -->
+    <div class="motto-background"></div>
+
     <div class="container animate-scale-in">
         <!-- Enhanced Header -->
         <div class="header">
@@ -607,8 +626,9 @@
                     <i class="fas fa-check-circle"></i>
                     Application Submitted Successfully
                 </div>
-                <h1>Acknowledgement Slip</h1>
-                <p class="subtitle">{{ $tenantDisplayName }} Agricultural Finance Network</p>
+                <h1>ASSOCIATION OF FARMERS IN THE NORTHEAST OF NIGERIA</h1>
+                <p class="subtitle">{{ strtoupper($tenantDisplayName) }} STATE CHAPTER</p>
+                <p class="subtitle" style="font-size: 0.9rem; font-style: italic; margin-top: 0.5rem;">Agricultural Input Support Program - Application Acknowledgement</p>
                 <div class="reference">REF: {{ $application->reference_number }}</div>
             </div>
         </div>
@@ -681,7 +701,7 @@
             <div class="section">
                 <h2 class="section-title">
                     <i class="fas fa-seedling text-green-600 mr-2"></i>
-                    Commodities Requested
+                    Commodities Allocation
                 </h2>
 
                 <div class="table-container">
@@ -720,7 +740,7 @@
             <div class="financial-summary">
                 <div class="summary-title">
                     <i class="fas fa-chart-line mr-3"></i>
-                    Financial Summary
+                    Financial Terms and Conditions
                 </div>
                 <div class="summary-grid">
                     @if($application->insurance_amount)
@@ -769,7 +789,7 @@
             <div class="qr-section">
                 <div class="qr-title">
                     <i class="fas fa-qrcode mr-2"></i>
-                    Document Verification
+                    MOTTO Document Verification
                 </div>
                 <div class="qr-code">
                     {!! QrCode::size(120)->backgroundColor(255,255,255)
@@ -810,8 +830,9 @@
                 <span class="font-semibold">{{ $tenantDisplayName }} Agricultural Finance Network</span>
             </div>
             <div class="text-sm">
-                <span class="font-medium">Document ID:</span> {{ $application->uuid }} |
-                <span class="font-medium">Generated:</span> {{ now()->format('M d, Y H:i A') }}
+                <span class="font-medium">MOTTO Document ID:</span> {{ $application->uuid }} |
+                <span class="font-medium">Generated:</span> {{ now()->format('M d, Y H:i A') }} |
+                <span class="font-medium">Page:</span> 1 of 1
             </div>
             <div class="text-xs text-gray-500 mt-2">
                 Keep this acknowledgement slip safe for your records. You will need the reference number for future inquiries.

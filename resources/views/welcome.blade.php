@@ -280,8 +280,8 @@
                         <i class="fas fa-seedling text-white text-xl"></i>
                     </div>
                     <div>
-                        <h1 class="text-2xl font-bold text-emerald-800">{{ $isCentral ? $setting->name ?? 'AFNON' : $tenant->short_name ?? strtoupper($tenant->id) }}</h1>
-                        <p class="text-xs text-emerald-600 font-medium">Agricultural Finance Network</p>
+                        <h1 class="text-2xl font-bold text-emerald-800">{{ $isCentral ? $setting->name ?? 'AFNON' : $tenant->short_name ?? strtoupper($tenant->id) }} STATE CHAPTER</h1>
+                        <p class="text-xs text-emerald-600 font-medium">Association of Farmers in the Northeast of Nigeria</p>
                     </div>
                 </div>
 

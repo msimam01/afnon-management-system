@@ -126,4 +126,5 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     {
         return $query->where('status', self::STATUS_PENDING);
     }
+
 }

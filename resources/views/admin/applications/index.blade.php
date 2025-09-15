@@ -1,5 +1,16 @@
 @extends('layouts.layout')
 
+@push('datatables')
+    <!-- DataTables CSS and JS - Load only when needed -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/select/1.7.0/js/dataTables.select.min.js"></script>
+@endpush
+
 @section('content')
 <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <!-- Modern Header Section -->
@@ -31,11 +42,11 @@
         </div>
     </div>
 
-    <!-- Statistics Cards -->
+            <!-- Statistics Cards -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <!-- Pending Applications -->
-            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-200">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow duration-150">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Pending</p>
@@ -51,7 +62,7 @@
             </div>
 
             <!-- Approved Applications -->
-            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-200">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow duration-150">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Approved</p>
@@ -67,7 +78,7 @@
             </div>
 
             <!-- Distributed Applications -->
-            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-200">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow duration-150">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Distributed</p>
@@ -83,7 +94,7 @@
             </div>
 
             <!-- Rejected Applications -->
-            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-200">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow duration-150">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Rejected</p>
@@ -148,8 +159,8 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                 </svg>
                             </div>
-                            <input type="text" name="search" value="{{ request('search') }}" 
-                                   class="w-full pl-10 pr-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" 
+                            <input type="text" name="search" value="{{ request('search') }}"
+                                   class="w-full pl-10 pr-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                                    placeholder="Search farmers...">
                         </div>
                     </div>
@@ -168,7 +179,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Collection Center</label>
-                            <select name="collection_center_id" id="bulkCollectionCenter" 
+                            <select name="collection_center_id" id="bulkCollectionCenter"
                                     class="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" required>
                                 <option value="">Select Collection Center</option>
                                 @foreach ($collectionCenters as $center)
@@ -180,7 +191,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Return Center</label>
-                            <select name="return_center_id" id="bulkReturnCenter" 
+                            <select name="return_center_id" id="bulkReturnCenter"
                                     class="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" required>
                                 <option value="">Select Return Center</option>
                                 @foreach ($returnCenters as $center)
@@ -221,8 +232,8 @@
                         </thead>
                         <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                             @forelse($applications as $application)
-                                <tr class="appRow hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors" 
-                                    data-status="{{ strtolower($application->status) }}" 
+                                <tr class="appRow hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-150"
+                                    data-status="{{ strtolower($application->status) }}"
                                     data-season="{{ strtolower($application->season->name) }}">
                                     <td class="px-6 py-4">
                                         <input type="checkbox" class="rowCheckbox h-4 w-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500" value="{{ $application->id }}">
@@ -302,7 +313,7 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4">
-                                        <a href="{{ route('admin.applications.show', $application->uuid) }}" 
+                                        <a href="{{ route('admin.applications.show', $application->uuid) }}"
                                            class="inline-flex items-center px-3 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors">
                                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -349,14 +360,14 @@
                     <div id="bulkRejectIdsContainer"></div>
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Rejection Reason (Optional)</label>
-                        <textarea name="rejection_note" rows="4" 
+                        <textarea name="rejection_note" rows="4"
                                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                                   placeholder="Enter reason for rejection..."></textarea>
                     </div>
                     <div class="flex justify-end space-x-3">
-                        <button type="button" id="cancelBulkReject" 
+                        <button type="button" id="cancelBulkReject"
                                 class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors">Cancel</button>
-                        <button type="submit" 
+                        <button type="submit"
                                 class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors">Confirm Reject</button>
                     </div>
                 </form>
@@ -417,7 +428,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Toggle bulk action buttons
     function toggleBulkActions() {
         const hasIds = Array.from(rowChecks).some(cb => cb.checked);
-        
+
         bulkApproveBtn.disabled = !hasIds;
         bulkApproveBtn.classList.toggle('opacity-50', !hasIds);
         bulkApproveBtn.classList.toggle('cursor-not-allowed', !hasIds);

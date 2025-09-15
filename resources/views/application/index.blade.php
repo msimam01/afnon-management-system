@@ -213,19 +213,18 @@
             background-color: rgba(16, 185, 129, 0.05) !important;
         }
 
-        /* Commodity cards styling */
+        /* Commodity cards styling - Optimized */
         .commodity-card {
-            transition: all 0.3s ease;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
             border: 2px solid transparent;
         }
 
         .commodity-card:hover {
             border-color: #10b981;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1);
-            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.1);
         }
 
-        /* Performance optimizations */
+        /* Performance optimizations - Simplified background */
         .floating-bg {
             position: fixed;
             top: 0;
@@ -234,26 +233,7 @@
             bottom: 0;
             pointer-events: none;
             z-index: -1;
-        }
-
-        .floating-bg::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, transparent 70%);
-        }
-
-        .floating-bg::after {
-            content: '';
-            position: absolute;
-            bottom: -50%;
-            left: -50%;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle, rgba(14, 165, 233, 0.1) 0%, transparent 70%);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(14, 165, 233, 0.05) 100%);
         }
     </style>
 </head>
@@ -646,7 +626,7 @@
             });
         }
 
-        // Optimized State/LGA Management
+        // Optimized State/LGA Management with timeout
         async function fetchStates() {
             if (statesCache) {
                 populateStates(statesCache);
@@ -657,12 +637,23 @@
             if (!stateSelect) return;
 
             try {
-                const response = await fetch('https://nga-states-lga.onrender.com/fetch');
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+
+                const response = await fetch('https://nga-states-lga.onrender.com/fetch', {
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+
                 const data = await response.json();
                 statesCache = data;
                 populateStates(data);
             } catch (error) {
-                showNotification('Failed to load states. Please refresh the page.', 'error');
+                if (error.name === 'AbortError') {
+                    showNotification('Request timeout. Please check your connection.', 'error');
+                } else {
+                    showNotification('Failed to load states. Please refresh the page.', 'error');
+                }
             }
         }
 
@@ -693,12 +684,23 @@
             }
 
             try {
-                const response = await fetch(`https://nga-states-lga.onrender.com/?state=${encodeURIComponent(state)}`);
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+                const response = await fetch(`https://nga-states-lga.onrender.com/?state=${encodeURIComponent(state)}`, {
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+
                 const data = await response.json();
                 lgaCache[state] = data;
                 populateLGAs(data);
             } catch (error) {
-                showNotification(`Failed to load LGAs for ${state}.`, 'error');
+                if (error.name === 'AbortError') {
+                    showNotification(`Request timeout for ${state} LGAs.`, 'error');
+                } else {
+                    showNotification(`Failed to load LGAs for ${state}.`, 'error');
+                }
             }
         }
 
@@ -857,7 +859,7 @@
             // Show section if there are other commodities
             if (Array.isArray(otherCommodities) && otherCommodities.length > 0) {
                 otherCommoditiesSection.style.display = 'block';
-                
+
                 // Clear existing content
                 otherCommoditiesList.innerHTML = '';
 
@@ -1033,22 +1035,29 @@
             const farmSizeInput = document.getElementById('farm-size');
             if (farmSizeInput) {
                 farmSizeInput.addEventListener('input', () => {
-                    displayOtherCommodities();
+                    // Only display commodities if a seed is selected
+                    const selectedSeed = document.querySelector('input[name="selected_seed"]:checked');
+                    if (selectedSeed) {
+                        displayOtherCommodities();
+                    }
                     calculateLoanSummary();
                 });
             }
 
-            // Initialize loan summary
-            calculateLoanSummary();
+            // Hide commodity breakdown by default
+            const otherCommoditiesSection = document.getElementById('other-commodities-section');
+            if (otherCommoditiesSection) {
+                otherCommoditiesSection.style.display = 'none';
+            }
 
             // Restore selected seed if any
             const checkedSeed = document.querySelector('input[name="selected_seed"]:checked');
             if (checkedSeed) {
                 checkedSeed.closest('.seed-option').click();
-            } else {
-                // Display other commodities even if no seed is selected yet
-                displayOtherCommodities();
             }
+
+            // Initialize loan summary
+            calculateLoanSummary();
         });
     </script>
 </body>
