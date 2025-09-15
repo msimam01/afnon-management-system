@@ -41,6 +41,38 @@
         .form-input:focus {
             box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
         }
+
+        /* Loading state animations */
+        .fa-spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Button loading state */
+        .btn-loading {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
     </style>
 </head>
 
@@ -177,9 +209,15 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn-primary w-full py-4 text-white font-bold rounded-xl shadow-lg text-lg">
-                            <i class="fas fa-search mr-3"></i>
-                            Find My Application
+                        <button type="submit" id="searchButton" class="btn-primary w-full py-4 text-white font-bold rounded-xl shadow-lg text-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                            <span id="searchButtonContent">
+                                <i class="fas fa-search mr-3"></i>
+                                Find My Application
+                            </span>
+                            <span id="searchButtonLoading" class="hidden">
+                                <i class="fas fa-spinner fa-spin mr-3"></i>
+                                Searching...
+                            </span>
                         </button>
                     </form>
 
@@ -238,14 +276,52 @@
             this.value = this.value.toUpperCase();
         });
 
-        // Form validation
+        // Form validation and loading state
         document.querySelector('form').addEventListener('submit', function(e) {
             const refNumber = document.getElementById('reference_number').value.trim();
+            const searchButton = document.getElementById('searchButton');
+
             if (!refNumber) {
                 e.preventDefault();
                 showNotification('Please enter your application reference number.', 'error');
+                return;
             }
+
+            // Prevent double submission
+            if (searchButton.disabled) {
+                e.preventDefault();
+                return;
+            }
+
+            // Show loading state
+            toggleButtonLoading(searchButton, true);
+
+            // Add timeout to prevent infinite loading (30 seconds)
+            setTimeout(() => {
+                if (searchButton.disabled) {
+                    toggleButtonLoading(searchButton, false);
+                    showNotification('Request timed out. Please try again.', 'error');
+                }
+            }, 30000);
         });
+
+        // Utility function to show/hide loading state
+        function toggleButtonLoading(button, isLoading = true) {
+            const buttonContent = button.querySelector('[id$="Content"]');
+            const buttonLoading = button.querySelector('[id$="Loading"]');
+
+            if (isLoading) {
+                button.disabled = true;
+                button.classList.add('btn-loading');
+                if (buttonContent) buttonContent.classList.add('hidden');
+                if (buttonLoading) buttonLoading.classList.remove('hidden');
+            } else {
+                button.disabled = false;
+                button.classList.remove('btn-loading');
+                if (buttonContent) buttonContent.classList.remove('hidden');
+                if (buttonLoading) buttonLoading.classList.add('hidden');
+            }
+        }
 
         // Utility function for notifications
         function showNotification(message, type = 'info') {

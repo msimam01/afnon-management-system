@@ -46,6 +46,43 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(16, 185, 129, 0.1);
         }
+
+        .dark .info-card {
+            background: rgba(31, 41, 55, 0.9);
+            border: 1px solid rgba(75, 85, 99, 0.3);
+        }
+
+        /* Loading state animations */
+        .fa-spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Button loading state */
+        .btn-loading {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
     </style>
 </head>
 
@@ -229,9 +266,15 @@
                                 </label>
                             </div>
 
-                            <button type="submit" class="btn-primary w-full py-4 text-white font-bold rounded-xl shadow-lg">
-                                <i class="fas fa-credit-card mr-3"></i>
-                                Proceed to Payment
+                            <button type="submit" id="paymentButton" class="btn-primary w-full py-4 text-white font-bold rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                                <span id="paymentButtonContent">
+                                    <i class="fas fa-credit-card mr-3"></i>
+                                    Proceed to Payment
+                                </span>
+                                <span id="paymentButtonLoading" class="hidden">
+                                    <i class="fas fa-spinner fa-spin mr-3"></i>
+                                    Processing...
+                                </span>
                             </button>
                         </form>
 
@@ -294,11 +337,12 @@
             }
         });
 
-        // Form validation
+        // Form validation and loading state
         document.querySelector('form').addEventListener('submit', function(e) {
             const phone = document.getElementById('farmer_phone').value.trim();
             const originalPhone = '{{ $application->farmer->phone }}';
             const terms = document.getElementById('payment-terms').checked;
+            const paymentButton = document.getElementById('paymentButton');
 
             if (phone !== originalPhone) {
                 e.preventDefault();
@@ -311,7 +355,42 @@
                 showNotification('Please accept the terms and conditions to proceed.', 'error');
                 return;
             }
+
+            // Prevent double submission
+            if (paymentButton.disabled) {
+                e.preventDefault();
+                return;
+            }
+
+            // Show loading state
+            toggleButtonLoading(paymentButton, true);
+
+            // Add timeout to prevent infinite loading (30 seconds)
+            setTimeout(() => {
+                if (paymentButton.disabled) {
+                    toggleButtonLoading(paymentButton, false);
+                    showNotification('Request timed out. Please try again.', 'error');
+                }
+            }, 30000);
         });
+
+        // Utility function to show/hide loading state
+        function toggleButtonLoading(button, isLoading = true) {
+            const buttonContent = button.querySelector('[id$="Content"]');
+            const buttonLoading = button.querySelector('[id$="Loading"]');
+
+            if (isLoading) {
+                button.disabled = true;
+                button.classList.add('btn-loading');
+                if (buttonContent) buttonContent.classList.add('hidden');
+                if (buttonLoading) buttonLoading.classList.remove('hidden');
+            } else {
+                button.disabled = false;
+                button.classList.remove('btn-loading');
+                if (buttonContent) buttonContent.classList.remove('hidden');
+                if (buttonLoading) buttonLoading.classList.add('hidden');
+            }
+        }
 
         // Utility function for notifications
         function showNotification(message, type = 'info') {

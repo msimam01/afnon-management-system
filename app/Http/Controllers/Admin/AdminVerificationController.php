@@ -8,6 +8,7 @@ use App\Models\ReturnVerification;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\CollectionVerification;
+use App\Services\PerformanceOptimizationService;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -204,6 +205,10 @@ $returnData = $returnQuery->get()->transform(function ($item) {
             });
 
             $message = $validated['status'] === 'approved' ? 'Verification approved successfully.' : 'Verification rejected successfully.';
+
+            // Clear performance caches after status change
+            PerformanceOptimizationService::clearCaches();
+
             return response()->json(['message' => $message, 'success' => true]);
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage(), 'success' => false], 422);
@@ -250,6 +255,9 @@ $returnData = $returnQuery->get()->transform(function ($item) {
                 $message .= ", {$skippedCount} skipped (already approved or not pending)";
             }
             $message .= ".";
+
+            // Clear performance caches after bulk operations
+            PerformanceOptimizationService::clearCaches();
 
             return response()->json(['message' => $message, 'success' => true]);
         } catch (\Exception $e) {

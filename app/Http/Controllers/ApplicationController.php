@@ -645,6 +645,10 @@ class ApplicationController extends Controller
         });
 
         $processedCount = count($bulkUpdates);
+
+        // Clear performance caches after bulk operations
+        PerformanceOptimizationService::clearCaches();
+
         ToastMagic::success("Bulk approval completed successfully. {$processedCount} applications approved.");
         return back();
     }
@@ -659,6 +663,9 @@ class ApplicationController extends Controller
         }
 
         $application->update(['status' => 'rejected']);
+
+        // Clear performance caches after status change
+        PerformanceOptimizationService::clearCaches();
 
         // Queue SMS job (use Laravel Jobs)
         // dispatch(new \App\Jobs\SendSmsJob([

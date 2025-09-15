@@ -377,7 +377,23 @@
 </div>
 
 <script>
+// Ensure scripts are loaded before execution
 document.addEventListener('DOMContentLoaded', function() {
+    // Wait for all scripts to be available
+    if (typeof $ === 'undefined') {
+        console.warn('jQuery not loaded, retrying...');
+        setTimeout(() => {
+            if (typeof $ !== 'undefined') {
+                initializeApplicationScripts();
+            }
+        }, 100);
+        return;
+    }
+
+    initializeApplicationScripts();
+});
+
+function initializeApplicationScripts() {
     // DOM elements
     const selectAll = document.getElementById('select-all');
     const rowChecks = document.querySelectorAll('.rowCheckbox');
@@ -464,7 +480,7 @@ document.addEventListener('DOMContentLoaded', function() {
     collectionSelect.addEventListener('change', () => syncBothTypeBehavior(collectionSelect, returnSelect));
     returnSelect.addEventListener('change', () => syncBothTypeBehavior(returnSelect, collectionSelect));
 
-    // Form submission guard
+    // Form submission guard with proper handling
     form.addEventListener('submit', function(e) {
         if (bulkApproveBtn.disabled) {
             e.preventDefault();
@@ -474,6 +490,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (returnSelect.disabled) {
             returnSelect.disabled = false;
         }
+
+        // Show loading state
+        bulkApproveBtn.disabled = true;
+        bulkApproveBtn.textContent = 'Processing...';
     });
 
     // Bulk reject handlers
@@ -506,6 +526,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize
     updateSelectedIds();
     toggleBulkActions();
-});
+}
 </script>
 @endsection

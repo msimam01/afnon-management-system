@@ -38,6 +38,11 @@
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
         }
 
+        .dark .receipt-container {
+            background: #1f2937;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
         @media print {
             body * {
                 visibility: hidden;
@@ -130,20 +135,20 @@
                             <div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center mr-3">
                                 <i class="fas fa-hashtag text-emerald-600"></i>
                             </div>
-                            <h3 class="text-xl font-bold text-gray-900">Transaction Details</h3>
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-white">Transaction Details</h3>
                         </div>
                         <div class="grid md:grid-cols-2 gap-6">
                             <div class="space-y-3">
                                 <div class="flex justify-between">
-                                    <span class="text-gray-600">Transaction Reference:</span>
+                                    <span class="text-gray-600 dark:text-gray-300">Transaction Reference:</span>
                                     <span class="font-mono font-semibold">{{ $monetaryReturn->tx_ref }}</span>
                                 </div>
                                 <div class="flex justify-between">
-                                    <span class="text-gray-600">Application Reference:</span>
+                                    <span class="text-gray-600 dark:text-gray-300">Application Reference:</span>
                                     <span class="font-mono font-semibold">{{ $monetaryReturn->application->reference_number }}</span>
                                 </div>
                                 <div class="flex justify-between">
-                                    <span class="text-gray-600">Payment Date:</span>
+                                    <span class="text-gray-600 dark:text-gray-300">Payment Date:</span>
                                     <span class="font-semibold">
                                         @if($monetaryReturn->verified_at)
                                             {{ $monetaryReturn->verified_at->format('M d, Y \a\t g:i A') }}
@@ -155,15 +160,15 @@
                             </div>
                             <div class="space-y-3">
                                 <div class="flex justify-between">
-                                    <span class="text-gray-600">Season:</span>
+                                    <span class="text-gray-600 dark:text-gray-300">Season:</span>
                                     <span class="font-semibold">{{ $monetaryReturn->application->season->name }}</span>
                                 </div>
                                 <div class="flex justify-between">
-                                    <span class="text-gray-600">Payment Method:</span>
+                                    <span class="text-gray-600 dark:text-gray-300">Payment Method:</span>
                                     <span class="font-semibold">Online Payment</span>
                                 </div>
                                 <div class="flex justify-between">
-                                    <span class="text-gray-600">Status:</span>
+                                    <span class="text-gray-600 dark:text-gray-300">Status:</span>
                                     <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
                                         <i class="fas fa-check-circle mr-1"></i>
                                         Completed
@@ -179,22 +184,22 @@
                             <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
                                 <i class="fas fa-user text-blue-600"></i>
                             </div>
-                            <h3 class="text-xl font-bold text-gray-900">Farmer Information</h3>
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-white">Farmer Information</h3>
                         </div>
                         <div class="grid md:grid-cols-2 gap-6">
                             <div class="space-y-3">
                                 <div class="flex justify-between">
-                                    <span class="text-gray-600">Full Name:</span>
+                                    <span class="text-gray-600 dark:text-gray-300">Full Name:</span>
                                     <span class="font-semibold">{{ $monetaryReturn->application->farmer->full_name }}</span>
                                 </div>
                                 <div class="flex justify-between">
-                                    <span class="text-gray-600">Registration Number:</span>
+                                    <span class="text-gray-600 dark:text-gray-300">Registration Number:</span>
                                     <span class="font-mono font-semibold">{{ $monetaryReturn->application->farmer->registration_number }}</span>
                                 </div>
                             </div>
                             <div class="space-y-3">
                                 <div class="flex justify-between">
-                                    <span class="text-gray-600">Phone Number:</span>
+                                    <span class="text-gray-600 dark:text-gray-300">Phone Number:</span>
                                     <span class="font-semibold">{{ $monetaryReturn->application->farmer->phone }}</span>
                                 </div>
                             </div>
@@ -207,25 +212,25 @@
                             <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
                                 <i class="fas fa-money-bill-wave text-green-600"></i>
                             </div>
-                            <h3 class="text-xl font-bold text-gray-900">Payment Summary</h3>
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-white">Payment Summary</h3>
                         </div>
-                        <div class="bg-gray-50 rounded-xl p-6">
+                        <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-6">
                             <div class="flex justify-between items-center text-lg">
-                                <span class="font-semibold text-gray-700">Monetary Return Payment:</span>
-                                <span class="text-3xl font-bold text-green-600">₦{{ number_format($monetaryReturn->amount, 2) }}</span>
+                                <span class="font-semibold text-gray-700 dark:text-gray-200">Monetary Return Payment:</span>
+                                <span class="text-3xl font-bold text-green-600 dark:text-green-400">₦{{ number_format($monetaryReturn->amount, 2) }}</span>
                             </div>
-                            <div class="mt-4 pt-4 border-t border-gray-200">
+                            <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
                                 <div class="flex justify-between items-center text-xl font-bold">
-                                    <span>Total Amount Paid:</span>
-                                    <span class="text-green-600">₦{{ number_format($monetaryReturn->amount, 2) }}</span>
+                                    <span class="text-gray-900 dark:text-white">Total Amount Paid:</span>
+                                    <span class="text-green-600 dark:text-green-400">₦{{ number_format($monetaryReturn->amount, 2) }}</span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Footer -->
-                    <div class="border-t border-gray-200 pt-6">
-                        <div class="text-center text-gray-600">
+                    <div class="border-t border-gray-200 dark:border-gray-600 pt-6">
+                        <div class="text-center text-gray-600 dark:text-gray-300">
                             <p class="mb-2">Thank you for your payment!</p>
                             <p class="text-sm">This receipt serves as proof of payment for your monetary return obligation.</p>
                             <p class="text-sm mt-2">For support, contact us at support@afnon.com or +234-800-000-0000</p>
@@ -233,12 +238,12 @@
                     </div>
 
                     <!-- QR Code or Verification -->
-                    <div class="mt-6 text-center">
+                    {{-- <div class="mt-6 text-center">
                         <div class="inline-block p-4 bg-gray-100 rounded-lg">
                             <p class="text-xs text-gray-500 mb-2">Verification Code</p>
                             <p class="font-mono text-sm font-semibold">{{ strtoupper(substr(md5($monetaryReturn->tx_ref), 0, 8)) }}</p>
                         </div>
-                    </div>
+                    </div> --}}
                 </div>
             </div>
 
