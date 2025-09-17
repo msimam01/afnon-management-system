@@ -133,6 +133,12 @@
 <body class="bg-gray-50 dark:bg-gray-900 font-sans transition-colors duration-200">
     @include('layouts.navbar');
     @include('layouts.sidebar');
+
+    <!-- Main Content Area -->
+    <main class="ml-0 md:ml-80 pt-16 min-h-screen pl-4 md:pl-6">
+        @yield('content')
+    </main>
+
     @include('layouts.footer')
     @stack('scripts')
     <script src="{{ asset('js/script.js') }}"></script>

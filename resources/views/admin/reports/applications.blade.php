@@ -1,7 +1,6 @@
 @extends('layouts.layout')
 
 @section('content')
-<div class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <!-- Modern Header Section -->
     <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -21,14 +20,14 @@
                         </div>
                     </div>
                     <div class="flex items-center space-x-3">
-                        <a href="{{ route('admin.reports.export', request()->all()) }}" 
+                        <a href="{{ route('admin.reports.export', request()->all()) }}"
                            class="inline-flex items-center px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                             </svg>
                             Export CSV
                         </a>
-                        <a href="{{ route('admin.reports.exportExcel', request()->all()) }}" 
+                        <a href="{{ route('admin.reports.exportExcel', request()->all()) }}"
                            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -160,8 +159,8 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Registration Number</label>
-                        <input type="text" name="reg_number" value="{{ request('reg_number') }}" 
-                               class="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                        <input type="text" name="reg_number" value="{{ request('reg_number') }}"
+                               class="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                placeholder="Enter registration number...">
                     </div>
                     <div>
@@ -176,12 +175,12 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">From Date</label>
-                        <input type="date" name="from" value="{{ request('from') }}" 
+                        <input type="date" name="from" value="{{ request('from') }}"
                                class="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">To Date</label>
-                        <input type="date" name="to" value="{{ request('to') }}" 
+                        <input type="date" name="to" value="{{ request('to') }}"
                                class="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     </div>
                     <div class="lg:col-span-5 flex items-end space-x-3">
@@ -312,5 +311,4 @@
             @endif
         </div>
     </div>
-</div>
 @endsection

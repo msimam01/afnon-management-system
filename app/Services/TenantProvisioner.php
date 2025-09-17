@@ -139,17 +139,13 @@ class TenantProvisioner
 
     private static function ensureRoles(): void
     {
-        $roles = ['admin', 'agent', 'farmer'];
-        foreach ($roles as $role) {
-            if (!Role::where('name', $role)->where('guard_name', 'tenant')->exists()) {
-                Role::create([
-                    'name' => $role,
-                    'guard_name' => 'tenant',
-                    'tenant_id' => tenant('id'),
-                ]);
-                Log::info("[TenantProvisioner] Created role {$role}");
-            }
-        }
+        // Run the tenant seeder to create all roles and permissions
+        Artisan::call('db:seed', [
+            '--class' => 'TenantSeeder',
+            '--force' => true,
+        ]);
+
+        Log::info("[TenantProvisioner] Seeded roles and permissions for tenant");
     }
 
     private static function ensureDefaultAdmin(Tenant $tenant): void

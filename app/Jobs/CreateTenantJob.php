@@ -82,7 +82,7 @@ class CreateTenantJob implements ShouldQueue
 
         $dbName = 'tenant_' . $this->tenant->id;
         $connection = config('tenancy.database.central_connection');
-        
+
         try {
             // Try to create database manually
             \DB::connection($connection)->statement("CREATE DATABASE IF NOT EXISTS `{$dbName}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
@@ -136,23 +136,15 @@ class CreateTenantJob implements ShouldQueue
      */
     private function createDefaultRolesAndPermissions(): void
     {
-        Log::info("👥 Creating default roles for tenant: {$this->tenant->id}");
+        Log::info("👥 Creating default roles and permissions for tenant: {$this->tenant->id}");
 
-        $defaultRoles = [
-            'admin' => 'Administrator with full access',
-            'agent' => 'Field agent for data collection',
-            'farmer' => 'Farmer user with limited access'
-        ];
+        // Run the tenant seeder to create all roles and permissions
+        Artisan::call('db:seed', [
+            '--class' => 'TenantSeeder',
+            '--force' => true,
+        ]);
 
-        foreach ($defaultRoles as $roleName => $description) {
-            if (!Role::where('name', $roleName)->exists()) {
-                Role::create([
-                    'name' => $roleName,
-                    'guard_name' => 'web',
-                ]);
-                Log::info("✅ Created role: {$roleName}");
-            }
-        }
+        Log::info("✅ Seeded roles and permissions for tenant: {$this->tenant->id}");
     }
 
     /**
@@ -177,7 +169,7 @@ class CreateTenantJob implements ShouldQueue
 
             // Ensure role exists before assignment
             $adminRole = Role::where('name', 'admin')->first();
-            
+
             if ($adminRole) {
                 $user->assignRole($adminRole);
                 Log::info("✅ Created admin user and assigned role: {$adminEmail}");

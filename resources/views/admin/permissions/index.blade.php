@@ -1,7 +1,7 @@
 @extends('layouts.layout')
 
 @section('content')
-<div id="settings-section" class="w-full min-h-screen px-4 py-6 bg-gray-50 dark:bg-gray-900">
+<div id="settings-section" class="w-full px-4 py-6">
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow mb-10">
         <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
             <h3 class="text-lg font-medium text-gray-900 dark:text-white">Permissions</h3>

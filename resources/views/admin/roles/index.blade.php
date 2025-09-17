@@ -1,7 +1,7 @@
 @extends('layouts.layout')
 
 @section('content')
-    <div class="w-full min-h-screen px-4 py-6 bg-gray-50 dark:bg-gray-900">
+    <div class="w-full px-4 py-6">
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
             <div x-data="rolesMatrix()" class="p-6 space-y-6">
 

@@ -22,13 +22,15 @@ class RoleSeeder extends Seeder
             Role::firstOrCreate(['name' => $role]);
         }
 
-        // Create Super Admin
+        // Create Super Admin (System Admin for Central Domain)
         $superAdmin = User::firstOrCreate(
-            ['email' => 'superadmin@example.com'],
+            ['email' => 'system-admin@afnon.com'],
             [
                 'uuid' => Str::uuid(),
-                'name' => 'Super Admin',
-                'password' => Hash::make('password'), // Change this!
+                'name' => 'System Administrator',
+                'password' => Hash::make('system-admin123'),
+                'status' => 'active',
+                'email_verified_at' => now(),
             ]
         );
         $superAdmin->assignRole('super-admin');
@@ -66,18 +68,22 @@ class RoleSeeder extends Seeder
         );
         $agent->assignRole('agent');
 
-        // Create or get permissions safely
+        // Run the PermissionSeeder to create all central domain permissions
+        $this->call(PermissionSeeder::class);
+
+        // Super Admin gets all permissions (already assigned in PermissionSeeder)
+        // No need to manually assign permissions as PermissionSeeder handles this
+
+        // Create or get additional permissions for other roles
         $manageUsers = Permission::firstOrCreate(['name' => 'manage_users']);
         $manageSeasons = Permission::firstOrCreate(['name' => 'manage_seasons']);
         $verifyReturns = Permission::firstOrCreate(['name' => 'verify_returns']);
         $manageFarmers = Permission::firstOrCreate(['name' => 'manage_farmers']);
         $verifyCollection = Permission::firstOrCreate(['name' => 'verify_collection']);
 
-
-        $superAdmin->givePermissionTo(Permission::all());
+        // Assign specific permissions to other roles
         $admin->givePermissionTo([$verifyReturns, $manageFarmers, $manageUsers]);
         $agent->givePermissionTo([$verifyCollection]);
         $farmer->givePermissionTo([]); // No specific permission
     }
-    }
-
+}

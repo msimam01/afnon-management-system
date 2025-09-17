@@ -17,7 +17,6 @@ class CommodityAllocation extends Model
         'allocated_quantity',
         'unit_price',
         'total_value',
-        'status',
     ];
 
     public function application()

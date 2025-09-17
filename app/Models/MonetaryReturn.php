@@ -9,11 +9,16 @@ class MonetaryReturn extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['uuid', 'tx_ref', 'application_id', 'amount', 'payment_proof', 'payment_link', 'verified_by', 'verified_at', 'invoice_number', 'status'];
+    protected $fillable = [
+        'uuid', 'tx_ref', 'application_id', 'amount', 'payment_proof', 'payment_link',
+        'verified_by', 'verified_at', 'invoice_number', 'status', 'calculation_method',
+        'calculation_details', 'payment_provider'
+    ];
 
     protected $casts = [
         'verified_at' => 'datetime',
         'amount' => 'decimal:2',
+        'calculation_details' => 'array',
     ];
 
     public function application()

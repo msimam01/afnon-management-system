@@ -2,7 +2,7 @@ use App\Http\Controllers\CommodityCategoryController;
 @extends('layouts.layout')
 
 @section('content')
-    <div id="commodities-section" class="w-full min-h-screen px-4 py-6 bg-gray-50 dark:bg-gray-900">
+    <div id="commodities-section" class="w-full px-4 py-6">
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
             <!-- Header -->
             <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200 dark:border-gray-700">
@@ -206,7 +206,7 @@ use App\Http\Controllers\CommodityCategoryController;
         const html = document.documentElement;
         const savedTheme = localStorage.getItem('theme') || 'light';
         if (savedTheme === 'dark') html.classList.add('dark');
-        
+
         if (darkModeToggle) {
             darkModeToggle.addEventListener('click', () => {
                 html.classList.toggle('dark');

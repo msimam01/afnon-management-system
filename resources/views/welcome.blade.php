@@ -253,15 +253,35 @@
                 </span>
                 @endif
                 <div class="flex gap-2">
+                    @if($setting && $setting->facebook_url)
+                    <a href="{{ $setting->facebook_url }}" target="_blank" class="text-emerald-300 hover:text-white transition-colors">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    @else
                     <a href="#" class="text-emerald-300 hover:text-white transition-colors">
                         <i class="fab fa-facebook-f"></i>
                     </a>
+                    @endif
+
+                    @if($setting && $setting->twitter_url)
+                    <a href="{{ $setting->twitter_url }}" target="_blank" class="text-emerald-300 hover:text-white transition-colors">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    @else
                     <a href="#" class="text-emerald-300 hover:text-white transition-colors">
                         <i class="fab fa-twitter"></i>
                     </a>
+                    @endif
+
+                    @if($setting && $setting->instagram_url)
+                    <a href="{{ $setting->instagram_url }}" target="_blank" class="text-emerald-300 hover:text-white transition-colors">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    @else
                     <a href="#" class="text-emerald-300 hover:text-white transition-colors">
                         <i class="fab fa-instagram"></i>
                     </a>
+                    @endif
                 </div>
             </div>
         </div>
@@ -276,12 +296,12 @@
             <div class="flex justify-between items-center">
                 <!-- Logo -->
                 <div class="flex items-center space-x-3">
-                    <div class="w-12 h-12 bg-gradient-to-br from-emerald-600 to-emerald-800 rounded-xl flex items-center justify-center shadow-lg">
-                        <i class="fas fa-seedling text-white text-xl"></i>
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg">
+                        <img src="{{ asset('logo.png') }}" alt="AFNON Logo" class="w-full h-full object-contain">
                     </div>
                     <div>
-                        <h1 class="text-2xl font-bold text-emerald-800">{{ $isCentral ? $setting->name ?? 'AFNON' : $tenant->short_name ?? strtoupper($tenant->id) }} STATE CHAPTER</h1>
-                        <p class="text-xs text-emerald-600 font-medium">Association of Farmers in the Northeast of Nigeria</p>
+                        <h1 class="text-2xl font-bold text-emerald-800">{{ $isCentral ? $setting->name ?? 'AFNON' : ($tenant->short_name ?? strtoupper($tenant->id)) . ' STATE CHAPTER' }}</h1>
+                        <p class="text-xs text-emerald-600 font-medium">Association Of Farmers In The Northeast Of Nigeria</p>
                     </div>
                 </div>
 
@@ -1174,30 +1194,57 @@
                 <!-- Company Info -->
                 <div class="lg:col-span-1">
                     <div class="flex items-center space-x-3 mb-4">
-                        <div class="w-10 h-10 bg-gradient-to-br from-emerald-600 to-emerald-800 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-seedling text-white"></i>
+                        <div class="w-10 h-10 rounded-lg flex items-center justify-center">
+                            <img src="{{ asset('logo.png') }}" alt="AFNON Logo" class="w-6 h-6 object-contain">
                         </div>
                         <div>
                             <h3 class="text-xl font-bold">AFNON</h3>
-                            <p class="text-xs text-emerald-400">Agricultural Finance Network</p>
+                            <p class="text-xs text-emerald-400">Association Of Farmers In The Northeast Of Nigeria</p>
                         </div>
                     </div>
                     <p class="text-gray-400 mb-6 leading-relaxed">
                         Empowering Nigerian farmers with access to quality agricultural inputs, financing, and modern farming techniques.
                     </p>
                     <div class="flex space-x-4">
+                        @if($setting && $setting->facebook_url)
+                        <a href="{{ $setting->facebook_url }}" target="_blank" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-emerald-600 transition-colors">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        @else
                         <a href="#" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-emerald-600 transition-colors">
                             <i class="fab fa-facebook-f"></i>
                         </a>
+                        @endif
+
+                        @if($setting && $setting->twitter_url)
+                        <a href="{{ $setting->twitter_url }}" target="_blank" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-emerald-600 transition-colors">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        @else
                         <a href="#" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-emerald-600 transition-colors">
                             <i class="fab fa-twitter"></i>
                         </a>
+                        @endif
+
+                        @if($setting && $setting->instagram_url)
+                        <a href="{{ $setting->instagram_url }}" target="_blank" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-emerald-600 transition-colors">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        @else
                         <a href="#" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-emerald-600 transition-colors">
                             <i class="fab fa-instagram"></i>
                         </a>
+                        @endif
+
+                        @if($setting && $setting->linkedin_url)
+                        <a href="{{ $setting->linkedin_url }}" target="_blank" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-emerald-600 transition-colors">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        @else
                         <a href="#" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-emerald-600 transition-colors">
                             <i class="fab fa-linkedin-in"></i>
                         </a>
+                        @endif
                     </div>
                 </div>
 
@@ -1266,7 +1313,7 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 <div class="flex flex-col md:flex-row justify-between items-center">
                     <div class="text-gray-400 text-sm mb-4 md:mb-0">
-                        © 2025 AFNON (Association of Farmers in Northeast Nigeria). All rights reserved.
+                        © 2025 AFNON (Association Of Farmers In The Northeast Nigeria). All rights reserved.
                     </div>
                     <div class="flex space-x-6 text-sm">
                         <a href="#" class="text-gray-400 hover:text-emerald-400 transition-colors">Privacy Policy</a>
@@ -1416,7 +1463,7 @@
     <div id="loading-screen" class="fixed inset-0 bg-emerald-600 flex items-center justify-center z-50 transition-opacity duration-500">
         <div class="text-center text-white">
             <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mb-4 mx-auto animate-bounce">
-                <i class="fas fa-seedling text-2xl"></i>
+                <img src="{{ asset('logo.png') }}" alt="AFNON Logo" class="w-10 h-10 object-contain">
             </div>
             <h2 class="text-2xl font-bold mb-2">AFNON</h2>
             <p class="text-emerald-100">Loading...</p>

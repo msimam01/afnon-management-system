@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Application;
 use App\Models\MonetaryReturn;
 use App\Services\FlutterwaveService;
+use App\Services\PaystackService;
+use App\Services\PaymentServiceFactory;
+use App\Services\FarmerPaymentCalculationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
@@ -38,7 +41,8 @@ class FarmerPaymentController extends Controller
             'season:id,name,return_deadline',
             'monetaryReturn',
             'collectionVerification',
-            'returnVerification'
+            'returnVerification',
+            'commodity_allocations'
         ])
         ->where('reference_number', $referenceNumber)
         ->where('status', 'approved') // Only approved applications can make payments
@@ -67,18 +71,25 @@ class FarmerPaymentController extends Controller
             return view('farmer.payment.already-paid', compact('application'));
         }
 
-        return view('farmer.payment.details', compact('application'));
+        // Calculate payment details for display
+        $paymentCalculation = FarmerPaymentCalculationService::calculateTotalPaymentAmount($application);
+
+        // Get available payment providers
+        $paymentProviders = PaymentServiceFactory::getEnabledProviders();
+
+        return view('farmer.payment.details', compact('application', 'paymentCalculation', 'paymentProviders'));
     }
 
     /**
      * Initiate payment process
      */
-    public function initiatePayment(Request $request, FlutterwaveService $flutterwave)
+    public function initiatePayment(Request $request)
     {
         $request->validate([
             'application_id' => 'required|exists:applications,id',
             'farmer_phone' => 'required|string|max:15',
-            'farmer_email' => 'nullable|email|max:255'
+            'farmer_email' => 'nullable|email|max:255',
+            'payment_provider' => 'required|string|in:flutterwave,paystack'
         ]);
 
         $application = Application::with([
@@ -86,7 +97,8 @@ class FarmerPaymentController extends Controller
             'season:id,name',
             'monetaryReturn',
             'collectionVerification',
-            'returnVerification'
+            'returnVerification',
+            'commodity_allocations'
         ])->findOrFail($request->application_id);
 
         // Verify the phone number matches
@@ -126,41 +138,105 @@ class FarmerPaymentController extends Controller
 
             $customerEmail = $request->farmer_email ?: $application->farmer->phone . '@afnon.com';
 
-            // Determine payment amount - use disbursed_amount (50% of total loan)
-            $paymentAmount = $application->disbursed_amount;
+            // Calculate payment amount based on commodity allocations with current market prices
+            $paymentCalculation = FarmerPaymentCalculationService::calculateTotalPaymentAmount($application);
+            $paymentAmount = $paymentCalculation['total_amount'];
 
-            // Initialize payment with Flutterwave
-            $response = $flutterwave->initiatePayment(
+            // Validate payment calculation
+            $validation = FarmerPaymentCalculationService::validatePaymentCalculation($application);
+            if (!$validation['is_valid']) {
+                $errorMessage = 'Payment calculation error: ' . implode(', ', $validation['issues']);
+                Log::error('Farmer payment calculation failed', [
+                    'application_id' => $application->id,
+                    'issues' => $validation['issues'],
+                    'calculation' => $paymentCalculation
+                ]);
+                throw new \Exception($errorMessage);
+            }
+
+            // Get the selected payment provider
+            $paymentProvider = $request->payment_provider;
+            $paymentService = PaymentServiceFactory::create($paymentProvider);
+
+            // Initialize payment with selected provider
+            $metadata = [];
+            if ($paymentProvider === 'flutterwave') {
+                $metadata = 'card,banktransfer,ussd,opay';
+            }
+
+            $response = $paymentService->initiatePayment(
                 $paymentAmount,
                 $application->farmer->full_name,
                 $customerEmail,
                 $application->farmer->phone,
                 $txRef,
-                route('farmer.payment.callback'),
-                'card,banktransfer,ussd,opay'
+                route('farmer.payment.callback', ['provider' => $paymentProvider]),
+                $metadata
             );
 
-            if (!empty($response['error'])) {
-                throw new \Exception('Payment initiation failed: ' . json_encode($response['body']));
+            if (isset($response['error']) && $response['error'] !== 0 && $response['error'] !== false) {
+                $errorMessage = 'Payment initiation failed';
+                if (isset($response['body']['message'])) {
+                    $errorMessage .= ': ' . $response['body']['message'];
+                } else {
+                    $errorMessage .= ': ' . json_encode($response['body']);
+                }
+
+                // Special handling for OPay authentication issues
+                if ($paymentProvider === 'opay' && isset($response['body']['code']) && $response['body']['code'] === '10096') {
+                    $errorMessage = 'OPay payment is temporarily unavailable. Please try Flutterwave or Paystack instead.';
+                }
+
+                Log::error('Payment initiation failed', [
+                    'provider' => $paymentProvider,
+                    'application_id' => $application->id,
+                    'response' => $response
+                ]);
+
+                throw new \Exception($errorMessage);
             }
 
+            // Handle different response formats from different payment providers
+            $paymentLink = '';
+            $orderNo = null;
+
+            if ($paymentProvider === 'opay') {
+                $paymentLink = $response['body']['data']['authorization_url'];
+                $orderNo = $response['body']['data']['access_code'];
+            } else {
             $paymentLink = $response['data']['link'];
+            }
 
             // Create or update monetary return
             if ($application->monetaryReturn) {
-                $application->monetaryReturn->update([
+                $updateData = [
                     'tx_ref' => $txRef,
                     'payment_link' => $paymentLink,
                     'status' => 'pending'
-                ]);
+                ];
+
+                if ($orderNo) {
+                    $updateData['order_no'] = $orderNo;
+                }
+
+                $application->monetaryReturn->update($updateData);
             } else {
                 // Create monetary return if it doesn't exist
-                $application->monetaryReturn()->create([
+                $createData = [
                     'tx_ref' => $txRef,
                     'payment_link' => $paymentLink,
                     'amount' => $paymentAmount,
-                    'status' => 'pending'
-                ]);
+                    'status' => 'pending',
+                    'calculation_method' => $paymentCalculation['calculation_method'],
+                    'calculation_details' => json_encode($paymentCalculation),
+                    'payment_provider' => $paymentProvider
+                ];
+
+                if ($orderNo) {
+                    $createData['order_no'] = $orderNo;
+                }
+
+                $application->monetaryReturn()->create($createData);
             }
 
             DB::commit();
@@ -183,27 +259,59 @@ class FarmerPaymentController extends Controller
     /**
      * Handle payment callback from gateway
      */
-    public function paymentCallback(Request $request, FlutterwaveService $flutterwave)
+    public function paymentCallback(Request $request)
     {
-        $txRef = $request->query('tx_ref') ?: $request->input('tx_ref');
-        $status = $request->query('status');
+        // Log all incoming parameters for debugging
+        Log::info('Payment callback received', [
+            'all_params' => $request->all(),
+            'query_params' => $request->query(),
+            'input_params' => $request->input(),
+            'url' => $request->fullUrl(),
+            'user_agent' => $request->userAgent(),
+            'ip' => $request->ip(),
+            'method' => $request->method()
+        ]);
 
-        if (!$txRef) {
+        $txRef = $request->query('tx_ref') ?: $request->input('tx_ref');
+        $reference = $request->query('reference') ?: $request->input('reference');
+        $status = $request->query('status');
+        $provider = $request->query('provider') ?: 'flutterwave'; // Default to flutterwave for backward compatibility
+
+        // Use the appropriate reference based on provider
+        $referenceToUse = $provider === 'paystack' ? $reference : $txRef;
+
+        if (!$referenceToUse) {
             ToastMagic::error('Invalid payment callback.');
             return redirect()->route('farmer.payment.index');
         }
 
-        $monetaryReturn = MonetaryReturn::where('tx_ref', $txRef)->first();
+        $monetaryReturn = MonetaryReturn::where('tx_ref', $referenceToUse)->first();
 
         if (!$monetaryReturn) {
             ToastMagic::error('Payment record not found.');
             return redirect()->route('farmer.payment.index');
         }
 
-        // Verify payment with Flutterwave
-        $verification = $flutterwave->verifyPayment($txRef);
+        // Get the payment service and verify payment
+        $paymentService = PaymentServiceFactory::create($provider);
+        $verification = $paymentService->verifyPayment($referenceToUse);
 
-        if ($verification['status'] === 'success' && $verification['data']['status'] === 'successful') {
+        // Log verification result for debugging
+        Log::info('Payment verification result', [
+            'provider' => $provider,
+            'reference' => $referenceToUse,
+            'verification' => $verification
+        ]);
+
+        // Check verification status based on provider
+        $isPaymentSuccessful = false;
+        if ($provider === 'flutterwave') {
+            $isPaymentSuccessful = $verification['status'] === 'success' && $verification['data']['status'] === 'successful';
+        } elseif ($provider === 'paystack') {
+            $isPaymentSuccessful = $verification['status'] === 'success' && $verification['data']['status'] === 'success';
+        }
+
+        if ($isPaymentSuccessful) {
             DB::beginTransaction();
             try {
                 // Update monetary return status

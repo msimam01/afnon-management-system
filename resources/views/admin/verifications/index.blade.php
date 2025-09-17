@@ -384,6 +384,7 @@
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
+                                'Accept': 'application/json',
                                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
                                     'content')
                             },
@@ -404,7 +405,16 @@
                         await this.fetchVerifications();
 
                     } catch (error) {
-                        this.showToast(error.message, 'error');
+                        // Handle JSON parsing errors and other errors
+                        let errorMessage = 'An unexpected error occurred.';
+
+                        if (error.message.includes('JSON.parse')) {
+                            errorMessage = 'Server returned an invalid response. Please check your permissions and try again.';
+                        } else if (error.message) {
+                            errorMessage = error.message;
+                        }
+
+                        this.showToast(errorMessage, 'error');
                     } finally {
                         this.loading = false;
                     }
@@ -429,6 +439,7 @@
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
+                                'Accept': 'application/json',
                                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
                                     'content')
                             },
@@ -450,7 +461,16 @@
                         this.closeModal();
 
                     } catch (error) {
-                        this.showToast(error.message, 'error');
+                        // Handle JSON parsing errors and other errors
+                        let errorMessage = 'An unexpected error occurred.';
+
+                        if (error.message.includes('JSON.parse')) {
+                            errorMessage = 'Server returned an invalid response. Please check your permissions and try again.';
+                        } else if (error.message) {
+                            errorMessage = error.message;
+                        }
+
+                        this.showToast(errorMessage, 'error');
                     } finally {
                         this.loading = false;
                     }

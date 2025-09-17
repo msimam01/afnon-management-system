@@ -700,7 +700,7 @@
             <!-- Commodities -->
             <div class="section">
                 <h2 class="section-title">
-                    <i class="fas fa-seedling text-green-600 mr-2"></i>
+                    <img src="{{ asset('logo.png') }}" alt="AFNON Logo" class="w-5 h-5 object-contain mr-2">
                     Commodities Allocation
                 </h2>
 
@@ -789,7 +789,7 @@
             <div class="qr-section">
                 <div class="qr-title">
                     <i class="fas fa-qrcode mr-2"></i>
-                    MOTTO Document Verification
+                    Document Verification
                 </div>
                 <div class="qr-code">
                     {!! QrCode::size(120)->backgroundColor(255,255,255)
@@ -826,8 +826,8 @@
     <div class="footer-info">
         <div class="flex flex-col items-center space-y-2">
             <div class="flex items-center space-x-2">
-                <i class="fas fa-seedling text-emerald-600"></i>
-                <span class="font-semibold">{{ $tenantDisplayName }} Agricultural Finance Network</span>
+                <img src="{{ asset('logo.png') }}" alt="AFNON Logo" class="w-4 h-4 object-contain">
+                <span class="font-semibold">{{ $tenantDisplayName }} Association Of Farmers In The Northeast Of Nigeria</span>
             </div>
             <div class="text-sm">
                 <span class="font-medium">MOTTO Document ID:</span> {{ $application->uuid }} |

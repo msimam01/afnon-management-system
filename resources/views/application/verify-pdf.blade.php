@@ -26,37 +26,97 @@
             font-size: 12px;
             line-height: 1.4;
             color: #000;
-            margin: 8px;
+            margin: 0;
             background: #fff;
+            position: relative;
         }
 
-        /* Header */
-        .header {
+        /* MOTTO Background */
+        .motto-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.3;
+            background-image: url('{{ asset('MOTTO.pdf') }}');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center center;
+        }
+
+        /* Content overlay */
+        .content-overlay {
+            position: relative;
+            z-index: 1;
+            background: transparent;
+            min-height: 100vh;
+            padding: 40px 60px;
+            margin: 20px;
+        }
+
+        .motto-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(2px);
+        }
+
+        /* Adjust sections to work with background */
+        .info-section, .financial-summary, .qr-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(1px);
+            margin: 15px 0;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        /* MOTTO Header styling */
+        .motto-header {
             text-align: center;
-            border-bottom: 2px solid #000;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
+            border: 3px double #000;
+            padding: 20px;
+            margin-bottom: 25px;
         }
 
-        .header h1 {
-            font-size: 24px;
+        .motto-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .motto-subtitle {
+            font-size: 14px;
             font-weight: bold;
             margin-bottom: 5px;
             text-transform: uppercase;
         }
 
-        .header .subtitle {
-            font-size: 14px;
-            margin-bottom: 10px;
+        .motto-description {
+            font-size: 12px;
+            font-style: italic;
+            margin-bottom: 15px;
+        }
+
+        .reference-section {
+            border: 2px solid #000;
+            padding: 10px;
+            margin-top: 15px;
+            background: #fff;
+        }
+
+        .reference-label {
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 5px;
         }
 
         .reference-number {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: bold;
-            border: 2px solid #000;
-            padding: 8px 16px;
-            display: inline-block;
-            margin-top: 10px;
+            font-family: 'Courier New', monospace;
         }
 
         /* Section Headers */
@@ -102,7 +162,11 @@
 
         /* Info Grid */
         .info-section {
-            margin: 20px 0;
+            margin: 15px 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(1px);
+            padding: 15px;
+            border-radius: 5px;
         }
 
         .info-table {
@@ -125,8 +189,11 @@
         /* Financial Summary */
         .financial-summary {
             border: 2px solid #000;
-            margin: 25px 0;
+            margin: 15px 0;
             padding: 15px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(1px);
+            border-radius: 5px;
         }
 
         .summary-title {
@@ -154,7 +221,10 @@
             text-align: center;
             border: 1px dashed #000;
             padding: 20px;
-            margin: 25px 0;
+            margin: 15px 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(1px);
+            border-radius: 5px;
         }
 
         .qr-title {
@@ -242,11 +312,20 @@
     </style>
 </head>
 <body>
+    <!-- MOTTO Background -->
+    <div class="motto-background"></div>
+
+    <!-- Content Overlay -->
+    <div class="content-overlay">
     <!-- Header -->
-    <div class="header">
-        <h1>Acknowledgement Slip</h1>
-        <div class="subtitle">{{ $tenantDisplayName }} Agricultural Finance Network</div>
-        <div class="reference-number">REF: {{ $application->reference_number }}</div>
+    <div class="motto-header">
+        <div class="motto-title">ASSOCIATION OF FARMERS IN THE NORTHEAST OF NIGERIA</div>
+        <div class="motto-subtitle">{{ strtoupper($tenantDisplayName) }} STATE CHAPTER</div>
+        <div class="motto-description">Agricultural Input Support Program - Application Acknowledgement</div>
+        <div class="reference-section">
+            <div class="reference-label">Reference Number</div>
+            <div class="reference-number">{{ $application->reference_number }}</div>
+        </div>
     </div>
 
     <!-- Farmer Information -->
@@ -293,29 +372,31 @@
     </div>
 
     <!-- Commodities Section -->
-    <div class="section-header">Commodities Breakdown</div>
-    <table>
-        <thead>
-            <tr>
-                <th>Commodity Name</th>
-                <th>Quantity Requested</th>
-                <th>Unit</th>
-                <th>Unit Price (₦)</th>
-                <th>Total Value (₦)</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($application->commodities as $commodity)
-            <tr>
-                <td>{{ $commodity->name }}</td>
-                <td class="text-right">{{ number_format($commodity->pivot->quantity) }}</td>
-                <td>{{ $commodity->unit }}</td>
-                <td class="currency text-right">{{ number_format($commodity->price_per_unit, 2) }}</td>
-                <td class="currency text-right">{{ number_format($commodity->pivot->quantity * $commodity->price_per_unit, 2) }}</td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
+    <div class="info-section">
+        <div class="section-header">Commodities Breakdown</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Commodity Name</th>
+                    <th>Quantity Requested</th>
+                    <th>Unit</th>
+                    <th>Unit Price (₦)</th>
+                    <th>Total Value (₦)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($application->applicationCommodities as $appCommodity)
+                <tr>
+                    <td>{{ $appCommodity->commodity->name }}</td>
+                    <td class="text-right">{{ number_format($appCommodity->quantity) }}</td>
+                    <td>{{ $appCommodity->commodity->unit }}</td>
+                    <td class="currency text-right">{{ number_format($appCommodity->commodity->price_per_unit, 2) }}</td>
+                    <td class="currency text-right">{{ number_format($appCommodity->quantity * $appCommodity->commodity->price_per_unit, 2) }}</td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
 
     <!-- Commodity Allocation (if available) -->
     @if($application->commodity_allocations && $application->commodity_allocations->count() > 0)
@@ -355,38 +436,38 @@
                 if($application->commodity_allocations && $application->commodity_allocations->count() > 0) {
                     $commodityTotal = $application->commodity_allocations->sum('total_value');
                 } else {
-                    foreach($application->commodities as $commodity) {
-                        $commodityTotal += ($commodity->pivot->quantity ?? 0) * ($commodity->price_per_unit ?? 0);
+                    foreach($application->applicationCommodities as $appCommodity) {
+                        $commodityTotal += ($appCommodity->quantity ?? 0) * ($appCommodity->commodity->price_per_unit ?? 0);
                     }
                 }
             @endphp
-            
+
             <tr>
                 <td>Base Commodity Value:</td>
                 <td class="currency amount">₦{{ number_format($commodityTotal, 2) }}</td>
             </tr>
-            
+
             @if($application->insurance_amount)
             <tr>
                 <td>Insurance Premium ({{ $application->insurance_rate ?? 0 }}%):</td>
                 <td class="currency amount">₦{{ number_format($application->insurance_amount, 2) }}</td>
             </tr>
             @endif
-            
+
             @if($application->equity)
             <tr>
                 <td>Equity Contribution (Held):</td>
                 <td class="currency amount">₦{{ number_format($application->equity, 2) }}</td>
             </tr>
             @endif
-            
+
             @if($application->total_loan)
             <tr style="border-top: 2px solid #000; font-weight: bold;">
                 <td>TOTAL LOAN AMOUNT:</td>
                 <td class="currency amount">₦{{ number_format($application->total_loan, 2) }}</td>
             </tr>
             @endif
-            
+
             @if($application->disbursed_amount)
             <tr style="border-top: 1px solid #000; font-weight: bold;">
                 <td>AMOUNT DISBURSED:</td>
@@ -434,12 +515,14 @@
 
     <!-- Footer -->
     <div class="footer">
-        <div class="footer-title">{{ strtoupper($tenantDisplayName) }} AGRICULTURAL FINANCE NETWORK</div>
+        <div class="footer-title">{{ strtoupper($tenantDisplayName) }} STATE CHAPTER</div>
         <div>
-            Generated: {{ now()->format('d/m/Y H:i') }} | 
-            Document ID: {{ $application->uuid }} | 
+            Generated: {{ now()->format('d/m/Y H:i') }} |
+            Document ID: {{ $application->uuid }} |
             System: AFNON v1.0
         </div>
     </div>
+    </div> <!-- End content-overlay -->
 </body>
 </html>
+

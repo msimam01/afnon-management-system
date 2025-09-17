@@ -1,7 +1,7 @@
 @extends('layouts.layout')
 
 @section('content')
-<div class="w-full min-h-screen px-4 py-6 bg-gray-50 dark:bg-gray-900">
+<div class="w-full px-4 py-6">
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 p-6">
 
         <!-- Header -->

@@ -1,7 +1,7 @@
 @extends('layouts.layout')
 
 @section('content')
-    <div x-data="agentsApp()" class="w-full min-h-screen px-4 py-6 bg-gray-50 dark:bg-gray-900">
+    <div x-data="agentsApp()" class="w-full px-4 py-6">
 
         <!-- Header -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">

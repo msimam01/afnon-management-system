@@ -12,6 +12,7 @@ use App\Models\{
     Commodity,
     Season,
     CommodityAllocation,
+    CommodityMarketPrice,
     ApplicationCenter,
 };
 use App\Helpers\SmsHelper;
@@ -468,11 +469,14 @@ class ApplicationController extends Controller
         // Pre-calculate farm size to avoid repeated access
         $farmSize = $application->farm->size ?? 0;
 
-        // Prepare allocation data with optimized loop
+        // Prepare allocation data with optimized loop - only 50% of commodities are allocated
         $allocations = $application->commodities->map(function ($commodity) use ($application, $farmSize) {
             $qtyPerHectare = $commodity->quantity_per_hectare ?? 0;
-            $allocatedQty = $qtyPerHectare * $farmSize;
-            $unitPrice = $commodity->price_per_unit ?? 0;
+            $calculatedQty = $qtyPerHectare * $farmSize;
+            $allocatedQty = $calculatedQty * 0.5; // Only 50% is allocated, other 50% held as equity
+
+            // Fetch price from commodity market price first, fallback to commodities table
+            $unitPrice = $this->getCommodityPrice($commodity->id, $application->season_id) ?? $commodity->price_per_unit ?? 0;
 
             return [
                 'uuid' => (string) \Illuminate\Support\Str::uuid(),
@@ -596,11 +600,14 @@ class ApplicationController extends Controller
                 // Pre-calculate farm size
                 $farmSize = $application->farm->size ?? 0;
 
-                // Optimize commodity processing
+                // Optimize commodity processing - only 50% of commodities are allocated
                 foreach ($application->commodities as $commodity) {
                     $qtyPerHectare = $commodity->quantity_per_hectare ?? 0;
-                    $allocatedQty = $qtyPerHectare * $farmSize;
-                    $unitPrice = $commodity->price_per_unit ?? 0;
+                    $calculatedQty = $qtyPerHectare * $farmSize;
+                    $allocatedQty = $calculatedQty * 0.5; // Only 50% is allocated, other 50% held as equity
+
+                    // Fetch price from commodity market price first, fallback to commodities table
+                    $unitPrice = $this->getCommodityPrice($commodity->id, $application->season_id) ?? $commodity->price_per_unit ?? 0;
 
                     $bulkAllocations[] = [
                         'uuid' => (string) \Illuminate\Support\Str::uuid(),
@@ -742,5 +749,24 @@ class ApplicationController extends Controller
     public function destroy(Application $application)
     {
         //
+    }
+
+    /**
+     * Get commodity price from market price table first, fallback to commodities table
+     */
+    private function getCommodityPrice($commodityId, $seasonId)
+    {
+        // First try to get price from commodity market price table
+        $marketPrice = CommodityMarketPrice::where('commodity_id', $commodityId)
+            ->where('season_id', $seasonId)
+            ->first();
+
+        if ($marketPrice && $marketPrice->current_price) {
+            return $marketPrice->current_price;
+        }
+
+        // Fallback to commodity table price
+        $commodity = Commodity::find($commodityId);
+        return $commodity ? $commodity->price_per_unit : 0;
     }
 }

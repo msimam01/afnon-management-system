@@ -187,6 +187,36 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Commodity Breakdown -->
+                    @if($paymentCalculation['calculation_method'] === 'commodity_allocations' && !empty($paymentCalculation['breakdown']))
+                    <div class="info-card rounded-2xl p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fas fa-seedling text-white"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">Commodity Breakdown</h3>
+                        </div>
+                        <div class="space-y-4">
+                            @foreach($paymentCalculation['breakdown'] as $commodity)
+                            <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0">
+                                <div class="flex-1">
+                                    <p class="font-semibold text-gray-900 dark:text-white">{{ $commodity['commodity_name'] }}</p>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                                        {{ number_format($commodity['allocated_quantity'], 2) }} units × ₦{{ number_format($commodity['unit_price'], 2) }}
+                                        <span class="ml-2 px-2 py-1 text-xs rounded-full {{ $commodity['price_source'] === 'market_price' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300' }}">
+                                            {{ $commodity['price_source'] === 'market_price' ? 'Market Price' : 'Base Price' }}
+                                        </span>
+                                    </p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-bold text-gray-900 dark:text-white">₦{{ number_format($commodity['total_value'], 2) }}</p>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
                 </div>
 
                 <!-- Payment Summary -->
@@ -203,9 +233,36 @@
                             <div class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
                                 <span class="text-gray-600 dark:text-gray-400">Amount Due</span>
                                 <span class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-                                    ₦{{ number_format($application->disbursed_amount, 2) }}
+                                    @if(isset($paymentCalculation['total_amount']) && $paymentCalculation['total_amount'] > 0)
+                                        ₦{{ number_format($paymentCalculation['total_amount'], 2) }}
+                                    @else
+                                        <span class="text-red-500">Amount not calculated</span>
+                                    @endif
                                 </span>
                             </div>
+                            @if(isset($paymentCalculation['calculation_method']))
+                                @if($paymentCalculation['calculation_method'] === 'commodity_allocations')
+                                <div class="text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 p-2 rounded">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    Calculated from {{ count($paymentCalculation['breakdown']) }} allocated commodities with current market prices
+                                </div>
+                                @elseif($paymentCalculation['calculation_method'] === 'disbursed_amount_fallback')
+                                <div class="text-xs text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/20 p-2 rounded">
+                                    <i class="fas fa-exclamation-triangle mr-1"></i>
+                                    Using disbursed amount (commodity allocations not found)
+                                </div>
+                                @elseif($paymentCalculation['calculation_method'] === 'no_amount_available')
+                                <div class="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-2 rounded">
+                                    <i class="fas fa-exclamation-circle mr-1"></i>
+                                    No payment amount available - Please contact support
+                                </div>
+                                @endif
+                            @else
+                                <div class="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-2 rounded">
+                                    <i class="fas fa-exclamation-circle mr-1"></i>
+                                    Payment calculation failed - Debug: {{ json_encode($paymentCalculation) }}
+                                </div>
+                            @endif
                             <div class="flex justify-between items-center py-2">
                                 <span class="text-sm text-gray-500 dark:text-gray-400">Status</span>
                                 <span class="px-3 py-1 bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300 rounded-full text-sm font-medium">
@@ -219,9 +276,48 @@
                         </div>
 
                         <!-- Payment Form -->
+                        @if(isset($paymentCalculation['total_amount']) && $paymentCalculation['total_amount'] > 0)
                         <form method="POST" action="{{ route('farmer.payment.initiate') }}" class="space-y-4">
                             @csrf
                             <input type="hidden" name="application_id" value="{{ $application->id }}">
+
+                            <!-- Payment Provider Selection -->
+                            <div>
+                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-3">
+                                    Choose Payment Method *
+                                </label>
+                                <div class="space-y-3">
+                                    @foreach($paymentProviders as $providerKey => $provider)
+                                    <div class="payment-provider-option">
+                                        <input type="radio"
+                                               id="provider_{{ $providerKey }}"
+                                               name="payment_provider"
+                                               value="{{ $providerKey }}"
+                                               class="sr-only peer"
+                                               {{ $loop->first ? 'checked' : '' }}
+                                               required>
+                                        <label for="provider_{{ $providerKey }}"
+                                               class="flex items-center p-4 border-2 border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer peer-checked:border-emerald-500 peer-checked:bg-emerald-50 dark:peer-checked:bg-emerald-900/20 hover:border-gray-300 dark:hover:border-gray-600 transition-colors">
+                                            <div class="flex items-center flex-1">
+                                                <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center mr-3">
+                                                    <i class="{{ $provider['icon'] }} text-white"></i>
+                                                </div>
+                                                <div>
+                                                    <h4 class="font-semibold text-gray-900 dark:text-white">{{ $provider['name'] }}</h4>
+                                                    <p class="text-sm text-gray-500 dark:text-gray-400">{{ $provider['description'] }}</p>
+                                                </div>
+                                            </div>
+                                            <div class="ml-4">
+                                                <div class="w-5 h-5 border-2 border-gray-300 dark:border-gray-600 rounded-full peer-checked:border-emerald-500 peer-checked:bg-emerald-500 flex items-center justify-center">
+                                                    <div class="w-2 h-2 bg-white rounded-full opacity-0 peer-checked:opacity-100"></div>
+                                                </div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
+
 
                             <div>
                                 <label for="farmer_phone" class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">
@@ -262,7 +358,7 @@
                                     class="mt-1 h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded">
                                 <label for="payment-terms" class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
                                     I confirm that the information provided is accurate and I agree to proceed with the payment of
-                                    <strong>₦{{ number_format($application->disbursed_amount, 2) }}</strong> for my monetary return obligation.
+                                    <strong>₦{{ number_format($paymentCalculation['total_amount'], 2) }}</strong> for my monetary return obligation.
                                 </label>
                             </div>
 
@@ -277,6 +373,26 @@
                                 </span>
                             </button>
                         </form>
+                        @else
+                        <div class="text-center py-8">
+                            <div class="w-16 h-16 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-exclamation-triangle text-red-600 dark:text-red-400 text-2xl"></i>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Payment Not Available</h3>
+                            <p class="text-gray-600 dark:text-gray-400 mb-4">
+                                @if(isset($paymentCalculation['calculation_method']) && $paymentCalculation['calculation_method'] === 'no_amount_available')
+                                    No payment amount has been calculated for this application. Please contact support for assistance.
+                                @else
+                                    Unable to calculate payment amount. Please contact support.
+                                @endif
+                            </p>
+                            <a href="{{ route('farmer.payment.index') }}"
+                               class="inline-flex items-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors">
+                                <i class="fas fa-arrow-left mr-2"></i>
+                                Back to Payment Lookup
+                            </a>
+                        </div>
+                        @endif
 
                         <!-- Security Notice -->
                         <div class="mt-6 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg">
@@ -336,6 +452,7 @@
                 this.classList.add('border-gray-300');
             }
         });
+
 
         // Form validation and loading state
         document.querySelector('form').addEventListener('submit', function(e) {

@@ -226,14 +226,22 @@ $returnData = $returnQuery->get()->transform(function ($item) {
         ]);
 
         $type = $request->get('type');
-        $model = ($type === 'collection') ? CollectionVerification::class : ReturnVerification::class;
-
         $approvedCount = 0;
         $skippedCount = 0;
 
         try {
-            DB::transaction(function () use ($model, $validated, &$approvedCount, &$skippedCount) {
-                $verifications = $model::whereIn('id', $validated['ids'])->get();
+            DB::transaction(function () use ($type, $validated, &$approvedCount, &$skippedCount) {
+                // If type is specified, use that model
+                if ($type === 'collection') {
+                    $verifications = CollectionVerification::whereIn('id', $validated['ids'])->get();
+                } elseif ($type === 'return') {
+                    $verifications = ReturnVerification::whereIn('id', $validated['ids'])->get();
+                } else {
+                    // If type is not specified or empty, check both models
+                    $collectionVerifications = CollectionVerification::whereIn('id', $validated['ids'])->get();
+                    $returnVerifications = ReturnVerification::whereIn('id', $validated['ids'])->get();
+                    $verifications = $collectionVerifications->concat($returnVerifications);
+                }
 
                 foreach ($verifications as $verification) {
                     if ($verification->status === 'approved') {

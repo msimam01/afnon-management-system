@@ -17,7 +17,6 @@ class TenantSeeder extends Seeder
     {
         // Create default roles for the tenant
         $roles = [
-            'system-admin' => 'System Administrator with full access',
             'admin' => 'Administrator with full access',
             'agent' => 'Field agent for data collection',
             'farmer' => 'Farmer user with limited access'
@@ -28,152 +27,326 @@ class TenantSeeder extends Seeder
             if (!Role::where('name', $roleName)->where('guard_name', 'tenant')->exists()) {
                 $createdRoles[$roleName] = Role::create([
                     'name' => $roleName,
-                    'guard_name' => 'tenant',
-                    'tenant_id' => tenant('id')
+                    'guard_name' => 'tenant'
                 ]);
             } else {
                 $createdRoles[$roleName] = Role::where('name', $roleName)->where('guard_name', 'tenant')->first();
             }
         }
 
-        // Create permissions
+        // Create comprehensive permissions for tenant domain
         $permissions = [
-            'manage_users',
-            'view_activity_logs',
-            'manage_roles_permissions',
+            // Dashboard permissions
             'view_admin_dashboard',
-            'manage_applications',
-            'manage_seasons',
-            'manage_commodities',
-            'manage_centers',
-            'view_reports',
-            'manage_verifications',
-            'manage_monetary_returns',
-            'manage_settings',
-            'manage_agents',
             'view_agent_dashboard',
-            'verify_collection',
-            'verify_return',
-            'manage_monetary_return',
+            'view_farmer_dashboard',
+
+            // User management permissions
+            'manage_users',
             'create_user',
             'read_user',
             'update_user',
             'delete_user',
             'change_user_status',
-            'create_application',
-            'read_application',
-            'update_application',
-            'delete_application',
-            'create_season',
-            'read_season',
-            'update_season',
-            'delete_season',
-            'create_commodity',
-            'read_commodity',
-            'update_commodity',
-            'delete_commodity',
-            'create_center',
-            'read_center',
-            'update_center',
-            'delete_center',
-            'create_role',
-            'read_role',
-            'update_role',
-            'delete_role',
-            'create_verification',
-            'read_verification',
-            'update_verification',
-            'delete_verification',
-            'create_monetary_return',
-            'read_monetary_return',
-            'update_monetary_return',
-            'delete_monetary_return',
+            'view_user_profile',
+            'bulk_user_actions',
+
+            // Agent management permissions
+            'manage_agents',
             'create_agent',
             'read_agent',
             'update_agent',
             'delete_agent',
+            'assign_agent_tasks',
+            'view_agent_performance',
+
+            // Application management permissions
+            'manage_applications',
+            'create_application',
+            'read_application',
+            'update_application',
+            'delete_application',
+            'approve_application',
+            'reject_application',
+            'bulk_approve_applications',
+            'bulk_reject_applications',
+            'view_application_details',
+            'export_applications',
+
+            // Season management permissions
+            'manage_seasons',
+            'create_season',
+            'read_season',
+            'update_season',
+            'delete_season',
+            'close_season',
+            'reopen_season',
+            'export_season_data',
+
+            // Commodity management permissions
+            'manage_commodities',
+            'create_commodity',
+            'read_commodity',
+            'update_commodity',
+            'delete_commodity',
+            'manage_commodity_categories',
+            'manage_market_prices',
+
+            // Center management permissions
+            'manage_centers',
+            'create_center',
+            'read_center',
+            'update_center',
+            'delete_center',
+            'manage_collection_centers',
+            'manage_returning_centers',
+
+            // Verification permissions
+            'manage_verifications',
+            'create_verification',
+            'read_verification',
+            'update_verification',
+            'delete_verification',
+            'verify_collection',
+            'verify_return',
+            'bulk_verify_items',
+
+            // Monetary return permissions
+            'manage_monetary_returns',
+            'create_monetary_return',
+            'read_monetary_return',
+            'update_monetary_return',
+            'delete_monetary_return',
+            'verify_monetary_return',
+            'reject_monetary_return',
+            'manage_monetary_return',
+
+            // Role and permission management
+            'manage_roles_permissions',
+            'create_role',
+            'read_role',
+            'update_role',
+            'delete_role',
+            'create_permission',
+            'read_permission',
+            'update_permission',
+            'delete_permission',
+            'assign_permissions',
+
+            // Reports and analytics
+            'manage_reports',
+            'view_reports',
+            'export_reports',
+            'view_analytics',
+            'export_analytics',
+            'view_application_reports',
+            'view_verification_reports',
+            'view_financial_reports',
+
+            // Activity logs
+            'view_activity_logs',
+            'export_activity_logs',
+            'view_system_statistics',
+
+            // Settings management
+            'manage_settings',
+            'update_system_settings',
+            'manage_notifications',
+            'view_system_health',
+
+            // Profile management
+            'view_own_profile',
+            'update_own_profile',
+            'change_own_password',
         ];
 
 
         foreach (array_unique($permissions) as $permission) {
-            Permission::findOrCreate($permission, 'tenant', ['tenant_id' => tenant('id')]);
+            Permission::firstOrCreate([
+                'name' => $permission,
+                'guard_name' => 'tenant'
+            ]);
         }
 
 
-        // Assign permissions to roles
-        if (isset($createdRoles['system-admin'])) {
-            $createdRoles['system-admin']->syncPermissions($permissions);
-        }
+        // Assign permissions to roles based on importance and functionality
 
+        // Admin gets comprehensive permissions for tenant management
         if (isset($createdRoles['admin'])) {
-            $createdRoles['admin']->syncPermissions([
+            $adminPermissions = [
+                // Core dashboard and profile
                 'view_admin_dashboard',
+                'view_own_profile',
+                'update_own_profile',
+                'change_own_password',
+
+                // User management (full access)
                 'manage_users',
-                'manage_applications',
-                'manage_seasons',
-                'manage_commodities',
-                'manage_centers',
-                'manage_roles_permissions',
-                'view_reports',
-                'manage_verifications',
-                'manage_monetary_returns',
-                'view_activity_logs',
-                'manage_settings',
-                'manage_agents',
                 'create_user',
                 'read_user',
                 'update_user',
                 'delete_user',
                 'change_user_status',
-                'create_application',
-                'read_application',
-                'update_application',
-                'delete_application',
-                'create_season',
-                'read_season',
-                'update_season',
-                'delete_season',
-                'create_commodity',
-                'read_commodity',
-                'update_commodity',
-                'delete_commodity',
-                'create_center',
-                'read_center',
-                'update_center',
-                'delete_center',
-                'create_role',
-                'read_role',
-                'update_role',
-                'delete_role',
-                'create_verification',
-                'read_verification',
-                'update_verification',
-                'delete_verification',
-                'create_monetary_return',
-                'read_monetary_return',
-                'update_monetary_return',
-                'delete_monetary_return',
+                'view_user_profile',
+                'bulk_user_actions',
+
+                // Agent management (full access)
+                'manage_agents',
                 'create_agent',
                 'read_agent',
                 'update_agent',
                 'delete_agent',
-                'manage_reports'
-            ]);
-        }
+                'assign_agent_tasks',
+                'view_agent_performance',
 
-        if (isset($createdRoles['agent'])) {
-            $createdRoles['agent']->syncPermissions([
-                'view_agent_dashboard',
+                // Application management (full access)
+                'manage_applications',
+                'create_application',
+                'read_application',
+                'update_application',
+                'delete_application',
+                'approve_application',
+                'reject_application',
+                'bulk_approve_applications',
+                'bulk_reject_applications',
+                'view_application_details',
+                'export_applications',
+
+                // Season management (full access)
+                'manage_seasons',
+                'create_season',
+                'read_season',
+                'update_season',
+                'delete_season',
+                'close_season',
+                'reopen_season',
+                'export_season_data',
+
+                // Commodity management (full access)
+                'manage_commodities',
+                'create_commodity',
+                'read_commodity',
+                'update_commodity',
+                'delete_commodity',
+                'manage_commodity_categories',
+                'manage_market_prices',
+
+                // Center management (full access)
+                'manage_centers',
+                'create_center',
+                'read_center',
+                'update_center',
+                'delete_center',
+                'manage_collection_centers',
+                'manage_returning_centers',
+
+                // Verification management (full access)
+                'manage_verifications',
+                'create_verification',
+                'read_verification',
+                'update_verification',
+                'delete_verification',
                 'verify_collection',
                 'verify_return',
-                'manage_monetary_return',
-                'read_monetary_return',
+                'bulk_verify_items',
+
+                // Monetary return management (full access)
+                'manage_monetary_returns',
                 'create_monetary_return',
+                'read_monetary_return',
                 'update_monetary_return',
-            ]);
+                'delete_monetary_return',
+                'verify_monetary_return',
+                'reject_monetary_return',
+                'manage_monetary_return',
+
+                // Role and permission management (full access)
+                'manage_roles_permissions',
+                'create_role',
+                'read_role',
+                'update_role',
+                'delete_role',
+                'create_permission',
+                'read_permission',
+                'update_permission',
+                'delete_permission',
+                'assign_permissions',
+
+                // Reports and analytics (full access)
+                'manage_reports',
+                'view_reports',
+                'export_reports',
+                'view_analytics',
+                'export_analytics',
+                'view_application_reports',
+                'view_verification_reports',
+                'view_financial_reports',
+
+                // Activity logs (full access)
+                'view_activity_logs',
+                'export_activity_logs',
+                'view_system_statistics',
+
+                // Settings management (full access)
+                'manage_settings',
+                'update_system_settings',
+                'manage_notifications',
+                'view_system_health',
+            ];
+
+            $createdRoles['admin']->syncPermissions($adminPermissions);
         }
 
-        // Farmer role doesn't need specific permissions as it has limited access
+        // Agent gets limited permissions for field operations
+        if (isset($createdRoles['agent'])) {
+            $agentPermissions = [
+                // Core dashboard and profile
+                'view_agent_dashboard',
+                'view_own_profile',
+                'update_own_profile',
+                'change_own_password',
+
+                // Verification tasks (primary function)
+                'verify_collection',
+                'verify_return',
+                'read_verification',
+                'update_verification',
+
+                // Monetary return tasks
+                'manage_monetary_return',
+                'create_monetary_return',
+                'read_monetary_return',
+                'update_monetary_return',
+
+                // Limited application viewing
+                'read_application',
+                'view_application_details',
+
+                // Limited reports for own activities
+                'view_reports',
+                'export_reports',
+            ];
+
+            $createdRoles['agent']->syncPermissions($agentPermissions);
+        }
+
+        // Farmer gets minimal permissions for application submission
+        if (isset($createdRoles['farmer'])) {
+            $farmerPermissions = [
+                // Core dashboard and profile
+                'view_farmer_dashboard',
+                'view_own_profile',
+                'update_own_profile',
+                'change_own_password',
+
+                // Application submission only
+                'create_application',
+                'read_application',
+                'view_application_details',
+            ];
+
+            $createdRoles['farmer']->syncPermissions($farmerPermissions);
+        }
 
         // Create default settings or other tenant-specific data here
         // Example: Create default commodities, seasons, etc.

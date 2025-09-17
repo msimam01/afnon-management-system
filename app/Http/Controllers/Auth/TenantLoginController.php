@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Services\RoleRedirectionService;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -16,6 +17,12 @@ class TenantLoginController extends Controller
 {
     protected $maxAttempts = 5;
     protected $decayMinutes = 15;
+    protected $roleRedirectionService;
+
+    public function __construct(RoleRedirectionService $roleRedirectionService)
+    {
+        $this->roleRedirectionService = $roleRedirectionService;
+    }
 
     public function showLoginForm()
     {
@@ -58,7 +65,7 @@ class TenantLoginController extends Controller
                 ToastMagic::success('Welcome back! Login successful.');
 
                 // Check if user has any valid role, if not, deny access
-                if (!$user->hasAnyRole(['admin', 'agent', 'farmer'])) {
+                if (!$this->roleRedirectionService->hasValidLoginRole($user, 'tenant')) {
                     Auth::guard('tenant')->logout();
                     ToastMagic::error('Your account does not have the necessary permissions to access this system.');
                     return redirect()->route('tenant.login')->withErrors(['access' => 'Insufficient permissions.']);

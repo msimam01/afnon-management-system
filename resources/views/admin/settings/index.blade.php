@@ -168,6 +168,105 @@
                         </div>
                     </div>
 
+                    <!-- Social Media Links Section -->
+                    <div class="border-t border-gray-200 dark:border-gray-700 pt-8">
+                        <div class="space-y-6">
+                            <div class="flex items-center space-x-3 mb-6">
+                                <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m-9 0h10m-10 0a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V6a2 2 0 00-2-2H7z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-semibold text-gray-900 dark:text-white">Social Media Links</h4>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">Add your social media profiles to display on the website</p>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                <!-- Facebook URL -->
+                                <div class="space-y-2">
+                                    <label class="flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                        <i class="fab fa-facebook-f text-blue-600 w-4 h-4"></i>
+                                        <span>Facebook URL</span>
+                                    </label>
+                                    <input 
+                                        type="url" 
+                                        name="facebook_url" 
+                                        value="{{ $setting->facebook_url ?? '' }}" 
+                                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-200"
+                                        placeholder="https://facebook.com/yourpage"
+                                    >
+                                </div>
+
+                                <!-- Twitter URL -->
+                                <div class="space-y-2">
+                                    <label class="flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                        <i class="fab fa-twitter text-blue-400 w-4 h-4"></i>
+                                        <span>Twitter URL</span>
+                                    </label>
+                                    <input 
+                                        type="url" 
+                                        name="twitter_url" 
+                                        value="{{ $setting->twitter_url ?? '' }}" 
+                                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-200"
+                                        placeholder="https://twitter.com/yourhandle"
+                                    >
+                                </div>
+
+                                <!-- Instagram URL -->
+                                <div class="space-y-2">
+                                    <label class="flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                        <i class="fab fa-instagram text-pink-600 w-4 h-4"></i>
+                                        <span>Instagram URL</span>
+                                    </label>
+                                    <input 
+                                        type="url" 
+                                        name="instagram_url" 
+                                        value="{{ $setting->instagram_url ?? '' }}" 
+                                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-200"
+                                        placeholder="https://instagram.com/yourhandle"
+                                    >
+                                </div>
+
+                                <!-- LinkedIn URL -->
+                                <div class="space-y-2">
+                                    <label class="flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                        <i class="fab fa-linkedin-in text-blue-700 w-4 h-4"></i>
+                                        <span>LinkedIn URL</span>
+                                    </label>
+                                    <input 
+                                        type="url" 
+                                        name="linkedin_url" 
+                                        value="{{ $setting->linkedin_url ?? '' }}" 
+                                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-700 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-200"
+                                        placeholder="https://linkedin.com/company/yourcompany"
+                                    >
+                                </div>
+                            </div>
+
+                            <!-- Social Media Preview -->
+                            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                                <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Preview</h5>
+                                <div class="flex space-x-3">
+                                    <div class="w-8 h-8 bg-gray-200 dark:bg-gray-600 rounded-lg flex items-center justify-center">
+                                        <i class="fab fa-facebook-f text-gray-500"></i>
+                                    </div>
+                                    <div class="w-8 h-8 bg-gray-200 dark:bg-gray-600 rounded-lg flex items-center justify-center">
+                                        <i class="fab fa-twitter text-gray-500"></i>
+                                    </div>
+                                    <div class="w-8 h-8 bg-gray-200 dark:bg-gray-600 rounded-lg flex items-center justify-center">
+                                        <i class="fab fa-instagram text-gray-500"></i>
+                                    </div>
+                                    <div class="w-8 h-8 bg-gray-200 dark:bg-gray-600 rounded-lg flex items-center justify-center">
+                                        <i class="fab fa-linkedin-in text-gray-500"></i>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">These icons will appear on your website's header and footer</p>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Action Buttons -->
                     <div class="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-gray-700">
                         <div class="flex items-center text-sm text-gray-500 dark:text-gray-400">

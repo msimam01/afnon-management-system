@@ -1,4 +1,29 @@
 
+@php
+    $centralDomains = ['localhost', '127.0.0.1', 'afnon.com'];
+    $host = request()->getHost();
+    $isCentral = in_array($host, $centralDomains);
+
+    $tenant = null;
+    $setting = null;
+
+    if ($isCentral) {
+        // Central settings (still stored in central DB settings table)
+        $setting = \App\Models\Setting::first();
+    } else {
+        $tenant = \App\Models\SuperAdmin\Tenant::whereHas('domains', function ($q) use ($host) {
+            $q->where('domain', $host);
+        })->first();
+
+        if ($tenant) {
+            // Switch to tenant DB
+            tenancy()->initialize($tenant);
+
+            // Tenant settings (logo, phone, email, address, etc.)
+            $setting = \App\Models\Setting::first();
+        }
+    }
+@endphp
 <!DOCTYPE html>
 <html lang="en" class="h-full">
 
@@ -251,12 +276,12 @@
                         class="mr-4 p-2 rounded-lg text-gray-400 dark:text-gray-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-gray-700">
                         <i class="fas fa-arrow-left text-lg"></i>
                     </button>
-                    <div class="h-10 w-10 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-xl flex items-center justify-center shadow-lg">
-                        <i class="fas fa-seedling text-white text-lg"></i>
+                    <div class="h-10 w-10 rounded-xl flex items-center justify-center shadow-lg">
+                        <img src="{{ asset('logo.png') }}" alt="AFNON Logo" class="w-6 h-6 object-contain">
                     </div>
                     <div class="ml-3">
-                        <h1 class="text-xl font-bold text-gray-900 dark:text-white">AFNON</h1>
-                        <p class="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Agricultural Finance Network</p>
+                        <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ $isCentral ? 'AFNON' : ($tenant->short_name ?? strtoupper($tenant->id)) . ' STATE CHAPTER' }}</h1>
+                        <p class="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Association Of Farmers In The Northeast Of Nigeria</p>
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">
@@ -464,7 +489,7 @@
                             <!-- Seed Selection -->
                             <div class="mb-6">
                                 <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center">
-                                    <i class="fas fa-seedling text-emerald-600 mr-3"></i>
+                                    <img src="{{ asset('logo.png') }}" alt="AFNON Logo" class="w-5 h-5 object-contain mr-3">
                                     Choose Your Seed
                                 </h3>
                                 <div class="grid md:grid-cols-2 gap-4" id="seed-options">
@@ -479,7 +504,7 @@
                                             <div class="flex justify-between items-center">
                                                 <div class="flex-1">
                                                     <div class="flex items-center mb-2">
-                                                        <i class="fas fa-seedling text-emerald-600 mr-2"></i>
+                                                        <img src="{{ asset('logo.png') }}" alt="AFNON Logo" class="w-4 h-4 object-contain mr-2">
                                                         <h4 class="font-bold text-gray-900 dark:text-white">{{ $seed->name }}</h4>
                                                     </div>
                                                     <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">{{ $seed->quantity_per_hectare }} {{ $seed->unit ?? 'unit' }}/hectare</p>

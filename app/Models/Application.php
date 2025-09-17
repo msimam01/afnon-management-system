@@ -25,7 +25,6 @@ class Application extends Model
         'reference_number',
         'status',
         'payment_status'
-
     ];
 
     public function applicationCommodities()
@@ -145,7 +144,7 @@ class Application extends Model
             'farmer',
             'farm',
             'season',
-            'commodities',
+            'applicationCommodities.commodity',
             'commodity_allocations'
         ]);
     }
@@ -156,7 +155,7 @@ class Application extends Model
             'farmer',
             'farm',
             'season',
-            'commodities',
+            'applicationCommodities.commodity',
             'commodity_allocations'
         ]);
     }

@@ -123,12 +123,12 @@
                         </svg>
                     </button>
                     <div class="flex items-center space-x-3">
-                    <div class="w-12 h-12 bg-gradient-to-br from-emerald-600 to-emerald-800 rounded-xl flex items-center justify-center shadow-lg">
-                        <i class="fas fa-seedling text-white text-xl"></i>
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg">
+                        <img src="{{ asset('logo.png') }}" alt="AFNON Logo" class="w-full h-full object-contain">
                     </div>
                     <div>
-                        <h1 class="text-2xl font-bold text-emerald-800">{{ $isCentral ? $setting->name ?? 'AFNON' : $tenant->short_name ?? strtoupper($tenant->id) }}</h1>
-                        <p class="text-xs text-emerald-600 font-medium">Agricultural Finance Network</p>
+                        <h1 class="text-2xl font-bold text-emerald-800">{{ $isCentral ? $setting->name ?? 'AFNON' : ($tenant->short_name ?? strtoupper($tenant->id)) . ' STATE CHAPTER' }}</h1>
+                        <p class="text-xs text-emerald-600 font-medium">Association Of Farmers In The Northeast Of Nigeria</p>
                     </div>
                 </div>
                 </div>

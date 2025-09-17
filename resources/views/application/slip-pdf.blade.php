@@ -39,20 +39,21 @@
             width: 100%;
             height: 100%;
             z-index: -1;
-            opacity: 0.15;
-            background-image: url('{{ asset('images/motto-background.jpg') }}');
-            background-size: cover;
+            opacity: 0.3;
+            background-image: url('{{ asset('MOTTO.pdf') }}');
+            background-size: contain;
             background-repeat: no-repeat;
-            background-position: center top;
+            background-position: center center;
         }
 
         /* Content overlay */
         .content-overlay {
             position: relative;
             z-index: 1;
-            background: rgba(255, 255, 255, 0.92);
+            background: transparent;
             min-height: 100vh;
-            padding: 10px;
+            padding: 40px 60px;
+            margin: 20px;
         }
 
         /* Adjust header to work with background */
@@ -63,8 +64,11 @@
 
         /* Adjust sections to work with background */
         .info-section, .financial-summary, .qr-section {
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(1px);
+            margin: 15px 0;
+            padding: 15px;
+            border-radius: 5px;
         }
 
         /* MOTTO Header styling */
@@ -394,31 +398,33 @@
 
 
     <!-- Commodities Section -->
-    <div class="section-header">Commodities Allocation</div>
-    <table class="motto-table">
-        <thead>
-            <tr>
-                <th>S/N</th>
-                <th>Commodity Name</th>
-                <th>Quantity</th>
-                <th>Unit</th>
-                <th>Unit Price (₦)</th>
-                <th>Total Value (₦)</th>
-            </tr>
-        </thead>
-
-            @foreach ($application->commodities as $index => $commodity)
-            <tr>
-                <td class="text-center">{{ $index + 1 }}</td>
-                <td><strong>{{ $commodity->name }}</strong></td>
-                <td class="text-right">{{ number_format($commodity->pivot->quantity) }}</td>
-                <td class="text-center">{{ $commodity->unit }}</td>
-                <td class="currency text-right">{{ number_format($commodity->price_per_unit, 2) }}</td>
-                <td class="currency text-right"><strong>{{ number_format($commodity->pivot->quantity * $commodity->price_per_unit, 2) }}</strong></td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
+    <div class="info-section">
+        <div class="section-header">Commodities Allocation</div>
+        <table class="motto-table">
+            <thead>
+                <tr>
+                    <th>S/N</th>
+                    <th>Commodity Name</th>
+                    <th>Quantity</th>
+                    <th>Unit</th>
+                    <th>Unit Price (₦)</th>
+                    <th>Total Value (₦)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($application->applicationCommodities as $index => $appCommodity)
+                <tr>
+                    <td class="text-center">{{ $index + 1 }}</td>
+                    <td><strong>{{ $appCommodity->commodity->name }}</strong></td>
+                    <td class="text-right">{{ number_format($appCommodity->quantity) }}</td>
+                    <td class="text-center">{{ $appCommodity->commodity->unit }}</td>
+                    <td class="currency text-right">{{ number_format($appCommodity->commodity->price_per_unit, 2) }}</td>
+                    <td class="currency text-right"><strong>{{ number_format($appCommodity->quantity * $appCommodity->commodity->price_per_unit, 2) }}</strong></td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
 
 
     @if($application->commodity_allocations && $application->commodity_allocations->count() > 0)
@@ -458,8 +464,8 @@
                 if($application->commodity_allocations && $application->commodity_allocations->count() > 0) {
                     $commodityTotal = $application->commodity_allocations->sum('total_value');
                 } else {
-                    foreach($application->commodities as $commodity) {
-                        $commodityTotal += ($commodity->pivot->quantity ?? 0) * ($commodity->price_per_unit ?? 0);
+                    foreach($application->applicationCommodities as $appCommodity) {
+                        $commodityTotal += ($appCommodity->quantity ?? 0) * ($appCommodity->commodity->price_per_unit ?? 0);
                     }
                 }
             @endphp
@@ -537,7 +543,7 @@
 
     <!-- Footer -->
     <div class="footer">
-        <div class="footer-title">{{ strtoupper($tenantDisplayName) }} AGRICULTURAL FINANCE NETWORK</div>
+        <div class="footer-title">{{ strtoupper($tenantDisplayName) }} STATE CHAPTER</div>
         <div>
             MOTTO Generated: {{ now()->format('d/m/Y H:i') }} |
             Document ID: {{ $application->uuid }} |

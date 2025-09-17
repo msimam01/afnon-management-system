@@ -142,7 +142,6 @@
                     <!-- Action Buttons -->
                     <div class="flex flex-col sm:flex-row gap-4 justify-center">
                         <a href="{{ route('farmer.payment.lookup') }}"
-                           method="POST"
                            class="btn-primary px-6 py-3 text-white font-semibold rounded-lg text-center flex items-center justify-center">
                             <i class="fas fa-redo mr-2"></i>
                             Try Again

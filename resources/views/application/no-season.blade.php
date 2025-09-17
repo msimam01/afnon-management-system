@@ -222,8 +222,8 @@
         <!-- Footer -->
         <div class="mt-8 pt-6 border-t border-white/10">
             <div class="flex items-center justify-center gap-2 text-white/60">
-                <i class="fas fa-seedling"></i>
-                <span class="font-medium">AFNON Agricultural Finance Network</span>
+                <img src="{{ asset('logo.png') }}" alt="AFNON Logo" class="w-4 h-4 object-contain">
+                <span class="font-medium">AFNON Association Of Farmers In The Northeast Of Nigeria</span>
             </div>
             <p class="text-white/50 text-sm mt-2">Empowering farmers, growing communities</p>
         </div>

@@ -2,11 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\RoleRedirectionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class DashboardController extends Controller
 {
+    protected $roleRedirectionService;
+
+    public function __construct(RoleRedirectionService $roleRedirectionService)
+    {
+        $this->roleRedirectionService = $roleRedirectionService;
+    }
+
     /**
      * Show the unified dashboard based on user role and permissions
      */
@@ -18,19 +27,22 @@ class DashboardController extends Controller
             return redirect()->route('tenant.login');
         }
 
-        // Redirect based on user's primary role to their respective dashboard
-        // This maintains the existing dashboard functionality while allowing for unified login
-        if ($user->hasRole('admin')) {
-            return redirect()->route('admin.dashboard');
-        } elseif ($user->hasRole('agent')) {
-            return redirect()->route('agent.dashboard');
-        } elseif ($user->hasRole('farmer')) {
-            // For future farmer dashboard - for now redirect to applications
-            return redirect()->route('applications.create');
-        }
+        try {
+            // Use the role redirection service to get the appropriate dashboard route
+            $dashboardRoute = $this->roleRedirectionService->getDashboardRoute('tenant');
 
-        // If user has no recognized role, logout and redirect
-        Auth::guard('tenant')->logout();
-        return redirect()->route('tenant.login')->withErrors(['access' => 'No valid role assigned to your account.']);
+            return redirect()->route($dashboardRoute);
+        } catch (\Exception $e) {
+            // Log the error for debugging
+            Log::error('Dashboard redirection failed', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+                'user_roles' => $user->getRoleNames()->toArray(),
+            ]);
+
+            // If user has no recognized role, logout and redirect
+            Auth::guard('tenant')->logout();
+            return redirect()->route('tenant.login')->withErrors(['access' => 'No valid role assigned to your account.']);
+        }
     }
 }

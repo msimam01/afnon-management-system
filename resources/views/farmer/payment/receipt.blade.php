@@ -113,11 +113,11 @@
                     <div class="flex items-center justify-between">
                         <div class="flex items-center">
                             <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mr-4">
-                                <i class="fas fa-seedling text-white text-2xl"></i>
+                                <img src="{{ asset('logo.png') }}" alt="AFNON Logo" class="w-10 h-10 object-contain">
                             </div>
                             <div>
                                 <h1 class="text-3xl font-bold">AFNON</h1>
-                                <p class="text-emerald-100">Agricultural Finance Network of Nigeria</p>
+                                <p class="text-emerald-100">Association Of Farmers In The Northeast Of Nigeria</p>
                             </div>
                         </div>
                         <div class="text-right">

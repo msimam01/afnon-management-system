@@ -46,9 +46,9 @@ class CommodityDisbursementService
             ];
         }
 
-        // Calculate insurance proportional disbursement
+        // Calculate insurance - always disbursed at 100% (full amount)
         $originalInsuranceAmount = $application->insurance_amount ?? 0;
-        $disbursedInsuranceAmount = round($originalInsuranceAmount * $disbursementRatio, 2);
+        $disbursedInsuranceAmount = $originalInsuranceAmount; // Insurance is always disbursed at full amount
 
         // Add insurance as a "commodity" in the breakdown
         if ($originalInsuranceAmount > 0) {
@@ -60,7 +60,7 @@ class CommodityDisbursementService
                 'disbursed_quantity' => 1,
                 'unit_price' => $originalInsuranceAmount,
                 'original_value' => $originalInsuranceAmount,
-                'disbursed_value' => $disbursedInsuranceAmount,
+                'disbursed_value' => $disbursedInsuranceAmount, // Full amount, not proportional
             ];
         }
 

@@ -4,7 +4,7 @@ namespace App\Services;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 
-class FlutterwaveService
+class FlutterwaveService implements PaymentServiceInterface
 {
     protected $baseUrl;
     protected $secretKey;
@@ -69,5 +69,27 @@ return $response->json(); // Contains data.link
             ->get("{$this->baseUrl}/transactions/verify_by_reference?tx_ref={$txRef}");
 
         return $response->json();
+    }
+
+    /**
+     * Get supported payment methods
+     */
+    public function getSupportedPaymentMethods()
+    {
+        return [
+            'card' => 'Card Payment',
+            'banktransfer' => 'Bank Transfer',
+            'ussd' => 'USSD',
+            'opay' => 'OPay',
+            'mobilemoney' => 'Mobile Money'
+        ];
+    }
+
+    /**
+     * Get provider name
+     */
+    public function getProviderName()
+    {
+        return 'Flutterwave';
     }
 }

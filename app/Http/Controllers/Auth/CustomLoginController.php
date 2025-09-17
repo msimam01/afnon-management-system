@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Services\RoleRedirectionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
@@ -22,6 +23,13 @@ class CustomLoginController extends Controller
      * Lockout duration in minutes
      */
     protected $decayMinutes = 15;
+
+    protected $roleRedirectionService;
+
+    public function __construct(RoleRedirectionService $roleRedirectionService)
+    {
+        $this->roleRedirectionService = $roleRedirectionService;
+    }
 
     public function create()
     {
@@ -66,10 +74,17 @@ class CustomLoginController extends Controller
                 // Update last login timestamp
                 $user->update(['last_login_at' => Carbon::now()]);
 
-                if ($user->hasRole('super-admin')) {
-                    ToastMagic::success('Welcome back! Login successful.');
-                    return redirect()->route('superadmin.dashboard');
+                // Check if user has any valid role, if not, deny access
+                if (!$this->roleRedirectionService->hasValidLoginRole($user, 'web')) {
+                    Auth::logout();
+                    ToastMagic::error('Your account does not have the necessary permissions to access this system.');
+                    return redirect()->route('central.login.form')->withErrors(['access' => 'Insufficient permissions.']);
                 }
+
+                // Get the appropriate dashboard route based on user's role
+                $dashboardRoute = $this->roleRedirectionService->getDashboardRoute('web');
+                ToastMagic::success('Welcome back! Login successful.');
+                return redirect()->route($dashboardRoute);
             } else {
                 Auth::logout();
                 $request->session()->invalidate();

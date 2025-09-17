@@ -1,7 +1,7 @@
 @extends('layouts.layout')
 
 @section('content')
-    <div x-data="collectionApp()" class="w-full min-h-screen px-4 py-6 bg-gray-50 dark:bg-gray-900">
+    <div x-data="collectionApp()" class="w-full px-4 py-6">
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 p-6 mb-8">
             <!-- Enhanced Header -->
             <div class="mb-8">
@@ -404,59 +404,6 @@
                             </div>
                         </div>
 
-                        <!-- Proportional Disbursement Breakdown -->
-                        <div x-show="modalData.disbursed_amount && modalData.total_loan && (modalData.disbursed_amount / modalData.total_loan) < 1" class="mt-8">
-                            <div class="flex items-center mb-6">
-                                <div class="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center mr-3">
-                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                                    </svg>
-                                </div>
-                                <h4 class="text-xl font-semibold text-gray-900 dark:text-white">
-                                    Proportional Disbursement (<span x-text="`${((modalData.disbursed_amount / modalData.total_loan) * 100).toFixed(1)}%`"></span>)
-                                </h4>
-                            </div>
-
-                            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
-                                <div class="overflow-x-auto">
-                                    <table class="w-full text-sm">
-                                        <thead class="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
-                                            <tr>
-                                                <th class="px-6 py-4 text-left font-semibold">Commodity</th>
-                                                <th class="px-6 py-4 text-left font-semibold">Original Qty</th>
-                                                <th class="px-6 py-4 text-left font-semibold">Disbursed Qty</th>
-                                                <th class="px-6 py-4 text-left font-semibold">Unit Price</th>
-                                                <th class="px-6 py-4 text-left font-semibold">Original Value</th>
-                                                <th class="px-6 py-4 text-left font-semibold">Disbursed Value</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                                            <template x-for="c in modalData.commodity_allocations" :key="c.id">
-                                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
-                                                    <td class="px-6 py-4">
-                                                        <div class="flex items-center">
-                                                            <div class="w-8 h-8 bg-gradient-to-br from-orange-400 to-orange-500 rounded-lg flex items-center justify-center mr-3">
-                                                                <span class="text-white text-xs font-bold" x-text="c.commodity?.name?.charAt(0) || 'C'"></span>
-                                                            </div>
-                                                            <span class="font-medium text-gray-900 dark:text-white" x-text="c.commodity?.name || 'Unknown'"></span>
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-6 py-4 text-gray-700 dark:text-gray-300" x-text="`${c.allocated_quantity || 0} ${c.commodity?.unit || 'unit'}`"></td>
-                                                    <td class="px-6 py-4">
-                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
-                                                            <span x-text="`${((c.allocated_quantity || 0) * (modalData.disbursed_amount / modalData.total_loan)).toFixed(2)} ${c.commodity?.unit || 'unit'}`"></span>
-                                                        </span>
-                                                    </td>
-                                                    <td class="px-6 py-4 font-mono text-gray-700 dark:text-gray-300" x-text="`₦${(c.unit_price || 0).toLocaleString()}`"></td>
-                                                    <td class="px-6 py-4 font-semibold text-gray-600 dark:text-gray-400" x-text="`₦${((c.allocated_quantity || 0) * (c.unit_price || 0)).toLocaleString()}`"></td>
-                                                    <td class="px-6 py-4 font-semibold text-orange-600 dark:text-orange-400" x-text="`₦${(((c.allocated_quantity || 0) * (c.unit_price || 0)) * (modalData.disbursed_amount / modalData.total_loan)).toLocaleString()}`"></td>
-                                                </tr>
-                                            </template>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                     <!-- Enhanced File Upload Section -->
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">

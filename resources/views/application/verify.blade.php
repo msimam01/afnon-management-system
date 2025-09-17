@@ -222,7 +222,7 @@
                 <!-- Commodities Section -->
                 <div class="mb-10">
                     <h2 class="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-8 flex items-center">
-                        <i class="fas fa-seedling text-emerald-600 mr-3"></i>
+                        <img src="{{ asset('logo.png') }}" alt="AFNON Logo" class="w-6 h-6 object-contain mr-3">
                         Commodities & Financial Summary
                     </h2>
 
@@ -322,7 +322,7 @@
                                             <td class="px-6 py-4">
                                                 <div class="flex items-center space-x-3">
                                                     <div class="w-10 h-10 bg-gradient-to-br from-green-400 to-emerald-500 rounded-xl flex items-center justify-center">
-                                                        <i class="fas fa-seedling text-white text-sm"></i>
+                                                        <img src="{{ asset('logo.png') }}" alt="AFNON Logo" class="w-5 h-5 object-contain">
                                                     </div>
                                                     <div>
                                                         <p class="font-semibold text-gray-900 dark:text-white">{{ $commodity->name }}</p>
