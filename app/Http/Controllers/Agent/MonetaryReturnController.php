@@ -136,9 +136,21 @@ class MonetaryReturnController extends Controller
     }
 
 
-    public function show($id)
+    public function show($uuid)
     {
-        $return = MonetaryReturn::with('application.farmer')->findOrFail($id);
-        return view('admin.returns.show', compact('return'));
+        $return = MonetaryReturn::where('uuid', $uuid)->firstOrFail();
+        $return->load(['application.farmer', 'application.commodity_allocations', 'application.season']);
+
+        return view('agent.monetary-returns.show', compact('return'));
+    }
+
+    public function receipt($uuid)
+    {
+        $return = MonetaryReturn::where('uuid', $uuid)->firstOrFail();
+        $return->load(['application.farmer', 'application.commodity_allocations', 'application.season']);
+
+        $pdf = Pdf::loadView('agent.monetary-returns.receipt', compact('return'));
+
+        return $pdf->download('receipt-' . $return->tx_ref . '.pdf');
     }
 }

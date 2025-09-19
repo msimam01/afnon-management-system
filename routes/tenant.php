@@ -183,7 +183,7 @@ Route::middleware([
                 ->middleware('permission:delete_commodity');
             Route::post('/market-price', [CommodityMarketPriceController::class, 'store'])
                 ->name('market-price')
-                ->middleware('permission:manage_market_prices');
+                ->middleware('permission:add_commodity_market_price');
             Route::post('/category', [CommodityCategoryController::class, 'store'])
                 ->name('category')
                 ->middleware('permission:manage_commodity_categories');
@@ -249,6 +249,15 @@ Route::middleware([
         Route::get('monetary-returns', [MonetaryReturnVerificationController::class, 'index'])
             ->name('monetary-returns')
             ->middleware('permission:manage_monetary_returns');
+        Route::get('monetary-returns/{uuid}', [MonetaryReturnVerificationController::class, 'show'])
+            ->name('monetary-returns.show')
+            ->middleware('permission:manage_monetary_returns');
+        Route::get('monetary-returns/{uuid}/report', [MonetaryReturnVerificationController::class, 'generateReport'])
+            ->name('monetary-returns.report')
+            ->middleware('permission:manage_monetary_returns');
+        Route::get('monetary-returns/{uuid}/export', [MonetaryReturnVerificationController::class, 'export'])
+            ->name('monetary-returns.export')
+            ->middleware('permission:export_reports');
 
         // Reports - Medium Priority
         Route::prefix('reports')->name('reports.')->group(function () {
@@ -261,6 +270,15 @@ Route::middleware([
             Route::get('returns', [AdminReportController::class, 'returns'])
                 ->name('returns')
                 ->middleware('permission:view_verification_reports');
+            Route::get('monetary-returns', [MonetaryReturnVerificationController::class, 'reports'])
+                ->name('monetary-returns')
+                ->middleware('permission:view_application_reports');
+            Route::get('monetary-returns/export', [MonetaryReturnVerificationController::class, 'export'])
+                ->name('monetary-returns.export')
+                ->middleware('permission:export_reports');
+            Route::get('monetary-returns/pdf', [MonetaryReturnVerificationController::class, 'exportPdf'])
+                ->name('monetary-returns.pdf')
+                ->middleware('permission:export_reports');
             Route::get('export', [AdminReportController::class, 'export'])
                 ->name('export')
                 ->middleware('permission:export_reports');
@@ -395,6 +413,12 @@ Route::middleware([
         // Monetary Return - Medium Priority
         Route::get('monetary-return', [MonetaryReturnController::class, 'index'])
             ->name('monetary-return')
+            ->middleware('permission:manage_monetary_return');
+        Route::get('monetary-returns/{uuid}', [MonetaryReturnController::class, 'show'])
+            ->name('monetary-returns.show')
+            ->middleware('permission:manage_monetary_return');
+        Route::get('monetary-returns/{uuid}/receipt', [MonetaryReturnController::class, 'receipt'])
+            ->name('monetary-returns.receipt')
             ->middleware('permission:manage_monetary_return');
 
         // Payment Processing

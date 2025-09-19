@@ -5,15 +5,27 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+
 class Center extends Model
 {
     use HasFactory;
+
     protected $fillable = [
+        'uuid',
         'name',
         'type',
         'state',
         'lga',
         'address',
     ];
-    // Removed UUID creation since the table doesn't have a uuid column
+
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($model) {
+            if (empty($model->uuid)) {
+                $model->uuid = (string) Str::uuid();
+            }
+        });
+    }
 }

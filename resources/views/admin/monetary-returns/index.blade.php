@@ -71,6 +71,7 @@
                         <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Commodities</th>
                         <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Amount Paid</th>
                         <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Date</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -94,6 +95,18 @@
                             </td>
                             <td class="px-6 py-4 text-gray-600 dark:text-gray-400">
                                 {{ $return->created_at->format('d M, Y') }}
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex space-x-2">
+                                    <a href="{{ route('admin.monetary-returns.show', $return->uuid) }}"
+                                       class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ route('admin.monetary-returns.report', $return->uuid) }}"
+                                       class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300">
+                                        <i class="fas fa-file-pdf"></i>
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                     @empty

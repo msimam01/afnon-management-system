@@ -113,23 +113,37 @@
                                         $monetaryReturn = $app->monetaryReturn;
                                     @endphp
 
-                                    @if ($app->payment_status !== 'paid')
-                                        @if ($monetaryReturn && $app->payment_status === 'pending')
-                                            <a href="{{ $monetaryReturn->payment_link }}" target="_blank"
-                                                class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700">
-                                                Continue Payment
+                                    <div class="flex space-x-2">
+                                        @if ($monetaryReturn)
+                                            <a href="{{ route('agent.monetary-returns.show', $monetaryReturn->uuid) }}"
+                                               class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">
+                                                <i class="fas fa-eye"></i>
                                             </a>
-                                        @else
-                                            <form id="initiate-payment-{{ $app->id }}"
-                                                action="{{ route('agent.generatePayment', $app->id) }}" method="POST">
-                                                @csrf
-                                                <button type="submit"
-                                                    class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
-                                                    Pay Now
-                                                </button>
-                                            </form>
                                         @endif
-                                    @endif
+
+                                        @if ($app->payment_status !== 'paid')
+                                            @if ($monetaryReturn && $app->payment_status === 'pending')
+                                                <a href="{{ $monetaryReturn->payment_link }}" target="_blank"
+                                                    class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700">
+                                                    Continue Payment
+                                                </a>
+                                            @else
+                                                <form id="initiate-payment-{{ $app->id }}"
+                                                    action="{{ route('agent.generatePayment', $app->id) }}" method="POST">
+                                                    @csrf
+                                                    <button type="submit"
+                                                        class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+                                                        Pay Now
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        @elseif ($monetaryReturn)
+                                            <a href="{{ route('agent.monetary-returns.receipt', $monetaryReturn->uuid) }}"
+                                               class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300">
+                                                <i class="fas fa-receipt"></i>
+                                            </a>
+                                        @endif
+                                    </div>
                                 </td>
 
 

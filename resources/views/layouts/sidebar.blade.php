@@ -274,6 +274,12 @@
                                             Returns
                                         </a>
                                     @endcan
+                                    @can('view_application_reports')
+                                        <a href="{{ route('admin.reports.monetary-returns') }}"
+                                            class="{{ Route::is('admin.reports.monetary-returns') ? 'bg-emerald-600 text-white' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white' }} block px-4 py-2 text-sm rounded-lg transition-colors">
+                                            Monetary Returns
+                                        </a>
+                                    @endcan
                                 </div>
                             </div>
                         @endcan

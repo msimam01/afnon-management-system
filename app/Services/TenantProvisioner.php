@@ -145,6 +145,22 @@ class TenantProvisioner
             '--force' => true,
         ]);
 
+        // Wait a moment for the seeder to complete and roles to be available
+        sleep(1);
+        
+        // Verify roles were created
+        $adminRole = Role::where('name', 'admin')->where('guard_name', 'tenant')->first();
+        $agentRole = Role::where('name', 'agent')->where('guard_name', 'tenant')->first();
+        $farmerRole = Role::where('name', 'farmer')->where('guard_name', 'tenant')->first();
+        
+        if (!$adminRole || !$agentRole || !$farmerRole) {
+            Log::warning("[TenantProvisioner] Some roles not found after seeding", [
+                'admin_exists' => !!$adminRole,
+                'agent_exists' => !!$agentRole,
+                'farmer_exists' => !!$farmerRole,
+            ]);
+        }
+
         Log::info("[TenantProvisioner] Seeded roles and permissions for tenant");
     }
 

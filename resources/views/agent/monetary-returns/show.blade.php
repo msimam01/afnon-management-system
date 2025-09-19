@@ -7,7 +7,7 @@
         <!-- Header -->
         <div class="mb-8 flex items-center justify-between">
             <div class="flex items-center space-x-4">
-                <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center">
+                <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
@@ -19,20 +19,22 @@
             </div>
 
             <div class="flex space-x-3">
-                <a href="{{ route('admin.monetary-returns') }}"
+                <a href="{{ route('agent.monetary-return') }}"
                    class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 flex items-center">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                     </svg>
                     Back to List
                 </a>
-                <a href="{{ route('admin.monetary-returns.report', $return->uuid) }}"
-                   class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center">
+                @if($return->status === 'paid')
+                <a href="{{ route('agent.monetary-returns.receipt', $return->id) }}"
+                   class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
-                    Generate Report
+                    View Receipt
                 </a>
+                @endif
             </div>
         </div>
 
@@ -220,7 +222,13 @@
                         <h4 class="text-lg font-bold text-green-800 dark:text-green-200">Payment Status</h4>
                     </div>
                     <p class="text-green-700 dark:text-green-300 text-sm">
-                        This payment has been successfully processed and verified.
+                        @if($return->status === 'paid')
+                            This payment has been successfully processed and verified.
+                        @elseif($return->status === 'pending')
+                            This payment is currently being processed. Please wait for confirmation.
+                        @else
+                            This payment requires attention.
+                        @endif
                     </p>
                 </div>
 
@@ -228,16 +236,19 @@
                 <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
                     <h4 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Quick Actions</h4>
                     <div class="space-y-3">
-                        <a href="{{ route('admin.monetary-returns.report', $return->uuid) }}"
-                           class="w-full flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                            <i class="fas fa-file-pdf mr-2"></i>
-                            Generate PDF Report
-                        </a>
-                        <a href="{{ route('admin.monetary-returns.export', $return->uuid) }}"
+                        @if($return->status === 'paid')
+                        <a href="{{ route('agent.monetary-returns.receipt', $return->uuid) }}"
                            class="w-full flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
-                            <i class="fas fa-download mr-2"></i>
-                            Export Data
+                            <i class="fas fa-receipt mr-2"></i>
+                            View Receipt
                         </a>
+                        @elseif($return->status === 'pending')
+                        <a href="{{ $return->payment_link }}" target="_blank"
+                           class="w-full flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            <i class="fas fa-external-link-alt mr-2"></i>
+                            Continue Payment
+                        </a>
+                        @endif
                     </div>
                 </div>
 
@@ -269,3 +280,4 @@
     </div>
 </div>
 @endsection
+

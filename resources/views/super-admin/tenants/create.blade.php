@@ -83,7 +83,7 @@
                                         </span>
                                     </label>
                                     <input type="text" name="name" id="name" required
-                                        class="w-full px-4 py-3 bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm border border-gray-300/50 dark:border-gray-600/50 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 text-gray-900 dark:text-white placeholder-gray-500 transition-all duration-300 hover:shadow-md"
+                                        class="w-full px-4 py-3 bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm border border-gray-300/50 dark:border-gray-600/50 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 text-gray-900 dark:text-white placeholder-gray-500 transition-colors duration-150"
                                         placeholder="e.g., Kano State Agricultural Development Program"
                                         value="{{ old('name') }}">
                                     <p class="text-xs text-gray-500 dark:text-gray-400">The display name for this tenant organization</p>
@@ -99,7 +99,7 @@
                                         </span>
                                     </label>
                                     <input type="text" name="id" id="id" required
-                                        class="w-full px-4 py-3 bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm border border-gray-300/50 dark:border-gray-600/50 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 text-gray-900 dark:text-white placeholder-gray-500 transition-all duration-300 hover:shadow-md font-mono"
+                                        class="w-full px-4 py-3 bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm border border-gray-300/50 dark:border-gray-600/50 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 text-gray-900 dark:text-white placeholder-gray-500 transition-colors duration-150 font-mono"
                                         placeholder="e.g., kano"
                                         value="{{ old('id') }}"
                                         pattern="[a-z0-9-]+"
@@ -119,7 +119,7 @@
                                 </label>
                                 <div class="relative">
                                     <input type="url" name="domain" id="domain" required
-                                        class="w-full px-4 py-3 bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm border border-gray-300/50 dark:border-gray-600/50 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 text-gray-900 dark:text-white placeholder-gray-500 transition-all duration-300 hover:shadow-md"
+                                        class="w-full px-4 py-3 bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm border border-gray-300/50 dark:border-gray-600/50 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 text-gray-900 dark:text-white placeholder-gray-500 transition-colors duration-150"
                                         placeholder="https://kano.afnon.com"
                                         value="{{ old('domain') }}">
                                     <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -141,7 +141,7 @@
                                     </span>
                                 </label>
                                 <textarea name="description" id="description" rows="3"
-                                    class="w-full px-4 py-3 bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm border border-gray-300/50 dark:border-gray-600/50 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 text-gray-900 dark:text-white placeholder-gray-500 transition-all duration-300 hover:shadow-md resize-none"
+                                    class="w-full px-4 py-3 bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm border border-gray-300/50 dark:border-gray-600/50 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 text-gray-900 dark:text-white placeholder-gray-500 transition-colors duration-150 resize-none"
                                     placeholder="Brief description of this tenant organization and its purpose...">{{ old('description') }}</textarea>
                                 <p class="text-xs text-gray-500 dark:text-gray-400">Optional description for administrative purposes</p>
                             </div>
@@ -168,14 +168,14 @@
                         <!-- Form Actions -->
                         <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200/50 dark:border-gray-700/50">
                             <button type="button" onclick="window.history.back()"
-                                class="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-xl hover:from-gray-700 hover:to-gray-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 font-semibold">
+                                class="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-xl hover:from-gray-700 hover:to-gray-800 transition-colors duration-150 shadow-lg font-semibold">
                                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                                 </svg>
                                 Cancel
                             </button>
                             <button type="submit" id="submitBtn"
-                                class="flex-1 inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-emerald-600 to-green-600 text-white rounded-xl hover:from-emerald-700 hover:to-green-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 font-semibold disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+                                class="flex-1 inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-emerald-600 to-green-600 text-white rounded-xl hover:from-emerald-700 hover:to-green-700 transition-colors duration-150 shadow-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed">
                                 <span id="submitBtnContent">
                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
@@ -206,13 +206,13 @@
         const nameInput = document.getElementById('name');
         const idInput = document.getElementById('id');
 
-        // Auto-generate slug from name
+        // Auto-generate slug from name (first word/sentence only)
         nameInput.addEventListener('input', function() {
             const name = this.value;
-            const slug = name.toLowerCase()
-                .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
-                .replace(/\s+/g, '-') // Replace spaces with hyphens
-                .replace(/-+/g, '-') // Replace multiple hyphens with single
+            // Extract only the first word/sentence (up to first space or punctuation)
+            const firstWord = name.split(/[\s,.-]/)[0];
+            const slug = firstWord.toLowerCase()
+                .replace(/[^a-z0-9]/g, '') // Remove special characters, keep only alphanumeric
                 .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
 
             if (!idInput.dataset.userModified) {
@@ -239,14 +239,6 @@
         // Input validation and styling
         const inputs = form.querySelectorAll('input, textarea');
         inputs.forEach(input => {
-            input.addEventListener('focus', function() {
-                this.parentElement.classList.add('focused');
-            });
-
-            input.addEventListener('blur', function() {
-                this.parentElement.classList.remove('focused');
-            });
-
             // Real-time validation feedback
             input.addEventListener('input', function() {
                 if (this.checkValidity()) {
@@ -261,9 +253,4 @@
     });
 </script>
 
-<style>
-    .focused {
-        transform: scale(1.01);
-    }
-</style>
 @endsection

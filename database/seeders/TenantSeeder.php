@@ -26,6 +26,7 @@ class TenantSeeder extends Seeder
         foreach ($roles as $roleName => $description) {
             if (!Role::where('name', $roleName)->where('guard_name', 'tenant')->exists()) {
                 $createdRoles[$roleName] = Role::create([
+                    'tenant_id' => tenant('id'),
                     'name' => $roleName,
                     'guard_name' => 'tenant'
                 ]);
@@ -91,6 +92,9 @@ class TenantSeeder extends Seeder
             'delete_commodity',
             'manage_commodity_categories',
             'manage_market_prices',
+            'add_commodity_market_price',
+            'update_commodity_market_price',
+            'view_commodity_market_prices',
 
             // Center management permissions
             'manage_centers',
@@ -110,6 +114,14 @@ class TenantSeeder extends Seeder
             'verify_collection',
             'verify_return',
             'bulk_verify_items',
+
+            // Admin verification review permissions
+            'review_collection_verifications',
+            'review_return_verifications',
+            'approve_verification',
+            'reject_verification',
+            'bulk_approve_verifications',
+            'bulk_reject_verifications',
 
             // Monetary return permissions
             'manage_monetary_returns',
@@ -163,6 +175,7 @@ class TenantSeeder extends Seeder
 
         foreach (array_unique($permissions) as $permission) {
             Permission::firstOrCreate([
+                'tenant_id' => tenant('id'),
                 'name' => $permission,
                 'guard_name' => 'tenant'
             ]);
@@ -230,6 +243,9 @@ class TenantSeeder extends Seeder
                 'delete_commodity',
                 'manage_commodity_categories',
                 'manage_market_prices',
+                'add_commodity_market_price',
+                'update_commodity_market_price',
+                'view_commodity_market_prices',
 
                 // Center management (full access)
                 'manage_centers',
@@ -240,15 +256,21 @@ class TenantSeeder extends Seeder
                 'manage_collection_centers',
                 'manage_returning_centers',
 
-                // Verification management (full access)
+                // Verification management (admin can manage and review verifications)
                 'manage_verifications',
                 'create_verification',
                 'read_verification',
                 'update_verification',
                 'delete_verification',
-                'verify_collection',
-                'verify_return',
                 'bulk_verify_items',
+
+                // Admin verification review permissions
+                'review_collection_verifications',
+                'review_return_verifications',
+                'approve_verification',
+                'reject_verification',
+                'bulk_approve_verifications',
+                'bulk_reject_verifications',
 
                 // Monetary return management (full access)
                 'manage_monetary_returns',
