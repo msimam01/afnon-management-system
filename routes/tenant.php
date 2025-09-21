@@ -52,6 +52,9 @@ Route::middleware([
         })->name('tenant.landing');
     }
 
+    // Public enquiry routes for tenants
+    Route::post('/enquiries', [\App\Http\Controllers\EnquiryController::class, 'store'])->name('tenant.enquiries.store');
+
     // Tenant login routes (you can also keep them in auth.php if reused)
     Route::get('/login', [App\Http\Controllers\Auth\TenantLoginController::class, 'showLoginForm'])->name('tenant.login');
     Route::post('/login', [App\Http\Controllers\Auth\TenantLoginController::class, 'login']);
@@ -362,6 +365,25 @@ Route::middleware([
         Route::post('settings', [\App\Http\Controllers\Tenant\Admin\SettingController::class, 'store'])
             ->name('settings.store')
             ->middleware('permission:update_system_settings');
+
+        // Enquiries Management - Medium Priority
+        Route::prefix('enquiries')->name('enquiries.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\EnquiryController::class, 'index'])
+                ->name('index')
+                ->middleware('permission:manage_enquiries');
+            Route::get('/{enquiry}', [\App\Http\Controllers\EnquiryController::class, 'show'])
+                ->name('show')
+                ->middleware('permission:read_enquiry');
+            Route::post('/{enquiry}/mark-spam', [\App\Http\Controllers\EnquiryController::class, 'markAsSpam'])
+                ->name('mark-spam')
+                ->middleware('permission:manage_enquiries');
+            Route::post('/{enquiry}/mark-not-spam', [\App\Http\Controllers\EnquiryController::class, 'markAsNotSpam'])
+                ->name('mark-not-spam')
+                ->middleware('permission:manage_enquiries');
+            Route::delete('/{enquiry}', [\App\Http\Controllers\EnquiryController::class, 'destroy'])
+                ->name('destroy')
+                ->middleware('permission:delete_enquiry');
+        });
     });
 
 

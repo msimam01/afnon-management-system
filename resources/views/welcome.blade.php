@@ -1089,40 +1089,99 @@
                 <!-- Contact Form -->
                 <div class="bg-white rounded-2xl p-8 shadow-xl">
                     <h3 class="text-2xl font-bold text-gray-900 mb-6">Send us a Message</h3>
-                    <form class="space-y-6">
-                        <div class="grid sm:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
-                                <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200" placeholder="John">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
-                                <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200" placeholder="Doe">
-                            </div>
+
+                    @if ($errors->any())
+                        <div class="mb-6 p-4 rounded-lg bg-red-50 border border-red-200 text-red-700">
+                            <p class="text-sm font-semibold mb-2">Please correct the following errors:</p>
+                            <ul class="list-disc pl-5 text-sm space-y-1">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                            <input type="email" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200" placeholder="john@example.com">
+                    @endif
+
+                    @if (session('success'))
+                        <div class="mb-6 p-4 rounded-lg bg-green-50 border border-green-200 text-green-700">
+                            <p class="text-sm font-semibold">{{ session('success') }}</p>
                         </div>
+                    @endif
+
+                    <form method="POST" action="{{
+                        in_array(request()->getHost(), config('tenancy.central_domains', []))
+                            ? route('contact.store')
+                            : route('tenant.enquiries.store')
+                    }}" class="space-y-6" id="enquiryForm">
+                        @csrf
+
+                        <!-- Honeypot field for spam protection -->
+                        <input type="text" name="honeypot" style="display: none;" tabindex="-1" autocomplete="off">
+
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
-                            <input type="tel" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200" placeholder="+234 xxx xxx xxxx">
+                            <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
+                            <input type="text" id="name" name="name" value="{{ old('name') }}" required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200 @error('name') border-red-500 @enderror"
+                                placeholder="John Doe">
+                            @error('name')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
                         </div>
+
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Subject</label>
-                            <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200">
-                                <option>General Inquiry</option>
-                                <option>Application Support</option>
-                                <option>Technical Issue</option>
-                                <option>Partnership</option>
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
+                            <input type="email" id="email" name="email" value="{{ old('email') }}" required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200 @error('email') border-red-500 @enderror"
+                                placeholder="john@example.com">
+                            @error('email')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                            <input type="tel" id="phone" name="phone" value="{{ old('phone') }}"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200 @error('phone') border-red-500 @enderror"
+                                placeholder="+234 xxx xxx xxxx">
+                            @error('phone')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="subject" class="block text-sm font-medium text-gray-700 mb-2">Subject *</label>
+                            <select id="subject" name="subject" required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200 @error('subject') border-red-500 @enderror">
+                                <option value="">Select a subject</option>
+                                <option value="General Inquiry" {{ old('subject') == 'General Inquiry' ? 'selected' : '' }}>General Inquiry</option>
+                                <option value="Application Support" {{ old('subject') == 'Application Support' ? 'selected' : '' }}>Application Support</option>
+                                <option value="Technical Issue" {{ old('subject') == 'Technical Issue' ? 'selected' : '' }}>Technical Issue</option>
+                                <option value="Partnership" {{ old('subject') == 'Partnership' ? 'selected' : '' }}>Partnership</option>
+                                <option value="Other" {{ old('subject') == 'Other' ? 'selected' : '' }}>Other</option>
                             </select>
+                            @error('subject')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
                         </div>
+
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Message</label>
-                            <textarea rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200" placeholder="How can we help you?"></textarea>
+                            <label for="message" class="block text-sm font-medium text-gray-700 mb-2">Message *</label>
+                            <textarea id="message" name="message" rows="4" required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200 @error('message') border-red-500 @enderror"
+                                placeholder="How can we help you?">{{ old('message') }}</textarea>
+                            @error('message')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
                         </div>
-                        <button type="submit" class="w-full btn-primary text-white py-3 rounded-lg font-semibold">
-                            Send Message
+
+                        <button type="submit" id="submitBtn" class="w-full btn-primary text-white py-3 rounded-lg font-semibold hover:bg-emerald-600 transition-colors duration-200 relative">
+                            <span id="submitText">Send Message</span>
+                            <span id="submitLoader" class="hidden">
+                                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Sending...
+                            </span>
                         </button>
                     </form>
                 </div>
@@ -1457,6 +1516,57 @@
         window.addEventListener('load', () => {
             document.body.classList.add('loaded');
         });
+
+        // Enquiry form submission with loader
+        document.getElementById('enquiryForm').addEventListener('submit', function(e) {
+            const submitBtn = document.getElementById('submitBtn');
+            const submitText = document.getElementById('submitText');
+            const submitLoader = document.getElementById('submitLoader');
+
+            // Show loader
+            submitBtn.disabled = true;
+            submitText.classList.add('hidden');
+            submitLoader.classList.remove('hidden');
+
+            // Add loading class to button
+            submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+        });
+
+        // Reset form loader on page load (in case of validation errors)
+        document.addEventListener('DOMContentLoaded', function() {
+            const submitBtn = document.getElementById('submitBtn');
+            const submitText = document.getElementById('submitText');
+            const submitLoader = document.getElementById('submitLoader');
+
+            if (submitBtn && submitText && submitLoader) {
+                // Reset button state
+                submitBtn.disabled = false;
+                submitText.classList.remove('hidden');
+                submitLoader.classList.add('hidden');
+                submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+            }
+        });
+
+        // Handle success/error messages from server
+        @if (session('success'))
+            // Show success toast
+            if (typeof ToastMagic !== 'undefined' && ToastMagic.success) {
+                ToastMagic.success('{{ session('success') }}');
+            } else {
+                // Fallback to native alert
+                alert('{{ session('success') }}');
+            }
+        @endif
+
+        @if (session('error'))
+            // Show error toast
+            if (typeof ToastMagic !== 'undefined' && ToastMagic.error) {
+                ToastMagic.error('{{ session('error') }}');
+            } else {
+                // Fallback to native alert
+                alert('{{ session('error') }}');
+            }
+        @endif
     </script>
 
     <!-- Loading Screen -->

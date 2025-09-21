@@ -12,6 +12,7 @@ use Laravel\Sanctum\HasApiTokens;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Permission\Traits\HasRoles;
+use App\Notifications\TenantResetPassword;
 
 class User extends Authenticatable
 {
@@ -68,5 +69,16 @@ class User extends Authenticatable
             ->logFillable() // This logs any changes to the fillable attributes
             ->logOnlyDirty() // Logs only the attributes that were changed
             ->dontSubmitEmptyLogs(); // Prevents logging if no attributes were changed
+    }
+
+    /**
+     * Send the password reset notification.
+     *
+     * @param  string  $token
+     * @return void
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new TenantResetPassword($token));
     }
 }

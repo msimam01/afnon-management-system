@@ -14,13 +14,20 @@ use App\Http\Controllers\SuperAdmin\ProfileController;
 use App\Http\Controllers\SuperAdmin\PermissionController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboard;
+use App\Http\Controllers\EnquiryController;
 
 Route::get('/', function () {
     return view('welcome'); // central landing page
 })->name('central.landing');
 
+// Public enquiry routes (Central)
+Route::post('/enquiries', [EnquiryController::class, 'store'])->name('central.enquiries.store');
+
 // Auth routes for central (e.g. super admin)
 require __DIR__ . '/auth.php';
+
+// Additional enquiry route (backup)
+Route::post('/contact', [EnquiryController::class, 'store'])->name('contact.store');
 
 
 // Super Admin routes with comprehensive permission checks
@@ -148,6 +155,25 @@ Route::middleware(['web', 'auth', 'central.user.active', 'central-activity-log',
         Route::post('/', [\App\Http\Controllers\SuperAdmin\SettingController::class, 'store'])
             ->name('store')
             ->middleware('permission:update_system_configuration');
+    });
+
+    // Enquiries Management - Medium Priority
+    Route::prefix('enquiries')->name('enquiries.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\EnquiryController::class, 'index'])
+            ->name('index')
+            ->middleware('permission:manage_central_enquiries');
+        Route::get('/{enquiry}', [\App\Http\Controllers\EnquiryController::class, 'show'])
+            ->name('show')
+            ->middleware('permission:read_central_enquiry');
+        Route::post('/{enquiry}/mark-spam', [\App\Http\Controllers\EnquiryController::class, 'markAsSpam'])
+            ->name('mark-spam')
+            ->middleware('permission:manage_central_enquiries');
+        Route::post('/{enquiry}/mark-not-spam', [\App\Http\Controllers\EnquiryController::class, 'markAsNotSpam'])
+            ->name('mark-not-spam')
+            ->middleware('permission:manage_central_enquiries');
+        Route::delete('/{enquiry}', [\App\Http\Controllers\EnquiryController::class, 'destroy'])
+            ->name('destroy')
+            ->middleware('permission:delete_central_enquiry');
     });
 
     // Profile Management - Always accessible

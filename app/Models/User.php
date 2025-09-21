@@ -11,12 +11,13 @@ use Illuminate\Notifications\Notifiable;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use App\Notifications\CustomResetPassword;
 
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles, LogsActivity;
 
-    protected $connection = 'central'; // 
+    protected $connection = 'central'; //
     protected $table = 'users';
     /**
      * The attributes that are mass assignable.
@@ -73,5 +74,16 @@ class User extends Authenticatable
             ->logFillable() // This logs any changes to the fillable attributes
             ->logOnlyDirty() // Logs only the attributes that were changed
             ->dontSubmitEmptyLogs(); // Prevents logging if no attributes were changed
+    }
+
+    /**
+     * Send the password reset notification.
+     *
+     * @param  string  $token
+     * @return void
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new CustomResetPassword($token));
     }
 }
