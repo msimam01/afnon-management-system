@@ -160,6 +160,17 @@ class TenantSeeder extends Seeder
             'export_activity_logs',
             'view_system_statistics',
 
+            // Enquiries management
+            'manage_enquiries',
+            'view_enquiries',
+            'create_enquiry',
+            'read_enquiry',
+            'update_enquiry',
+            'delete_enquiry',
+            'mark_enquiry_as_read',
+            'mark_enquiry_as_spam',
+            'reply_to_enquiry',
+
             // Settings management
             'manage_settings',
             'update_system_settings',
@@ -308,6 +319,17 @@ class TenantSeeder extends Seeder
                 'view_activity_logs',
                 'export_activity_logs',
                 'view_system_statistics',
+
+                // Enquiries management (full access)
+                'manage_enquiries',
+                'view_enquiries',
+                'create_enquiry',
+                'read_enquiry',
+                'update_enquiry',
+                'delete_enquiry',
+                'mark_enquiry_as_read',
+                'mark_enquiry_as_spam',
+                'reply_to_enquiry',
 
                 // Settings management (full access)
                 'manage_settings',

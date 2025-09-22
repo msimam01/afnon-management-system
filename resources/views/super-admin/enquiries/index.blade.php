@@ -1,12 +1,12 @@
 @extends('layouts.layout')
 
-@section('title', 'Enquiries Management')
+@section('title', 'Central Enquiries Management')
 
 @section('content')
 <div class="container mx-auto px-4 py-6">
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-            <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Enquiries Management</h3>
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Central Enquiries Management</h3>
             <div class="flex space-x-2">
                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
                     {{ $enquiries->total() }} Total
@@ -22,7 +22,7 @@
 
         <!-- Filters -->
         <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-            <form method="GET" action="{{ route('admin.enquiries.index') }}" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <form method="GET" action="{{ route('superadmin.enquiries.index') }}" class="grid grid-cols-1 md:grid-cols-5 gap-4">
                 <div>
                     <input type="text" name="search"
                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
@@ -53,7 +53,7 @@
                             class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
                         Filter
                     </button>
-                    <a href="{{ route('admin.enquiries.index') }}"
+                    <a href="{{ route('superadmin.enquiries.index') }}"
                        class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
                         Clear
                     </a>
@@ -115,18 +115,18 @@
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                    {{ $enquiry->formatted_created_at }}
+                                    {{ $enquiry->created_at->format('M d, Y H:i') }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <div class="flex space-x-2">
-                                        <a href="{{ route('admin.enquiries.show', $enquiry) }}"
+                                        <a href="{{ route('superadmin.enquiries.show', $enquiry) }}"
                                            class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
                                            title="View">
                                             <i class="fas fa-eye"></i>
                                         </a>
 
                                         @if($enquiry->is_spam)
-                                            <form method="POST" action="{{ route('admin.enquiries.mark-not-spam', $enquiry) }}" class="inline">
+                                            <form method="POST" action="{{ route('superadmin.enquiries.mark-not-spam', $enquiry) }}" class="inline">
                                                 @csrf
                                                 <button type="submit"
                                                         class="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300"
@@ -136,7 +136,7 @@
                                                 </button>
                                             </form>
                                         @else
-                                            <form method="POST" action="{{ route('admin.enquiries.mark-spam', $enquiry) }}" class="inline">
+                                            <form method="POST" action="{{ route('superadmin.enquiries.mark-spam', $enquiry) }}" class="inline">
                                                 @csrf
                                                 <button type="submit"
                                                         class="text-yellow-600 dark:text-yellow-400 hover:text-yellow-900 dark:hover:text-yellow-300"
@@ -147,7 +147,7 @@
                                             </form>
                                         @endif
 
-                                        <form method="POST" action="{{ route('admin.enquiries.destroy', $enquiry) }}" class="inline">
+                                        <form method="POST" action="{{ route('superadmin.enquiries.destroy', $enquiry) }}" class="inline">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit"
@@ -175,6 +175,7 @@
                     <p class="text-gray-500 dark:text-gray-400">There are no enquiries matching your criteria.</p>
                 </div>
             @endif
+        </div>
     </div>
 </div>
 @endsection
@@ -189,4 +190,3 @@
     }, 30000);
 </script>
 @endpush
-

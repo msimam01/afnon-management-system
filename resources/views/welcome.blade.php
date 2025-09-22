@@ -1111,7 +1111,7 @@
                         in_array(request()->getHost(), config('tenancy.central_domains', []))
                             ? route('contact.store')
                             : route('tenant.enquiries.store')
-                    }}" class="space-y-6" id="enquiryForm">
+                    }}" class="space-y-6">
                         @csrf
 
                         <!-- Honeypot field for spam protection -->
@@ -1173,15 +1173,8 @@
                             @enderror
                         </div>
 
-                        <button type="submit" id="submitBtn" class="w-full btn-primary text-white py-3 rounded-lg font-semibold hover:bg-emerald-600 transition-colors duration-200 relative">
-                            <span id="submitText">Send Message</span>
-                            <span id="submitLoader" class="hidden">
-                                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                Sending...
-                            </span>
+                        <button type="submit" class="w-full btn-primary text-white py-3 rounded-lg font-semibold hover:bg-emerald-600 transition-colors duration-200">
+                            Send Message
                         </button>
                     </form>
                 </div>
@@ -1516,57 +1509,6 @@
         window.addEventListener('load', () => {
             document.body.classList.add('loaded');
         });
-
-        // Enquiry form submission with loader
-        document.getElementById('enquiryForm').addEventListener('submit', function(e) {
-            const submitBtn = document.getElementById('submitBtn');
-            const submitText = document.getElementById('submitText');
-            const submitLoader = document.getElementById('submitLoader');
-
-            // Show loader
-            submitBtn.disabled = true;
-            submitText.classList.add('hidden');
-            submitLoader.classList.remove('hidden');
-
-            // Add loading class to button
-            submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
-        });
-
-        // Reset form loader on page load (in case of validation errors)
-        document.addEventListener('DOMContentLoaded', function() {
-            const submitBtn = document.getElementById('submitBtn');
-            const submitText = document.getElementById('submitText');
-            const submitLoader = document.getElementById('submitLoader');
-
-            if (submitBtn && submitText && submitLoader) {
-                // Reset button state
-                submitBtn.disabled = false;
-                submitText.classList.remove('hidden');
-                submitLoader.classList.add('hidden');
-                submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
-            }
-        });
-
-        // Handle success/error messages from server
-        @if (session('success'))
-            // Show success toast
-            if (typeof ToastMagic !== 'undefined' && ToastMagic.success) {
-                ToastMagic.success('{{ session('success') }}');
-            } else {
-                // Fallback to native alert
-                alert('{{ session('success') }}');
-            }
-        @endif
-
-        @if (session('error'))
-            // Show error toast
-            if (typeof ToastMagic !== 'undefined' && ToastMagic.error) {
-                ToastMagic.error('{{ session('error') }}');
-            } else {
-                // Fallback to native alert
-                alert('{{ session('error') }}');
-            }
-        @endif
     </script>
 
     <!-- Loading Screen -->

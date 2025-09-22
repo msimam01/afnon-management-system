@@ -35,7 +35,7 @@ class PermissionSeeder extends Seeder
         $permissions = [
             // Dashboard permissions
             'view_superadmin_dashboard',
-            
+
             // User management permissions
             'manage_central_users',
             'create_central_user',
@@ -44,7 +44,7 @@ class PermissionSeeder extends Seeder
             'delete_central_user',
             'change_central_user_status',
             'view_central_user_profile',
-            
+
             // Tenant management permissions
             'manage_tenants',
             'create_tenant',
@@ -56,7 +56,7 @@ class PermissionSeeder extends Seeder
             'activate_tenant',
             'view_tenant_details',
             'manage_tenant_settings',
-            
+
             // Role and permission management
             'manage_central_roles_permissions',
             'create_central_role',
@@ -68,25 +68,36 @@ class PermissionSeeder extends Seeder
             'update_central_permission',
             'delete_central_permission',
             'assign_central_permissions',
-            
+
             // Activity logs and monitoring
             'view_central_activity_logs',
             'export_central_activity_logs',
             'view_central_system_statistics',
             'monitor_tenant_activity',
-            
+
+            // Enquiries management
+            'manage_central_enquiries',
+            'view_central_enquiries',
+            'create_central_enquiry',
+            'read_central_enquiry',
+            'update_central_enquiry',
+            'delete_central_enquiry',
+            'mark_enquiry_as_read',
+            'mark_enquiry_as_spam',
+            'reply_to_enquiry',
+
             // System settings and configuration
             'manage_central_system_settings',
             'update_system_configuration',
             'manage_central_notifications',
             'view_system_health',
-            
+
             // Reports and analytics
             'view_central_reports',
             'export_central_reports',
             'view_tenant_analytics',
             'view_system_analytics',
-            
+
             // Profile management
             'view_own_profile',
             'update_own_profile',

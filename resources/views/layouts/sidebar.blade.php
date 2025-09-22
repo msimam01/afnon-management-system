@@ -83,6 +83,21 @@
                         @endcan
                     </li>
 
+                    {{-- Enquiries - Medium Priority --}}
+                    <li>
+                        @can('manage_central_enquiries')
+                            <a href="{{ route('superadmin.enquiries.index') }}"
+                                class="{{ Route::is('superadmin.enquiries.*') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
+                                <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
+                                    </path>
+                                </svg>
+                                Enquiries
+                            </a>
+                        @endcan
+                    </li>
+
                     {{-- System Settings - Low Priority --}}
                     <li>
                         @can('manage_central_system_settings')
@@ -313,6 +328,21 @@
                                     </path>
                                 </svg>
                                 Activity Logs
+                            </a>
+                        @endcan
+                    </li>
+
+                    {{-- Enquiries - Medium Priority --}}
+                    <li>
+                        @can('manage_enquiries')
+                            <a href="{{ route('admin.enquiries.index') }}"
+                                class="{{ Route::is('admin.enquiries.*') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
+                                <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
+                                    </path>
+                                </svg>
+                                Enquiries
                             </a>
                         @endcan
                     </li>
