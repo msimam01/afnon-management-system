@@ -469,11 +469,11 @@ class ApplicationController extends Controller
         // Pre-calculate farm size to avoid repeated access
         $farmSize = $application->farm->size ?? 0;
 
-        // Prepare allocation data with optimized loop - only 50% of commodities are allocated
+        // Prepare allocation data with optimized loop - 100% of commodities are allocated
         $allocations = $application->commodities->map(function ($commodity) use ($application, $farmSize) {
             $qtyPerHectare = $commodity->quantity_per_hectare ?? 0;
             $calculatedQty = $qtyPerHectare * $farmSize;
-            $allocatedQty = $calculatedQty * 0.5; // Only 50% is allocated, other 50% held as equity
+            $allocatedQty = $calculatedQty; // 100% allocated
 
             // Fetch price from commodity market price first, fallback to commodities table
             $unitPrice = $this->getCommodityPrice($commodity->id, $application->season_id) ?? $commodity->price_per_unit ?? 0;
@@ -600,11 +600,11 @@ class ApplicationController extends Controller
                 // Pre-calculate farm size
                 $farmSize = $application->farm->size ?? 0;
 
-                // Optimize commodity processing - only 50% of commodities are allocated
+                // Optimize commodity processing - 100% of commodities are allocated
                 foreach ($application->commodities as $commodity) {
                     $qtyPerHectare = $commodity->quantity_per_hectare ?? 0;
                     $calculatedQty = $qtyPerHectare * $farmSize;
-                    $allocatedQty = $calculatedQty * 0.5; // Only 50% is allocated, other 50% held as equity
+                    $allocatedQty = $calculatedQty; // 100% allocated
 
                     // Fetch price from commodity market price first, fallback to commodities table
                     $unitPrice = $this->getCommodityPrice($commodity->id, $application->season_id) ?? $commodity->price_per_unit ?? 0;

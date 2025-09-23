@@ -12,6 +12,7 @@ use App\Http\Controllers\Controller;
 use App\Services\FlutterwaveService;
 use Devrabiul\ToastMagic\Facades\ToastMagic;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class MonetaryReturnController extends Controller
 {
@@ -19,9 +20,33 @@ class MonetaryReturnController extends Controller
 {
     $seasons = Season::all();
 
+    // Only show applications relevant to the agent's assigned center, if available
+    $agent = optional(auth('tenant')->user())->agent;
+
     $query = Application::with(['farmer', 'commodity_allocations', 'season'])
         ->whereHas('collectionVerification', function ($q) {})
         ->whereDoesntHave('returnVerification'); // Exclude applications in return verifications
+
+    if ($agent && !empty($agent->center_id)) {
+        $query->whereHas('applicationCenter', function ($q) use ($agent) {
+            $q->where('return_center_id', $agent->center_id);
+        });
+    } else {
+        // If agent not set up yet, return an empty paginator gracefully
+        $applications = new LengthAwarePaginator(
+            items: [],
+            total: 0,
+            perPage: 15,
+            currentPage: 1,
+            options: [
+                'path' => request()->url(),
+                'query' => request()->query(),
+            ]
+        );
+
+        return view('agent.monetary-return', compact('applications', 'seasons'))
+            ->with('agentSetupRequired', true);
+    }
 
     if ($request->season) {
         $query->whereHas('season', fn($q) => $q->where('slug', $request->season));

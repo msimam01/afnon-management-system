@@ -195,7 +195,7 @@ class TenantProvisioner
                 'uuid' => (string) Str::uuid(),
                 'name' => 'Default Agent',
                 'email' => $agentEmail,
-                'password' => bcrypt('agent123'),
+                'password' => bcrypt(value: 'agent123'),
                 'email_verified_at' => now(),
                 'status' => 'active',
             ]);

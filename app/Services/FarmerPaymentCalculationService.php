@@ -16,42 +16,34 @@ class FarmerPaymentCalculationService
         $totalPaymentAmount = 0;
         $commodityBreakdown = [];
 
-        // Get all commodity allocations for this application
-        $allocations = $application->commodity_allocations ?? collect([]);
+        // New rule: Always charge the disbursed amount when present
+        $disbursedAmount = $application->disbursed_amount ?? 0;
 
-        if ($allocations->isEmpty()) {
-            // If no allocations exist, fallback to using disbursed_amount
-            $disbursedAmount = $application->disbursed_amount ?? 0;
-
-            if ($disbursedAmount <= 0) {
-                return [
-                    'total_amount' => 0,
-                    'breakdown' => [],
-                    'calculation_method' => 'no_amount_available',
-                    'message' => 'No commodity allocations found and no disbursed amount available'
-                ];
-            }
-
+        if ($disbursedAmount > 0) {
             return [
                 'total_amount' => $disbursedAmount,
                 'breakdown' => [],
-                'calculation_method' => 'disbursed_amount_fallback',
-                'message' => 'No commodity allocations found, using disbursed amount'
+                'calculation_method' => 'disbursed_amount',
+                'message' => 'Payment charged as disbursed amount'
+            ];
+        }
+
+        // If no disbursed amount available, fall back to allocations-based calculation
+        $allocations = $application->commodity_allocations ?? collect([]);
+        if ($allocations->isEmpty()) {
+            return [
+                'total_amount' => 0,
+                'breakdown' => [],
+                'calculation_method' => 'no_amount_available',
+                'message' => 'No disbursed amount and no allocations available'
             ];
         }
 
         foreach ($allocations as $allocation) {
-            // Find commodity by name to get the ID
             $commodity = \App\Models\Commodity::where('name', $allocation->commodity_name)->first();
             $commodityId = $commodity ? $commodity->id : null;
-
-            // Get current market price for this commodity and season
             $currentPrice = self::getCurrentCommodityPrice($commodityId, $application->season_id);
-
-            // Use the allocated quantity from the allocation record
             $allocatedQuantity = $allocation->allocated_quantity ?? 0;
-
-            // Calculate total value for this commodity
             $totalValue = $allocatedQuantity * $currentPrice;
             $totalPaymentAmount += $totalValue;
 
@@ -67,8 +59,8 @@ class FarmerPaymentCalculationService
         return [
             'total_amount' => $totalPaymentAmount,
             'breakdown' => $commodityBreakdown,
-            'calculation_method' => 'commodity_allocations',
-            'message' => 'Payment calculated based on allocated commodities with current market prices'
+            'calculation_method' => 'commodity_allocations_fallback',
+            'message' => 'No disbursed amount; using allocations-based calculation'
         ];
     }
 

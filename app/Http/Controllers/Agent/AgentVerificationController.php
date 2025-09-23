@@ -18,11 +18,25 @@ class AgentVerificationController extends Controller
 {
     public function assignedFarmers(Request $request)
     {
-        $agent = Auth::guard('tenant')->user()->agent;
+        $agent = optional(Auth::guard('tenant')->user())->agent;
         $filter = $request->get('filter');
         $season = $request->get('season');
         $status = $request->get('status');
         $seasons = Season::where('status', 'open')->get();
+
+        // If agent profile or center is not set yet, avoid querying by center and show empty state
+        if (!$agent || empty($agent->center_id)) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'data' => [],
+                    'current_page' => 1,
+                    'last_page' => 1,
+                    'total' => 0,
+                ]);
+            }
+            return view('agent.verify-collection', compact('seasons'))
+                ->with('agentSetupRequired', true);
+        }
 
         $appsQuery = Application::with([
                 'farmer:id,full_name,registration_number,phone,bvn,nin,address',
@@ -73,10 +87,10 @@ class AgentVerificationController extends Controller
             'commodityPhoto' => 'required|image|max:4096',
         ]);
 
-        $agent = Auth::guard('tenant')->user()->agent;
+        $agent = optional(Auth::guard('tenant')->user())->agent;
         $application = Application::findOrFail($request->application_id);
 
-        if ($application->applicationCenter->collection_center_id !== $agent->center_id) {
+        if (!$agent || empty($agent->center_id) || $application->applicationCenter->collection_center_id !== $agent->center_id) {
             ToastMagic::error('Not authorized for this application');
             return response()->json(['message' => 'Not authorized for this application'], 403);
         }
@@ -96,10 +110,24 @@ class AgentVerificationController extends Controller
 
 public function assignedReturns(Request $request)
 {
-    $agent = Auth::guard('tenant')->user()->agent;
+    $agent = optional(Auth::guard('tenant')->user())->agent;
     $filter = $request->get('filter');
     $season = $request->get('season');
     $status = $request->get('status');
+
+    if (!$agent || empty($agent->center_id)) {
+        if ($request->ajax()) {
+            return response()->json([
+                'data' => [],
+                'current_page' => 1,
+                'last_page' => 1,
+                'total' => 0,
+            ]);
+        }
+        $seasons = Season::all();
+        return view('agent.verify-return', compact('seasons'))
+            ->with('agentSetupRequired', true);
+    }
 
     $apps = Application::with([
             'farmer:id,full_name,registration_number,phone,bvn,nin,address',
@@ -154,10 +182,10 @@ public function assignedReturns(Request $request)
 
         $request->validate($rules);
 
-        $agent = Auth::guard('tenant')->user()->agent;
+        $agent = optional(Auth::guard('tenant')->user())->agent;
         $application = Application::findOrFail($request->application_id);
 
-        if ($application->applicationCenter->return_center_id !== $agent->center_id) {
+        if (!$agent || empty($agent->center_id) || $application->applicationCenter->return_center_id !== $agent->center_id) {
             ToastMagic::error('Not authorized for this application');
             return response()->json(['message' => 'Not authorized for this application'], 403);
         }

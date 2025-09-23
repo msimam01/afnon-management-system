@@ -17,14 +17,41 @@ class AgentDashboardController extends Controller
      */
         public function index()
     {
-        $agent = Auth::guard('tenant')->user()->agent;
+        $agent = optional(Auth::guard('tenant')->user())->agent;
         $today = Carbon::today();
 
-        // Total farmers assigned to agent's center
-        $totalFarmers = Application::whereHas('applicationCenter', fn($q) => $q->where('collection_center_id', $agent->center_id))
-            ->count();
+        // If the user doesn't have an agent profile yet, avoid crashes and show zeros
+        if (!$agent) {
+            $totalFarmers = 0;
+            $collectionsVerified = 0;
+            $returnsVerified = 0;
+            $todayCollections = 0;
+            $todayReturns = 0;
+            $todayTasks = 0;
 
-        // Collections and returns counts
+            $chartData = [
+                'labels' => ['Collections Verified', 'Returns Verified'],
+                'values' => [0, 0],
+            ];
+
+            return view('agent.dashboard', compact(
+                'totalFarmers',
+                'collectionsVerified',
+                'returnsVerified',
+                'todayTasks',
+                'chartData'
+            ))->with('agentSetupRequired', true);
+        }
+
+        // Total farmers assigned to agent's center (if no center assigned yet, show 0)
+        $totalFarmers = 0;
+        if (!empty($agent->center_id)) {
+            $totalFarmers = Application::whereHas('applicationCenter', function ($q) use ($agent) {
+                $q->where('collection_center_id', $agent->center_id);
+            })->count();
+        }
+
+        // Collections and returns counts (these are tied to agent id, safe if agent exists)
         $collectionsVerified = CollectionVerification::where('agent_id', $agent->id)->count();
         $returnsVerified = ReturnVerification::where('agent_id', $agent->id)->count();
 
