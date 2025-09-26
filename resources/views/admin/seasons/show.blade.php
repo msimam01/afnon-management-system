@@ -71,11 +71,16 @@
                 <p><strong>Collection End Date:</strong> {{ $season->collection_end_date }}</p>
             </div>
             <div>
-                <p><strong>Return Deadline:</strong> {{ $season->return_deadline }}</p>
-                <p><strong>Insurance Rate:</strong> {{ $season->insurance_rate }}%</p>
+                <p><strong>Scenario:</strong> {{ $season->loan_type === 'complete-loan' ? 'Complete Loan (commodity return)' : 'Co-funded (50% upfront)' }}</p>
+                @if ($season->loan_type === 'complete-loan')
+                    <p><strong>Return Deadline:</strong> {{ $season->return_deadline }}</p>
+                    <p><strong>Reminder Days:</strong> {{ $season->send_reminder_after_days }}</p>
+                @else
+                    <p><strong>Return:</strong> Not required</p>
+                @endif
             </div>
             <div>
-                <p><strong>Reminder Days:</strong> {{ $season->send_reminder_after_days }}</p>
+                <p><strong>Insurance Rate:</strong> {{ $season->insurance_rate }}%</p>
                 <p><strong>Status:</strong>
                     <span class="{{ $season->status === 'open' ? 'text-green-600' : 'text-red-600' }}">
                         {{ ucfirst($season->status) }}

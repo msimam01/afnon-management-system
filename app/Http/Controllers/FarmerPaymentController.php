@@ -38,7 +38,7 @@ class FarmerPaymentController extends Controller
         // Find application with all necessary relationships
         $application = Application::with([
             'farmer:id,full_name,phone,registration_number',
-            'season:id,name,return_deadline',
+            'season:id,name,return_deadline,loan_type',
             'monetaryReturn',
             'collectionVerification',
             'returnVerification',
@@ -53,10 +53,10 @@ class FarmerPaymentController extends Controller
             return back()->withInput();
         }
 
-        // Check if application has been collected (must have approved collection verification)
-        if (!$application->collectionVerification) {
-            ToastMagic::error('This application has not been collected yet. Payment is only required after commodity collection.');
-            return back()->withInput();
+        // For co-funded seasons, payment is required before collection; for complete-loan seasons, monetary payment is not required
+        if ($application->season && $application->season->loan_type === 'complete-loan') {
+            ToastMagic::info('This season uses commodity return. No monetary payment is required.');
+            // Continue to details view where the form is hidden and informational message is shown
         }
 
         // Check if farmer has already returned the commodity (approved return verification)
@@ -94,7 +94,7 @@ class FarmerPaymentController extends Controller
 
         $application = Application::with([
             'farmer:id,full_name,phone,registration_number',
-            'season:id,name',
+            'season:id,name,loan_type',
             'monetaryReturn',
             'collectionVerification',
             'returnVerification',
@@ -108,10 +108,12 @@ class FarmerPaymentController extends Controller
         }
 
         // Re-validate payment eligibility (in case someone bypassed the lookup)
-        if (!$application->collectionVerification ) {
-            ToastMagic::error('This application has not been collected yet. Payment is only required after commodity collection.');
+        // For complete-loan seasons, block payment entirely
+        if ($application->season && $application->season->loan_type === 'complete-loan') {
+            ToastMagic::error('No monetary payment is required for this season. Please return the expected commodity after harvest.');
             return redirect()->route('farmer.payment.index');
         }
+        // For co-funded seasons, payment is allowed before collection, so do not enforce collection verification
 
         // Check if farmer has already returned the commodity
         if ($application->returnVerification && $application->returnVerification->status === 'approved') {

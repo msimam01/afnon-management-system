@@ -150,12 +150,12 @@ public function exportExcel(Request $request)
     {
         $perPage = 20;
 
-        // Query for approved collection verifications
+        // Query for all collection verifications (remove status filter to show all)
         $query = CollectionVerification::with([
             'application.farmer:id,full_name,phone,registration_number',
-            'application.season:id,name,type',
+            'application.season:id,name,type,loan_type',
             'agent.user:id,name,email'
-        ])->where('status', 'approved')
+        ])
         ->select(['id', 'application_id', 'agent_id', 'status', 'created_at', 'updated_at']);
 
         // Apply filters
@@ -185,22 +185,20 @@ public function exportExcel(Request $request)
         });
 
         // Calculate statistics
-        $statistics = cache()->remember('collections_statistics_' . md5(serialize($request->all())), 300, function () use ($request) {
-            $baseQuery = CollectionVerification::where('status', 'approved');
+        $baseQuery = CollectionVerification::query();
 
-            $baseQuery->when($request->filled('season_id'), fn($q) =>
-                $q->whereHas('application', fn($app) => $app->where('season_id', $request->season_id))
-            )->when($request->filled('from'), fn($q) => $q->whereDate('created_at', '>=', $request->from))
-            ->when($request->filled('to'), fn($q) => $q->whereDate('created_at', '<=', $request->to));
+        $baseQuery->when($request->filled('season_id'), fn($q) =>
+            $q->whereHas('application', fn($app) => $app->where('season_id', $request->season_id))
+        )->when($request->filled('from'), fn($q) => $q->whereDate('created_at', '>=', $request->from))
+        ->when($request->filled('to'), fn($q) => $q->whereDate('created_at', '<=', $request->to));
 
-            return [
-                'total_collections' => $baseQuery->count(),
-                'total_farmers' => (clone $baseQuery)->distinct('application_id')->count(),
-                'total_loan_amount' => (clone $baseQuery)->with('application')->get()->sum('application.total_loan'),
-                'total_disbursed_amount' => (clone $baseQuery)->with('application')->get()->sum('application.disbursed_amount'),
-                'collections_this_month' => (clone $baseQuery)->whereMonth('created_at', now()->month)->count(),
-            ];
-        });
+        $statistics = [
+            'total_collections' => $baseQuery->count(),
+            'total_farmers' => (clone $baseQuery)->distinct('application_id')->count(),
+            'total_loan_amount' => (clone $baseQuery)->with('application')->get()->sum('application.total_loan'),
+            'total_disbursed_amount' => (clone $baseQuery)->with('application')->get()->sum('application.disbursed_amount'),
+            'collections_this_month' => (clone $baseQuery)->whereMonth('created_at', now()->month)->count(),
+        ];
 
         return view('admin.reports.collections', compact('collections', 'seasons', 'statistics'));
     }

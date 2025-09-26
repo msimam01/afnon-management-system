@@ -15,7 +15,10 @@ class MonetaryReturnVerificationController extends Controller
      public function index(Request $request)
     {
         $query = MonetaryReturn::with(['application.farmer', 'application.commodity_allocations', 'application.season'])
-            ->where('status', 'paid');
+            ->where('status', 'paid')
+            ->whereHas('application.season', function ($q) {
+                $q->where('loan_type', 'co-funded');
+            });
 
         // Search filter
         if ($request->filled('filter')) {
@@ -60,7 +63,10 @@ class MonetaryReturnVerificationController extends Controller
 
     public function reports(Request $request)
     {
-        $query = MonetaryReturn::with(['application.farmer', 'application.commodity_allocations', 'application.season']);
+        $query = MonetaryReturn::with(['application.farmer', 'application.commodity_allocations', 'application.season'])
+        ->whereHas('application.season', function ($q) {
+        $q->where('loan_type', 'co-funded');
+        });
 
         // Search filter
         if ($request->filled('filter')) {
@@ -124,9 +130,17 @@ class MonetaryReturnVerificationController extends Controller
         return Excel::download(new MonetaryReturnsExport($return), 'monetary-return-' . $return->tx_ref . '.xlsx');
     }
 
+    public function exportAll(Request $request)
+    {
+        return Excel::download(new MonetaryReturnsExport($request), 'monetary-returns.xlsx');
+    }
+
     public function exportPdf(Request $request)
     {
-        $query = MonetaryReturn::with(['application.farmer', 'application.commodity_allocations', 'application.season']);
+        $query = MonetaryReturn::with(['application.farmer', 'application.commodity_allocations', 'application.season'])
+        ->whereHas('application.season', function ($q) {
+        $q->where('loan_type', 'co-funded');
+        });
 
         // Apply same filters as reports
         if ($request->filled('filter')) {

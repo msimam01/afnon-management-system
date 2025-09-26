@@ -11,9 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('applications', function (Blueprint $table) {
-            $table->uuid('uuid')->unique()->after('id');
-            $table->string('reference_number')->unique()->after('uuid');
+        Schema::table('collection_verifications', function (Blueprint $table) {
+            $table->string('id_card_photo')->nullable()->change();
         });
     }
 
@@ -22,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('applications', function (Blueprint $table) {
-            $table->dropColumn(['uuid', 'reference_number']);
+        Schema::table('collection_verifications', function (Blueprint $table) {
+            $table->string('id_card_photo')->nullable(false)->change();
         });
     }
 };

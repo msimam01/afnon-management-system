@@ -549,7 +549,7 @@
                                     <i class="fas fa-calculator text-emerald-600 mr-3"></i>
                                     Loan Summary
                                 </h3>
-                                <div class="grid md:grid-cols-3 gap-4">
+                                <div class="grid md:grid-cols-{{ $season->loan_type === 'co-funded' ? '3' : '2' }} gap-4">
                                     <div class="p-4 bg-emerald-50 dark:bg-emerald-900/20 border-2 border-emerald-200 dark:border-emerald-700 rounded-xl">
                                         <div class="flex items-center mb-2">
                                             <i class="fas fa-money-bill-wave text-emerald-600 mr-2"></i>
@@ -557,6 +557,7 @@
                                         </div>
                                         <p id="total-loan" class="text-2xl font-bold text-emerald-900 dark:text-emerald-100">₦0</p>
                                     </div>
+                                    @if ($season->loan_type === 'co-funded')
                                     <div class="p-4 bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-200 dark:border-yellow-700 rounded-xl">
                                         <div class="flex items-center mb-2">
                                             <i class="fas fa-piggy-bank text-yellow-600 mr-2"></i>
@@ -564,6 +565,7 @@
                                         </div>
                                         <p id="equity-held" class="text-2xl font-bold text-yellow-900 dark:text-yellow-100">₦0</p>
                                     </div>
+                                    @endif
                                     <div class="p-4 bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-700 rounded-xl">
                                         <div class="flex items-center mb-2">
                                             <i class="fas fa-hand-holding-usd text-blue-600 mr-2"></i>
@@ -580,9 +582,15 @@
                                     <i class="fas fa-info-circle text-yellow-600 mr-3 mt-1"></i>
                                     <div>
                                         <p class="text-sm font-semibold text-yellow-800 dark:text-yellow-200 mb-1">Important Information</p>
-                                        <p class="text-sm text-yellow-700 dark:text-yellow-300">
-                                            You will receive 50% of the total loan value as disbursed amount. The remaining 50% is held as equity by AFNON to ensure program sustainability.
-                                        </p>
+                                        @if ($season->loan_type === 'co-funded')
+                                            <p class="text-sm text-yellow-700 dark:text-yellow-300">
+                                                You will receive 50% of the total loan value as disbursed amount. The remaining 50% is held as equity by AFNON to ensure program sustainability. Payment is required before collection.
+                                            </p>
+                                        @else
+                                            <p class="text-sm text-yellow-700 dark:text-yellow-300">
+                                                This is a complete loan season. No upfront payment is required before collection. After harvest, you are required to return an expected quantity of your selected seed to the assigned return center. The quantity equals Total Loan Value divided by the current market price of the seed at return time.
+                                            </p>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -597,13 +605,23 @@
                                         and confirm that all provided information is accurate and complete.
                                     </label>
                                 </div>
+                                @if ($season->loan_type === 'co-funded')
                                 <div class="flex items-start gap-3">
                                     <input type="checkbox" required id="equity-agreement"
                                         class="mt-1 h-5 w-5 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded">
                                     <label for="equity-agreement" class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                                        I understand and accept that 50% of the loan value will be held as equity by AFNON as part of the loan structure.
+                                        I understand and accept that 50% of the loan value will be held as equity by AFNON and payment is required before collection.
                                     </label>
                                 </div>
+                                @else
+                                <div class="flex items-start gap-3">
+                                    <input type="checkbox" required id="return-agreement"
+                                        class="mt-1 h-5 w-5 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded">
+                                    <label for="return-agreement" class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                                        I understand and agree to return the expected quantity of my selected seed after harvest to the assigned return center.
+                                    </label>
+                                </div>
+                                @endif
                             </div>
                         </div>
 
@@ -747,6 +765,7 @@
         const otherCommodities = @json($others ?? []);
         const insuranceRate = {{ $season->insurance_rate ?? 0 }};
         const seasonId = {{ $season->id ?? 0 }};
+        const seasonLoanType = "{{ $season->loan_type ?? 'co-funded' }}";
 
         function parseNumber(n) {
             const x = parseFloat(n);
@@ -792,11 +811,15 @@
             const baseTotal = seedVal + othersTotal;
             const insuranceAmount = baseTotal * (parseNumber(insuranceRate) / 100);
             const finalTotal = baseTotal + insuranceAmount;
-            const equity = finalTotal / 2;
-            const youReceive = finalTotal - equity;
+            let equity = 0;
+            let youReceive = finalTotal;
+            if (seasonLoanType === 'co-funded') {
+                equity = finalTotal / 2;
+                youReceive = finalTotal - equity;
+            }
 
             if (totalLoanEl) totalLoanEl.textContent = formatNaira(finalTotal);
-            if (equityEl) equityEl.textContent = formatNaira(equity);
+            if (equityEl) equityEl.textContent = equity > 0 ? formatNaira(equity) : '—';
             if (receiveEl) receiveEl.textContent = formatNaira(youReceive);
         }
 

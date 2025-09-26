@@ -276,8 +276,8 @@ Route::middleware([
             Route::get('monetary-returns', [MonetaryReturnVerificationController::class, 'reports'])
                 ->name('monetary-returns')
                 ->middleware('permission:view_application_reports');
-            Route::get('monetary-returns/export', [MonetaryReturnVerificationController::class, 'export'])
-                ->name('monetary-returns.export')
+            Route::get('monetary-returns/export-all', [MonetaryReturnVerificationController::class, 'exportAll'])
+                ->name('monetary-returns.export.all')
                 ->middleware('permission:export_reports');
             Route::get('monetary-returns/pdf', [MonetaryReturnVerificationController::class, 'exportPdf'])
                 ->name('monetary-returns.pdf')

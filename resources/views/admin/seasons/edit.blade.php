@@ -21,6 +21,14 @@
                         </select>
                     </div>
                     <div>
+                        <label for="loan_type" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Application Scenario *</label>
+                        <select name="loan_type" id="loan_type" required
+                            class="mt-1 w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
+                            <option value="co-funded" {{ old('loan_type', $season->loan_type) == 'co-funded' ? 'selected' : '' }}>Co-funded (50% upfront)</option>
+                            <option value="complete-loan" {{ old('loan_type', $season->loan_type) == 'complete-loan' ? 'selected' : '' }}>Complete Loan (commodity return)</option>
+                        </select>
+                    </div>
+                    <div>
                         <label for="seasonName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Season
                             Name
                             *</label>
@@ -59,12 +67,11 @@
                             class="mt-1 w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
                         <x-input-error :messages="$errors->get('collection_end_date')" class="mt-2" />
                     </div>
-                    <div>
+                    <div id="return-deadline-wrapper">
                         <label for="returnDeadline"
-                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">Return Deadline
-                            *</label>
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">Return Deadline</label>
                         <input type="date" id="returnDeadline" name="return_deadline"
-                            value="{{ old('return_deadline', $season->return_deadline) }}" required
+                            value="{{ old('return_deadline', $season->return_deadline) }}"
                             class="mt-1 w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
                         <x-input-error :messages="$errors->get('return_deadline')" class="mt-2" />
                     </div>
@@ -77,13 +84,13 @@
                             class="mt-1 w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
                         <x-input-error :messages="$errors->get('insurance_date')" class="mt-2" />
                     </div>
-                    <div>
+                    <div id="reminder-days-wrapper">
                         <label for="reminderDays"
                             class="block text-sm font-medium text-gray-700 dark:text-gray-300">Reminder Days After
-                            Deadline *</label>
+                            Deadline</label>
                         <input type="number" id="reminderDays" name="send_reminder_after_days" min="1"
-                            value="{{ old('send_reminder_after_days', $season->send_reminder_after_days) }}" required
-                            placeholder="e.g: 3"
+                            value="{{ old('send_reminder_after_days', $season->send_reminder_after_days) }}"
+                            placeholder="e.g: 7"
                             class="mt-1 w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
                         <x-input-error :messages="$errors->get('send_reminder_after_days')" class="mt-2" />
                     </div>
@@ -112,6 +119,23 @@
                         </p>
                     </div>
                 </div>
+
+                <script>
+                    function toggleReturnFields() {
+                        const loanType = document.getElementById('loan_type')?.value;
+                        const deadlineWrapper = document.getElementById('return-deadline-wrapper');
+                        const reminderWrapper = document.getElementById('reminder-days-wrapper');
+                        const deadlineInput = document.getElementById('returnDeadline');
+                        const reminderInput = document.getElementById('reminderDays');
+                        const required = loanType === 'complete-loan';
+                        if (deadlineWrapper) deadlineWrapper.style.display = required ? 'block' : 'none';
+                        if (reminderWrapper) reminderWrapper.style.display = required ? 'block' : 'none';
+                        if (deadlineInput) deadlineInput.required = required;
+                        if (reminderInput) reminderInput.required = required;
+                    }
+                    document.getElementById('loan_type')?.addEventListener('change', toggleReturnFields);
+                    document.addEventListener('DOMContentLoaded', toggleReturnFields);
+                </script>
 
                 <!-- Actions -->
                 <div class="flex justify-end gap-3 pt-4">

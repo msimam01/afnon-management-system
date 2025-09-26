@@ -26,9 +26,15 @@
                             <p class="text-sm text-gray-600 dark:text-gray-400">📅 {{ $season->start_date }} →
                                 {{ $season->end_date }}</p>
                             <p class="text-sm text-gray-600 dark:text-gray-400">📅 Collection Start/End Date:
-                                {{ $season->collection_start_date }} → {{ $season->collection_start_date }}</p>
-                                    <p class="text-sm text-gray-600 dark:text-gray-400">📌 Return Deadline:
-                                        {{ $season->return_deadline }}</p>
+                                {{ $season->collection_start_date }} → {{ $season->collection_end_date }}</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">🧭 Scenario:
+                                {{ $season->loan_type === 'complete-loan' ? 'Complete Loan (commodity return)' : 'Co-funded (50% upfront)' }}</p>
+                            @if ($season->loan_type === 'complete-loan')
+                                <p class="text-sm text-gray-600 dark:text-gray-400">📌 Return Deadline:
+                                    {{ $season->return_deadline }}</p>
+                            @else
+                                <p class="text-sm text-gray-600 dark:text-gray-400">📌 Return: Not required</p>
+                            @endif
                             <p class="text-sm text-gray-600 dark:text-gray-400">💰 Budget:
                                 ₦{{ number_format($season->budget) }}
                             </p>

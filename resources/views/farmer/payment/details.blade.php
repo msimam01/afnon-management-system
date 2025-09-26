@@ -182,8 +182,18 @@
                                 <p class="font-semibold text-gray-900 dark:text-white">{{ $application->season->name }}</p>
                             </div>
                             <div>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Scenario</p>
+                                <p class="font-semibold text-gray-900 dark:text-white">
+                                    {{ $application->season->return_deadline ? 'Complete Loan (commodity return)' : 'Co-funded (50% upfront)' }}
+                                </p>
+                            </div>
+                            <div>
                                 <p class="text-sm text-gray-500 dark:text-gray-400">Return Deadline</p>
-                                <p class="font-semibold text-gray-900 dark:text-white">{{ \Carbon\Carbon::parse($application->season->return_deadline)->format('M d, Y') }}</p>
+                                @if($application->season->return_deadline)
+                                    <p class="font-semibold text-gray-900 dark:text-white">{{ \Carbon\Carbon::parse($application->season->return_deadline)->format('M d, Y') }}</p>
+                                @else
+                                    <p class="font-semibold text-gray-900 dark:text-white">Not required</p>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -229,6 +239,16 @@
                             <h3 class="text-lg font-bold text-gray-900 dark:text-white">Payment Summary</h3>
                         </div>
 
+                        @if($application->season->return_deadline)
+                        <div class="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded">
+                            <div class="flex items-start">
+                                <i class="fas fa-info-circle text-yellow-600 mr-2 mt-0.5"></i>
+                                <p class="text-sm text-yellow-800 dark:text-yellow-200">
+                                    This season uses commodity return. No monetary payment is required. Please return the expected quantity of your seed by the return deadline.
+                                </p>
+                            </div>
+                        </div>
+                        @else
                         <div class="space-y-4 mb-6">
                             <div class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
                                 <span class="text-gray-600 dark:text-gray-400">Amount Due</span>
@@ -394,6 +414,7 @@
                         </div>
                         @endif
 
+                        @endif
                         <!-- Security Notice -->
                         <div class="mt-6 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg">
                             <div class="flex items-start">
@@ -414,10 +435,16 @@
                     <div>
                         <p class="text-sm font-semibold text-yellow-800 dark:text-yellow-200 mb-2">Important Payment Information</p>
                         <ul class="text-sm text-yellow-700 dark:text-yellow-300 space-y-1">
-                            <li>• This payment represents your monetary return obligation for the {{ $application->season->name }} season</li>
-                            <li>• Payment must be completed by {{ \Carbon\Carbon::parse($application->season->return_deadline)->format('M d, Y') }}</li>
-                            <li>• You will receive a payment confirmation and receipt upon successful completion</li>
-                            <li>• Contact support if you encounter any issues during payment</li>
+                            @if($application->season->return_deadline)
+                                <li>• No monetary payment is required for this season. You are required to return the expected quantity of your selected seed by the return deadline.</li>
+                                <li>• Return Deadline: {{ \Carbon\Carbon::parse($application->season->return_deadline)->format('M d, Y') }}</li>
+                                <li>• Contact support if you need assistance with the return process.</li>
+                            @else
+                                <li>• This payment covers your 50% equity for the {{ $application->season->name }} season.</li>
+                                <li>• Payment is required to proceed with commodity collection.</li>
+                                <li>• You will receive a payment confirmation and receipt upon successful completion.</li>
+                                <li>• Contact support if you encounter any issues during payment.</li>
+                            @endif
                         </ul>
                     </div>
                 </div>

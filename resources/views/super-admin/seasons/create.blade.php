@@ -18,6 +18,14 @@
                         </select>
                     </section>
                 </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Application Scenario</label>
+                    <select name="loan_type" id="loan_type"
+                        class="mt-1 block w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
+                        <option value="co-funded">Co-funded (50% upfront)</option>
+                        <option value="complete-loan">Complete Loan (commodity return)</option>
+                    </select>
+                </div>
                 <!-- Season Name -->
                 <div>
                     <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Season Name
@@ -43,10 +51,10 @@
                 </div>
 
                 <!-- Return Deadline -->
-                <div>
+                <div id="return_deadline_wrapper">
                     <label for="return_deadline" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Return
-                        Deadline *</label>
-                    <input type="date" name="return_deadline" id="return_deadline" required
+                        Deadline</label>
+                    <input type="date" name="return_deadline" id="return_deadline"
                         class="mt-1 w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
                 </div>
 
@@ -60,12 +68,11 @@
                 </div>
 
                 <!-- Reminder Days -->
-                <div>
+                <div id="reminder_days_wrapper">
                     <label for="send_reminder_after_days"
-                        class="block text-sm font-medium text-gray-700 dark:text-gray-300">Reminder Days After Deadline
-                        *</label>
-                    <input type="number" name="send_reminder_after_days" id="send_reminder_after_days" value="7"
-                        min="1" required
+                        class="block text-sm font-medium text-gray-700 dark:text-gray-300">Reminder Days After Deadline</label>
+                    <input type="number" name="send_reminder_after_days" id="send_reminder_after_days"
+                        min="1"
                         class="mt-1 w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
                 </div>
 
@@ -90,6 +97,23 @@
                 </select>
                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Hold Ctrl or Cmd to select multiple</p>
             </div>
+            <script>
+                function toggleCentralReturnFields() {
+                    const loanType = document.getElementById('loan_type')?.value;
+                    const deadlineWrapper = document.getElementById('return_deadline_wrapper');
+                    const reminderWrapper = document.getElementById('reminder_days_wrapper');
+                    const deadlineInput = document.getElementById('return_deadline');
+                    const reminderInput = document.getElementById('send_reminder_after_days');
+                    const required = loanType === 'complete-loan';
+                    if (deadlineWrapper) deadlineWrapper.style.display = required ? 'block' : 'none';
+                    if (reminderWrapper) reminderWrapper.style.display = required ? 'block' : 'none';
+                    if (deadlineInput) deadlineInput.required = required;
+                    if (reminderInput) reminderInput.required = required;
+                }
+                document.getElementById('loan_type')?.addEventListener('change', toggleCentralReturnFields);
+                document.addEventListener('DOMContentLoaded', toggleCentralReturnFields);
+            </script>
+
             <div class="mt-6 flex justify-end">
                 <a href="{{ route('superadmin.seasons.index') }}"
                     class="text-sm text-gray-600 dark:text-gray-300 hover:underline mr-4">Cancel</a>

@@ -267,7 +267,14 @@ class ApplicationController extends Controller
             $totalLoan = $seedVal + $otherTotal;
             $insuranceAmount = $totalLoan * ($insuranceRate / 100);
             $finalTotal = $totalLoan + $insuranceAmount;
-            $equity = $finalTotal / 2;
+
+            if ($season->loan_type === 'co-funded') {
+                $equity = $finalTotal / 2;
+                $disbursed = $finalTotal - $equity;
+            } else {
+                $equity = 0;
+                $disbursed = $finalTotal;
+            }
 
             // Create Application
             $application = Application::create([
@@ -279,7 +286,7 @@ class ApplicationController extends Controller
                 'insurance_amount' => $insuranceAmount,
                 'total_loan' => $finalTotal,
                 'equity' => $equity,
-                'disbursed_amount' => $equity,
+                'disbursed_amount' => $disbursed,
                 'reference_number' => $refNumber,
             ]);
 
@@ -301,8 +308,42 @@ class ApplicationController extends Controller
             DB::commit();
             ToastMagic::success('Application submitted successfully.');
             return redirect()->route('applications.slip', ['uuid' => $application->uuid]);
+        } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
+            DB::rollBack();
+            $message = 'A record with the same details already exists.';
+            $errorText = $e->getMessage();
+            if (str_contains($errorText, 'farmers_phone_unique')) {
+                $message = 'This phone number is already registered. If you have applied before, please use the same phone number or contact support.';
+            } elseif (str_contains($errorText, 'farmers_nin_unique')) {
+                $message = 'This NIN is already registered.';
+            } elseif (str_contains($errorText, 'farmers_bvn_unique')) {
+                $message = 'This BVN is already registered.';
+            }
+            ToastMagic::error($message);
+            return back()->withErrors(['phone' => $message])->withInput();
+        } catch (\Illuminate\Database\QueryException $e) {
+            DB::rollBack();
+            // Handle duplicate key error (SQLSTATE 23000, error code 1062)
+            $sqlState = $e->errorInfo[0] ?? null;
+            $driverCode = $e->errorInfo[1] ?? null;
+            if ($sqlState === '23000' && $driverCode === 1062) {
+                $message = 'Duplicate record detected. Please review your details and try again.';
+                $errorText = $e->getMessage();
+                if (str_contains($errorText, 'farmers_phone_unique')) {
+                    $message = 'This phone number is already registered.';
+                } elseif (str_contains($errorText, 'farmers_nin_unique')) {
+                    $message = 'This NIN is already registered.';
+                } elseif (str_contains($errorText, 'farmers_bvn_unique')) {
+                    $message = 'This BVN is already registered.';
+                }
+                ToastMagic::error($message);
+                return back()->withErrors(['phone' => $message])->withInput();
+            }
+            report($e);
+            ToastMagic::error('An error occurred. Please try again.');
+            return back()->with('error', 'An error occurred. Please try again.');
         } catch (\Throwable $e) {
-            DB::rollback();
+            DB::rollBack();
             report($e);
             ToastMagic::error('An error occurred. Please try again.');
             return back()->with('error', 'An error occurred. Please try again.');
@@ -446,7 +487,7 @@ class ApplicationController extends Controller
         $application = Application::select('id', 'uuid', 'status', 'season_id', 'farm_id', 'farmer_id')
             ->with([
                 'farm:id,size',
-                'season:id,collection_start_date,collection_end_date,return_deadline',
+                'season:id,collection_start_date,collection_end_date,return_deadline,loan_type',
                 'farmer:id,full_name,phone,registration_number',
                 'commodities:id,name,quantity_per_hectare,price_per_unit'
             ])
@@ -464,7 +505,12 @@ class ApplicationController extends Controller
         $daysDiff = $collectionStartDate->diffInDays($collectionEndDate);
 
         $collectionDate = $collectionStartDate->addDays(rand(0, $daysDiff))->toDateString();
-        $returnDate = max($application->season->return_deadline, \Carbon\Carbon::parse($collectionDate)->addDays(180)->toDateString());
+        $returnDate = null;
+        if ($application->season->loan_type === 'complete-loan') {
+            $fallbackReturn = \Carbon\Carbon::parse($collectionDate)->addDays(180)->toDateString();
+            $seasonDeadline = $application->season->return_deadline;
+            $returnDate = $seasonDeadline ? max($seasonDeadline, $fallbackReturn) : $fallbackReturn;
+        }
 
         // Pre-calculate farm size to avoid repeated access
         $farmSize = $application->farm->size ?? 0;
@@ -557,7 +603,7 @@ class ApplicationController extends Controller
         $applications = Application::select('id', 'status', 'season_id', 'farm_id', 'farmer_id')
             ->with([
                 'farm:id,size',
-                'season:id,collection_start_date,collection_end_date,return_deadline',
+                'season:id,collection_start_date,collection_end_date,return_deadline,loan_type',
                 'farmer:id,full_name,phone,registration_number',
                 'commodities:id,name,quantity_per_hectare,price_per_unit'
             ])
@@ -585,7 +631,12 @@ class ApplicationController extends Controller
                 $daysDiff = $collectionStartDate->diffInDays($collectionEndDate);
 
                 $collectionDate = $collectionStartDate->addDays(rand(0, $daysDiff))->toDateString();
-                $returnDate = max($application->season->return_deadline, \Carbon\Carbon::parse($collectionDate)->addDays(180)->toDateString());
+                $returnDate = null;
+                if ($application->season->loan_type === 'complete-loan') {
+                    $fallbackReturn = \Carbon\Carbon::parse($collectionDate)->addDays(180)->toDateString();
+                    $seasonDeadline = $application->season->return_deadline;
+                    $returnDate = $seasonDeadline ? max($seasonDeadline, $fallbackReturn) : $fallbackReturn;
+                }
 
                 $bulkCenters[] = [
                     'application_id' => $application->id,

@@ -40,15 +40,23 @@ class SeasonController extends Controller
         $validated = $request->validate([
             'name' => 'required|string',
             'commodities' => 'required',
+            'type' => 'nullable|in:dry,wet',
+            'loan_type' => 'required|in:co-funded,complete-loan',
             'start_date' => 'required|date',
             'end_date' => 'required|date',
             'collection_start_date' => 'required|date|after:end_date',
             'collection_end_date' => 'required|date|after:collection_start_date',
-            'return_deadline' => 'required|date',
-            'insurance_rate' => 'required|numeric',
-            'send_reminder_after_days' => 'required|numeric',
+            'return_deadline' => 'nullable|date|after:end_date',
+            'insurance_rate' => 'required|numeric|min:0|max:100',
+            'send_reminder_after_days' => 'nullable|integer|min:1',
             'budget' => 'required|numeric',
         ]);
+        if ($validated['loan_type'] === 'complete-loan') {
+            $request->validate([
+                'return_deadline' => 'required|date|after:end_date',
+                'send_reminder_after_days' => 'required|integer|min:1',
+            ]);
+        }
         return $validated;
     }
 
@@ -93,17 +101,32 @@ class SeasonController extends Controller
         $season = Season::whereUuid($uuid)->firstOrFail();
 
         $request->validate([
+            'type' => 'nullable|in:dry,wet',
+            'loan_type' => 'required|in:co-funded,complete-loan',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'collection_start_date' => 'required|date|after:end_date',
             'collection_end_date' => 'required|date|after:collection_start_date',
-            'return_deadline' => 'required|date|after:end_date',
+            'return_deadline' => 'nullable|date|after:end_date',
             'insurance_rate' => 'required|numeric|min:0|max:100',
-            'send_reminder_after_days' => 'required|integer|min:1',
+            'send_reminder_after_days' => 'nullable|integer|min:1',
             'status' => 'required|in:open,closed',
         ]);
+        if ($request->loan_type === 'complete-loan') {
+            $request->validate([
+                'return_deadline' => 'required|date|after:end_date',
+                'send_reminder_after_days' => 'required|integer|min:1',
+            ]);
+        } else {
+            $request->merge([
+                'return_deadline' => null,
+                'send_reminder_after_days' => null,
+            ]);
+        }
 
         $season->update([
+            'type' => $request->type ?? $season->type,
+            'loan_type' => $request->loan_type,
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
             'return_deadline' => $request->return_deadline,

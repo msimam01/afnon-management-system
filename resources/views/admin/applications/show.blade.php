@@ -363,7 +363,7 @@
             </div>
 
             <!-- Proportional Commodity Disbursement Section -->
-            @if(isset($disbursementSummary) && $disbursementSummary['disbursement_percentage'] < 100)
+            @if(isset($disbursementSummary) && $disbursementSummary['disbursement_percentage'] < 100 && $application->season && $application->season->loan_type === 'complete-loan')
             <div class="mb-8">
                 <div class="flex items-center mb-6">
                     <div class="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center mr-3">

@@ -272,6 +272,14 @@
                                     <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Return Deadline</span>
                                     <span class="text-sm text-red-600 dark:text-red-400 font-medium" x-text="modalData.application_center?.return_date"></span>
                                 </div>
+                                <div class="flex items-center justify-between py-2 border-t border-indigo-200 dark:border-gray-600 mt-2 pt-2">
+                                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Expected Return</span>
+                                    <span class="text-sm font-semibold text-gray-900 dark:text-white" x-text="modalData.expected_return && modalData.expected_return.quantity ? `${modalData.expected_return.quantity} ${modalData.expected_return.unit} of ${modalData.expected_return.commodity}` : '—'"></span>
+                                </div>
+                                <div class="flex items-center justify-between py-1">
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">Price Used</span>
+                                    <span class="text-xs text-gray-600 dark:text-gray-300" x-text="modalData.expected_return && modalData.expected_return.price_used ? `₦${Number(modalData.expected_return.price_used).toLocaleString()}` : '—'"></span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -407,44 +415,18 @@
                     </div>
 
                     <!-- Enhanced File Upload Section -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        <!-- ID Card Upload -->
+                    <div class="grid grid-cols-1 gap-8">
+                        <!-- Single Verification Photo Upload -->
                         <div class="space-y-4">
-                            <label for="idCardInput" class="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
-                                <svg class="w-4 h-4 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V4a2 2 0 114 0v2m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"></path>
-                                </svg>
-                                Upload ID Card Photo (Optional)
-                            </label>
-                            <div class="relative border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-8 text-center cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/10 transition-all duration-200 group">
-                                <input type="file" name="idCard" id="idCardInput" accept="image/*" @change="previewImage($event, 'idCardPreview')" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                                <div class="flex flex-col items-center">
-                                    <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/20 transition-colors">
-                                        <svg class="w-8 h-8 text-gray-400 group-hover:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                        </svg>
-                                    </div>
-                                    <p class="text-gray-600 dark:text-gray-400 text-sm font-medium mb-1">Drag & drop or click to upload</p>
-                                    <p class="text-gray-500 dark:text-gray-500 text-xs">PNG, JPG up to 2MB</p>
-                                    <img id="idCardPreview" class="mt-4 w-40 h-40 object-cover rounded-lg hidden border-2 border-gray-300 dark:border-gray-600 shadow-sm" />
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Returned Commodity Photo Upload -->
-                        <div class="space-y-4" x-show="!isMonetaryReturn">
-                            <label for="returnedCommodityPhotoInput" class="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <label for="verificationPhotoInput" class="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
                                 <svg class="w-4 h-4 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.828-1.472A2 2 0 0110.153 4h3.694a2 2 0 011.664.89l.828 1.472A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                 </svg>
-                                Upload Returned Commodity Photo *
+                                Verification Photo *
                             </label>
-
-
-
                             <div class="relative border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-8 text-center cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/10 transition-all duration-200 group">
-                                <input type="file" name="returnedCommodityPhoto" id="returnedCommodityPhotoInput" accept="image/*" x-bind:required="!isMonetaryReturn" @change="previewImage($event, 'returnedCommodityPreview')" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                                <input type="file" name="photo" id="verificationPhotoInput" accept="image/*" required @change="previewImage($event, 'verificationPhotoPreview')" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                                 <div class="flex flex-col items-center">
                                     <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/20 transition-colors">
                                         <svg class="w-8 h-8 text-gray-400 group-hover:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -454,17 +436,16 @@
                                     </div>
                                     <p class="text-gray-600 dark:text-gray-400 text-sm font-medium mb-1">Click to capture or upload photo</p>
                                     <p class="text-gray-500 dark:text-gray-500 text-xs">PNG, JPG up to 2MB</p>
-                                    <img id="returnedCommodityPreview" class="mt-4 w-40 h-40 object-cover rounded-lg hidden border-2 border-gray-300 dark:border-gray-600 shadow-sm" />
+                                    <img id="verificationPhotoPreview" class="mt-4 w-40 h-40 object-cover rounded-lg hidden border-2 border-gray-300 dark:border-gray-600 shadow-sm" />
                                 </div>
                             </div>
-                                                        <!-- Camera Capture Button -->
-                                                        <div class="flex justify-center mb-4">
-                                                            <button type="button" id="captureReturnedCommodityBtn"
-                                                                class="flex items-center justify-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-xl hover:from-indigo-700 hover:to-indigo-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">
-                                                                <i class="fas fa-camera mr-3 text-lg"></i>
-                                                                <span class="font-semibold">Capture Photo with Camera</span>
-                                                            </button>
-                                                        </div>
+
+                            <!-- Camera Capture Button -->
+                            <button type="button" id="captureVerificationBtn"
+                                class="flex items-center justify-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-sm">
+                                <i class="fas fa-camera mr-2"></i>
+                                Capture Photo
+                            </button>
                         </div>
                     </div>
 
@@ -565,10 +546,10 @@
                     this.showModal = true;
 
                     // Reset all file inputs and previews
-                    document.getElementById('idCardInput').value = '';
-                    document.getElementById('returnedCommodityPhotoInput').value = '';
-                    document.getElementById('idCardPreview').classList.add('hidden');
-                    document.getElementById('returnedCommodityPreview').classList.add('hidden');
+                    const verificationPhotoInput = document.getElementById('verificationPhotoInput');
+                    if (verificationPhotoInput) verificationPhotoInput.value = '';
+                    const verificationPhotoPreview = document.getElementById('verificationPhotoPreview');
+                    if (verificationPhotoPreview) verificationPhotoPreview.classList.add('hidden');
                 },
 
                 closeReturnModal() {
@@ -735,128 +716,91 @@
 
         // Camera capture functionality for return form
         document.addEventListener('DOMContentLoaded', function() {
-            const captureReturnedCommodityBtn = document.getElementById('captureReturnedCommodityBtn');
-            const uploadReturnedCommodityBtn = document.getElementById('uploadReturnedCommodityBtn');
-            const returnedCommodityPhotoInput = document.getElementById('returnedCommodityPhotoInput');
-            const returnedCommodityPreview = document.getElementById('returnedCommodityPreview');
+            const captureVerificationBtn = document.getElementById('captureVerificationBtn');
+            const verificationPhotoInput = document.getElementById('verificationPhotoInput');
+            const verificationPhotoPreview = document.getElementById('verificationPhotoPreview');
 
-            // Camera capture for returned commodity photo
-            if (captureReturnedCommodityBtn) {
-                captureReturnedCommodityBtn.addEventListener('click', function() {
-                    // Check if getUserMedia is supported
+            if (captureVerificationBtn) {
+                captureVerificationBtn.addEventListener('click', function() {
                     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                        // Request camera access - try back camera first, fallback to any camera
                         const constraints = {
-                            video: {
-                                facingMode: { ideal: 'environment' }, // Prefer back camera
-                                width: { ideal: 1280 },
-                                height: { ideal: 720 }
-                            }
+                            video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }
                         };
-
                         navigator.mediaDevices.getUserMedia(constraints)
-                        .then(function(stream) {
-                            // Create camera modal
-                            const cameraModal = document.createElement('div');
-                            cameraModal.className = 'fixed inset-0 z-50 bg-black bg-opacity-75 flex items-center justify-center';
-                            cameraModal.innerHTML = `
-                                <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-lg w-full mx-4">
-                                    <div class="flex justify-between items-center mb-4">
-                                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Capture Returned Commodity Photo</h3>
-                                        <button id="closeCamera" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                                            <i class="fas fa-times text-xl"></i>
-                                        </button>
-                                    </div>
-                                    <div class="relative">
-                                        <video id="cameraVideo" autoplay playsinline class="w-full h-80 bg-gray-200 dark:bg-gray-700 rounded-lg object-cover"></video>
-                                        <canvas id="cameraCanvas" class="hidden"></canvas>
-                                        <div class="absolute top-4 left-4 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-sm">
-                                            <i class="fas fa-camera mr-1"></i>Live Camera
+                            .then(function(stream) {
+                                const cameraModal = document.createElement('div');
+                                cameraModal.className = 'fixed inset-0 z-50 bg-black bg-opacity-75 flex items-center justify-center';
+                                cameraModal.innerHTML = `
+                                    <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-lg w-full mx-4">
+                                        <div class="flex justify-between items-center mb-4">
+                                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Capture Verification Photo</h3>
+                                            <button id="closeCamera" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                                                <i class="fas fa-times text-xl"></i>
+                                            </button>
                                         </div>
+                                        <div class="relative">
+                                            <video id="cameraVideo" autoplay playsinline class="w-full h-80 bg-gray-200 dark:bg-gray-700 rounded-lg object-cover"></video>
+                                            <canvas id="cameraCanvas" class="hidden"></canvas>
+                                            <div class="absolute top-4 left-4 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-sm">
+                                                <i class="fas fa-camera mr-1"></i>Live Camera
+                                            </div>
+                                        </div>
+                                        <div class="flex justify-center mt-4 space-x-4">
+                                            <button id="captureBtn" class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-lg">
+                                                <i class="fas fa-camera mr-2"></i>Capture Photo
+                                            </button>
+                                            <button id="retakeBtn" class="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors hidden">
+                                                <i class="fas fa-redo mr-2"></i>Retake
+                                            </button>
+                                        </div>
+                                        <p class="text-center text-sm text-gray-500 dark:text-gray-400 mt-2">
+                                            Position the returned commodity clearly in the camera view
+                                        </p>
                                     </div>
-                                    <div class="flex justify-center mt-4 space-x-4">
-                                        <button id="captureBtn" class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-lg">
-                                            <i class="fas fa-camera mr-2"></i>Capture Photo
-                                        </button>
-                                        <button id="retakeBtn" class="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors hidden">
-                                            <i class="fas fa-redo mr-2"></i>Retake
-                                        </button>
-                                    </div>
-                                    <p class="text-center text-sm text-gray-500 dark:text-gray-400 mt-2">
-                                        Position the returned commodity clearly in the camera view
-                                    </p>
-                                </div>
-                            `;
-
-                            document.body.appendChild(cameraModal);
-
-                            const video = document.getElementById('cameraVideo');
-                            const canvas = document.getElementById('cameraCanvas');
-                            const captureBtn = document.getElementById('captureBtn');
-                            const retakeBtn = document.getElementById('retakeBtn');
-                            const closeCamera = document.getElementById('closeCamera');
-
-                            video.srcObject = stream;
-
-                            // Capture photo
-                            captureBtn.addEventListener('click', function() {
-                                canvas.width = video.videoWidth;
-                                canvas.height = video.videoHeight;
-                                const ctx = canvas.getContext('2d');
-                                ctx.drawImage(video, 0, 0);
-
-                                // Convert to blob and create file
-                                canvas.toBlob(function(blob) {
-                                    const file = new File([blob], 'captured-return-photo.jpg', { type: 'image/jpeg' });
-
-                                    // Create a new FileList-like object
-                                    const dataTransfer = new DataTransfer();
-                                    dataTransfer.items.add(file);
-                                    returnedCommodityPhotoInput.files = dataTransfer.files;
-
-                                    // Trigger change event
-                                    const event = new Event('change', { bubbles: true });
-                                    returnedCommodityPhotoInput.dispatchEvent(event);
-
-                                    // Show preview
-                                    const url = URL.createObjectURL(blob);
-                                    returnedCommodityPreview.src = url;
-                                    returnedCommodityPreview.classList.remove('hidden');
-
-                                    // Stop camera and close modal
+                                `;
+                                document.body.appendChild(cameraModal);
+                                const video = document.getElementById('cameraVideo');
+                                const canvas = document.getElementById('cameraCanvas');
+                                const captureBtn = document.getElementById('captureBtn');
+                                const closeCamera = document.getElementById('closeCamera');
+                                video.srcObject = stream;
+                                captureBtn.addEventListener('click', function() {
+                                    canvas.width = video.videoWidth;
+                                    canvas.height = video.videoHeight;
+                                    const ctx = canvas.getContext('2d');
+                                    ctx.drawImage(video, 0, 0);
+                                    canvas.toBlob(function(blob) {
+                                        const file = new File([blob], 'captured-photo.jpg', { type: 'image/jpeg' });
+                                        const dataTransfer = new DataTransfer();
+                                        dataTransfer.items.add(file);
+                                        verificationPhotoInput.files = dataTransfer.files;
+                                        const event = new Event('change', { bubbles: true });
+                                        verificationPhotoInput.dispatchEvent(event);
+                                        const url = URL.createObjectURL(blob);
+                                        verificationPhotoPreview.src = url;
+                                        verificationPhotoPreview.classList.remove('hidden');
+                                        stream.getTracks().forEach(track => track.stop());
+                                        document.body.removeChild(cameraModal);
+                                    }, 'image/jpeg', 0.8);
+                                });
+                                closeCamera.addEventListener('click', function() {
                                     stream.getTracks().forEach(track => track.stop());
                                     document.body.removeChild(cameraModal);
-                                }, 'image/jpeg', 0.8);
+                                });
+                                cameraModal.addEventListener('click', function(e) {
+                                    if (e.target === cameraModal) {
+                                        stream.getTracks().forEach(track => track.stop());
+                                        document.body.removeChild(cameraModal);
+                                    }
+                                });
+                            })
+                            .catch(function(error) {
+                                console.error('Error accessing camera:', error);
+                                alert('Unable to access camera. Please check permissions or use file upload instead.');
                             });
-
-                            // Close camera
-                            closeCamera.addEventListener('click', function() {
-                                stream.getTracks().forEach(track => track.stop());
-                                document.body.removeChild(cameraModal);
-                            });
-
-                            // Close on outside click
-                            cameraModal.addEventListener('click', function(e) {
-                                if (e.target === cameraModal) {
-                                    stream.getTracks().forEach(track => track.stop());
-                                    document.body.removeChild(cameraModal);
-                                }
-                            });
-                        })
-                        .catch(function(error) {
-                            console.error('Error accessing camera:', error);
-                            alert('Unable to access camera. Please check permissions or use file upload instead.');
-                        });
                     } else {
                         alert('Camera not supported on this device. Please use file upload instead.');
                     }
-                });
-            }
-
-            // Upload file button
-            if (uploadReturnedCommodityBtn) {
-                uploadReturnedCommodityBtn.addEventListener('click', function() {
-                    returnedCommodityPhotoInput.click();
                 });
             }
         });

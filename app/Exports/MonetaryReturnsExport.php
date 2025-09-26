@@ -12,40 +12,47 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class MonetaryReturnsExport implements FromQuery, WithHeadings, WithMapping, WithStyles, WithColumnWidths
 {
-    protected $request;
+    protected $source;
 
-    public function __construct($request)
+    public function __construct($source)
     {
-        $this->request = $request;
+        $this->source = $source;
     }
 
     public function query()
     {
+        // Handle single model export
+        if ($this->source instanceof MonetaryReturn) {
+            return MonetaryReturn::where('id', $this->source->id)
+                ->with(['application.farmer', 'application.commodity_allocations', 'application.season']);
+        }
+
+        // Handle bulk export with filters from request
         $query = MonetaryReturn::with(['application.farmer', 'application.commodity_allocations', 'application.season']);
 
         // Apply filters
-        if ($this->request->filled('filter')) {
-            $filter = $this->request->filter;
+        if ($this->source->filled('filter')) {
+            $filter = $this->source->filter;
             $query->whereHas('application.farmer', function ($q) use ($filter) {
                 $q->where('full_name', 'like', "%$filter%")
                   ->orWhere('registration_number', 'like', "%$filter%");
             });
         }
 
-        if ($this->request->filled('season')) {
+        if ($this->source->filled('season')) {
             $query->whereHas('application.season', function ($q) {
-                $q->where('slug', $this->request->season);
+                $q->where('slug', $this->source->season);
             });
         }
 
-        if ($this->request->filled('status')) {
-            $query->where('status', $this->request->status);
+        if ($this->source->filled('status')) {
+            $query->where('status', $this->source->status);
         }
 
-        if ($this->request->filled('from') && $this->request->filled('to')) {
+        if ($this->source->filled('from') && $this->source->filled('to')) {
             $query->whereBetween('created_at', [
-                $this->request->from . " 00:00:00",
-                $this->request->to . " 23:59:59"
+                $this->source->from . " 00:00:00",
+                $this->source->to . " 23:59:59"
             ]);
         }
 
@@ -118,11 +125,3 @@ class MonetaryReturnsExport implements FromQuery, WithHeadings, WithMapping, Wit
         ];
     }
 }
-
-
-
-
-
-
-
-

@@ -178,7 +178,7 @@ class CreateTenantJob implements ShouldQueue
                 // Create the role if it doesn't exist
                 $adminRole = Role::create([
                     'name' => 'admin',
-                    'guard_name' => 'web',
+                    'guard_name' => 'tenant',
                 ]);
                 $user->assignRole($adminRole);
                 Log::info("✅ Created admin role and assigned to user: {$adminEmail}");

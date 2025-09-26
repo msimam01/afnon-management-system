@@ -13,6 +13,7 @@ class Season extends Model
         'uuid',
         'name',
         'type',
+        'loan_type',
         'start_date',
         'end_date',
         'budget',
@@ -33,6 +34,17 @@ class Season extends Model
     {
         return $this->belongsToMany(Commodity::class, 'commodity_seasons')
             ->withTimestamps();
+    }
+
+    // Helper to check season scenario
+    public function isCoFunded(): bool
+    {
+        return $this->loan_type === 'co-funded';
+    }
+
+    public function isCompleteLoan(): bool
+    {
+        return $this->loan_type === 'complete-loan';
     }
     // App\Models\Season.php
 
