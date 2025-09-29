@@ -16,9 +16,13 @@
                     <div class="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg">
                         <img src="{{ asset('logo.png') }}" alt="AFNON Logo" class="w-full h-full object-contain">
                     </div>
-                    <div>
-                        <h1 class="text-2xl font-bold text-emerald-800">{{ $isCentral ? $setting->name ?? 'AFNON' : ($tenant->short_name ?? strtoupper($tenant->id)) . ' STATE CHAPTER' }}</h1>
-                        <p class="text-xs text-emerald-600 font-medium">Association Of Farmers In The Northeast Of Nigeria</p>
+                    <div class="hidden sm:block">
+                        <h1 class="text-xl lg:text-2xl font-bold text-emerald-800">{{ $isCentral ? $setting->name ?? 'AFNON' : ($tenant->short_name ?? strtoupper($tenant->id)) . ' STATE CHAPTER' }}</h1>
+                        <p class="text-xs text-emerald-600 font-medium hidden md:block">Association Of Farmers In The Northeast Of Nigeria</p>
+                    </div>
+                    <!-- Mobile title -->
+                    <div class="sm:hidden">
+                        <h1 class="text-lg font-bold text-emerald-800">{{ $isCentral ? 'AFNON' : ($tenant->short_name ?? strtoupper($tenant->id)) }}</h1>
                     </div>
                 </div>
             </div>

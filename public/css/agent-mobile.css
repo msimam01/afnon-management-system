@@ -1,0 +1,360 @@
+/* Agent Mobile Responsiveness Enhancements */
+
+/* Base mobile styles */
+@media (max-width: 640px) {
+    /* Table responsiveness */
+    .agent-table {
+        font-size: 0.875rem;
+    }
+    
+    .agent-table th,
+    .agent-table td {
+        padding: 0.75rem 0.5rem;
+    }
+    
+    /* Card spacing */
+    .agent-card {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    /* Button groups */
+    .agent-button-group {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .agent-button-group .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    /* Form elements */
+    .agent-form-row {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .agent-form-input {
+        width: 100%;
+    }
+    
+    /* Modal adjustments */
+    .agent-modal {
+        margin: 1rem;
+        max-height: calc(100vh - 2rem);
+        overflow-y: auto;
+    }
+    
+    .agent-modal-content {
+        padding: 1rem;
+    }
+    
+    /* Statistics cards */
+    .agent-stats-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    /* Header adjustments */
+    .agent-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .agent-header h1 {
+        font-size: 1.5rem;
+        line-height: 2rem;
+    }
+    
+    /* Filter sections */
+    .agent-filters {
+        padding: 1rem;
+    }
+    
+    .agent-filter-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    /* Action buttons */
+    .agent-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .agent-actions .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Table overflow */
+    .agent-table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Compact table for mobile */
+    .agent-table-mobile th:nth-child(n+4),
+    .agent-table-mobile td:nth-child(n+4) {
+        display: none;
+    }
+    
+    /* Show important columns only */
+    .agent-table-mobile th:nth-child(1),
+    .agent-table-mobile th:nth-child(2),
+    .agent-table-mobile th:nth-child(3),
+    .agent-table-mobile td:nth-child(1),
+    .agent-table-mobile td:nth-child(2),
+    .agent-table-mobile td:nth-child(3) {
+        display: table-cell;
+    }
+    
+    /* Pagination */
+    .agent-pagination {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    /* Chart containers */
+    .agent-chart-container {
+        height: 250px;
+    }
+    
+    /* Quick actions */
+    .agent-quick-actions {
+        grid-template-columns: 1fr;
+    }
+    
+    /* Status badges */
+    .agent-status-badge {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+    }
+}
+
+/* Tablet styles */
+@media (min-width: 641px) and (max-width: 1024px) {
+    .agent-table th,
+    .agent-table td {
+        padding: 0.875rem 0.75rem;
+    }
+    
+    .agent-form-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .agent-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .agent-filter-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+    .agent-button,
+    .agent-link {
+        min-height: 44px;
+        min-width: 44px;
+        padding: 0.75rem 1rem;
+    }
+    
+    .agent-input,
+    .agent-select {
+        min-height: 44px;
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+    
+    .agent-checkbox,
+    .agent-radio {
+        min-height: 24px;
+        min-width: 24px;
+    }
+}
+
+/* Landscape phone adjustments */
+@media (max-width: 896px) and (orientation: landscape) {
+    .agent-modal {
+        max-height: 90vh;
+    }
+    
+    .agent-header h1 {
+        font-size: 1.25rem;
+    }
+    
+    .agent-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Print styles for mobile */
+@media print {
+    .agent-filters,
+    .agent-actions,
+    .agent-pagination {
+        display: none;
+    }
+    
+    .agent-table {
+        font-size: 0.75rem;
+    }
+    
+    .agent-table th,
+    .agent-table td {
+        padding: 0.25rem;
+        border: 1px solid #000;
+    }
+}
+
+/* Dark mode mobile adjustments */
+@media (prefers-color-scheme: dark) and (max-width: 640px) {
+    .agent-card {
+        background-color: #1f2937;
+        border-color: #374151;
+    }
+    
+    .agent-input,
+    .agent-select {
+        background-color: #1f2937;
+        border-color: #374151;
+        color: #f9fafb;
+    }
+    
+    .agent-button {
+        background-color: #374151;
+        color: #f9fafb;
+    }
+}
+
+/* Accessibility improvements for mobile */
+@media (max-width: 640px) {
+    /* Focus indicators */
+    .agent-input:focus,
+    .agent-select:focus,
+    .agent-button:focus {
+        outline: 2px solid #3b82f6;
+        outline-offset: 2px;
+    }
+    
+    /* High contrast mode */
+    @media (prefers-contrast: high) {
+        .agent-card {
+            border-width: 2px;
+        }
+        
+        .agent-button {
+            border-width: 2px;
+        }
+        
+        .agent-status-badge {
+            border: 2px solid currentColor;
+        }
+    }
+    
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+        .agent-card,
+        .agent-button,
+        .agent-modal {
+            transition: none;
+        }
+        
+        .agent-loading {
+            animation: none;
+        }
+    }
+}
+
+/* Utility classes for mobile */
+.mobile-hidden {
+    display: none;
+}
+
+@media (min-width: 640px) {
+    .mobile-hidden {
+        display: block;
+    }
+}
+
+.mobile-only {
+    display: block;
+}
+
+@media (min-width: 640px) {
+    .mobile-only {
+        display: none;
+    }
+}
+
+.mobile-full-width {
+    width: 100%;
+}
+
+@media (min-width: 640px) {
+    .mobile-full-width {
+        width: auto;
+    }
+}
+
+/* Mobile-specific table layout */
+.mobile-table-card {
+    display: none;
+}
+
+@media (max-width: 640px) {
+    .mobile-table-card {
+        display: block;
+        background: white;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .mobile-table-card .card-header {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .mobile-table-card .card-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.25rem 0;
+    }
+    
+    .mobile-table-card .card-label {
+        font-size: 0.875rem;
+        color: #6b7280;
+        font-weight: 500;
+    }
+    
+    .mobile-table-card .card-value {
+        font-size: 0.875rem;
+        color: #111827;
+        font-weight: 600;
+    }
+    
+    .mobile-table-card .card-actions {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e5e7eb;
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .mobile-table-card .card-actions .btn {
+        flex: 1;
+        min-width: 0;
+        font-size: 0.875rem;
+        padding: 0.5rem 0.75rem;
+    }
+}
