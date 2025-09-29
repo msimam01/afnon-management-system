@@ -34,7 +34,7 @@
 
             <div class="flex gap-4 flex-wrap">
                 <!-- Search -->
-                <input type="text" name="filter" placeholder="Search Farmer Name or ID"
+                <input type="text" name="filter" placeholder="Search Farmer Name, ID, App Ref, or Transaction Ref"
                     value="{{ request('filter') }}"
                     class="px-4 py-3 border rounded-lg dark:bg-gray-800 dark:border-gray-600 text-gray-900 dark:text-white" />
 
@@ -68,6 +68,7 @@
                 <thead class="bg-gradient-to-r from-green-500 to-green-600 text-white">
                     <tr>
                         <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Farmer</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Application</th>
                         <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Commodities</th>
                         <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Amount Paid</th>
                         <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Date</th>
@@ -83,6 +84,15 @@
                                 </div>
                                 <div class="text-sm text-gray-500 dark:text-gray-400">
                                     {{ $return->application->farmer->registration_number }}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm text-gray-900 dark:text-white">{{ $return->application->season->name ?? 'N/A' }}</div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">
+                                    <span class="font-medium">App Ref: </span>{{ $return->application->reference_number }}
+                                </div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">
+                                    <span class="font-medium">Tx Ref: </span>{{ $return->tx_ref }}
                                 </div>
                             </td>
                             <td class="px-6 py-4">
@@ -111,7 +121,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                            <td colspan="6" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
                                 No paid returns found.
                             </td>
                         </tr>

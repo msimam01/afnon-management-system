@@ -26,7 +26,7 @@
 
                     <div class="flex gap-4 flex-wrap">
                         <!-- Search -->
-                        <input type="text" name="filter" placeholder="Search Farmer Name or ID"
+                        <input type="text" name="filter" placeholder="Search Farmer Name, ID, App Ref, or Transaction Ref"
                             value="{{ request('filter') }}"
                             class="px-4 py-3 border rounded-lg dark:bg-gray-800 dark:border-gray-600 text-gray-900 dark:text-white" />
 
@@ -69,8 +69,8 @@
                         <tr>
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Farmer Details
                             </th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Application</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Commodities</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Loan Amount</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Status</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Actions</th>
                         </tr>
@@ -85,12 +85,23 @@
                                         {{ $app->farmer->registration_number }}</div>
                                 </td>
                                 <td class="px-6 py-4">
+                                    <div class="text-sm text-gray-900 dark:text-white">{{ $app->season->name ?? 'N/A' }}</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">
+                                        <span class="font-medium">App Ref: </span>{{ $app->reference_number }}
+                                    </div>
+                                    @if($app->monetaryReturn && $app->monetaryReturn->tx_ref)
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                                            <span class="font-medium">Tx Ref: </span>{{ $app->monetaryReturn->tx_ref }}
+                                        </div>
+                                    @endif
+                                    <div class="text-sm font-semibold text-indigo-600 dark:text-indigo-400">
+                                        ₦{{ number_format($app->total_loan) }}
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
                                     @foreach ($app->commodity_allocations as $c)
                                         <div class="text-sm">{{ $c->commodity_name }} ({{ $c->allocated_quantity }})</div>
                                     @endforeach
-                                </td>
-                                <td class="px-6 py-4 text-indigo-600 dark:text-indigo-400 font-semibold">
-                                    ₦{{ number_format($app->total_loan) }}
                                 </td>
                                 <td class="px-6 py-4">
                                     @if ($app->payment_status === 'paid')

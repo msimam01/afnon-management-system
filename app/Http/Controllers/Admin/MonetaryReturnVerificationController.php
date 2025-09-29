@@ -26,7 +26,9 @@ class MonetaryReturnVerificationController extends Controller
             $query->whereHas('application.farmer', function ($q) use ($filter) {
                 $q->where('full_name', 'like', "%$filter%")
                   ->orWhere('registration_number', 'like', "%$filter%");
-            });
+            })->orWhereHas('application', function ($q) use ($filter) {
+                $q->where('reference_number', 'like', "%$filter%");
+            })->orWhere('tx_ref', 'like', "%$filter%");
         }
 
         // Season filter
@@ -74,7 +76,9 @@ class MonetaryReturnVerificationController extends Controller
             $query->whereHas('application.farmer', function ($q) use ($filter) {
                 $q->where('full_name', 'like', "%$filter%")
                   ->orWhere('registration_number', 'like', "%$filter%");
-            });
+            })->orWhereHas('application', function ($q) use ($filter) {
+                $q->where('reference_number', 'like', "%$filter%");
+            })->orWhere('tx_ref', 'like', "%$filter%");
         }
 
         // Season filter
@@ -148,7 +152,9 @@ class MonetaryReturnVerificationController extends Controller
             $query->whereHas('application.farmer', function ($q) use ($filter) {
                 $q->where('full_name', 'like', "%$filter%")
                   ->orWhere('registration_number', 'like', "%$filter%");
-            });
+            })->orWhereHas('application', function ($q) use ($filter) {
+                $q->where('reference_number', 'like', "%$filter%");
+            })->orWhere('tx_ref', 'like', "%$filter%");
         }
 
         if ($request->filled('season')) {

@@ -41,6 +41,7 @@ class AdminVerificationController extends Controller
                 'application.farmer',
                 'application.season',
                 'application.commodity_allocations',
+                'application.monetaryReturn',
                 'center'
             ]);
         } elseif ($type === 'return') {
@@ -48,6 +49,7 @@ class AdminVerificationController extends Controller
                 'application.farmer',
                 'application.season',
                 'application.commodity_allocations',
+                'application.monetaryReturn',
                 'center'
             ]);
         } else {
@@ -56,6 +58,7 @@ class AdminVerificationController extends Controller
                 'application.farmer',
                 'application.season',
                 'application.commodity_allocations',
+                'application.monetaryReturn',
                 'center'
             ]);
 
@@ -63,6 +66,7 @@ class AdminVerificationController extends Controller
                 'application.farmer',
                 'application.season',
                 'application.commodity_allocations',
+                'application.monetaryReturn',
                 'center'
             ]);
 
@@ -72,6 +76,8 @@ class AdminVerificationController extends Controller
                     $query->where('full_name', 'like', '%' . $filter . '%')
                         ->orWhere('registration_number', 'like', '%' . $filter . '%')
                         ->orWhere('phone', 'like', '%' . $filter . '%');
+                })->orWhereHas('application', function ($query) use ($filter) {
+                    $query->where('reference_number', 'like', '%' . $filter . '%');
                 });
             })->when($seasonName, function ($q) use ($seasonName) {
                 $q->whereHas('application.season', function ($query) use ($seasonName) {
@@ -86,6 +92,8 @@ class AdminVerificationController extends Controller
                     $query->where('full_name', 'like', '%' . $filter . '%')
                         ->orWhere('registration_number', 'like', '%' . $filter . '%')
                         ->orWhere('phone', 'like', '%' . $filter . '%');
+                })->orWhereHas('application', function ($query) use ($filter) {
+                    $query->where('reference_number', 'like', '%' . $filter . '%');
                 });
             })->when($seasonName, function ($q) use ($seasonName) {
                 $q->whereHas('application.season', function ($query) use ($seasonName) {
@@ -138,6 +146,8 @@ $returnData = $returnQuery->get()->transform(function ($item) {
                 $query->where('full_name', 'like', '%' . $filter . '%')
                     ->orWhere('registration_number', 'like', '%' . $filter . '%')
                     ->orWhere('phone', 'like', '%' . $filter . '%');
+            })->orWhereHas('application', function ($query) use ($filter) {
+                $query->where('reference_number', 'like', '%' . $filter . '%');
             });
         });
 

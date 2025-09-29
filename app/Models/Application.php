@@ -50,7 +50,7 @@ class Application extends Model
 
     public function season()
     {
-        return $this->belongsTo(Season::class)->select(['id', 'name', 'status', 'collection_start_date', 'collection_end_date', 'return_deadline']);
+        return $this->belongsTo(Season::class)->select(['id', 'name', 'status', 'loan_type', 'collection_start_date', 'collection_end_date', 'return_deadline']);
     }
     public function commodity_allocations()
     {

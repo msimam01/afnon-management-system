@@ -42,17 +42,19 @@ class AgentVerificationController extends Controller
         $appsQuery = Application::with([
                 'farmer:id,full_name,registration_number,phone,bvn,nin,address',
                 'farm:id,size,location',
-                'season:id,name,status',
+                'season:id,name,status,loan_type',
                 'commodity_allocations',
                 'applicationCenter',
-                'collectionVerification'
+                'collectionVerification',
+                'monetaryReturn'
             ])
-            ->select(['id', 'uuid', 'reference_number', 'farmer_id', 'farm_id', 'season_id', 'status', 'total_loan', 'insurance_rate', 'insurance_amount', 'equity', 'disbursed_amount'])
+            ->select(['id', 'uuid', 'reference_number', 'farmer_id', 'farm_id', 'season_id', 'status', 'payment_status', 'total_loan', 'insurance_rate', 'insurance_amount', 'equity', 'disbursed_amount'])
             ->whereHas('applicationCenter', fn($q) => $q->where('collection_center_id', $agent->center_id))
             ->where('status', 'approved')
             ->when($filter, fn($q) => $q->whereHas('farmer', fn($f) =>
                 $f->where('full_name', 'like', "%$filter%")
-                    ->orWhere('registration_number', 'like', "%$filter%")))
+                    ->orWhere('registration_number', 'like', "%$filter%"))
+                    ->orWhere('reference_number', 'like', "%$filter%"))
             ->when($season, fn($q) => $q->whereHas('season', fn($s) => $s->where('slug', $season)))
             ->get()
             ->map(function ($app) use ($status) {

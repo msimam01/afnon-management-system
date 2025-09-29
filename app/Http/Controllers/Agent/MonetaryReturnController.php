@@ -23,7 +23,7 @@ class MonetaryReturnController extends Controller
     // Only show applications relevant to the agent's assigned center, if available
     $agent = optional(auth('tenant')->user())->agent;
 
-    $query = Application::with(['farmer', 'commodity_allocations', 'season'])
+    $query = Application::with(['farmer', 'commodity_allocations', 'season', 'monetaryReturn'])
         ->whereHas('collectionVerification', function ($q) {})
         ->whereDoesntHave('returnVerification'); // Exclude applications in return verifications
 
@@ -63,7 +63,10 @@ class MonetaryReturnController extends Controller
             fn($q) =>
             $q->where('full_name', 'like', "%$filter%")
                 ->orWhere('registration_number', 'like', "%$filter%")
-        );
+        )->orWhere('reference_number', 'like', "%$filter%")
+        ->orWhereHas('monetaryReturn', function($q) use ($filter) {
+            $q->where('tx_ref', 'like', "%$filter%");
+        });
     }
 
     $applications = $query->latest()->paginate(15);

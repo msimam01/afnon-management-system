@@ -94,7 +94,7 @@
 
             <div class="flex gap-4 flex-wrap">
                 <!-- Search -->
-                <input type="text" name="filter" placeholder="Search Farmer Name or ID"
+                <input type="text" name="filter" placeholder="Search Farmer Name, ID, App Ref, or Transaction Ref"
                     value="{{ request('filter') }}"
                     class="px-4 py-3 border rounded-lg dark:bg-gray-800 dark:border-gray-600 text-gray-900 dark:text-white" />
 
@@ -156,7 +156,10 @@
                                     {{ $return->application->farmer->registration_number }}
                                 </div>
                                 <div class="text-xs text-gray-400 dark:text-gray-500">
-                                    {{ $return->application->reference_number }}
+                                    <span class="font-medium">App Ref: </span>{{ $return->application->reference_number }}
+                                </div>
+                                <div class="text-xs text-gray-400 dark:text-gray-500">
+                                    <span class="font-medium">Tx Ref: </span>{{ $return->tx_ref }}
                                 </div>
                             </td>
                             <td class="px-6 py-4">

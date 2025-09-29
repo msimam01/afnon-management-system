@@ -44,7 +44,7 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Search</label>
                         <input type="text" x-model.debounce.500ms="filter" @input="goToPage(1)"
-                            placeholder="Search farmer name or registration number..."
+                            placeholder="Search farmer name, registration number, or application reference..."
                             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                     </div>
                 </div>
@@ -77,6 +77,9 @@
                                 <th
                                     class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                     Application</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                    Payment Status</th>
                                 <th
                                     class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                     Status</th>
@@ -128,11 +131,33 @@
                                         <div class="text-sm text-gray-900 dark:text-white"
                                             x-text="item.application?.season?.name || 'N/A'"></div>
                                         <div class="text-sm text-gray-500 dark:text-gray-400">
+                                            <span class="font-medium">Ref: </span><span x-text="item.application?.reference_number || 'N/A'"></span>
+                                        </div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">
                                             <template x-for="c in item.application?.commodity_allocations"
                                                 :key="c.id">
                                                 <span
                                                     x-text="`${c.commodity_name}: ${c.allocated_quantity} bags`"></span><br>
                                             </template>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <!-- Payment Status for Co-funded Collection Verifications -->
+                                        <div x-show="item.application?.season?.loan_type === 'co-funded' && item.type === 'collection'">
+                                            <span x-text="item.application?.payment_status || 'N/A'"
+                                                :class="{
+                                                    'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200': item.application?.payment_status === 'paid',
+                                                    'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200': item.application?.payment_status === 'pending',
+                                                    'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200': item.application?.payment_status === 'failed'
+                                                }"
+                                                class="inline-flex px-2 py-1 text-xs font-semibold rounded-full capitalize">
+                                            </span>
+                                        </div>
+                                        <!-- Show loan type for non-co-funded or return verifications -->
+                                        <div x-show="!(item.application?.season?.loan_type === 'co-funded' && item.type === 'collection')">
+                                            <span x-text="item.application?.season?.loan_type === 'co-funded' ? 'Co-funded' : 'Complete Loan'"
+                                                class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                            </span>
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
@@ -160,12 +185,12 @@
                                 </tr>
                             </template>
                             <tr x-show="verifications.length === 0 && !loading">
-                                <td colspan="6" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                                <td colspan="7" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
                                     No verifications found.
                                 </td>
                             </tr>
                             <tr x-show="loading">
-                                <td colspan="6" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                                <td colspan="7" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
                                     Loading...
                                 </td>
                             </tr>
@@ -241,6 +266,33 @@
                                         <span class="font-bold">Status:</span> <span
                                             x-text="selectedItem?.status || 'N/A'" class="capitalize"></span>
                                     </p>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                                        <span class="font-bold">Application Ref:</span> <span
+                                            x-text="selectedItem?.application?.reference_number || 'N/A'"></span>
+                                    </p>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                                        <span class="font-bold">Loan Type:</span> <span
+                                            x-text="selectedItem?.application?.season?.loan_type === 'co-funded' ? 'Co-funded (50% upfront)' : 'Complete Loan (commodity return)'" class="capitalize"></span>
+                                    </p>
+                                    <!-- Payment Status for Co-funded Applications -->
+                                    <div x-show="selectedItem?.application?.season?.loan_type === 'co-funded' && selectedItem?.type === 'collection'">
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                                            <span class="font-bold">Payment Status:</span> 
+                                            <span x-text="selectedItem?.application?.payment_status || 'N/A'" 
+                                                  :class="{
+                                                      'text-green-600 font-semibold': selectedItem?.application?.payment_status === 'paid',
+                                                      'text-yellow-600 font-semibold': selectedItem?.application?.payment_status === 'pending',
+                                                      'text-red-600 font-semibold': selectedItem?.application?.payment_status === 'failed'
+                                                  }"
+                                                  class="capitalize"></span>
+                                        </p>
+                                        <div x-show="selectedItem?.application?.monetary_return">
+                                            <p class="text-sm text-gray-500 dark:text-gray-400">
+                                                <span class="font-bold">Payment Amount:</span> 
+                                                <span x-text="selectedItem?.application?.monetary_return?.amount ? '₦' + new Intl.NumberFormat().format(selectedItem.application.monetary_return.amount) : 'N/A'"></span>
+                                            </p>
+                                        </div>
+                                    </div>
 
                                     <h4 class="text-lg font-medium text-gray-900 dark:text-white mt-4 mb-2">Commodities
                                     </h4>

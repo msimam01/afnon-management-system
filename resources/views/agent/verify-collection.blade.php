@@ -30,7 +30,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                 </svg>
                             </div>
-                            <input type="text" x-model.debounce.500ms="filter" placeholder="Search Farmer Name or ID"
+                            <input type="text" x-model.debounce.500ms="filter" placeholder="Search Farmer Name, ID, or Application Ref"
                                 class="w-full sm:w-64 pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white" />
                         </div>
                         <select x-model="season"
@@ -67,8 +67,9 @@
                         <thead class="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white">
                             <tr>
                                 <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Farmer Details</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Application</th>
                                 <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Commodities</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Loan Amount</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Payment Status</th>
                                 <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Status</th>
                                 <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Actions</th>
                             </tr>
@@ -88,6 +89,13 @@
                                         </div>
                                     </td>
                                     <td class="px-6 py-4">
+                                        <div class="text-sm text-gray-900 dark:text-white" x-text="app.season?.name || 'N/A'"></div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                                            <span class="font-medium">Ref: </span><span x-text="app.reference_number || 'N/A'"></span>
+                                        </div>
+                                        <div class="text-sm font-semibold text-emerald-600 dark:text-emerald-400" x-text="`₦${app.total_loan ? app.total_loan.toLocaleString() : '0'}`"></div>
+                                    </td>
+                                    <td class="px-6 py-4">
                                         <div class="space-y-1">
                                             <template x-for="c in app.commodity_allocations" :key="c.id">
                                                 <div class="flex items-center text-sm">
@@ -99,8 +107,23 @@
                                         </div>
                                     </td>
                                     <td class="px-6 py-4">
-                                        <div class="text-sm font-semibold text-emerald-600 dark:text-emerald-400" x-text="`₦${app.total_loan ? app.total_loan.toLocaleString() : '0'}`"></div>
-                                        <div class="text-xs text-gray-500 dark:text-gray-400">Total Loan</div>
+                                        <!-- Payment Status for Co-funded Applications -->
+                                        <div x-show="app.season?.loan_type === 'co-funded'">
+                                            <span x-text="app.payment_status || 'N/A'"
+                                                :class="{
+                                                    'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200': app.payment_status === 'paid',
+                                                    'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200': app.payment_status === 'pending',
+                                                    'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200': app.payment_status === 'failed'
+                                                }"
+                                                class="inline-flex px-2 py-1 text-xs font-semibold rounded-full capitalize">
+                                            </span>
+                                        </div>
+                                        <!-- Show loan type for Complete Loan applications -->
+                                        <div x-show="app.season?.loan_type !== 'co-funded'">
+                                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                                Complete Loan
+                                            </span>
+                                        </div>
                                     </td>
                                     <td class="px-6 py-4">
                                         <span :class="{
@@ -135,7 +158,7 @@
                                 </tr>
                             </template>
                             <tr x-show="applications.length === 0 && !loading">
-                                <td colspan="5" class="px-6 py-8 text-center">
+                                <td colspan="6" class="px-6 py-8 text-center">
                                     <div class="flex flex-col items-center">
                                         <svg class="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -145,7 +168,7 @@
                                 </td>
                             </tr>
                             <tr x-show="loading">
-                                <td colspan="5" class="px-6 py-8 text-center">
+                                <td colspan="6" class="px-6 py-8 text-center">
                                     <div class="flex items-center justify-center">
                                         <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-emerald-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -268,6 +291,25 @@
                                 <div class="flex items-center justify-between py-2 border-b border-emerald-200 dark:border-gray-600">
                                     <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Collection Date</span>
                                     <span class="text-sm text-gray-900 dark:text-white" x-text="modalData.application_center?.collection_date"></span>
+                                </div>
+                                <div class="flex items-center justify-between py-2 border-b border-emerald-200 dark:border-gray-600">
+                                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Loan Type</span>
+                                    <span class="text-sm font-semibold text-gray-900 dark:text-white" x-text="modalData.season?.loan_type === 'co-funded' ? 'Co-funded (50% upfront)' : 'Complete Loan (commodity return)'"></span>
+                                </div>
+                                <!-- Payment Status for Co-funded Applications -->
+                                <div x-show="modalData.season?.loan_type === 'co-funded'" class="flex items-center justify-between py-2 border-b border-emerald-200 dark:border-gray-600">
+                                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Payment Status</span>
+                                    <span x-text="modalData.payment_status || 'N/A'" 
+                                          :class="{
+                                              'text-green-600 font-semibold': modalData.payment_status === 'paid',
+                                              'text-yellow-600 font-semibold': modalData.payment_status === 'pending',
+                                              'text-red-600 font-semibold': modalData.payment_status === 'failed'
+                                          }"
+                                          class="text-sm capitalize"></span>
+                                </div>
+                                <div x-show="modalData.monetary_return && modalData.season?.loan_type === 'co-funded'" class="flex items-center justify-between py-2 border-b border-emerald-200 dark:border-gray-600">
+                                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Payment Amount</span>
+                                    <span class="text-sm font-semibold text-emerald-600 dark:text-emerald-400" x-text="modalData.monetary_return?.amount ? '₦' + new Intl.NumberFormat().format(modalData.monetary_return.amount) : 'N/A'"></span>
                                 </div>
                                 <div class="flex items-center justify-between py-2">
                                     <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Return Deadline</span>
