@@ -294,6 +294,22 @@ Route::middleware([
             Route::get('export-returns', [AdminReportController::class, 'exportReturns'])
                 ->name('exportReturns')
                 ->middleware('permission:export_reports');
+
+            // Season Reports
+            Route::prefix('seasons')->name('seasons.')->group(function () {
+                Route::get('/', [\App\Http\Controllers\Admin\SeasonReportController::class, 'index'])
+                    ->name('index')
+                    ->middleware('permission:view_application_reports');
+                Route::get('{season}', [\App\Http\Controllers\Admin\SeasonReportController::class, 'show'])
+                    ->name('show')
+                    ->middleware('permission:view_application_reports');
+                Route::get('{season}/pdf', [\App\Http\Controllers\Admin\SeasonReportController::class, 'exportPdf'])
+                    ->name('pdf')
+                    ->middleware('permission:export_reports');
+                Route::get('{season}/excel', [\App\Http\Controllers\Admin\SeasonReportController::class, 'exportExcel'])
+                    ->name('excel')
+                    ->middleware('permission:export_reports');
+            });
         });
 
         // Role and Permission Management - Low Priority

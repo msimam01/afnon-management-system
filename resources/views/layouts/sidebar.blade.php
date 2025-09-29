@@ -294,6 +294,10 @@
                                             class="{{ Route::is('admin.reports.monetary-returns') ? 'bg-emerald-600 text-white' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white' }} block px-4 py-2 text-sm rounded-lg transition-colors">
                                             Payment Transactions
                                         </a>
+                                        <a href="{{ route('admin.reports.seasons.index') }}"
+                                            class="{{ Route::is('admin.reports.seasons.*') ? 'bg-emerald-600 text-white' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white' }} block px-4 py-2 text-sm rounded-lg transition-colors">
+                                            Season Analytics
+                                        </a>
                                     @endcan
                                 </div>
                             </div>
