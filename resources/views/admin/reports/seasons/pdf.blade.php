@@ -296,7 +296,7 @@
 
     <!-- Footer -->
     <div style="position: fixed; bottom: 0; width: 100%; text-align: center; font-size: 10px; color: #666; border-top: 1px solid #e5e7eb; padding-top: 10px;">
-        <p>AFNON Management System - Season Report | Generated on {{ now()->format('F d, Y H:i') }}</p>
+        <p>AFNEN Management System - Season Report | Generated on {{ now()->format('F d, Y H:i') }}</p>
     </div>
 </body>
 </html>

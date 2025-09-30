@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment Receipt - AFNON</title>
+    <title>Payment Receipt - AFNEN</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -113,10 +113,10 @@
                     <div class="flex items-center justify-between">
                         <div class="flex items-center">
                             <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mr-4">
-                                <img src="{{ asset('logo.png') }}" alt="AFNON Logo" class="w-10 h-10 object-contain">
+                                <img src="{{ asset('logo.png') }}" alt="AFNEN Logo" class="w-10 h-10 object-contain">
                             </div>
                             <div>
-                                <h1 class="text-3xl font-bold">AFNON</h1>
+                                <h1 class="text-3xl font-bold">AFNEN</h1>
                                 <p class="text-emerald-100">Association Of Farmers In The Northeast Of Nigeria</p>
                             </div>
                         </div>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>No Active Season - AFNON</title>
+    <title>No Active Season - AFNEN</title>
     @include('application.includes.app')
     <script>
         tailwind.config = {
@@ -222,8 +222,8 @@
         <!-- Footer -->
         <div class="mt-8 pt-6 border-t border-white/10">
             <div class="flex items-center justify-center gap-2 text-white/60">
-                <img src="{{ asset('logo.png') }}" alt="AFNON Logo" class="w-4 h-4 object-contain">
-                <span class="font-medium">AFNON Association Of Farmers In The Northeast Of Nigeria</span>
+                <img src="{{ asset('logo.png') }}" alt="AFNEN Logo" class="w-4 h-4 object-contain">
+                <span class="font-medium">AFNEN Association Of Farmers In The Northeast Of Nigeria</span>
             </div>
             <p class="text-white/50 text-sm mt-2">Empowering farmers, growing communities</p>
         </div>

@@ -3,7 +3,7 @@
 @section('content')
 <h1>🔐 Password Reset Request</h1>
 
-<p>We received a request to reset your password for your AFNON account. If you made this request, click the button below to reset your password.</p>
+<p>We received a request to reset your password for your AFNEN account. If you made this request, click the button below to reset your password.</p>
 
 <div class="highlight-box">
     <h2>⚠️ Important Security Notice</h2>
@@ -47,7 +47,7 @@
 <p style="margin-top: 30px; padding: 20px; background: #ecfdf5; border-radius: 8px; border-left: 4px solid #10b981;">
     <strong>💡 Need Help?</strong><br>
     If you're having trouble resetting your password or have any security concerns,
-    please contact our support team at <a href="mailto:support@afnon.com.ng" style="color: #10b981;">support@afnon.com.ng</a>
+    please contact our support team at <a href="mailto:support@afnen.com.ng" style="color: #10b981;">support@afnen.com.ng</a>
     or call us for immediate assistance.
 </p>
 

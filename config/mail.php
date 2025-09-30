@@ -120,7 +120,7 @@ return [
     | This email address will receive enquiry notifications
     |
     */
-    'admin_email' => env('MAIL_ADMIN_EMAIL', 'admin@afnon.com.ng'),
+    'admin_email' => env('MAIL_ADMIN_EMAIL', 'admin@afnen.com.ng'),
 
     /*
     |--------------------------------------------------------------------------

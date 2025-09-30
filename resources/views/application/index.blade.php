@@ -30,7 +30,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apply for Seasonal Loan - AFNON</title>
+    <title>Apply for Seasonal Loan - AFNEN</title>
     @include('application.includes.app')
     <script>
         tailwind.config = {
@@ -277,10 +277,10 @@
                         <i class="fas fa-arrow-left text-lg"></i>
                     </button>
                     <div class="h-10 w-10 rounded-xl flex items-center justify-center shadow-lg">
-                        <img src="{{ asset('logo.png') }}" alt="AFNON Logo" class="w-6 h-6 object-contain">
+                        <img src="{{ asset('logo.png') }}" alt="AFNEN Logo" class="w-6 h-6 object-contain">
                     </div>
                     <div class="ml-3">
-                        <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ $isCentral ? 'AFNON' : ($tenant->short_name ?? strtoupper($tenant->id)) . ' STATE CHAPTER' }}</h1>
+                        <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ $isCentral ? 'AFNEN' : ($tenant->short_name ?? strtoupper($tenant->id)) . ' STATE CHAPTER' }}</h1>
                         <p class="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Association Of Farmers In The Northeast Of Nigeria</p>
                     </div>
                 </div>
@@ -489,7 +489,7 @@
                             <!-- Seed Selection -->
                             <div class="mb-6">
                                 <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center">
-                                    <img src="{{ asset('logo.png') }}" alt="AFNON Logo" class="w-5 h-5 object-contain mr-3">
+                                    <img src="{{ asset('logo.png') }}" alt="AFNEN Logo" class="w-5 h-5 object-contain mr-3">
                                     Choose Your Seed
                                 </h3>
                                 <div class="grid md:grid-cols-2 gap-4" id="seed-options">
@@ -504,7 +504,7 @@
                                             <div class="flex justify-between items-center">
                                                 <div class="flex-1">
                                                     <div class="flex items-center mb-2">
-                                                        <img src="{{ asset('logo.png') }}" alt="AFNON Logo" class="w-4 h-4 object-contain mr-2">
+                                                        <img src="{{ asset('logo.png') }}" alt="AFNEN Logo" class="w-4 h-4 object-contain mr-2">
                                                         <h4 class="font-bold text-gray-900 dark:text-white">{{ $seed->name }}</h4>
                                                     </div>
                                                     <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">{{ $seed->quantity_per_hectare }} {{ $seed->unit ?? 'unit' }}/hectare</p>
@@ -584,7 +584,7 @@
                                         <p class="text-sm font-semibold text-yellow-800 dark:text-yellow-200 mb-1">Important Information</p>
                                         @if ($season->loan_type === 'co-funded')
                                             <p class="text-sm text-yellow-700 dark:text-yellow-300">
-                                                You will receive 50% of the total loan value as disbursed amount. The remaining 50% is held as equity by AFNON to ensure program sustainability. Payment is required before collection.
+                                                You will receive 50% of the total loan value as disbursed amount. The remaining 50% is held as equity by AFNEN to ensure program sustainability. Payment is required before collection.
                                             </p>
                                         @else
                                             <p class="text-sm text-yellow-700 dark:text-yellow-300">
@@ -610,7 +610,7 @@
                                     <input type="checkbox" required id="equity-agreement"
                                         class="mt-1 h-5 w-5 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded">
                                     <label for="equity-agreement" class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                                        I understand and accept that 50% of the loan value will be held as equity by AFNON and payment is required before collection.
+                                        I understand and accept that 50% of the loan value will be held as equity by AFNEN and payment is required before collection.
                                     </label>
                                 </div>
                                 @else

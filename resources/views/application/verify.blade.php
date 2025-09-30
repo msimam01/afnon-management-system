@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verify Application - AFNON</title>
+    <title>Verify Application - AFNEN</title>
     @include('application.includes.app')
     <script>
         tailwind.config = {
@@ -122,7 +122,7 @@
                 ✓ Application Verified
             </h1>
             <p class="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto animate-slide-up" style="animation-delay: 0.6s;">
-                🎉 Congratulations! This application is <span class="font-semibold text-emerald-600 dark:text-emerald-400">valid and officially recorded</span> in the AFNON Management System.
+                🎉 Congratulations! This application is <span class="font-semibold text-emerald-600 dark:text-emerald-400">valid and officially recorded</span> in the AFNEN Management System.
             </p>
         </div>
 
@@ -222,7 +222,7 @@
                 <!-- Commodities Section -->
                 <div class="mb-10">
                     <h2 class="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-8 flex items-center">
-                        <img src="{{ asset('logo.png') }}" alt="AFNON Logo" class="w-6 h-6 object-contain mr-3">
+                        <img src="{{ asset('logo.png') }}" alt="AFNEN Logo" class="w-6 h-6 object-contain mr-3">
                         Commodities & Financial Summary
                     </h2>
 
@@ -322,7 +322,7 @@
                                             <td class="px-6 py-4">
                                                 <div class="flex items-center space-x-3">
                                                     <div class="w-10 h-10 bg-gradient-to-br from-green-400 to-emerald-500 rounded-xl flex items-center justify-center">
-                                                        <img src="{{ asset('logo.png') }}" alt="AFNON Logo" class="w-5 h-5 object-contain">
+                                                        <img src="{{ asset('logo.png') }}" alt="AFNEN Logo" class="w-5 h-5 object-contain">
                                                     </div>
                                                     <div>
                                                         <p class="font-semibold text-gray-900 dark:text-white">{{ $commodity->name }}</p>
@@ -445,7 +445,7 @@
                 </div>
             </div>
             <p class="text-xs text-gray-400 dark:text-gray-500 mt-4">
-                Verified on {{ now()->format('M d, Y \a\t H:i A') }} | AFNON Management System
+                Verified on {{ now()->format('M d, Y \a\t H:i A') }} | AFNEN Management System
             </p>
         </div>
     </div>
@@ -475,8 +475,8 @@
         // Share Verification Function
         function shareVerification() {
             const shareData = {
-                title: 'AFNON Application Verification',
-                text: `Application ${{{ $application->reference_number }}} has been verified in the AFNON system.`,
+                title: 'AFNEN Application Verification',
+                text: `Application ${{{ $application->reference_number }}} has been verified in the AFNEN system.`,
                 url: window.location.href
             };
 

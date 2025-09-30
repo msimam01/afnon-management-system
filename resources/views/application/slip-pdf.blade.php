@@ -472,13 +472,13 @@
 
             <tr>
                 <td class="label">Base Commodity Value:</td>
-                <td class="amount">₦{{ number_format($commodityTotal, 2) }}</td>
+                <td class="amount">N{{ number_format($commodityTotal, 2) }}</td>
             </tr>
 
             @if($application->insurance_amount)
             <tr>
                 <td class="label">Insurance Premium ({{ $application->insurance_rate ?? 0 }}%):</td>
-                <td class="amount">₦{{ number_format($application->insurance_amount, 2) }}</td>
+                <td class="amount">N{{ number_format($application->insurance_amount, 2) }}</td>
             </tr>
             @endif
 
@@ -492,14 +492,14 @@
             @if($application->total_loan)
             <tr class="total-row">
                 <td class="label">TOTAL LOAN AMOUNT:</td>
-                <td class="amount">₦{{ number_format($application->total_loan, 2) }}</td>
+                <td class="amount">N{{ number_format($application->total_loan, 2) }}</td>
             </tr>
             @endif
 
             @if($application->disbursed_amount)
             <tr class="total-row">
                 <td class="label">AMOUNT DISBURSED:</td>
-                <td class="amount">₦{{ number_format($application->disbursed_amount, 2) }}</td>
+                <td class="amount">N{{ number_format($application->disbursed_amount, 2) }}</td>
             </tr>
             @endif
         </table>
@@ -547,7 +547,7 @@
         <div>
             MOTTO Generated: {{ now()->format('d/m/Y H:i') }} |
             Document ID: {{ $application->uuid }} |
-            System: AFNON v1.0 |
+            System: AFNEN v1.0 |
             Page 1 of 1
         </div>
     </div>

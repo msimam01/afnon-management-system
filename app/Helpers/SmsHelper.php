@@ -25,7 +25,7 @@ class SmsHelper
             ])->post(env('INFOBIP_BASE_URL') . '/sms/2/text/advanced', [
                 'messages' => [
                     [
-                        'from' => env('INFOBIP_SENDER', 'AFNON'),
+                        'from' => env('INFOBIP_SENDER', 'AFNEN'),
                         'destinations' => [
                             ['to' => $to]
                         ],

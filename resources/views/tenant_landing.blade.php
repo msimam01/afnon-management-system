@@ -16,7 +16,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $isCentral ? 'AFNON - Empowering Nigerian Farmers' : $tenant->name ?? 'Tenant Portal' }}</title>
+    <title>{{ $isCentral ? 'AFNEN - Empowering Nigerian Farmers' : $tenant->name ?? 'Tenant Portal' }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/alpinejs" defer></script>
     <style>
@@ -29,7 +29,7 @@
         <div class="bg-emerald-700 text-white p-3 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 @if($tenant->logo)
-                    <img src="{{ asset('storage/'.$tenant->logo) }}" alt="{{ $tenant->name }}" class="h-10 w-10 rounded-full">
+                    <img src="{{ asset('logo.png') }}" alt="AFNEN Logo" class="w-10 h-10 object-contain">
                 @endif
                 <span class="font-bold text-lg">{{ $tenant->name }}</span>
             </div>
@@ -42,9 +42,7 @@
     <!-- Navbar -->
     <header class="bg-white shadow sticky top-0 z-50" x-data="{ open: false }">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center py-4">
-            <h1 class="text-2xl font-bold text-emerald-700">
-                {{ $isCentral ? 'AFNON' : ($tenant->short_name ?? $tenant->name) }}
-            </h1>
+            <h1 class="text-2xl font-bold text-emerald-800">{{ $isCentral ? $setting->name ?? 'AFNEN' : ($tenant->short_name ?? strtoupper($tenant->id)) . ' STATE CHAPTER' }}</h1>
 
             <!-- Desktop Nav -->
             <nav class="hidden md:flex space-x-6">
@@ -85,13 +83,12 @@
                     Empowering Nigerian Farmers
                 </h1>
                 <p class="mt-4 text-lg text-gray-600 dark:text-gray-300 max-w-2xl">
-                    Apply for seasonal agricultural loans through AFNON to grow your productivity and improve food
-                    security.
+                    Hear from farmers who have transformed their lives through AFNEN's programs
                 </p>
                 <div class="mt-8 flex flex-col sm:flex-row gap-4">
                     <a href="/apply"
                         class="bg-emerald-600 text-white px-6 py-3 rounded-md hover:bg-emerald-700 text-base font-medium">
-                        Apply Now
+                        About AFNEN
                     </a>
                     <a href="https://necas.com.ng" target="_blank"
                         class="border border-emerald-600 text-emerald-600 px-6 py-3 rounded-md hover:bg-emerald-50 text-base font-medium">
@@ -118,9 +115,7 @@
             <div>
                 <h2 class="text-3xl font-bold text-gray-900 dark:text-white">About NECAS</h2>
                 <p class="mt-4 text-lg text-gray-600 dark:text-gray-300">
-                    NECAS (North East Commodity Association) is a private-sector-led initiative that provides support to
-                    Nigerian farmers including seasonal inputs, loans, and access to mechanization through
-                    public-private partnerships.
+                    AFNEN (Association of Farmers in the Northeast of Nigeria) is a pioneering private-sector initiative that bridges the gap between Nigerian farmers and modern agricultural opportunities.
                 </p>
             </div>
         </div>
@@ -136,7 +131,7 @@
                         class="flex items-center justify-center w-16 h-16 bg-emerald-100 dark:bg-emerald-900 rounded-full mx-auto mb-4">
                         <span class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">1</span>
                     </div>
-                    <h3 class="text-lg font-semibold">Apply</h3>
+                    <h3 class="text-xl font-bold">AFNEN</h3>
                     <p class="mt-2 text-gray-600 dark:text-gray-300">Fill the application form with your BVN, NIN, farm
                         and location details.</p>
                 </div>

@@ -444,34 +444,34 @@
 
             <tr>
                 <td>Base Commodity Value:</td>
-                <td class="currency amount">₦{{ number_format($commodityTotal, 2) }}</td>
+                <td class="currency amount">N{{ number_format($commodityTotal, 2) }}</td>
             </tr>
 
             @if($application->insurance_amount)
             <tr>
                 <td>Insurance Premium ({{ $application->insurance_rate ?? 0 }}%):</td>
-                <td class="currency amount">₦{{ number_format($application->insurance_amount, 2) }}</td>
+                <td class="currency amount">N{{ number_format($application->insurance_amount, 2) }}</td>
             </tr>
             @endif
 
             @if($application->equity)
             <tr>
                 <td>Equity Contribution (Held):</td>
-                <td class="currency amount">₦{{ number_format($application->equity, 2) }}</td>
+                <td class="currency amount">N{{ number_format($application->equity, 2) }}</td>
             </tr>
             @endif
 
             @if($application->total_loan)
             <tr style="border-top: 2px solid #000; font-weight: bold;">
                 <td>TOTAL LOAN AMOUNT:</td>
-                <td class="currency amount">₦{{ number_format($application->total_loan, 2) }}</td>
+                <td class="currency amount">N{{ number_format($application->total_loan, 2) }}</td>
             </tr>
             @endif
 
             @if($application->disbursed_amount)
             <tr style="border-top: 1px solid #000; font-weight: bold;">
                 <td>AMOUNT DISBURSED:</td>
-                <td class="currency amount">₦{{ number_format($application->disbursed_amount, 2) }}</td>
+                <td class="currency amount">N{{ number_format($application->disbursed_amount, 2) }}</td>
             </tr>
             @endif
         </table>
@@ -519,7 +519,7 @@
         <div>
             Generated: {{ now()->format('d/m/Y H:i') }} |
             Document ID: {{ $application->uuid }} |
-            System: AFNON v1.0
+            System: AFNEN v1.0
         </div>
     </div>
     </div> <!-- End content-overlay -->

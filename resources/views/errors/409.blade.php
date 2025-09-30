@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Error Pages Demo - AFNON</title>
+    <title>Error Pages Demo - AFNEN</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
@@ -28,6 +28,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                     </div>
+                    <a href="/" class="text-sm text-gray-500 hover:text-gray-700 transition-colors">← Back to AFNEN Home</a>
                     <h1 class="text-2xl font-bold text-gray-900 mb-4">409 - Conflict</h1>
                     <p class="text-gray-600 mb-6">There was a conflict with your request. This usually happens when trying to create something that already exists.</p>
 

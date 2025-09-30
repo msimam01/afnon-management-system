@@ -21,10 +21,10 @@
     </style>
 </head>
 <body>
-    <div class="watermark">AFNON</div>
+    <div class="watermark">AFNEN</div>
 
     <div class="header">
-        <img src="{{ public_path('images/afnon-logo.png') }}" alt="AFNON Logo">
+        <img src="{{ public_path('images/afnon-logo.png') }}" alt="AFNEN Logo">
         <h1>Monetary Return Invoice</h1>
         <p>Invoice for Application: <strong>{{ $application->reference_number }}</strong></p>
     </div>
@@ -64,14 +64,14 @@
         <tfoot>
             <tr>
                 <td colspan="3"><strong>Total Amount Due</strong></td>
-                <td><strong>₦{{ number_format($totalAmount, 2) }}</strong></td>
+                <td><strong>N{{ number_format($totalAmount, 2) }}</strong></td>
             </tr>
         </tfoot>
     </table>
 
     <div class="footer">
         <p>This is a system-generated invoice. Please pay the total amount at the designated return center.</p>
-        <p>Generated on {{ now()->format('d M, Y H:i') }} | AFNON Loan System</p>
+        <p>Generated on {{ now()->format('d M, Y H:i') }} | AFNEN Loan System</p>
     </div>
 </body>
 </html>

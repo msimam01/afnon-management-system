@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>{{ $subject ?? 'AFNON - Association Of Farmers In The Northeast Of Nigeria' }}</title>
+    <title>{{ $subject ?? 'AFNEN - Association Of Farmers In The Northeast Of Nigeria' }}</title>
     <style>
         /* Reset styles */
         body, table, td, p, a, li, blockquote {
@@ -338,7 +338,7 @@
                     <div class="logo">
                         <div class="logo-icon">🌱</div>
                     </div>
-                    <h1 class="email-title">{{ $title ?? 'AFNON' }}</h1>
+                    <h1 class="email-title">{{ $title ?? 'AFNEN' }}</h1>
                     <p class="email-subtitle">{{ $subtitle ?? 'Association Of Farmers In The Northeast Of Nigeria' }}</p>
                 </div>
             </div>
@@ -352,7 +352,7 @@
 
             <!-- Footer -->
             <div class="email-footer">
-                <h3 class="footer-logo">AFNON</h3>
+                <h3 class="footer-logo">AFNEN</h3>
                 <p class="footer-text">Empowering Nigerian Farmers for a Sustainable Future</p>
 
                 <div class="footer-links">
@@ -368,9 +368,8 @@
                 </div>
 
                 <div class="footer-address">
-                    <p>Association Of Farmers In The Northeast Of Nigeria</p>
-                    <p>Nigeria | Email: info@afnon.com.ng</p>
-                    <p>© {{ date('Y') }} AFNON. All rights reserved.</p>
+                    <p>Association Of Farmers In The Northeast Of Nigeria | Nigeria | Email: info@afnen.com.ng</p>
+                    <p>© {{ date('Y') }} AFNEN. All rights reserved.</p>
                 </div>
             </div>
         </div>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Error Pages Demo - AFNON</title>
+    <title>Error Pages Demo - AFNEN</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
@@ -65,7 +65,7 @@
                     </div>
 
                     <div class="mt-6">
-                        <a href="/" class="text-sm text-gray-500 hover:text-gray-700 transition-colors">← Back to AFNON Home</a>
+                        <a href="/" class="text-sm text-gray-500 hover:text-gray-700 transition-colors">← Back to AFNEN Home</a>
                     </div>
                 </div>
             </div>

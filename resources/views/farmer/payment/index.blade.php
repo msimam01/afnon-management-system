@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Farmer Payment Portal - AFNON</title>
+    <title>Farmer Payment Portal - AFNEN</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -96,7 +96,7 @@
                         <i class="fas fa-credit-card text-white text-lg"></i>
                     </div>
                     <div class="ml-3">
-                        <h1 class="text-xl font-bold text-gray-900 dark:text-white">AFNON Payment Portal</h1>
+                        <h1 class="text-xl font-bold text-gray-900 dark:text-white">AFNEN Payment Portal</h1>
                         <p class="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Farmer Self-Service Payment</p>
                     </div>
                 </div>

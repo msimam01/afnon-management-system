@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Application Not Found - AFNON</title>
+    <title>Application Not Found - AFNEN</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -223,7 +223,7 @@
         <div class="text-center mt-8 animate-fade-in" style="animation-delay: 1.2s;">
             <p class="text-sm text-gray-500 dark:text-gray-400">
                 <i class="fas fa-shield-alt text-red-500 mr-2"></i>
-                Secure verification system powered by AFNON
+                Secure verification system powered by AFNEN
             </p>
         </div>
     </div>

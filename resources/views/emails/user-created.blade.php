@@ -1,9 +1,9 @@
 @extends('emails.layouts.base')
 
 @section('content')
-<h1>🎉 Welcome to AFNON, {{ $user->name }}!</h1>
+<h1>🎉 Welcome to AFNEN, {{ $user->name }}!</h1>
 
-<p>Your account has been successfully created and you're now part of the Association Of Farmers In The Northeast Of Nigeria community. We're excited to have you on board!</p>
+<p>Your account has been successfully created and you're now part of the AFNEN community. We're excited to have you on board!</p>
 
 <div class="highlight-box">
     <h2>🔐 Your Account Details</h2>
@@ -48,7 +48,7 @@
 
 <div class="highlight-box">
     <h2>🌱 What's Next?</h2>
-    <p>Now that you're part of AFNON, here's what you can do:</p>
+    <p>Now that you're part of AFNEN, here's what you can do:</p>
     <ul style="margin: 0; padding-left: 20px;">
         <li>Complete your profile with additional information</li>
         <li>Explore our farmer resources and tools</li>
@@ -60,7 +60,7 @@
 
 <p style="margin-top: 30px; padding: 20px; background: #ecfdf5; border-radius: 8px; border-left: 4px solid #10b981;">
     <strong>💡 Need Help?</strong><br>
-    If you have any questions or need assistance, don't hesitate to reach out to our support team. We're here to help you make the most of your AFNON membership!
+    If you have any questions or need assistance, don't hesitate to reach out to our support team. We're here to help you make the most of your AFNEN membership!
 </p>
 
 <p style="text-align: center; margin-top: 30px; font-size: 14px; color: #6b7280;">

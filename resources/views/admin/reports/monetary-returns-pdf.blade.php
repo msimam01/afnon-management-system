@@ -172,7 +172,7 @@
     </table>
 
     <div class="footer">
-        <p>This report was generated automatically by the AFNON Management System</p>
+        <p>This report was generated automatically by the AFNEN Management System</p>
         <p>For any inquiries, please contact the system administrator</p>
     </div>
 </body>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Account Setup in Progress - AFNON</title>
+    <title>Account Setup in Progress - AFNEN</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
@@ -33,7 +33,7 @@
             
             <!-- Message -->
             <p class="text-gray-600 mb-6">
-                {{ $message ?? 'We are currently setting up your AFNON account. This usually takes just a few minutes.' }}
+                {{ $message ?? 'We are currently setting up your AFNEN account. This usually takes just a few minutes.' }}
             </p>
 
             <!-- Progress Steps -->
@@ -81,7 +81,7 @@
             <div>
                 <a href="http://{{ config('app.central_domain', 'afnon.com') }}" 
                    class="text-sm text-gray-500 hover:text-gray-700 transition-colors">
-                    ← Back to AFNON Home
+                    ← Back to AFNEN Home
                 </a>
             </div>
         </div>
@@ -89,7 +89,7 @@
         <!-- Footer -->
         <div class="text-center mt-8">
             <p class="text-sm text-gray-500">
-                © {{ date('Y') }} AFNON. All rights reserved.
+                © {{ date('Y') }} AFNEN. All rights reserved.
             </p>
         </div>
     </div>

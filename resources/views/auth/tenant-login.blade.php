@@ -6,13 +6,13 @@
                 <div
                     class="mx-auto h-16 w-16 flex items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900 transition-colors duration-200">
                     <div class="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg">
-                        <img src="{{ asset('logo.png') }}" alt="AFNON Logo" class="w-full h-full object-contain">
+                        <img src="{{ asset('logo.png') }}" alt="AFNEN Logo" class="w-full h-full object-contain">
                     </div>
                 </div>
                 <h2 class="mt-6 text-center text-3xl font-bold text-gray-900 dark:text-white">Sign in to your account
                 </h2>
                 <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-                    Access the Afnon Loan Management System
+                    Access the Afnen Loan Management System
                 </p>
             </div>
 

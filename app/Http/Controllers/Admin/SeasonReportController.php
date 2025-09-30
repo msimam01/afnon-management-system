@@ -164,7 +164,7 @@ class SeasonReportController extends Controller
             'pending_applications' => $pendingApplications,
             'approved_applications' => $approvedApplications,
             'outstanding_amount' => $expectedPayments - $actualPayments,
-            'equity_held' => $totalLoanAmount - $totalDisbursed, // 50% held by AFNON
+            'equity_held' => $totalLoanAmount - $totalDisbursed, // 50% held by AFNEN
         ];
     }
 

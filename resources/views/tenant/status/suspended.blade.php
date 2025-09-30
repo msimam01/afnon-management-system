@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Account Suspended - AFNON</title>
+    <title>Account Suspended - AFNEN</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
@@ -33,7 +33,7 @@
             
             <!-- Message -->
             <p class="text-gray-600 mb-6">
-                Your AFNON account has been temporarily suspended and is currently inaccessible.
+                Your AFNEN account has been temporarily suspended and is currently inaccessible.
             </p>
 
             @if($reason)
@@ -85,14 +85,14 @@
                 <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                 </svg>
-                Go to AFNON Home
+                Go to AFNEN Home
             </a>
         </div>
 
         <!-- Footer -->
         <div class="text-center mt-8">
             <p class="text-sm text-gray-500">
-                © {{ date('Y') }} AFNON. All rights reserved.
+                © {{ date('Y') }} AFNEN. All rights reserved.
             </p>
         </div>
     </div>

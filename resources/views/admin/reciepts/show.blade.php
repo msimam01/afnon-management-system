@@ -9,7 +9,7 @@
             <div><strong class="text-gray-600 dark:text-gray-300">Farmer:</strong> {{ $return->application->farmer->full_name }}</div>
             <div><strong class="text-gray-600 dark:text-gray-300">Phone:</strong> {{ $return->application->farmer->phone }}</div>
             <div><strong class="text-gray-600 dark:text-gray-300">Season:</strong> {{ $return->application->season->name }}</div>
-            <div><strong class="text-gray-600 dark:text-gray-300">Amount:</strong> ₦{{ number_format($return->amount, 2) }}</div>
+            <div><strong class="text-gray-600 dark:text-gray-300">Amount:</strong> N{{ number_format($return->amount, 2) }}</div>
         </div>
 
         <hr class="border-gray-200 dark:border-gray-600">

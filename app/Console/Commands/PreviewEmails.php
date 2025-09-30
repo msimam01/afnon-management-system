@@ -55,7 +55,7 @@ class PreviewEmails extends Command
             'email' => 'john.doe@example.com',
             'phone' => '+234 801 234 5678',
             'subject' => 'Inquiry about farming programs',
-            'message' => 'Hello, I am interested in learning more about the farming programs offered by AFNON. Could you please provide me with more information about the available courses and how to apply?',
+            'message' => 'Hello, I am interested in learning more about the farming programs offered by AFNEN. Could you please provide me with more information about the available courses and how to apply?',
             'ip_address' => '192.168.1.1',
             'user_agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
             'created_at' => now(),

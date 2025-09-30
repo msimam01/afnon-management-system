@@ -376,7 +376,7 @@
                 <div class="bg-white dark:bg-blue-800 rounded-lg p-4 inline-block">
                     <p class="text-sm text-blue-800 dark:text-blue-200 font-medium">
                         Payment Model: Upfront Payment Only<br>
-                        <span class="text-xs text-blue-600 dark:text-blue-300">50% payment + 50% equity held by AFNON</span>
+                        <span class="text-xs text-blue-600 dark:text-blue-300">50% payment + 50% equity held by AFNEN</span>
                     </p>
                 </div>
             </div>

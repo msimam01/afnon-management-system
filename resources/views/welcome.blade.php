@@ -31,7 +31,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $isCentral ? ($setting->name ?? 'AFNON - Empowering Nigerian Farmers') : ((ucfirst($tenant?->id) ?? 'Unknown') . ' Portal') }}</title>
+    <title>{{ $isCentral ? ($setting->name ?? 'AFNEN - Empowering Nigerian Farmers') : ((ucfirst($tenant?->id) ?? 'Unknown') . ' Portal') }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/alpinejs" defer></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -297,10 +297,10 @@
                 <!-- Logo -->
                 <div class="flex items-center space-x-3">
                     <div class="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg">
-                        <img src="{{ asset('logo.png') }}" alt="AFNON Logo" class="w-full h-full object-contain">
+                        <img src="{{ asset('logo.png') }}" alt="AFNEN Logo" class="w-full h-full object-contain">
                     </div>
                     <div>
-                        <h1 class="text-2xl font-bold text-emerald-800">{{ $isCentral ? $setting->name ?? 'AFNON' : ($tenant->short_name ?? strtoupper($tenant->id)) . ' STATE CHAPTER' }}</h1>
+                        <h1 class="text-2xl font-bold text-emerald-800">{{ $isCentral ? $setting->name ?? 'AFNEN' : ($tenant->short_name ?? strtoupper($tenant->id)) . ' STATE CHAPTER' }}</h1>
                         <p class="text-xs text-emerald-600 font-medium">Association Of Farmers In The Northeast Of Nigeria</p>
                     </div>
                 </div>
@@ -469,13 +469,13 @@
                 <div class="animate-fade-in">
                     <div class="inline-flex items-center gap-2 bg-emerald-100 text-emerald-800 px-4 py-2 rounded-full text-sm font-medium mb-6">
                         <i class="fas fa-info-circle"></i>
-                        About AFNON
+                        About AFNEN
                     </div>
                     <h2 class="text-4xl font-bold text-gray-900 mb-6">
                         Leading Agricultural Innovation in Nigeria
                     </h2>
                     <p class="text-lg text-gray-600 mb-6 leading-relaxed">
-                        AFNON (Association of Farmers in the Northeast of Nigeria) is a pioneering private-sector initiative that bridges the gap between Nigerian farmers and modern agricultural opportunities.
+                        AFNEN (Association of Farmers in the Northeast of Nigeria) is a pioneering private-sector initiative that bridges the gap between Nigerian farmers and modern agricultural opportunities.
                     </p>
                     <p class="text-gray-600 mb-8 leading-relaxed">
                         Through strategic public-private partnerships, we provide comprehensive support including seasonal inputs, accessible loans, mechanization services, and cutting-edge farming techniques to farmers across Nigeria.
@@ -915,7 +915,7 @@
                     What Our Farmers Say
                 </h2>
                 <p class="text-xl text-gray-600 max-w-3xl mx-auto">
-                    Hear from farmers who have transformed their lives through AFNON's programs
+                    Hear from farmers who have transformed their lives through AFNEN's programs
                 </p>
             </div>
 
@@ -930,7 +930,7 @@
                         <i class="fas fa-star text-yellow-400"></i>
                     </div>
                     <p class="text-gray-600 mb-6 leading-relaxed italic">
-                        "AFNON transformed my farming business. The quality inputs and support helped me double my yield this season. I'm forever grateful!"
+                        "AFNEN transformed my farming business. The quality inputs and support helped me double my yield this season. I'm forever grateful!"
                     </p>
                     <div class="flex items-center gap-4">
                         <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
@@ -1191,7 +1191,7 @@
                     Ready to Transform Your Farm?
                 </h2>
                 <p class="text-xl text-white/90 mb-8 max-w-2xl mx-auto leading-relaxed">
-                    Join thousands of successful farmers who have already improved their productivity and income through AFNON's comprehensive agricultural support program.
+                    Join thousands of successful farmers who have already improved their productivity and income through AFNEN's comprehensive agricultural support program.
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
                     @if (!$isCentral)
@@ -1247,10 +1247,10 @@
                 <div class="lg:col-span-1">
                     <div class="flex items-center space-x-3 mb-4">
                         <div class="w-10 h-10 rounded-lg flex items-center justify-center">
-                            <img src="{{ asset('logo.png') }}" alt="AFNON Logo" class="w-6 h-6 object-contain">
+                            <img src="{{ asset('logo.png') }}" alt="AFNEN Logo" class="w-6 h-6 object-contain">
                         </div>
                         <div>
-                            <h3 class="text-xl font-bold">AFNON</h3>
+                            <h3 class="text-xl font-bold">AFNEN</h3>
                             <p class="text-xs text-emerald-400">Association Of Farmers In The Northeast Of Nigeria</p>
                         </div>
                     </div>
@@ -1365,7 +1365,7 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 <div class="flex flex-col md:flex-row justify-between items-center">
                     <div class="text-gray-400 text-sm mb-4 md:mb-0">
-                        © 2025 AFNON (Association Of Farmers In The Northeast Nigeria). All rights reserved.
+                        © 2025 AFNEN (Association Of Farmers In The Northeast Nigeria). All rights reserved.
                     </div>
                     <div class="flex space-x-6 text-sm">
                         <a href="#" class="text-gray-400 hover:text-emerald-400 transition-colors">Privacy Policy</a>
@@ -1515,9 +1515,9 @@
     <div id="loading-screen" class="fixed inset-0 bg-emerald-600 flex items-center justify-center z-50 transition-opacity duration-500">
         <div class="text-center text-white">
             <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mb-4 mx-auto animate-bounce">
-                <img src="{{ asset('logo.png') }}" alt="AFNON Logo" class="w-10 h-10 object-contain">
+                <img src="{{ asset('logo.png') }}" alt="AFNEN Logo" class="w-10 h-10 object-contain">
             </div>
-            <h2 class="text-2xl font-bold mb-2">AFNON</h2>
+            <h2 class="text-2xl font-bold mb-2">AFNEN</h2>
             <p class="text-emerald-100">Loading...</p>
         </div>
     </div>
