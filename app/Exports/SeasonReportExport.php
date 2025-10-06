@@ -5,41 +5,68 @@ namespace App\Exports;
 use App\Models\Season;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Illuminate\Support\Collection;
 
-class SeasonReportExport implements WithMultipleSheets
+class SeasonReportExport implements FromCollection, WithHeadings, WithTitle
 {
     protected $season;
-    protected $statistics;
-    protected $collectionInsights;
-    protected $financialInsights;
-    protected $commodityInsights;
+    protected $farmerDetails;
 
-    public function __construct(Season $season, $statistics, $collectionInsights, $financialInsights, $commodityInsights)
+    public function __construct(Season $season, $farmerDetails = null)
     {
         $this->season = $season;
-        $this->statistics = $statistics;
-        $this->collectionInsights = $collectionInsights;
-        $this->financialInsights = $financialInsights;
-        $this->commodityInsights = $commodityInsights;
+        $this->farmerDetails = $farmerDetails;
     }
 
-    public function sheets(): array
+    public function collection()
     {
-        $sheets = [
-            new SeasonOverviewSheet($this->season, $this->statistics),
-            new CommodityCollectionsSheet($this->collectionInsights),
-            new FinancialInsightsSheet($this->financialInsights),
-        ];
+        $data = collect();
 
-        // Add commodity returns sheet only for complete loan seasons
-        if ($this->commodityInsights && count($this->commodityInsights) > 0) {
-            $sheets[] = new CommodityReturnsSheet($this->commodityInsights);
+        if (!$this->farmerDetails || !is_array($this->farmerDetails) || count($this->farmerDetails) === 0) {
+            $data->push([
+                'No Data',
+                'No Data',
+                'No Data',
+                'No Data',
+                '0.00',
+                '0.00',
+                '0 units'
+            ]);
+            return $data;
         }
 
-        return $sheets;
+        foreach ($this->farmerDetails as $farmer) {
+            $data->push([
+                $farmer['farmer_name'] ?? 'No Name',
+                $farmer['phone'] ?? 'No Phone',
+                $farmer['bvn'] ?: 'N/A',
+                $farmer['nin'] ?: 'N/A',
+                isset($farmer['total_loan']) ? number_format($farmer['total_loan'], 2) : '0.00',
+                isset($farmer['disbursed_amount']) ? number_format($farmer['disbursed_amount'], 2) : '0.00',
+                isset($farmer['total_commodity_allocated']) ? number_format($farmer['total_commodity_allocated'], 2) . ' ' . ($farmer['commodity_units'] ?: 'units') : '0 units'
+            ]);
+        }
+
+        return $data;
+    }
+
+    public function headings(): array
+    {
+        return [
+            'Farmer Name',
+            'Phone',
+            'BVN',
+            'NIN',
+            'Total Loan (₦)',
+            'Disbursed Amount (₦)',
+            'Total Commodity Allocated'
+        ];
+    }
+
+    public function title(): string
+    {
+        return $this->season->name . ' - Farmer Details';
     }
 }
 
@@ -225,6 +252,81 @@ class FinancialInsightsSheet implements FromCollection, WithHeadings, WithTitle
     public function title(): string
     {
         return 'Financial Insights';
+    }
+}
+
+class FarmerDetailsSheet implements FromCollection, WithHeadings, WithTitle
+{
+    protected $season;
+    protected $farmerDetails;
+
+    public function __construct(Season $season, $farmerDetails)
+    {
+        $this->season = $season;
+        $this->farmerDetails = $farmerDetails;
+    }
+
+    public function collection()
+    {
+        $data = collect();
+
+        // Debug information
+        $data->push(['Debug - Farmer Details Count: ' . (is_array($this->farmerDetails) ? count($this->farmerDetails) : 'Not an array')]);
+        $data->push(['Debug - Farmer Details: ' . (is_array($this->farmerDetails) ? 'Array' : gettype($this->farmerDetails))]);
+
+        if (!$this->farmerDetails || !is_array($this->farmerDetails) || count($this->farmerDetails) === 0) {
+            $data->push(['No farmer details available for this season']);
+            $data->push(['This might indicate no approved applications exist for this season']);
+            return $data;
+        }
+
+        $data->push(['Season: ' . $this->season->name . ' (' . ucfirst(str_replace('-', ' ', $this->season->loan_type)) . ')']);
+        $data->push(['Total Farmers: ' . count($this->farmerDetails)]);
+        $data->push([]); // Empty row
+
+        // Headers - Only the requested fields
+        $data->push([
+            'Farmer Name',
+            'Phone',
+            'BVN',
+            'NIN',
+            'Total Loan (₦)',
+            'Disbursed Amount (₦)',
+            'Total Commodity Allocated'
+        ]);
+
+        // Farmer data - Only the requested fields
+        foreach ($this->farmerDetails as $farmer) {
+            $data->push([
+                $farmer['farmer_name'] ?? 'No Name',
+                $farmer['phone'] ?? 'No Phone',
+                $farmer['bvn'] ?: 'N/A',
+                $farmer['nin'] ?: 'N/A',
+                isset($farmer['total_loan']) ? number_format($farmer['total_loan'], 2) : '0.00',
+                isset($farmer['disbursed_amount']) ? number_format($farmer['disbursed_amount'], 2) : '0.00',
+                isset($farmer['total_commodity_allocated']) ? number_format($farmer['total_commodity_allocated'], 2) . ' ' . ($farmer['commodity_units'] ?: 'units') : '0 units'
+            ]);
+        }
+
+        return $data;
+    }
+
+    public function headings(): array
+    {
+        return [
+            'Farmer Name',
+            'Phone',
+            'BVN',
+            'NIN',
+            'Total Loan (₦)',
+            'Disbursed Amount (₦)',
+            'Total Commodity Allocated'
+        ];
+    }
+
+    public function title(): string
+    {
+        return 'Farmer Details';
     }
 }
 

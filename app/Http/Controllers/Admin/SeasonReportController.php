@@ -31,22 +31,26 @@ class SeasonReportController extends Controller
     {
         // Basic season statistics
         $statistics = $this->getSeasonStatistics($season);
-        
+
         // Collection insights
         $collectionInsights = $this->getCollectionInsights($season);
-        
+
         // Financial insights
         $financialInsights = $this->getFinancialInsights($season);
-        
+
         // Commodity insights
         $commodityInsights = $this->getCommodityInsights($season);
 
+        // Farmer details
+        $farmerDetails = $this->getFarmerDetails($season);
+
         return view('admin.reports.seasons.show', compact(
-            'season', 
-            'statistics', 
-            'collectionInsights', 
-            'financialInsights', 
-            'commodityInsights'
+            'season',
+            'statistics',
+            'collectionInsights',
+            'financialInsights',
+            'commodityInsights',
+            'farmerDetails'
         ));
     }
 
@@ -57,7 +61,7 @@ class SeasonReportController extends Controller
         $collectedApplications = $season->applications()
             ->whereHas('collectionVerification')
             ->count();
-        
+
         // All approved applications in this season follow the season's loan type
         $coFundedApplications = $season->loan_type === 'co-funded' ? $approvedApplications : 0;
         $completeLoanApplications = $season->loan_type === 'complete-loan' ? $approvedApplications : 0;
@@ -253,9 +257,9 @@ class SeasonReportController extends Controller
 
                 if ($currentPrice && $currentPrice > 0) {
                     $expectedQuantity = $application->total_loan / $currentPrice;
-                    
+
                     $commodityName = $seedCommodity->commodity->name;
-                    
+
                     if (!isset($expectedReturns[$commodityName])) {
                         $expectedReturns[$commodityName] = [
                             'commodity_name' => $commodityName,
@@ -284,19 +288,85 @@ class SeasonReportController extends Controller
         return array_values($expectedReturns);
     }
 
+    private function getFarmerDetails(Season $season)
+    {
+        $applications = $season->applications()
+            ->with([
+                'farmer:id,full_name,phone,bvn,nin,registration_number',
+                'monetaryReturn:id,amount,status,application_id',
+                'collectionVerification:id,status,application_id',
+                'commodity_allocations:id,application_id,commodity_name,allocated_quantity',
+                'applicationCommodities.commodity:id,name,unit'
+            ])
+            ->where('status', 'approved')
+            ->get();
+
+        $farmerDetails = [];
+
+        foreach ($applications as $application) {
+            $farmer = $application->farmer;
+            $monetaryReturn = $application->monetaryReturn;
+
+            // Calculate total commodity allocated
+            $totalCommodityAllocated = $application->commodity_allocations->sum('allocated_quantity');
+            $commodityUnits = $application->applicationCommodities->pluck('commodity.unit')->unique()->implode(', ');
+
+            // Calculate payment information based on loan type
+            if ($season->loan_type === 'co-funded') {
+                $totalLoan = $application->total_loan;
+                $disbursedAmount = $application->disbursed_amount;
+                $expectedPayment = $disbursedAmount;
+                $actualPayment = $monetaryReturn ? $monetaryReturn->amount : 0;
+                $paymentStatus = $application->payment_status;
+                $outstandingAmount = $expectedPayment - $actualPayment;
+            } else {
+                // Complete loan - no upfront payment required
+                $totalLoan = $application->total_loan;
+                $disbursedAmount = $application->total_loan; // Full amount disbursed as commodities
+                $expectedPayment = 0; // No monetary payment expected
+                $actualPayment = 0;
+                $paymentStatus = 'no_payment_required';
+                $outstandingAmount = 0;
+            }
+
+            $farmerDetails[] = [
+                'farmer_name' => $farmer->full_name,
+                'phone' => $farmer->phone,
+                'bvn' => $farmer->bvn,
+                'nin' => $farmer->nin,
+                'total_loan' => $totalLoan,
+                'disbursed_amount' => $disbursedAmount,
+                'total_commodity_allocated' => $totalCommodityAllocated,
+                'commodity_units' => $commodityUnits,
+                'application_reference' => $application->reference_number,
+                'loan_type' => $season->loan_type,
+                'payment_status' => $paymentStatus,
+                'expected_payment' => $expectedPayment,
+                'actual_payment' => $actualPayment,
+                'outstanding_amount' => $outstandingAmount,
+                'collection_status' => $application->collectionVerification ? $application->collectionVerification->status : 'pending',
+                'payment_date' => $monetaryReturn ? $monetaryReturn->created_at : null,
+            ];
+        }
+
+        return $farmerDetails;
+    }
+
     public function exportPdf(Season $season)
     {
         $statistics = $this->getSeasonStatistics($season);
         $collectionInsights = $this->getCollectionInsights($season);
         $financialInsights = $this->getFinancialInsights($season);
         $commodityInsights = $this->getCommodityInsights($season);
+        $farmerDetails = $this->getFarmerDetails($season);
 
         $pdf = Pdf::loadView('admin.reports.seasons.pdf', compact(
-            'season', 
-            'statistics', 
-            'collectionInsights', 
-            'financialInsights', 
-            'commodityInsights'
+            'season',
+            'statistics',
+            'collectionInsights',
+            'financialInsights',
+            'commodityInsights',
+            'farmerDetails'
         ));
 
         return $pdf->download('season-report-' . $season->slug . '-' . now()->format('Y-m-d') . '.pdf');
@@ -304,14 +374,11 @@ class SeasonReportController extends Controller
 
     public function exportExcel(Season $season)
     {
-        $statistics = $this->getSeasonStatistics($season);
-        $collectionInsights = $this->getCollectionInsights($season);
-        $financialInsights = $this->getFinancialInsights($season);
-        $commodityInsights = $this->getCommodityInsights($season);
+        $farmerDetails = $this->getFarmerDetails($season);
 
         return Excel::download(
-            new \App\Exports\SeasonReportExport($season, $statistics, $collectionInsights, $financialInsights, $commodityInsights),
-            'season-report-' . $season->slug . '-' . now()->format('Y-m-d') . '.xlsx'
+            new \App\Exports\SeasonReportExport($season, $farmerDetails),
+            'season-farmer-report-' . $season->slug . '-' . now()->format('Y-m-d') . '.xlsx'
         );
     }
 }
