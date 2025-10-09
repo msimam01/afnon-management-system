@@ -30,160 +30,120 @@ require __DIR__ . '/auth.php';
 Route::post('/contact', [EnquiryController::class, 'store'])->name('contact.store');
 
 
-// Super Admin routes with comprehensive permission checks
+// Super Admin routes with role check only
 Route::middleware(['web', 'auth', 'central.user.active', 'central-activity-log', 'role:super-admin', 'block-tenant-access'])->prefix('super-admin')->name('superadmin.')->group(function () {
 
     // Dashboard - Most Important
     Route::get('/dashboard', [SuperAdminDashboard::class, 'index'])
-        ->name('dashboard')
-        ->middleware('permission:view_superadmin_dashboard');
+        ->name('dashboard');
 
     // Tenant Management - High Priority
     Route::prefix('tenants')->name('tenants.')->group(function () {
         Route::get('/', [TenantController::class, 'index'])
-            ->name('index')
-            ->middleware('permission:manage_tenants');
+            ->name('index');
         Route::get('/create', [TenantController::class, 'create'])
-            ->name('create')
-            ->middleware('permission:create_tenant');
+            ->name('create');
         Route::post('/', [TenantController::class, 'store'])
-            ->name('store')
-            ->middleware('permission:create_tenant');
+            ->name('store');
         Route::get('/{tenant}', [TenantController::class, 'show'])
-            ->name('show')
-            ->middleware('permission:read_tenant');
+            ->name('show');
         Route::patch('/{tenant}/toggle-status', [TenantController::class, 'toggleStatus'])
-            ->name('toggle-status')
-            ->middleware('permission:change_tenant_status');
+            ->name('toggle-status');
         Route::post('/{tenant}/suspend', [TenantController::class, 'suspend'])
-            ->name('suspend')
-            ->middleware('permission:suspend_tenant');
+            ->name('suspend');
     });
 
     // User Management - High Priority
     Route::prefix('users')->name('users.')->group(function () {
         Route::get('/', [UserController::class, 'index'])
-            ->name('index')
-            ->middleware('permission:manage_central_users');
+            ->name('index');
         Route::post('/store', [UserController::class, 'store'])
-            ->name('store')
-            ->middleware('permission:create_central_user');
+            ->name('store');
         Route::get('/{uuid}/edit', [UserController::class, 'edit'])
-            ->name('edit')
-            ->middleware('permission:update_central_user');
+            ->name('edit');
         Route::put('/{uuid}/update', [UserController::class, 'update'])
-            ->name('update')
-            ->middleware('permission:update_central_user');
+            ->name('update');
         Route::post('/toggle-status', [UserController::class, 'toggleStatus'])
-            ->name('toggle-status')
-            ->middleware('permission:change_central_user_status');
+            ->name('toggle-status');
         Route::delete('/{uuid}', [UserController::class, 'destroy'])
-            ->name('destroy')
-            ->middleware('permission:delete_central_user');
+            ->name('destroy');
         Route::post('/bulk-action', [UserController::class, 'bulkAction'])
-            ->name('bulk-action')
-            ->middleware('permission:manage_central_users');
+            ->name('bulk-action');
     });
 
     // Role and Permission Management - Medium Priority
     Route::prefix('roles')->name('roles.')->group(function () {
         Route::get('/', [RoleController::class, 'index'])
-            ->name('index')
-            ->middleware('permission:manage_central_roles_permissions');
+            ->name('index');
         Route::get('/create', [RoleController::class, 'create'])
-            ->name('create')
-            ->middleware('permission:create_central_role');
+            ->name('create');
         Route::post('/store', [RoleController::class, 'store'])
-            ->name('store')
-            ->middleware('permission:create_central_role');
+            ->name('store');
         Route::get('/{role}/edit', [RoleController::class, 'edit'])
-            ->name('edit')
-            ->middleware('permission:update_central_role');
+            ->name('edit');
         Route::delete('/{role}/delete', [RoleController::class, 'destroy'])
-            ->name('destroy')
-            ->middleware('permission:delete_central_role');
+            ->name('destroy');
         Route::put('/{role}/update', [RoleController::class, 'update'])
-            ->name('update')
-            ->middleware('permission:update_central_role');
+            ->name('update');
         Route::post('/{role}/permissions', [RoleController::class, 'togglePermission'])
-            ->name('toggle-permission')
-            ->middleware('permission:assign_central_permissions');
+            ->name('toggle-permission');
     });
 
     Route::prefix('permissions')->name('permissions.')->group(function () {
         Route::get('/', [PermissionController::class, 'index'])
-            ->name('index')
-            ->middleware('permission:manage_central_roles_permissions');
+            ->name('index');
         Route::get('/create', [PermissionController::class, 'create'])
-            ->name('create')
-            ->middleware('permission:create_central_permission');
+            ->name('create');
         Route::post('/store', [PermissionController::class, 'store'])
-            ->name('store')
-            ->middleware('permission:create_central_permission');
+            ->name('store');
         Route::get('/{permission}/edit', [PermissionController::class, 'edit'])
-            ->name('edit')
-            ->middleware('permission:update_central_permission');
+            ->name('edit');
         Route::put('/{permission}/update', [PermissionController::class, 'update'])
-            ->name('update')
-            ->middleware('permission:update_central_permission');
+            ->name('update');
         Route::delete('/{permission}/delete', [PermissionController::class, 'destroy'])
-            ->name('destroy')
-            ->middleware('permission:delete_central_permission');
+            ->name('destroy');
     });
 
     // Activity Logs - Medium Priority
     Route::prefix('logs')->name('logs.')->group(function () {
         Route::get('/', [LogsController::class, 'index'])
-            ->name('index')
-            ->middleware('permission:view_central_activity_logs');
+            ->name('index');
         Route::get('/export/csv', [LogsController::class, 'export'])
-            ->name('export')
-            ->middleware('permission:export_central_activity_logs');
+            ->name('export');
         Route::get('/api/statistics', [LogsController::class, 'statistics'])
-            ->name('statistics')
-            ->middleware('permission:view_central_system_statistics');
+            ->name('statistics');
         Route::get('/{uuid}', [LogsController::class, 'show'])
-            ->name('show')
-            ->middleware('permission:view_central_activity_logs');
+            ->name('show');
     });
 
     // System Settings - Low Priority
     Route::prefix('settings')->name('settings.')->group(function () {
         Route::get('/', [\App\Http\Controllers\SuperAdmin\SettingController::class, 'index'])
-            ->name('index')
-            ->middleware('permission:manage_central_system_settings');
+            ->name('index');
         Route::post('/', [\App\Http\Controllers\SuperAdmin\SettingController::class, 'store'])
-            ->name('store')
-            ->middleware('permission:update_system_configuration');
+            ->name('store');
     });
 
     // Enquiries Management - Medium Priority
     Route::prefix('enquiries')->name('enquiries.')->group(function () {
         Route::get('/', [\App\Http\Controllers\EnquiryController::class, 'index'])
-            ->name('index')
-            ->middleware('permission:manage_central_enquiries');
+            ->name('index');
         Route::get('/{enquiry}', [\App\Http\Controllers\EnquiryController::class, 'show'])
-            ->name('show')
-            ->middleware('permission:read_central_enquiry');
+            ->name('show');
         Route::post('/{enquiry}/mark-spam', [\App\Http\Controllers\EnquiryController::class, 'markAsSpam'])
-            ->name('mark-spam')
-            ->middleware('permission:manage_central_enquiries');
+            ->name('mark-spam');
         Route::post('/{enquiry}/mark-not-spam', [\App\Http\Controllers\EnquiryController::class, 'markAsNotSpam'])
-            ->name('mark-not-spam')
-            ->middleware('permission:manage_central_enquiries');
+            ->name('mark-not-spam');
         Route::delete('/{enquiry}', [\App\Http\Controllers\EnquiryController::class, 'destroy'])
-            ->name('destroy')
-            ->middleware('permission:delete_central_enquiry');
+            ->name('destroy');
     });
 
     // Profile Management - Always accessible
     Route::middleware('auth')->group(function () {
         Route::get('/profile', [ProfileController::class, 'edit'])
-            ->name('profile.edit')
-            ->middleware('permission:view_own_profile');
+            ->name('profile.edit');
         Route::put('/profile', [ProfileController::class, 'update'])
-            ->name('profile.update')
-            ->middleware('permission:update_own_profile');
+            ->name('profile.update');
     });
 });
 

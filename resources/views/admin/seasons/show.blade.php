@@ -94,12 +94,12 @@
         {{-- Commodity Distribution Table --}}
         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-3">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white">🧺 Commodities Distribution</h3>
-            <div class="flex flex-wrap gap-2">
+            {{-- <div class="flex flex-wrap gap-2">
                 <a href="{{ route('admin.seasons.export', $season->uuid) }}"
                    class="text-sm bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700">
                    Export Excel
                 </a>
-            </div>
+            </div> --}}
         </div>
 
         @if ($commodities->isEmpty())

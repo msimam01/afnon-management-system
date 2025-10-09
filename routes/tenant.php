@@ -79,334 +79,245 @@ Route::middleware([
         // Unified dashboard route - redirects based on user role
         Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
     });
-    // Admin routes inside tenant with comprehensive permission checks
+    // Admin routes inside tenant with role check only
     Route::middleware(['auth:tenant', 'tenant.user.active', 'tenant-activity-log', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
 
         // Dashboard - Most Important
         Route::get('dashboard', [AdminDashboard::class, 'index'])
-            ->name('dashboard')
-            ->middleware('permission:view_admin_dashboard');
+            ->name('dashboard');
 
         // Applications - High Priority (Core Business Function)
         Route::prefix('applications')->name('applications.')->group(function () {
             Route::get('/', [ApplicationController::class, 'index'])
-                ->name('index')
-                ->middleware('permission:manage_applications');
+                ->name('index');
             Route::get('/{uuid}', [ApplicationController::class, 'show'])
-                ->name('show')
-                ->middleware('permission:read_application');
+                ->name('show');
             Route::put('/{uuid}/approve', [ApplicationController::class, 'approve'])
-                ->name('approve')
-                ->middleware('permission:approve_application');
+                ->name('approve');
             Route::put('/{uuid}/reject', [ApplicationController::class, 'reject'])
-                ->name('reject')
-                ->middleware('permission:reject_application');
+                ->name('reject');
             Route::post('/bulk-approve', [ApplicationController::class, 'bulkApprove'])
-                ->name('bulk-approve')
-                ->middleware('permission:bulk_approve_applications');
+                ->name('bulk-approve');
             Route::post('/bulk-reject', [ApplicationController::class, 'bulkReject'])
-                ->name('bulk-reject')
-                ->middleware('permission:bulk_reject_applications');
+                ->name('bulk-reject');
         });
 
         // Verifications - High Priority (Core Business Function)
         Route::prefix('verifications')->name('verifications.')->group(function () {
             Route::get('/', [AdminVerificationController::class, 'index'])
-                ->name('index')
-                ->middleware('permission:manage_verifications');
+                ->name('index');
             Route::post('/bulk-approve', [AdminVerificationController::class, 'bulkApprove'])
-                ->name('bulk-approve')
-                ->middleware('permission:bulk_verify_items');
+                ->name('bulk-approve');
             Route::post('/verify', [AdminVerificationController::class, 'verifySingle'])
-                ->name('verify')
-                ->middleware('permission:update_verification');
+                ->name('verify');
         });
 
         // API routes for verifications (separate from main verifications routes)
         Route::prefix('api')->name('api.')->group(function () {
             Route::get('/verifications', [AdminVerificationController::class, 'getVerifications'])
-                ->name('verifications')
-                ->middleware('permission:read_verification');
+                ->name('verifications');
         });
 
         // User Management - High Priority
         Route::prefix('users')->name('users.')->group(function () {
             Route::get('/', [UserController::class, 'index'])
-                ->name('index')
-                ->middleware('permission:manage_users');
+                ->name('index');
             Route::post('/store', [UserController::class, 'store'])
-                ->name('store')
-                ->middleware('permission:create_user');
+                ->name('store');
             Route::get('/{uuid}/edit', [UserController::class, 'edit'])
-                ->name('edit')
-                ->middleware('permission:update_user');
+                ->name('edit');
             Route::put('/{uuid}/update', [UserController::class, 'update'])
-                ->name('update')
-                ->middleware('permission:update_user');
+                ->name('update');
             Route::post('/toggle-status', [UserController::class, 'toggleStatus'])
-                ->name('toggle-status')
-                ->middleware('permission:change_user_status');
+                ->name('toggle-status');
             Route::delete('/{uuid}', [UserController::class, 'destroy'])
-                ->name('destroy')
-                ->middleware('permission:delete_user');
+                ->name('destroy');
             Route::post('/bulk-action', [UserController::class, 'bulkAction'])
-                ->name('bulk-action')
-                ->middleware('permission:bulk_user_actions');
+                ->name('bulk-action');
         });
 
         // Agent Management - High Priority
         Route::prefix('agents')->name('agents.')->group(function () {
             Route::get('/', [AgentController::class, 'index'])
-                ->name('index')
-                ->middleware('permission:manage_agents');
+                ->name('index');
             Route::post('/store', [AgentController::class, 'store'])
-                ->name('store')
-                ->middleware('permission:create_agent');
+                ->name('store');
             Route::get('/{uuid}/edit', [AgentController::class, 'edit'])
-                ->name('edit')
-                ->middleware('permission:update_agent');
+                ->name('edit');
             Route::put('/{uuid}/update', [AgentController::class, 'update'])
-                ->name('update')
-                ->middleware('permission:update_agent');
+                ->name('update');
             Route::delete('/{uuid}/delete', [AgentController::class, 'destroy'])
-                ->name('destroy')
-                ->middleware('permission:delete_agent');
+                ->name('destroy');
         });
         // Commodity Management - Medium Priority
         Route::prefix('commodities')->name('commodities.')->group(function () {
             Route::get('/', [CommodityController::class, 'index'])
-                ->name('index')
-                ->middleware('permission:manage_commodities');
+                ->name('index');
             Route::get('/create', [CommodityController::class, 'create'])
-                ->name('create')
-                ->middleware('permission:create_commodity');
+                ->name('create');
             Route::post('/', [CommodityController::class, 'store'])
-                ->name('store')
-                ->middleware('permission:create_commodity');
+                ->name('store');
             Route::get('/{uuid}/edit', [CommodityController::class, 'edit'])
-                ->name('edit')
-                ->middleware('permission:update_commodity');
+                ->name('edit');
             Route::put('/{uuid}', [CommodityController::class, 'update'])
-                ->name('update')
-                ->middleware('permission:update_commodity');
+                ->name('update');
             Route::delete('/{uuid}', [CommodityController::class, 'destroy'])
-                ->name('destroy')
-                ->middleware('permission:delete_commodity');
+                ->name('destroy');
             Route::post('/market-price', [CommodityMarketPriceController::class, 'store'])
-                ->name('market-price')
-                ->middleware('permission:add_commodity_market_price');
+                ->name('market-price');
             Route::post('/category', [CommodityCategoryController::class, 'store'])
-                ->name('category')
-                ->middleware('permission:manage_commodity_categories');
+                ->name('category');
         });
 
         // Center Management - Medium Priority
         Route::prefix('centers')->name('centers.')->group(function () {
             Route::get('/', [CollectionCenters::class, 'index'])
-                ->name('index')
-                ->middleware('permission:manage_centers');
+                ->name('index');
             Route::get('/create', [CollectionCenters::class, 'create'])
-                ->name('create')
-                ->middleware('permission:create_center');
+                ->name('create');
             Route::post('/', [CollectionCenters::class, 'store'])
-                ->name('store')
-                ->middleware('permission:create_center');
+                ->name('store');
             Route::get('/{uuid}/edit', [CollectionCenters::class, 'edit'])
-                ->name('edit')
-                ->middleware('permission:update_center');
+                ->name('edit');
             Route::put('/{uuid}', [CollectionCenters::class, 'update'])
-                ->name('update')
-                ->middleware('permission:update_center');
+                ->name('update');
             Route::delete('/{uuid}', [CollectionCenters::class, 'destroy'])
-                ->name('destroy')
-                ->middleware('permission:delete_center');
+                ->name('destroy');
         });
 
         // Season Management - Medium Priority
         Route::prefix('seasons')->name('seasons.')->group(function () {
             Route::get('/', [\App\Http\Controllers\Tenant\Admin\SeasonController::class, 'index'])
-                ->name('index')
-                ->middleware('permission:manage_seasons');
+                ->name('index');
             Route::get('/create', [\App\Http\Controllers\Tenant\Admin\SeasonController::class, 'create'])
-                ->name('create')
-                ->middleware('permission:create_season');
+                ->name('create');
             Route::post('/', [\App\Http\Controllers\Tenant\Admin\SeasonController::class, 'store'])
-                ->name('store')
-                ->middleware('permission:create_season');
+                ->name('store');
             Route::get('/{season}', [\App\Http\Controllers\Tenant\Admin\SeasonController::class, 'show'])
-                ->name('show')
-                ->middleware('permission:read_season');
+                ->name('show');
             Route::get('/{season}/edit', [\App\Http\Controllers\Tenant\Admin\SeasonController::class, 'edit'])
-                ->name('edit')
-                ->middleware('permission:update_season');
+                ->name('edit');
             Route::put('/{season}', [\App\Http\Controllers\Tenant\Admin\SeasonController::class, 'update'])
-                ->name('update')
-                ->middleware('permission:update_season');
+                ->name('update');
             Route::delete('/{season}', [\App\Http\Controllers\Tenant\Admin\SeasonController::class, 'destroy'])
-                ->name('destroy')
-                ->middleware('permission:delete_season');
+                ->name('destroy');
             Route::get('/{season}/export', [\App\Http\Controllers\Tenant\Admin\SeasonController::class, 'export'])
-                ->name('export')
-                ->middleware('permission:export_season_data');
+                ->name('export');
             Route::put('/{season}/close', [\App\Http\Controllers\Tenant\Admin\SeasonController::class, 'close'])
-                ->name('close')
-                ->middleware('permission:close_season');
+                ->name('close');
             Route::put('/{season}/reopen', [\App\Http\Controllers\Tenant\Admin\SeasonController::class, 'reopen'])
-                ->name('reopen')
-                ->middleware('permission:reopen_season');
+                ->name('reopen');
         });
 
         // Monetary Returns - Medium Priority
-        Route::get('monetary-returns', [MonetaryReturnVerificationController::class, 'index'])
-            ->name('monetary-returns')
-            ->middleware('permission:manage_monetary_returns');
-        Route::get('monetary-returns/{uuid}', [MonetaryReturnVerificationController::class, 'show'])
-            ->name('monetary-returns.show')
-            ->middleware('permission:manage_monetary_returns');
-        Route::get('monetary-returns/{uuid}/report', [MonetaryReturnVerificationController::class, 'generateReport'])
-            ->name('monetary-returns.report')
-            ->middleware('permission:manage_monetary_returns');
-        Route::get('monetary-returns/{uuid}/export', [MonetaryReturnVerificationController::class, 'export'])
-            ->name('monetary-returns.export')
-            ->middleware('permission:export_reports');
+        Route::get('transactions', [MonetaryReturnVerificationController::class, 'index'])
+            ->name('monetary-returns');
+        Route::get('transactions/{uuid}', [MonetaryReturnVerificationController::class, 'show'])
+            ->name('monetary-returns.show');
+        Route::get('transactions/{uuid}/report', [MonetaryReturnVerificationController::class, 'generateReport'])
+            ->name('monetary-returns.report');
+        Route::get('transactions/{uuid}/export', [MonetaryReturnVerificationController::class, 'export'])
+            ->name('monetary-returns.export');
 
         // Reports - Medium Priority
         Route::prefix('reports')->name('reports.')->group(function () {
             Route::get('applications', [AdminReportController::class, 'applications'])
-                ->name('applications')
-                ->middleware('permission:view_application_reports');
+                ->name('applications');
             Route::get('collections', [AdminReportController::class, 'collections'])
-                ->name('collections')
-                ->middleware('permission:view_verification_reports');
+                ->name('collections');
             Route::get('returns', [AdminReportController::class, 'returns'])
-                ->name('returns')
-                ->middleware('permission:view_verification_reports');
-            Route::get('monetary-returns', [MonetaryReturnVerificationController::class, 'reports'])
-                ->name('monetary-returns')
-                ->middleware('permission:view_application_reports');
-            Route::get('monetary-returns/export-all', [MonetaryReturnVerificationController::class, 'exportAll'])
-                ->name('monetary-returns.export.all')
-                ->middleware('permission:export_reports');
-            Route::get('monetary-returns/pdf', [MonetaryReturnVerificationController::class, 'exportPdf'])
-                ->name('monetary-returns.pdf')
-                ->middleware('permission:export_reports');
+                ->name('returns');
+            Route::get('transactions', [MonetaryReturnVerificationController::class, 'reports'])
+                ->name('monetary-returns');
+            Route::get('transactions/export-all', [MonetaryReturnVerificationController::class, 'exportAll'])
+                ->name('monetary-returns.export.all');
+            Route::get('transactions/pdf', [MonetaryReturnVerificationController::class, 'exportPdf'])
+                ->name('monetary-returns.pdf');
             Route::get('export', [AdminReportController::class, 'export'])
-                ->name('export')
-                ->middleware('permission:export_reports');
+                ->name('export');
             Route::get('export-excel', [AdminReportController::class, 'exportExcel'])
-                ->name('exportExcel')
-                ->middleware('permission:export_reports');
+                ->name('exportExcel');
             Route::get('export-collections', [AdminReportController::class, 'exportCollections'])
-                ->name('exportCollections')
-                ->middleware('permission:export_reports');
+                ->name('exportCollections');
             Route::get('export-returns', [AdminReportController::class, 'exportReturns'])
-                ->name('exportReturns')
-                ->middleware('permission:export_reports');
+                ->name('exportReturns');
 
             // Season Reports
             Route::prefix('seasons')->name('seasons.')->group(function () {
                 Route::get('/', [\App\Http\Controllers\Admin\SeasonReportController::class, 'index'])
-                    ->name('index')
-                    ->middleware('permission:view_application_reports');
+                    ->name('index');
                 Route::get('{season}', [\App\Http\Controllers\Admin\SeasonReportController::class, 'show'])
-                    ->name('show')
-                    ->middleware('permission:view_application_reports');
+                    ->name('show');
                 Route::get('{season}/pdf', [\App\Http\Controllers\Admin\SeasonReportController::class, 'exportPdf'])
-                    ->name('pdf')
-                    ->middleware('permission:export_reports');
+                    ->name('pdf');
                 Route::get('{season}/excel', [\App\Http\Controllers\Admin\SeasonReportController::class, 'exportExcel'])
-                    ->name('excel')
-                    ->middleware('permission:export_reports');
+                    ->name('excel');
             });
         });
 
         // Role and Permission Management - Low Priority
         Route::prefix('roles')->name('roles.')->group(function () {
             Route::get('/', [RoleController::class, 'index'])
-                ->name('index')
-                ->middleware('permission:manage_roles_permissions');
+                ->name('index');
             Route::get('/create', [RoleController::class, 'create'])
-                ->name('create')
-                ->middleware('permission:create_role');
+                ->name('create');
             Route::post('/store', [RoleController::class, 'store'])
-                ->name('store')
-                ->middleware('permission:create_role');
+                ->name('store');
             Route::get('/{role}/edit', [RoleController::class, 'edit'])
-                ->name('edit')
-                ->middleware('permission:update_role');
+                ->name('edit');
             Route::delete('/{role}/delete', [RoleController::class, 'destroy'])
-                ->name('destroy')
-                ->middleware('permission:delete_role');
+                ->name('destroy');
             Route::put('/{role}/update', [RoleController::class, 'update'])
-                ->name('update')
-                ->middleware('permission:update_role');
+                ->name('update');
             Route::post('/{role}/permissions', [RoleController::class, 'togglePermission'])
-                ->name('toggle-permission')
-                ->middleware('permission:assign_permissions');
+                ->name('toggle-permission');
         });
 
         Route::prefix('permissions')->name('permissions.')->group(function () {
             Route::get('/', [PermissionController::class, 'index'])
-                ->name('index')
-                ->middleware('permission:manage_roles_permissions');
+                ->name('index');
             Route::get('/create', [PermissionController::class, 'create'])
-                ->name('create')
-                ->middleware('permission:create_permission');
+                ->name('create');
             Route::post('/store', [PermissionController::class, 'store'])
-                ->name('store')
-                ->middleware('permission:create_permission');
+                ->name('store');
             Route::get('/{permission}/edit', [PermissionController::class, 'edit'])
-                ->name('edit')
-                ->middleware('permission:update_permission');
+                ->name('edit');
             Route::put('/{permission}/update', [PermissionController::class, 'update'])
-                ->name('update')
-                ->middleware('permission:update_permission');
+                ->name('update');
             Route::delete('/{permission}/delete', [PermissionController::class, 'destroy'])
-                ->name('destroy')
-                ->middleware('permission:delete_permission');
+                ->name('destroy');
         });
 
         // Activity Logs - Low Priority
         Route::prefix('logs')->name('logs.')->group(function () {
             Route::get('/', [\App\Http\Controllers\Admin\LogController::class, 'index'])
-                ->name('index')
-                ->middleware('permission:view_activity_logs');
+                ->name('index');
             Route::get('/export/csv', [\App\Http\Controllers\Admin\LogController::class, 'export'])
-                ->name('export')
-                ->middleware('permission:export_activity_logs');
+                ->name('export');
             Route::get('/api/statistics', [\App\Http\Controllers\Admin\LogController::class, 'statistics'])
-                ->name('statistics')
-                ->middleware('permission:view_system_statistics');
+                ->name('statistics');
             Route::get('/{uuid}', [\App\Http\Controllers\Admin\LogController::class, 'show'])
-                ->name('show')
-                ->middleware('permission:view_activity_logs');
+                ->name('show');
         });
 
         // Settings - Low Priority
         Route::get('settings', [\App\Http\Controllers\Tenant\Admin\SettingController::class, 'index'])
-            ->name('settings')
-            ->middleware('permission:manage_settings');
+            ->name('settings');
         Route::post('settings', [\App\Http\Controllers\Tenant\Admin\SettingController::class, 'store'])
-            ->name('settings.store')
-            ->middleware('permission:update_system_settings');
+            ->name('settings.store');
 
         // Enquiries Management - Medium Priority
         Route::prefix('enquiries')->name('enquiries.')->group(function () {
             Route::get('/', [\App\Http\Controllers\EnquiryController::class, 'index'])
-                ->name('index')
-                ->middleware('permission:manage_enquiries');
+                ->name('index');
             Route::get('/{enquiry}', [\App\Http\Controllers\EnquiryController::class, 'show'])
-                ->name('show')
-                ->middleware('permission:read_enquiry');
+                ->name('show');
             Route::post('/{enquiry}/mark-spam', [\App\Http\Controllers\EnquiryController::class, 'markAsSpam'])
-                ->name('mark-spam')
-                ->middleware('permission:manage_enquiries');
+                ->name('mark-spam');
             Route::post('/{enquiry}/mark-not-spam', [\App\Http\Controllers\EnquiryController::class, 'markAsNotSpam'])
-                ->name('mark-not-spam')
-                ->middleware('permission:manage_enquiries');
+                ->name('mark-not-spam');
             Route::delete('/{enquiry}', [\App\Http\Controllers\EnquiryController::class, 'destroy'])
-                ->name('destroy')
-                ->middleware('permission:delete_enquiry');
+                ->name('destroy');
         });
     });
 
@@ -437,44 +348,34 @@ Route::middleware([
 
         // Dashboard - Most Important
         Route::get('dashboard', [AgentDashboardController::class, 'index'])
-            ->name('dashboard')
-            ->middleware('permission:view_agent_dashboard');
+            ->name('dashboard');
 
         // Verify Collection - High Priority (Primary Function)
         Route::get('verify-collection', [AgentVerificationController::class, 'assignedFarmers'])
-            ->name('verify.collection')
-            ->middleware('permission:verify_collection');
+            ->name('verify.collection');
         Route::post('verify-collection', [AgentVerificationController::class, 'storeCollection'])
-            ->name('verify.collection.submit')
-            ->middleware('permission:verify_collection');
+            ->name('verify.collection.submit');
 
         // Verify Return - High Priority (Primary Function)
         Route::get('verify-return', [AgentVerificationController::class, 'assignedReturns'])
-            ->name('verify.return')
-            ->middleware('permission:verify_return');
+            ->name('verify.return');
         Route::post('verify-return', [AgentVerificationController::class, 'storeReturn'])
-            ->name('verify.return.submit')
-            ->middleware('permission:verify_return');
+            ->name('verify.return.submit');
 
-        // Monetary Return - Medium Priority
-        Route::get('monetary-return', [MonetaryReturnController::class, 'index'])
-            ->name('monetary-return')
-            ->middleware('permission:manage_monetary_return');
-        Route::get('monetary-returns/{uuid}', [MonetaryReturnController::class, 'show'])
-            ->name('monetary-returns.show')
-            ->middleware('permission:manage_monetary_return');
-        Route::get('monetary-returns/{uuid}/receipt', [MonetaryReturnController::class, 'receipt'])
-            ->name('monetary-returns.receipt')
-            ->middleware('permission:manage_monetary_return');
+        // Transactions - Medium Priority
+        Route::get('transactions', [MonetaryReturnController::class, 'index'])
+            ->name('monetary-return');
+        Route::get('transactions/{uuid}', [MonetaryReturnController::class, 'show'])
+            ->name('monetary-returns.show');
+        Route::get('transactions/{uuid}/receipt', [MonetaryReturnController::class, 'receipt'])
+            ->name('monetary-returns.receipt');
 
         // Payment Processing
         Route::post('generate-payment/{application}', [MonetaryReturnController::class, 'generatePayment'])
-            ->name('generatePayment')
-            ->middleware('permission:create_monetary_return');
+            ->name('generatePayment');
 
         Route::get('/payment/callback', [MonetaryReturnController::class, 'paymentCallback'])
-            ->name('payment.callback')
-            ->middleware('permission:manage_monetary_return');
+            ->name('payment.callback');
     });
     // Additional tenant-specific routes...
 });

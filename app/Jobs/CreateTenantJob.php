@@ -154,7 +154,7 @@ class CreateTenantJob implements ShouldQueue
     {
         Log::info("👤 Creating default admin user for tenant: {$this->tenant->id}");
 
-        $adminEmail = "admin@{$this->tenant->id}.afnon.com";
+        $adminEmail = "admin@{$this->tenant->id}.afnen.com";
 
         // Check if admin user already exists
         if (!User::where('email', $adminEmail)->exists()) {

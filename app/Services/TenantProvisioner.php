@@ -147,12 +147,12 @@ class TenantProvisioner
 
         // Wait a moment for the seeder to complete and roles to be available
         sleep(1);
-        
+
         // Verify roles were created
         $adminRole = Role::where('name', 'admin')->where('guard_name', 'tenant')->first();
         $agentRole = Role::where('name', 'agent')->where('guard_name', 'tenant')->first();
         $farmerRole = Role::where('name', 'farmer')->where('guard_name', 'tenant')->first();
-        
+
         if (!$adminRole || !$agentRole || !$farmerRole) {
             Log::warning("[TenantProvisioner] Some roles not found after seeding", [
                 'admin_exists' => !!$adminRole,
@@ -167,7 +167,7 @@ class TenantProvisioner
     private static function ensureDefaultAdmin(Tenant $tenant): void
     {
         // Create default admin user
-        $adminEmail = "admin@{$tenant->id}.afnon.com";
+        $adminEmail = "admin@{$tenant->id}.afnen.com";
         if (!User::where('email', $adminEmail)->exists()) {
             $adminUser = User::create([
                 'uuid' => (string) Str::uuid(),
@@ -189,7 +189,7 @@ class TenantProvisioner
         }
 
         // Create default agent user
-        $agentEmail = "agent@{$tenant->id}.afnon.com";
+        $agentEmail = "agent@{$tenant->id}.afnen.com";
         if (!User::where('email', $agentEmail)->exists()) {
             $agentUser = User::create([
                 'uuid' => (string) Str::uuid(),

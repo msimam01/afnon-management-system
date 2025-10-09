@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Monetary Return Report - {{ $return->tx_ref }}</title>
+    <title>Monetary Payment Report - {{ $return->tx_ref }}</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -108,7 +108,7 @@
 </head>
 <body>
     <div class="header">
-        <h1>Monetary Return Report</h1>
+        <h1>Monetary Payment Report</h1>
         <p>Transaction Reference: {{ $return->tx_ref }}</p>
         <p>Generated on: {{ now()->format('F d, Y \a\t H:i A') }}</p>
     </div>
