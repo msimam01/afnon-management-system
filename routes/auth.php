@@ -12,6 +12,8 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\CustomForgotPasswordController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
+use App\Http\Controllers\Auth\ForcePasswordChangeController;
+use App\Http\Controllers\Auth\CentralForcePasswordChangeController;
 
 Route::middleware(['guest', 'block-tenant-access'])->group(function () {
     Route::get('register', [RegisteredUserController::class, 'create'])
@@ -53,6 +55,13 @@ Route::middleware(['auth', 'central.user.active', 'block-tenant-access'])->group
 
     Route::put('password', [PasswordController::class, 'update'])->name('password.update');
 
+});
+
+// Force password change routes for central domain (outside auth middleware to allow access)
+Route::middleware(['auth', 'block-tenant-access'])->group(function () {
+    Route::get('central/force-password-change', [CentralForcePasswordChangeController::class, 'show'])->name('central.password.force.change');
+    Route::post('central/force-password-change', [CentralForcePasswordChangeController::class, 'update'])->name('central.password.force.change.update');
+    Route::put('central/force-password-change', [CentralForcePasswordChangeController::class, 'update'])->name('central.password.force.change.update.put');
 });
 
 // Central logout route (needs to be accessible for authenticated users)

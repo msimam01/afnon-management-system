@@ -81,6 +81,12 @@ class CustomLoginController extends Controller
                     return redirect()->route('central.login.form')->withErrors(['access' => 'Insufficient permissions.']);
                 }
 
+                // Check if user needs to change password on first login
+                if ($user->force_password_change) {
+                    ToastMagic::info('Please change your password to continue.');
+                    return redirect()->route('central.password.force.change');
+                }
+
                 // Get the appropriate dashboard route based on user's role
                 $dashboardRoute = $this->roleRedirectionService->getDashboardRoute('web');
                 ToastMagic::success('Welcome back! Login successful.');

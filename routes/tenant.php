@@ -23,6 +23,7 @@ use App\Http\Controllers\Tenant\Admin\CommodityController;
 use App\Http\Controllers\Admin\AdminVerificationController;
 use App\Http\Controllers\Agent\AgentVerificationController;
 use App\Http\Controllers\Auth\TenantForgotPasswordController;
+use App\Http\Controllers\Auth\TenantForcePasswordChangeController;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 use App\Http\Controllers\Tenant\Admin\Centers\CollectionCenters;
 use App\Http\Controllers\Admin\MonetaryReturnVerificationController;
@@ -63,6 +64,13 @@ Route::middleware([
     Route::post('/forgot-password', [TenantForgotPasswordController::class, 'sendResetLinkEmail'])->name('tenant.password.email');
     Route::get('/reset-password/{token}', [TenantForgotPasswordController::class, 'showResetForm'])->name('tenant.password.reset');
     Route::put('/reset-password', [TenantForgotPasswordController::class, 'reset'])->name('tenant.password.update');
+
+    // Force password change routes for tenants (outside tenant.user.active middleware to allow access)
+    Route::middleware(['auth:tenant'])->group(function () {
+        Route::get('/force-password-change', [TenantForcePasswordChangeController::class, 'show'])->name('tenant.password.force.change');
+        Route::post('/force-password-change', [TenantForcePasswordChangeController::class, 'update'])->name('tenant.password.force.change.update');
+        Route::put('/force-password-change', [TenantForcePasswordChangeController::class, 'update'])->name('tenant.password.force.change.update.put');
+    });
 
     Route::middleware(['auth:tenant', 'tenant.user.active'])->group(function () {
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

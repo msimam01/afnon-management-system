@@ -71,6 +71,12 @@ class TenantLoginController extends Controller
                     return redirect()->route('tenant.login')->withErrors(['access' => 'Insufficient permissions.']);
                 }
 
+                // Check if user needs to change password on first login
+                if ($user->force_password_change) {
+                    ToastMagic::info('Please change your password to continue.');
+                    return redirect()->route('tenant.password.force.change');
+                }
+
                 // Redirect to unified dashboard - role-based content will be handled by the dashboard
                 return redirect()->route('dashboard');
             } else {

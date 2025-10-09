@@ -31,6 +31,8 @@ class User extends Authenticatable
         'password',
         'status',
         'email_verified_at',
+        'password_changed_at',
+        'force_password_change',
     ];
 
     /**
@@ -50,6 +52,7 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'password_changed_at' => 'datetime',
         'password' => 'hashed',
     ];
     // User.php
