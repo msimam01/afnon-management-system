@@ -24,7 +24,7 @@ class RoleSeeder extends Seeder
 
         // Create Super Admin (System Admin for Central Domain)
         $superAdmin = User::firstOrCreate(
-            ['email' => 'system-admin@afnon.com'],
+            ['email' => 'system-admin@afnen.com'],
             [
                 'uuid' => Str::uuid(),
                 'name' => 'System Administrator',

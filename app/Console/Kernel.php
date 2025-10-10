@@ -13,6 +13,13 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         // $schedule->command('inspire')->hourly();
+
+        // Auto-close expired seasons daily at 12:00 AM
+        $schedule->command('seasons:auto-close-expired')
+            ->daily()
+            ->at('00:01')
+            ->withoutOverlapping()
+            ->runInBackground();
     }
 
     /**

@@ -44,6 +44,51 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="{{ asset('css/performance.css') }}" rel="stylesheet">
 
+    <!-- Global Loader Styles -->
+    <style>
+        .global-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+        .global-loader .loader {
+            position: relative;
+            z-index: 10000;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 50%;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #10b981; /* emerald-500 */
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .dark .global-loader {
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+        .dark .loader {
+            border-color: #374151; /* gray-700 */
+            border-top-color: #10b981; /* emerald-500 */
+        }
+    </style>
+
     <!-- Load critical scripts first, defer non-critical -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
@@ -141,6 +186,70 @@
 
     @include('layouts.footer')
     @stack('scripts')
+    
+    <!-- Global Loader with Overlay -->
+    <div id="globalLoader" class="global-loader">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Global Loader Script -->
+    <script>
+        // Show loader immediately (before DOM is ready)
+        (function() {
+            const loader = document.getElementById('globalLoader');
+            if (loader) {
+                // Hide loader when page is fully loaded
+                window.addEventListener('load', function() {
+                    // Fade out and remove
+                    loader.style.opacity = '0';
+                    setTimeout(() => {
+                        loader.style.display = 'none';
+                    }, 300);
+                });
+            }
+        })();
+
+        // Handle AJAX requests if jQuery is available
+        if (typeof jQuery !== 'undefined') {
+            $(document).ajaxStart(function() {
+                const loader = $('#globalLoader');
+                loader.css({
+                    'display': 'flex',
+                    'opacity': '1'
+                });
+            });
+
+            $(document).ajaxStop(function() {
+                const loader = $('#globalLoader');
+                loader.css('opacity', '0');
+                setTimeout(() => {
+                    loader.css('display', 'none');
+                }, 300);
+            });
+
+            // Handle AJAX errors to ensure loader is hidden
+            $(document).ajaxError(function() {
+                const loader = $('#globalLoader');
+                loader.css('opacity', '0');
+                setTimeout(() => {
+                    loader.css('display', 'none');
+                }, 300);
+            });
+        }
+
+        // Handle page transitions
+        document.addEventListener('click', function(e) {
+            // Check if the clicked element is a link
+            let target = e.target.closest('a');
+            if (target && target.href && !target.hasAttribute('data-no-loader')) {
+                const loader = document.getElementById('globalLoader');
+                if (loader) {
+                    loader.style.display = 'flex';
+                    loader.style.opacity = '1';
+                }
+            }
+        });
+    </script>
     <script src="{{ asset('js/script.js') }}"></script>
     <!-- Load Alpine.js and other scripts with optimization -->
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>

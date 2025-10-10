@@ -43,10 +43,6 @@ class UserController extends Controller
 
         $user->syncRoles($request->roles);
 
-        if ($request->has('permissions')) {
-            $user->syncPermissions($request->permissions);
-        }
-
         // Send email with default password
         Mail::to($user->email)->send(new UserCreatedMail($user, $defaultPassword));
 
@@ -94,8 +90,7 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string',
             'email' => 'required|email|unique:users,email,' . $user->id,
-            'roles' => 'required|array',
-            'permissions' => 'nullable|array',
+            'roles' => 'required|array'
         ]);
 
         $user->update([
@@ -104,7 +99,6 @@ class UserController extends Controller
         ]);
 
         $user->syncRoles($request->roles);
-        $user->syncPermissions($request->permissions ?? []);
 
         ToastMagic::success('User updated successfully');
         return redirect()->back();
