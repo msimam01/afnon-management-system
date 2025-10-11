@@ -1,7 +1,7 @@
 @php
     use App\Models\Setting;
 
-    $centralDomains = ['localhost', '127.0.0.1', 'afnon.com'];
+    $centralDomains = ['localhost', '127.0.0.1', 'afnen.com'];
     $host = request()->getHost();
     $isCentral = in_array($host, $centralDomains);
 

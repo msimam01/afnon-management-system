@@ -1,3 +1,30 @@
+@php
+    use App\Models\Setting;
+
+    $centralDomains = ['localhost', '127.0.0.1', 'afnon.com'];
+    $host = request()->getHost();
+    $isCentral = in_array($host, $centralDomains);
+
+    $tenant = null;
+    $setting = null;
+
+    if ($isCentral) {
+        // Central settings (still stored in central DB settings table)
+        $setting = Setting::first();
+    } else {
+        $tenant = \App\Models\SuperAdmin\Tenant::whereHas('domains', function ($q) use ($host) {
+            $q->where('domain', $host);
+        })->first();
+
+        if ($tenant) {
+            // Switch to tenant DB
+            tenancy()->initialize($tenant);
+
+            // Tenant settings (logo, phone, email, address, etc.)
+            $setting = Setting::first();
+        }
+    }
+@endphp
 <!DOCTYPE html>
 <html lang="en" class="h-full">
 
@@ -116,7 +143,9 @@
                                 <img src="{{ asset('logo.png') }}" alt="AFNEN Logo" class="w-10 h-10 object-contain">
                             </div>
                             <div>
-                                <h1 class="text-3xl font-bold">AFNEN</h1>
+                                <h1 class="text-3xl font-bold">
+                                {{ $isCentral ? $setting->name ?? 'AFNEN' : ($tenant->short_name ?? strtoupper($tenant->id)) . ' STATE CHAPTER' }}
+                                </h1>
                                 <p class="text-emerald-100">Association Of Farmers In The Northeast Of Nigeria</p>
                             </div>
                         </div>

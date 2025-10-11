@@ -44,8 +44,8 @@ class TenantController extends Controller
         $host = parse_url($request->domain, PHP_URL_HOST);
 
         // Validate domain format for subdomains
-        if (!preg_match('/^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]*\.afnon\.com$/', $host)) {
-            ToastMagic::error('Domain must be a valid subdomain of afnon.com (e.g., kano.afnon.com)');
+        if (!preg_match('/^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]*\.afnen\.com$/', $host)) {
+            ToastMagic::error('Domain must be a valid subdomain of afnen.com (e.g., gombe.afnen.com)');
             return redirect()->back()->withInput();
         }
 

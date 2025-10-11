@@ -1,4 +1,3 @@
-use App\Http\Controllers\CommodityCategoryController;
 @extends('layouts.layout')
 
 @section('content')

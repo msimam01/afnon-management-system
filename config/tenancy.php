@@ -21,8 +21,8 @@ return [
         env('CENTRAL_DOMAIN'),
         'localhost',      // your local dev domain
         '127.0.0.1',
-        'afnon.test',
-        'afnon.com',
+        'afnen.test',
+        'afnen.com',
     ],
 
 

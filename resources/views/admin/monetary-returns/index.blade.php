@@ -14,7 +14,7 @@
                     </svg>
                 </div>
                 <div>
-                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Paid Monetary Returns</h1>
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Payment Details</h1>
                     <p class="text-gray-600 dark:text-gray-400 mt-1">All payments collected so far</p>
                 </div>
             </div>
