@@ -11,4 +11,11 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+    optimizeDeps: {
+        exclude: [
+            'react_jsx-dev-runtime',
+            'chunk-KMU3Z7QX',
+            'chunk-G3PMV62Z'
+        ]
+    }
 });

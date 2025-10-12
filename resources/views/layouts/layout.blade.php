@@ -35,13 +35,15 @@
     <title>{{ config('app.name', 'Association Of Farmers In The Northeast Of Nigeria') }}</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     {{-- <link rel="stylesheet" href="{{asset('css/style.css')}}"> --}}
-    <!-- Optimized resource loading with preconnect -->
-    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    <!-- Vite Assets -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://cdn.jsdelivr.net">
-
-    <!-- Load critical CSS first -->
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Performance CSS -->
     <link href="{{ asset('css/performance.css') }}" rel="stylesheet">
 
     <!-- Global Loader Styles -->

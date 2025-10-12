@@ -32,70 +32,84 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $isCentral ? ($setting->name ?? 'AFNEN - Empowering Nigerian Farmers') : ((ucfirst($tenant?->id) ?? 'Unknown') . ' Portal') }}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/alpinejs" defer></script>
+    
+    <!-- Vite Assets -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-{!! ToastMagic::styles() !!}
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        'sans': ['Inter', 'system-ui', 'sans-serif'],
-                    },
-                    animation: {
-                        'fade-in': 'fadeIn 1s ease-out',
-                        'slide-up': 'slideUp 0.8s ease-out',
-                        'scale-in': 'scaleIn 0.6s ease-out',
-                        'bounce-gentle': 'bounceGentle 2s infinite',
-                        'float': 'float 6s ease-in-out infinite',
-                        'pulse-ring': 'pulseRing 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite',
-                        'gradient-xy': 'gradientXY 15s ease infinite',
-                        'text-shimmer': 'textShimmer 3s ease-in-out infinite',
-                    },
-                    keyframes: {
-                        fadeIn: {
-                            '0%': { opacity: '0', transform: 'translateY(20px)' },
-                            '100%': { opacity: '1', transform: 'translateY(0)' }
-                        },
-                        slideUp: {
-                            '0%': { opacity: '0', transform: 'translateY(30px)' },
-                            '100%': { opacity: '1', transform: 'translateY(0)' }
-                        },
-                        scaleIn: {
-                            '0%': { opacity: '0', transform: 'scale(0.9)' },
-                            '100%': { opacity: '1', transform: 'scale(1)' }
-                        },
-                        bounceGentle: {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-10px)' }
-                        },
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
-                            '33%': { transform: 'translateY(-15px) rotate(1deg)' },
-                            '66%': { transform: 'translateY(5px) rotate(-1deg)' }
-                        },
-                        pulseRing: {
-                            '0%': { transform: 'scale(0.33)' },
-                            '40%, 50%': { opacity: '1' },
-                            '100%': { opacity: '0', transform: 'scale(1.03)' }
-                        },
-                        gradientXY: {
-                            '0%, 100%': { 'background-size': '400% 400%', 'background-position': 'left center' },
-                            '50%': { 'background-size': '200% 200%', 'background-position': 'right center' }
-                        },
-                        textShimmer: {
-                            '0%': { 'background-position': '0% 50%' },
-                            '50%': { 'background-position': '100% 50%' },
-                            '100%': { 'background-position': '0% 50%' }
-                        }
-                    }
-                }
+    
+    <!-- ToastMagic Styles -->
+    {!! ToastMagic::styles() !!}
+    
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <style>
+        /* Custom Animations */
+        @keyframes bounceGentle {
+            0%, 100% { transform: translateY(-5%); }
+            50% { transform: translateY(0); }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes pulseRing {
+            0% { transform: scale(0.95); opacity: 0.75; }
+            100% { transform: scale(1.15); opacity: 0; }
+        }
+        
+        @keyframes gradientXY {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        @keyframes textShimmer {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+        
+        /* Apply animations to utility classes */
+        .animate-bounce-gentle { animation: bounceGentle 2s infinite; }
+        .animate-float { animation: float 6s ease-in-out infinite; }
+        .animate-pulse-ring { 
+            position: relative;
+            &::after {
+                content: '';
+                position: absolute;
+                inset: 0;
+                border-radius: inherit;
+                padding: 0;
+                background: currentColor;
+                opacity: 0.75;
+                z-index: -1;
+                animation: pulseRing 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
             }
         }
-    </script>
-
+        .animate-gradient-xy {
+            background-size: 200% 200%;
+            animation: gradientXY 15s ease infinite;
+        }
+        .animate-text-shimmer {
+            background-size: 200% auto;
+            background-image: linear-gradient(
+                to right,
+                rgba(255,255,255,0) 0%,
+                rgba(255,255,255,0.8) 50%,
+                rgba(255,255,255,0) 100%
+            );
+            animation: textShimmer 3s ease-in-out infinite;
+        }
+    </style>
+    
     <style>
         html { scroll-behavior: smooth; }
 
