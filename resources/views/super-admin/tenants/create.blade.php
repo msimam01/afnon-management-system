@@ -84,7 +84,7 @@
                                     </label>
                                     <input type="text" name="name" id="name" required
                                         class="w-full px-4 py-3 bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm border border-gray-300/50 dark:border-gray-600/50 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 text-gray-900 dark:text-white placeholder-gray-500 transition-colors duration-150"
-                                        placeholder="e.g., Kano State Agricultural Development Program"
+                                        placeholder="e.g., Gombe State Agricultural Development Program"
                                         value="{{ old('name') }}">
                                     <p class="text-xs text-gray-500 dark:text-gray-400">The display name for this tenant organization</p>
                                 </div>
@@ -100,7 +100,7 @@
                                     </label>
                                     <input type="text" name="id" id="id" required
                                         class="w-full px-4 py-3 bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm border border-gray-300/50 dark:border-gray-600/50 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 text-gray-900 dark:text-white placeholder-gray-500 transition-colors duration-150 font-mono"
-                                        placeholder="e.g., kano"
+                                        placeholder="e.g., gombe"
                                         value="{{ old('id') }}"
                                         pattern="[a-z0-9-]+"
                                         title="Only lowercase letters, numbers, and hyphens allowed">
@@ -120,7 +120,7 @@
                                 <div class="relative">
                                     <input type="url" name="domain" id="domain" required
                                         class="w-full px-4 py-3 bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm border border-gray-300/50 dark:border-gray-600/50 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 text-gray-900 dark:text-white placeholder-gray-500 transition-colors duration-150"
-                                        placeholder="https://kano.afnon.com"
+                                        placeholder="https://gombe.afnen.com"
                                         value="{{ old('domain') }}">
                                     <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                                         <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

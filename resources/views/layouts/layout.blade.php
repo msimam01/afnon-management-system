@@ -92,7 +92,7 @@
     </style>
 
     <!-- Load critical scripts first, defer non-critical -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- <script src="https://cdn.tailwindcss.com"></script> -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
 
     <!-- Load DataTables only when needed -->

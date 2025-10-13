@@ -1395,7 +1395,7 @@
     <button id="scrollToTop" class="fixed bottom-6 right-6 w-12 h-12 bg-emerald-600 text-white rounded-full shadow-lg hover:bg-emerald-700 transition-all duration-300 transform hover:scale-110 hidden z-50">
         <i class="fas fa-arrow-up"></i>
     </button>
-
+    {!! ToastMagic::scripts() !!}
     <!-- JavaScript -->
     <script>
         // Smooth scrolling for navigation links
@@ -1551,6 +1551,6 @@
             transform: scale(1.02);
         }
     </style>
-    {!! ToastMagic::scripts() !!}
+    
 </body>
 </html>
