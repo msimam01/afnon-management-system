@@ -168,7 +168,14 @@ class ApplicationController extends Controller
     }
     public function store(Request $request)
     {
-        // return $request;
+        \Log::info('Application store request received', [
+            'url' => $request->fullUrl(),
+            'method' => $request->method(),
+            'input' => $request->except(['_token']),
+            'headers' => $request->headers->all(),
+            'referer' => $request->headers->get('referer'),
+            'tenant' => tenant() ? tenant()->id : 'central'
+        ]);
         $validated = $request->validate([
             'full_name' => 'required|string',
             'phone' => 'required|string',
@@ -183,39 +190,56 @@ class ApplicationController extends Controller
             'season_id' => 'required|exists:seasons,id',
             'selected_seed' => 'required|exists:commodities,id',
         ]);
-        $phoneExist = Application::where('season_id', $validated['season_id'])->whereHas('farmer', function ($q) use ($validated) {
-            $q->where('phone', $validated['phone']);
-        })->exists();
+        // Debug: Log the phone number and season being checked
+        \Log::info('Checking for existing phone number', [
+            'phone' => $validated['phone'],
+            'season_id' => $validated['season_id'],
+            'request_data' => $request->all()
+        ]);
 
-        $existing = Application::where('season_id', $validated['season_id'])
-            ->whereHas('farmer', function ($q) use ($validated) {
-                $q->where('nin', $validated['nin'])
-                    ->orWhere('bvn', $validated['bvn']);
+        // Check for existing applications with same phone, NIN, or BVN in this season
+        $existingPhone = Application::where('season_id', $validated['season_id'])
+            ->whereHas('farmer', function($q) use ($validated) {
+                $q->where('phone', $validated['phone']);
             })
             ->exists();
 
-        if ($phoneExist) {
-            ToastMagic::error('The provided phone number has already been used for this season.');
-            return back()->withErrors([
-                'phone' => 'This phone number has already been used for this season.',
-            ])->withInput();
+        $existingNin = Application::where('season_id', $validated['season_id'])
+            ->whereHas('farmer', function($q) use ($validated) {
+                $q->where('nin', $validated['nin']);
+            })
+            ->exists();
+
+        $existingBvn = Application::where('season_id', $validated['season_id'])
+            ->whereHas('farmer', function($q) use ($validated) {
+                $q->where('bvn', $validated['bvn']);
+            })
+            ->exists();
+
+        $errors = [];
+        if ($existingPhone) {
+            $errors['phone'] = 'This phone number has already been used for an application this season.';
         }
-        if ($existing) {
-            ToastMagic::error('The provided NIN or BVN has already been used for this season.');
-            return back()->withErrors([
-                'nin' => 'This NIN has already been used for this season.',
-                'bvn' => 'This BVN has already been used for this season.',
-            ])->withInput();
+        if ($existingNin) {
+            $errors['nin'] = 'This NIN has already been used for an application this season.';
+        }
+        if ($existingBvn) {
+            $errors['bvn'] = 'This BVN has already been used for an application this season.';
+        }
+
+        if (!empty($errors)) {
+            ToastMagic::error('Please correct the errors below.');
+            return back()->withErrors($errors)->withInput();
         }
 
 
         DB::beginTransaction();
 
         try {
-            // Create Farmer
             $season = Season::findOrFail($validated['season_id']);
+            
+            // Create Farmer
             $registrationNumber = $this->generateRegistrationNumber($season->type, now()->year);
-            // return $registrationNumber;
             $farmer = Farmer::create([
                 'uuid' => Str::uuid(),
                 'registration_number' => $registrationNumber,

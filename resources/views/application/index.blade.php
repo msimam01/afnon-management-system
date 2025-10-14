@@ -1,6 +1,6 @@
 
 @php
-    $centralDomains = ['localhost', '127.0.0.1', 'afnon.com'];
+    $centralDomains = ['localhost', '127.0.0.1', 'afnen.com'];
     $host = request()->getHost();
     $isCentral = in_array($host, $centralDomains);
 
@@ -32,19 +32,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Apply for Seasonal Loan - AFNEN</title>
     @include('application.includes.app')
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                fontFamily: {
-                    'sans': ['Inter', 'system-ui', 'sans-serif'],
-                },
-                extend: {
-                    // Removed heavy animations for better performance
-                }
-            }
-        }
-    </script>
+    <!-- Moved Tailwind config to the end of the body -->
 
     <style>
         /* Enhanced Stepper Styles - Optimized */
@@ -1107,6 +1095,22 @@
             // Initialize loan summary
             calculateLoanSummary();
         });
+    </script>
+    <script>
+        // Initialize Tailwind configuration
+        if (typeof tailwind !== 'undefined') {
+            tailwind.config = {
+                darkMode: 'class',
+                theme: {
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    extend: {
+                        // Removed heavy animations for better performance
+                    }
+                }
+            };
+        }
     </script>
 </body>
 </html>

@@ -56,7 +56,6 @@ class Kernel extends HttpKernel
         'tenant.user.active'  => \App\Http\Middleware\CheckTenantUserStatus::class,
         'tenant-activity-log' => \App\Http\Middleware\TenantActivityLogger::class,
         'central-activity-log' => \App\Http\Middleware\CentralActivityLogger::class,
-        'app.rate.limit' => \App\Http\Middleware\ApplicationRateLimitMiddleware::class,
 
         // ✅ Spatie Permissions middleware
         'role' => RoleMiddleware::class,

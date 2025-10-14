@@ -31,10 +31,11 @@ class ApplicationRateLimitMiddleware
             $seconds = RateLimiter::availableIn($rateLimitKey);
             $minutes = ceil($seconds / 60);
 
-            ToastMagic::error("Too many application attempts. Please try again in {$minutes} minutes.");
+            $errorMsg = "Too many attempts please wait a moment and try again.";
+            ToastMagic::error($errorMsg);
 
             return back()->withInput()->withErrors([
-                'rate_limit' => "Too many attempts. Please wait {$minutes} minutes before trying again."
+                'phone' => $errorMsg
             ]);
         }
 
@@ -64,23 +65,21 @@ class ApplicationRateLimitMiddleware
         if ($request->route()->getName() === 'applications.store') {
             $identifiers = [];
 
+            // Get current season ID from the request
+            $seasonId = $request->input('season_id');
+            
+            // Include season ID in the key to scope rate limiting per season
+            if ($seasonId) {
+                $identifiers[] = 'season_' . $seasonId;
+            }
+
             // Use phone number as primary identifier
             if ($request->has('phone')) {
                 $identifiers[] = 'phone_' . $request->input('phone');
+            } else {
+                // If no phone, use IP as fallback
+                $identifiers[] = 'ip_' . $request->ip();
             }
-
-            // Use NIN as secondary identifier
-            if ($request->has('nin')) {
-                $identifiers[] = 'nin_' . $request->input('nin');
-            }
-
-            // Use BVN as tertiary identifier
-            if ($request->has('bvn')) {
-                $identifiers[] = 'bvn_' . $request->input('bvn');
-            }
-
-            // Use IP as fallback
-            $identifiers[] = 'ip_' . $request->ip();
 
             return $baseKey . '_' . implode('_', $identifiers);
         }
@@ -95,8 +94,8 @@ class ApplicationRateLimitMiddleware
     private function getMaxAttempts(Request $request): int
     {
         if ($request->route()->getName() === 'applications.store') {
-            // Allow 3 application submissions per hour per user
-            return 3;
+            // Allow 1 application submission per phone number per season
+            return 1;
         }
 
         // For other requests (like viewing forms), allow more
