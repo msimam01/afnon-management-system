@@ -44,7 +44,6 @@ class SeasonController extends Controller
             'collection_start_date' => 'required|date|after:end_date',
             'collection_end_date' => 'required|date|after:collection_start_date',
             'return_deadline' => 'nullable|date|after:end_date',
-            'budget' => 'nullable|numeric|min:0',
             'insurance_rate' => 'required|numeric|min:0|max:100',
             'send_reminder_after_days' => 'nullable|integer|min:1',
             'status' => 'nullable|in:open,closed',
@@ -75,18 +74,25 @@ class SeasonController extends Controller
             return redirect()->back()->withInput(); // ✅ stop execution
         }
 
-        // If creating an open season, close any existing open seasons
-        if (($data['status'] ?? 'open') === 'open') {
+        // Determine status based on start date
+        $startDate = \Carbon\Carbon::parse($data['start_date']);
+        $isStartingToday = $startDate->isToday();
+        
+        // Set status based on start date
+        $data['status'] = $isStartingToday ? 'open' : 'closed';
+        
+        // Only close other open seasons if we're creating a new open season
+        if ($isStartingToday) {
             $openSeasons = Season::where('status', 'open')->get();
-            if ($openSeasons->count() > 0) {
+            if ($openSeasons->isNotEmpty()) {
                 Season::where('status', 'open')->update(['status' => 'closed']);
                 $seasonNames = $openSeasons->pluck('name')->join(', ');
                 ToastMagic::info("Closed existing open season(s): {$seasonNames}");
             }
+            ToastMagic::success('New season created and opened.');
+        } else {
+            ToastMagic::success('New season created. It will open on its start date.');
         }
-
-        // Set default status to 'open' if not provided
-        $data['status'] = $data['status'] ?? 'open';
 
         $season = Season::create($data);
 
@@ -174,7 +180,6 @@ class SeasonController extends Controller
             'collection_start_date' => 'required|date|after:end_date',
             'collection_end_date' => 'required|date|after:collection_start_date',
             'return_deadline' => 'nullable|date|after:end_date',
-            'budget' => 'nullable|numeric|min:0',
             'insurance_rate' => 'required|numeric|min:0|max:100',
             'send_reminder_after_days' => 'nullable|integer|min:1',
             'status' => 'nullable|in:open,closed',

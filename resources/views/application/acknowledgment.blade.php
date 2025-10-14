@@ -111,6 +111,7 @@
             }
         }
     </style>
+    {!! ToastMagic::styles() !!}
 </head>
 
 <body>
@@ -340,7 +341,7 @@
             <strong>Page:</strong> 1 of 1
         </p>
     </div>
-
+    {!! ToastMagic::scripts() !!}
     <script>
         // Auto-print when the page loads
         window.onload = function() {

@@ -16,7 +16,6 @@ class Season extends Model
         'loan_type',
         'start_date',
         'end_date',
-        'budget',
         'status',
         'return_deadline',
         'insurance_rate',

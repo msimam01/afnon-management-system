@@ -35,9 +35,6 @@
                             @else
                                 <p class="text-sm text-gray-600 dark:text-gray-400">📌 Return: Not required</p>
                             @endif
-                            <p class="text-sm text-gray-600 dark:text-gray-400">💰 Budget:
-                                ₦{{ number_format($season->budget) }}
-                            </p>
                             <p class="text-sm text-gray-600 dark:text-gray-400">🛡 Insurance: {{ $season->insurance_rate }}%
                             </p>
 

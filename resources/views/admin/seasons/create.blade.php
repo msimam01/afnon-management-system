@@ -92,14 +92,6 @@
                             class="mt-1 w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
                         <x-input-error :messages="$errors->get('send_reminder_after_days')" class="mt-2" />
                     </div>
-                    <div>
-                        <label for="budget" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Total
-                            Budget (₦)</label>
-                        <input type="number" id="budget" name="budget" value="{{ old('budget ') }}"
-                            placeholder="e.g: 5000000" required
-                            class="mt-1 w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
-                        <x-input-error :messages="$errors->get('budget')" class="mt-2" />
-                    </div>
                     <div class="md:col-span-2">
                         <label for="commodities"
                             class="block text-sm font-medium text-gray-700 dark:text-gray-300">Commodities *</label>
