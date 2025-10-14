@@ -61,7 +61,8 @@ class CommodityController extends Controller
     public function edit(String $uuid)
     {
         $commodity = Commodity::whereUuid($uuid)->first();
-        return view('admin.commodities.edit', compact('commodity'));
+        $categories = CommodityCategory::all();
+        return view('admin.commodities.edit', compact('commodity', 'categories'));
     }
 
     public function update(Request $request, String $uuid)

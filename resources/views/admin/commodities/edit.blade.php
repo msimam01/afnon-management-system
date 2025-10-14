@@ -27,13 +27,12 @@
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Category *</label>
                             <select name="category" required
                                 class="w-full mt-1 px-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
-                                <option value="{{ $commodity->category }}">Select category</option>
-                                <option value="seed">Seed</option>
-                                <option value="fertilizer">Fertilizer</option>
-                                <option value="herbicide">Herbicide</option>
-                                <option value="insecticide">Insecticide</option>
-                                <option value="equipment">Equipment</option>
-                                <option value="other">Other</option>
+                                <option value="">Select category</option>
+                                @foreach ($categories as $item)
+                                    <option value="{{ $item->name }}" {{ $item->name == $commodity->category ? 'selected' : '' }}>
+                                        {{ $item->name }}
+                                    </option>
+                                @endforeach
                             </select>
                             <x-input-error :messages="$errors->get('category')" class="mt-1" />
                         </div>

@@ -79,33 +79,77 @@ class SeasonReportController extends Controller
 
     private function getCollectionInsights(Season $season)
     {
-        // Farmers who collected commodities
-        $farmersCollected = DB::table('applications')
-            ->join('collection_verifications', 'applications.id', '=', 'collection_verifications.application_id')
-            ->join('farmers', 'applications.farmer_id', '=', 'farmers.id')
-            ->where('applications.season_id', $season->id)
-            ->where('collection_verifications.status', 'approved')
-            ->select('farmers.id', 'farmers.full_name', 'farmers.registration_number')
-            ->distinct()
-            ->get();
+        // Get all approved applications for the season with their relationships
+        $query = \App\Models\Application::where('season_id', $season->id)
+            ->where('status', 'approved')
+            ->with([
+                'farmer', 
+                'collectionVerification', 
+                'commodity_allocations',
+                'monetaryReturn'
+            ]);
 
-        // Commodity collection summary
-        $commodityCollections = DB::table('applications')
-            ->join('collection_verifications', 'applications.id', '=', 'collection_verifications.application_id')
-            ->join('commodity_allocations', 'applications.id', '=', 'commodity_allocations.application_id')
-            ->where('applications.season_id', $season->id)
-            ->where('collection_verifications.status', 'approved')
-            ->select(
-                'commodity_allocations.commodity_name',
-                DB::raw('SUM(commodity_allocations.allocated_quantity) as total_collected'),
-                DB::raw('COUNT(DISTINCT applications.id) as farmers_count')
-            )
-            ->groupBy('commodity_allocations.commodity_name')
-            ->get();
+        // For co-funded loans, only include applications with monetary returns
+        if ($season->loan_type === 'co-funded') {
+            $query->whereHas('monetaryReturn');
+        }
+
+        $approvedApplications = $query->get();
+
+        // Farmers who collected commodities
+        $farmersCollected = [];
+        $commodityCollections = [];
+        
+        foreach ($approvedApplications as $application) {
+            // For complete loan, we consider all approved applications as collected
+            // For co-funded, we need to check collection verification
+            $isCollected = $season->loan_type === 'complete-loan' || 
+                          ($application->collectionVerification && $application->collectionVerification->status === 'approved');
+
+            if ($isCollected) {
+                // Track unique farmers who collected
+                $farmerKey = $application->farmer_id;
+                if (!isset($farmersCollected[$farmerKey])) {
+                    $farmersCollected[$farmerKey] = [
+                        'id' => $application->farmer->id,
+                        'full_name' => $application->farmer->full_name,
+                        'registration_number' => $application->farmer->registration_number
+                    ];
+                }
+
+                // Process commodity allocations
+                foreach ($application->commodity_allocations as $allocation) {
+                    $commodityName = $allocation->commodity_name;
+                    
+                    if (!isset($commodityCollections[$commodityName])) {
+                        $commodityCollections[$commodityName] = [
+                            'commodity_name' => $commodityName,
+                            'total_collected' => 0,
+                            'farmers_count' => 0,
+                            'farmer_ids' => []
+                        ];
+                    }
+                    
+                    $commodityCollections[$commodityName]['total_collected'] += $allocation->allocated_quantity;
+                    
+                    // Track unique farmers per commodity
+                    if (!in_array($farmerKey, $commodityCollections[$commodityName]['farmer_ids'])) {
+                        $commodityCollections[$commodityName]['farmer_ids'][] = $farmerKey;
+                        $commodityCollections[$commodityName]['farmers_count']++;
+                    }
+                }
+            }
+        }
+
+        // Convert to collection and remove temporary farmer_ids
+        $commodityCollections = collect($commodityCollections)->map(function($item) {
+            unset($item['farmer_ids']);
+            return (object)$item;
+        })->values();
 
         return [
-            'farmers_collected' => $farmersCollected,
-            'farmers_collected_count' => $farmersCollected->count(),
+            'farmers_collected' => array_values($farmersCollected),
+            'farmers_collected_count' => count($farmersCollected),
             'commodity_collections' => $commodityCollections,
         ];
     }
