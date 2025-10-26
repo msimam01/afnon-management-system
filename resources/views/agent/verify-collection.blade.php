@@ -140,29 +140,42 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4">
-                                        <button x-show="app.collection_status === 'pending'"
-                                            @click="openCollectionModal(app)"
+                                        <a x-show="app.collection_status === 'pending'"
+                                           :href="`/agent/collections/${app.encrypted_id}/verify`"
                                             class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors duration-200">
                                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                             </svg>
                                             Verify
-                                        </button>
-                                        <span x-show="app.collection_status === 'verified'" class="inline-flex items-center px-3 py-2 text-sm text-green-600 dark:text-green-400">
-                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                            </svg>
-                                            Completed
-                                        </span>
+                                        </a>
+                                        <div x-show="app.collection_status === 'verified'" class="flex flex-col space-y-1">
+                                            <span class="inline-flex items-center px-3 py-2 text-sm text-green-600 dark:text-green-400">
+                                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                </svg>
+                                                Completed
+                                            </span>
+<a
+    x-show="app.collection_status === 'verified'"
+    :href="`/agent/collections/${app.id}/pdf`"
+    target="_blank"
+    class="inline-flex items-center px-3 py-1 text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded-full hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors duration-200">
+    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+    </svg>
+    Download PDF
+</a>
+
+                                        </div>
                                     </td>
                                 </tr>
                             </template>
                             <tr x-show="applications.length === 0 && !loading">
                                 <td colspan="6" class="px-6 py-8 text-center">
                                     <div class="flex flex-col items-center">
-                                        <svg class="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <div class="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                        </svg>
+                                        </div>
                                         <p class="text-gray-500 dark:text-gray-400">No applications found.</p>
                                     </div>
                                 </td>
@@ -202,302 +215,6 @@
                     </template>
                     <button @click="goToPage(current_page + 1)" :disabled="current_page === last_page"
                         class="px-3 py-1 rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50">Next</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Enhanced Modal -->
-        <div x-show="showModal" x-cloak class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div class="relative w-full max-w-7xl max-h-[95vh] flex flex-col">
-                <div @click.away="closeCollectionModal()" class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl flex flex-col h-full overflow-hidden">
-                    <div class="flex-1 overflow-y-auto p-6 sm:p-8">
-                <!-- Enhanced Modal Header -->
-                <div class="flex items-center justify-between mb-8 border-b border-gray-200 dark:border-gray-600 pb-6">
-                    <div class="flex items-center space-x-4">
-                        <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="text-2xl font-bold text-gray-900 dark:text-white">Verify Collection</h3>
-                            <p class="text-gray-600 dark:text-gray-400 mt-1">Confirm farmer identity and commodity collection</p>
-                        </div>
-                    </div>
-                    <button @click="closeCollectionModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </button>
-                </div>
-                <form id="collectionForm" class="space-y-8" enctype="multipart/form-data" @submit.prevent="submitCollection">
-                    <input type="hidden" name="application_id" x-model="form.application_id" />
-
-                    <!-- Enhanced Information Cards -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        <!-- Farmer Information Card -->
-                        <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-800 rounded-xl p-6 border border-blue-200 dark:border-gray-600 shadow-sm">
-                            <div class="flex items-center mb-4">
-                                <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center mr-3">
-                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                                    </svg>
-                                </div>
-                                <h4 class="text-lg font-semibold text-gray-900 dark:text-white">Farmer Information</h4>
-                            </div>
-                            <div class="space-y-3">
-                                <div class="flex items-center justify-between py-2 border-b border-blue-200 dark:border-gray-600">
-                                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Full Name</span>
-                                    <span class="text-sm font-semibold text-gray-900 dark:text-white" x-text="modalData.farmer?.full_name"></span>
-                                </div>
-                                <div class="flex items-center justify-between py-2 border-b border-blue-200 dark:border-gray-600">
-                                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Registration No.</span>
-                                    <span class="text-sm font-mono bg-blue-100 dark:bg-gray-600 px-2 py-1 rounded text-blue-800 dark:text-blue-200" x-text="modalData.farmer?.registration_number"></span>
-                                </div>
-                                <div class="flex items-center justify-between py-2 border-b border-blue-200 dark:border-gray-600">
-                                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Phone Number</span>
-                                    <span class="text-sm font-semibold text-gray-900 dark:text-white" x-text="modalData.farmer?.phone"></span>
-                                </div>
-                                <div class="flex items-center justify-between py-2 border-b border-blue-200 dark:border-gray-600">
-                                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">BVN</span>
-                                    <span class="text-sm font-mono bg-blue-100 dark:bg-gray-600 px-2 py-1 rounded text-blue-800 dark:text-blue-200" x-text="modalData.farmer?.bvn"></span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Application Information Card -->
-                        <div class="bg-gradient-to-br from-emerald-50 to-green-50 dark:from-gray-700 dark:to-gray-800 rounded-xl p-6 border border-emerald-200 dark:border-gray-600 shadow-sm">
-                            <div class="flex items-center mb-4">
-                                <div class="w-10 h-10 bg-emerald-500 rounded-lg flex items-center justify-center mr-3">
-                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                    </svg>
-                                </div>
-                                <h4 class="text-lg font-semibold text-gray-900 dark:text-white">Application Details</h4>
-                            </div>
-                            <div class="space-y-3">
-                                <div class="flex items-center justify-between py-2 border-b border-emerald-200 dark:border-gray-600">
-                                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Reference Number</span>
-                                    <span class="text-sm font-mono bg-emerald-100 dark:bg-gray-600 px-2 py-1 rounded text-emerald-800 dark:text-emerald-200" x-text="modalData.reference_number"></span>
-                                </div>
-                                <div class="flex items-center justify-between py-2 border-b border-emerald-200 dark:border-gray-600">
-                                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Season</span>
-                                    <span class="text-sm font-semibold text-gray-900 dark:text-white" x-text="modalData.season?.name"></span>
-                                </div>
-                                <div class="flex items-center justify-between py-2 border-b border-emerald-200 dark:border-gray-600">
-                                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Farm Size</span>
-                                    <span class="text-sm font-semibold text-emerald-600 dark:text-emerald-400" x-text="`${modalData.farm?.size} hectares`"></span>
-                                </div>
-                                <div class="flex items-center justify-between py-2 border-b border-emerald-200 dark:border-gray-600">
-                                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Collection Date</span>
-                                    <span class="text-sm text-gray-900 dark:text-white" x-text="modalData.application_center?.collection_date"></span>
-                                </div>
-                                <div class="flex items-center justify-between py-2 border-b border-emerald-200 dark:border-gray-600">
-                                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Loan Type</span>
-                                    <span class="text-sm font-semibold text-gray-900 dark:text-white" x-text="modalData.season?.loan_type === 'co-funded' ? 'Co-funded (50% upfront)' : 'Complete Loan (commodity return)'"></span>
-                                </div>
-                                <!-- Payment Status for Co-funded Applications -->
-                                <div x-show="modalData.season?.loan_type === 'co-funded'" class="flex items-center justify-between py-2 border-b border-emerald-200 dark:border-gray-600">
-                                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Payment Status</span>
-                                    <span x-text="modalData.payment_status || 'N/A'" 
-                                          :class="{
-                                              'text-green-600 font-semibold': modalData.payment_status === 'paid',
-                                              'text-yellow-600 font-semibold': modalData.payment_status === 'pending',
-                                              'text-red-600 font-semibold': modalData.payment_status === 'failed'
-                                          }"
-                                          class="text-sm capitalize"></span>
-                                </div>
-                                <div x-show="modalData.monetary_return && modalData.season?.loan_type === 'co-funded'" class="flex items-center justify-between py-2 border-b border-emerald-200 dark:border-gray-600">
-                                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Payment Amount</span>
-                                    <span class="text-sm font-semibold text-emerald-600 dark:text-emerald-400" x-text="modalData.monetary_return?.amount ? '₦' + new Intl.NumberFormat().format(modalData.monetary_return.amount) : 'N/A'"></span>
-                                </div>
-                                <div class="flex items-center justify-between py-2">
-                                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Return Deadline</span>
-                                    <span class="text-sm text-gray-900 dark:text-white" x-text="modalData.application_center?.return_date"></span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Enhanced Commodity Breakdown -->
-                    <div class="mb-8">
-                        <div class="flex items-center mb-6">
-                            <div class="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center mr-3">
-                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                                </svg>
-                            </div>
-                            <h4 class="text-xl font-semibold text-gray-900 dark:text-white">Commodity Breakdown & Financial Summary</h4>
-                        </div>
-
-                        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
-                            <div class="overflow-x-auto">
-                                <table class="w-full text-sm">
-                                    <thead class="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
-                                        <tr>
-                                            <th class="px-6 py-4 text-left font-semibold">Commodity</th>
-                                            <th class="px-6 py-4 text-left font-semibold">Qty/Ha</th>
-                                            <th class="px-6 py-4 text-left font-semibold">Farm Size</th>
-                                            <th class="px-6 py-4 text-left font-semibold">Allocated Qty</th>
-                                            <th class="px-6 py-4 text-left font-semibold">Unit Price</th>
-                                            <th class="px-6 py-4 text-left font-semibold">Total Value</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                                        <template x-for="c in modalData.commodity_allocations" :key="c.id">
-                                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
-                                                <td class="px-6 py-4">
-                                                    <div class="flex items-center">
-                                                        <div class="w-8 h-8 bg-gradient-to-br from-green-400 to-green-500 rounded-lg flex items-center justify-center mr-3">
-                                                            <span class="text-white text-xs font-bold" x-text="c.commodity_name.charAt(0)"></span>
-                                                        </div>
-                                                        <span class="font-medium text-gray-900 dark:text-white" x-text="c.commodity_name"></span>
-                                                    </div>
-                                                </td>
-                                                <td class="px-6 py-4 text-gray-700 dark:text-gray-300" x-text="c.qty_per_hectare"></td>
-                                                <td class="px-6 py-4 text-gray-700 dark:text-gray-300" x-text="`${modalData.farm?.size} ha`"></td>
-                                                <td class="px-6 py-4">
-                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200" x-text="c.allocated_quantity"></span>
-                                                </td>
-                                                <td class="px-6 py-4 font-mono text-gray-700 dark:text-gray-300" x-text="`₦${c.unit_price.toLocaleString()}`"></td>
-                                                <td class="px-6 py-4 font-semibold text-emerald-600 dark:text-emerald-400" x-text="`₦${c.total_value.toLocaleString()}`"></td>
-                                            </tr>
-                                        </template>
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            <!-- Financial Summary Section -->
-                            <div class="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 border-t border-gray-200 dark:border-gray-600">
-                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 p-6">
-                                    <!-- Total Loan -->
-                                    <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-600 shadow-sm">
-                                        <div class="flex items-center justify-between">
-                                            <div>
-                                                <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total Loan</p>
-                                                <p class="text-lg font-bold text-gray-900 dark:text-white" x-text="`₦${modalData.total_loan ? modalData.total_loan.toLocaleString() : '0'}`"></p>
-                                            </div>
-                                            <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
-                                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
-                                                </svg>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Insurance Rate -->
-                                    <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-600 shadow-sm">
-                                        <div class="flex items-center justify-between">
-                                            <div>
-                                                <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Insurance Rate</p>
-                                                <p class="text-lg font-bold text-orange-600 dark:text-orange-400" x-text="`${modalData.insurance_rate || 0}%`"></p>
-                                            </div>
-                                            <div class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
-                                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-                                                </svg>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Insurance Amount -->
-                                    <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-600 shadow-sm">
-                                        <div class="flex items-center justify-between">
-                                            <div>
-                                                <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Insurance Amount</p>
-                                                <p class="text-lg font-bold text-orange-600 dark:text-orange-400" x-text="`₦${modalData.insurance_amount ? modalData.insurance_amount.toLocaleString() : '0'}`"></p>
-                                            </div>
-                                            <div class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
-                                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
-                                                </svg>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Equity Held -->
-                                    <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-600 shadow-sm">
-                                        <div class="flex items-center justify-between">
-                                            <div>
-                                                <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Equity Held</p>
-                                                <p class="text-lg font-bold text-purple-600 dark:text-purple-400" x-text="`₦${modalData.equity ? modalData.equity.toLocaleString() : '0'}`"></p>
-                                            </div>
-                                            <div class="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
-                                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                                                </svg>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Disbursed Amount -->
-                                    <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-600 shadow-sm">
-                                        <div class="flex items-center justify-between">
-                                            <div>
-                                                <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Disbursed Amount</p>
-                                                <p class="text-lg font-bold text-emerald-600 dark:text-emerald-400" x-text="`₦${modalData.disbursed_amount ? modalData.disbursed_amount.toLocaleString() : '0'}`"></p>
-                                            </div>
-                                            <div class="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center">
-                                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                                                </svg>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                    <!-- Enhanced File Upload Section -->
-                    <div class="space-y-4">
-                        <label for="verificationPhotoInput" class="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
-                            <svg class="w-4 h-4 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.828-1.472A2 2 0 0110.153 4h3.694a2 2 0 011.664.89l.828 1.472A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                            </svg>
-                            Commodity Photo *
-                        </label>
-                        <div class="relative border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-6 text-center cursor-pointer hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 transition-all duration-200 group">
-                            <input type="file" name="photo" id="verificationPhotoInput" accept="image/*" required @change="previewImage($event, 'verificationPhotoPreview')" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                            <div class="flex flex-col items-center">
-                                <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4 group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/20 transition-colors">
-                                    <svg class="w-8 h-8 text-gray-400 group-hover:text-emerald-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.828-1.472A2 2 0 0110.153 4h3.694a2 2 0 011.664.89l.828 1.472A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                    </svg>
-                                </div>
-                                <p class="text-gray-600 dark:text-gray-400 text-sm font-medium mb-1">Click to capture or upload commodity photo</p>
-                                <p class="text-gray-500 dark:text-gray-500 text-xs">PNG, JPG up to 4MB</p>
-                                <img id="verificationPhotoPreview" class="mt-4 w-full h-64 object-contain rounded-lg hidden border-2 border-gray-300 dark:border-gray-600 shadow-sm" />
-                            </div>
-                        </div>
-
-                        <!-- Camera Capture Button -->
-                        <button type="button" id="captureVerificationBtn"
-                            class="flex items-center justify-center w-full px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors shadow-sm">
-                            <i class="fas fa-camera mr-2"></i>
-                            Capture Photo
-                        </button>
-                        </div>
-                    </div>
-
-                    <!-- Enhanced Submit Section -->
-                    <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 p-6 sm:p-8 -mx-6 sm:-mx-8 -mb-6 sm:-mb-8">
-                        <div class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4">
-                            <button type="button" @click="closeCollectionModal()"
-                                class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors duration-200">
-                                Cancel
-                            </button>
-                            <button type="submit" id="submitCollectionBtn"
-                                class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all duration-200 transform hover:scale-105">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                <span id="submitCollectionText">Submit Verification</span>
-                            </button>
-                        </div>
-                    </div>
-                    </form>
                 </div>
             </div>
         </div>
@@ -866,6 +583,202 @@
                 });
             }
 
+        });
+
+        // Signature pad functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const canvas = document.getElementById('signatureCanvas');
+            const clearBtn = document.getElementById('clearSignatureBtn');
+            const signatureDataInput = document.getElementById('signatureDataInput');
+            const signatureTypeInput = document.getElementById('signatureTypeInput');
+            const signatureImageInput = document.getElementById('signatureImageInput');
+            const signatureImagePreview = document.getElementById('signatureImagePreview');
+            const validationMessage = document.getElementById('signatureValidationMessage');
+            const submitBtn = document.getElementById('submitCollectionBtn');
+
+            if (canvas && clearBtn) {
+                const ctx = canvas.getContext('2d');
+                let isDrawing = false;
+                let hasSignature = false;
+
+                // Set canvas size for crisp rendering
+                function resizeCanvas() {
+                    const rect = canvas.getBoundingClientRect();
+                    const dpr = window.devicePixelRatio || 1;
+                    canvas.width = rect.width * dpr;
+                    canvas.height = rect.height * dpr;
+                    ctx.scale(dpr, dpr);
+                    canvas.style.width = rect.width + 'px';
+                    canvas.style.height = rect.height + 'px';
+                }
+
+                // Initialize canvas
+                resizeCanvas();
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 2;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+
+                // Drawing functions
+                function startDrawing(e) {
+                    isDrawing = true;
+                    ctx.beginPath();
+                    const rect = canvas.getBoundingClientRect();
+                    const scaleX = canvas.width / rect.width;
+                    const scaleY = canvas.height / rect.height;
+                    const x = (e.clientX - rect.left) * scaleX;
+                    const y = (e.clientY - rect.top) * scaleY;
+                    ctx.moveTo(x, y);
+                    hasSignature = true;
+                }
+
+                function draw(e) {
+                    if (!isDrawing) return;
+                    e.preventDefault();
+                    const rect = canvas.getBoundingClientRect();
+                    const scaleX = canvas.width / rect.width;
+                    const scaleY = canvas.height / rect.height;
+                    const x = (e.clientX - rect.left) * scaleX;
+                    const y = (e.clientY - rect.top) * scaleY;
+                    ctx.lineTo(x, y);
+                    ctx.stroke();
+                }
+
+                function stopDrawing() {
+                    isDrawing = false;
+                }
+
+                // Touch events for mobile
+                function handleTouchStart(e) {
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    const mouseEvent = new MouseEvent('mousedown', {
+                        clientX: touch.clientX,
+                        clientY: touch.clientY
+                    });
+                    canvas.dispatchEvent(mouseEvent);
+                }
+
+                function handleTouchMove(e) {
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    const mouseEvent = new MouseEvent('mousemove', {
+                        clientX: touch.clientX,
+                        clientY: touch.clientY
+                    });
+                    canvas.dispatchEvent(mouseEvent);
+                }
+
+                function handleTouchEnd(e) {
+                    e.preventDefault();
+                    const mouseEvent = new MouseEvent('mouseup');
+                    canvas.dispatchEvent(mouseEvent);
+                }
+
+                // Event listeners
+                canvas.addEventListener('mousedown', startDrawing);
+                canvas.addEventListener('mousemove', draw);
+                canvas.addEventListener('mouseup', stopDrawing);
+                canvas.addEventListener('mouseout', stopDrawing);
+
+                canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+                canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+                canvas.addEventListener('touchend', handleTouchEnd);
+
+                // Clear signature
+                clearBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    hasSignature = false;
+                    signatureDataInput.value = '';
+                    signatureTypeInput.value = '';
+                });
+
+                // Handle signature image upload
+                if (signatureImageInput && signatureImagePreview) {
+                    signatureImageInput.addEventListener('change', function(e) {
+                        const file = e.target.files[0];
+                        if (file) {
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                signatureImagePreview.src = e.target.result;
+                                signatureImagePreview.classList.remove('hidden');
+                                hasSignature = true;
+                            };
+                            reader.readAsDataURL(file);
+                        } else {
+                            signatureImagePreview.src = '';
+                            signatureImagePreview.classList.add('hidden');
+                        }
+                    });
+                }
+
+                // Form submission validation
+                if (submitBtn) {
+                    submitBtn.addEventListener('click', function(e) {
+                        // Check if at least one signature method is provided
+                        if (!hasSignature && (!signatureImageInput || !signatureImageInput.files.length)) {
+                            e.preventDefault();
+                            validationMessage.classList.remove('hidden');
+                            // Scroll to signature section
+                            const signatureSection = document.querySelector('.mb-8');
+                            if (signatureSection) {
+                                signatureSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            }
+                            return false;
+                        }
+
+                        // Hide validation message
+                        validationMessage.classList.add('hidden');
+
+                        // Convert canvas signature to base64 if canvas has signature
+                        if (hasSignature && !signatureImageInput.files.length) {
+                            const signatureDataURL = canvas.toDataURL('image/png');
+                            signatureDataInput.value = signatureDataURL;
+                            signatureTypeInput.value = 'canvas';
+                        } else if (signatureImageInput.files.length > 0) {
+                            signatureTypeInput.value = 'upload';
+                        }
+                    });
+                }
+
+                // Reset when modal opens
+                const modal = canvas.closest('[x-show="showModal"]');
+                if (modal) {
+                    const observer = new MutationObserver(function(mutations) {
+                        mutations.forEach(function(mutation) {
+                            if (mutation.attributeName === 'style') {
+                                const display = window.getComputedStyle(modal).display;
+                                if (display !== 'none') {
+                                    // Modal opened, reset signature
+                                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                                    ctx.fillStyle = 'white';
+                                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                                    hasSignature = false;
+                                    signatureDataInput.value = '';
+                                    signatureTypeInput.value = '';
+                                    validationMessage.classList.add('hidden');
+                                    if (signatureImagePreview) {
+                                        signatureImagePreview.src = '';
+                                        signatureImagePreview.classList.add('hidden');
+                                    }
+                                    if (signatureImageInput) {
+                                        signatureImageInput.value = '';
+                                    }
+                                }
+                            }
+                        });
+                    });
+                    observer.observe(modal, { attributes: true, attributeFilter: ['style'] });
+                }
+
+                // Handle window resize
+                window.addEventListener('resize', resizeCanvas);
+            }
         });
     </script>
 @endsection

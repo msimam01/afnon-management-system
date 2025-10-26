@@ -1,40 +1,42 @@
 <?php
 
-use App\Models\Agent;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\BVNController;
-use App\Http\Controllers\AgentController;
-use App\Http\Controllers\SeasonController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\ApplicationController;
-use App\Http\Controllers\FarmerPaymentController;
-use App\Http\Controllers\Admin\CenterController;
-use App\Http\Controllers\AgentDashboardController;
-use App\Http\Controllers\Admin\AuditLogsController;
-use App\Http\Controllers\AgentCollectionController;
-use App\Http\Controllers\Auth\TenantLoginController;
 use App\Http\Controllers\Admin\AdminReportController;
-use App\Http\Controllers\CommodityCategoryController;
-use App\Http\Controllers\Agent\MonetaryReturnController;
-use App\Http\Controllers\CommodityMarketPriceController;
-use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
-use App\Http\Controllers\Tenant\Admin\CommodityController;
 use App\Http\Controllers\Admin\AdminVerificationController;
-use App\Http\Controllers\Agent\AgentVerificationController;
-use App\Http\Controllers\Auth\TenantForgotPasswordController;
-use App\Http\Controllers\Auth\TenantForcePasswordChangeController;
-use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
-use App\Http\Controllers\Tenant\Admin\Centers\CollectionCenters;
-use App\Http\Controllers\Admin\MonetaryReturnVerificationController;
+use App\Http\Controllers\Admin\AuditLogsController;
+use App\Http\Controllers\Admin\CenterController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
+use App\Http\Controllers\Admin\MonetaryReturnVerificationController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Agent\AgentVerificationController;
 use App\Http\Controllers\Agent\DashboardController as AgentDashboard;
-use App\Http\Controllers\Tenant\Admin\RolePermissions\RoleController;
+use App\Http\Controllers\Agent\MonetaryReturnController;
+use App\Http\Controllers\AgentCollectionController;
+use App\Http\Controllers\AgentController;
+use App\Http\Controllers\AgentDashboardController;
+use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\Auth\TenantForcePasswordChangeController;
+use App\Http\Controllers\Auth\TenantForgotPasswordController;
+use App\Http\Controllers\Auth\TenantLoginController;
+use App\Http\Controllers\BVNController;
+use App\Http\Controllers\CommodityCategoryController;
+use App\Http\Controllers\CommodityMarketPriceController;
 use App\Http\Controllers\Farmer\DashboardController as FarmerDashboard;
-use App\Http\Controllers\Tenant\Admin\Centers\ReturningCenterController;
-use App\Http\Controllers\Tenant\Admin\Centers\CollectionCenterController;
-use App\Http\Controllers\Tenant\Admin\RolePermissions\PermissionController;
+use App\Http\Controllers\FarmerPaymentController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SeasonController;
 use App\Http\Controllers\Tenant\Admin\Applications\ApplicationApprovalController;
+use App\Http\Controllers\Tenant\Admin\Centers\CollectionCenterController;
+use App\Http\Controllers\Tenant\Admin\Centers\CollectionCenters;
+use App\Http\Controllers\Tenant\Admin\Centers\ReturningCenterController;
+use App\Http\Controllers\Tenant\Admin\CommodityController;
+use App\Http\Controllers\Tenant\Admin\RolePermissions\PermissionController;
+use App\Http\Controllers\Tenant\Admin\RolePermissions\RoleController;
+use App\Models\Agent;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Route;
+use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
+use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
+
 
 
 // Apply tenancy middleware
@@ -356,12 +358,30 @@ Route::middleware([
         Route::post('verify-collection', [AgentVerificationController::class, 'storeCollection'])
             ->name('verify.collection.submit');
 
+        // Collection Verification Show Page - using encrypted IDs
+        Route::get('collections/{id}/verify', [AgentVerificationController::class, 'showCollectionVerification'])
+            ->name('collections.verify');
+
         // Verify Return - High Priority (Primary Function)
         Route::get('verify-return', [AgentVerificationController::class, 'assignedReturns'])
             ->name('verify.return');
         Route::post('verify-return', [AgentVerificationController::class, 'storeReturn'])
             ->name('verify.return.submit');
 
+        // Return Verification Show Page - using encrypted IDs
+        Route::get('returns/{id}/verify', [AgentVerificationController::class, 'showReturnVerification'])
+            ->name('returns.verify');
+
+        // PDF Download Routes
+        Route::get('collections/{application}/pdf', [AgentVerificationController::class, 'downloadCollectionPDF'])
+            ->name('collections.pdf');
+        Route::get('returns/{application}/pdf', [AgentVerificationController::class, 'downloadReturnPDF'])
+            ->name('returns.pdf');
+// In your web.php
+Route::get('/test-pdf', function() {
+    $pdf = Pdf::loadHTML('<html><body><h1>Test PDF</h1><p>No JavaScript here</p></body></html>');
+    return $pdf->stream();
+});
         // Transactions - Medium Priority
         Route::get('transactions', [MonetaryReturnController::class, 'index'])
             ->name('monetary-return');

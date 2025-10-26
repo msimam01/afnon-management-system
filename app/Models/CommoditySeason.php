@@ -8,7 +8,7 @@ use Illuminate\Support\Str;
 class CommoditySeason extends Model
 {
     use HasFactory;
-    protected $fillable = ['commodity_id', 'season_id'];
+    protected $fillable = ['commodity_id', 'season_id', 'stock'];
     protected static function booted()
     {
         static::creating(fn ($model) => $model->uuid = (string) Str::uuid());

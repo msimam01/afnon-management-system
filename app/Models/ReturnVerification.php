@@ -13,7 +13,16 @@ class ReturnVerification extends Model
         'agent_id',
         'id_card_photo',
         'returned_commodity_photo',
-        'status'
+        'status',
+        'expected_quantity',
+        'returned_quantity',
+        'variance',
+        'shortfall_reason',
+        'partial_return',
+        'location_lat',
+        'location_lng',
+        'signature',
+        'fraud_flag'
     ];
     public function application()
     {

@@ -61,6 +61,74 @@
                     </li>
 
                     {{-- Activity Logs - Medium Priority --}}
+                    <!-- Global Admin Section -->
+                    <li class="mt-4 mb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                        Global Management
+                    </li>
+
+                    <!-- Global Seasons -->
+                    <li>
+                        <a href="{{ route('global.seasons.index') }}"
+                            class="{{ Route::is('global.seasons.*') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
+                            <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            Global Seasons
+                        </a>
+                    </li>
+
+                    <!-- Global Commodities -->
+                    <li>
+                        <a href="{{ route('global.commodities.index') }}"
+                            class="{{ Route::is('global.commodities.*') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
+                            <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                            Global Commodities
+                        </a>
+                    </li>
+
+                    <!-- Global Categories -->
+                    <li>
+                        <a href="{{ route('global.commodity-categories.index') }}"
+                            class="{{ Route::is('global.commodity-categories.*') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
+                            <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                            </svg>
+                            Commodity Categories
+                        </a>
+                    </li>
+
+                    <!-- Season Allocations -->
+                    @php
+                        // Get the first season to link to, or null if no seasons exist
+                        $firstSeason = \App\Models\GlobalSeason::first();
+                        $allocationsRoute = $firstSeason ? route('global.allocations.index', $firstSeason->uuid) : '#';
+                    @endphp
+                    <li>
+                        <a href="{{ $allocationsRoute }}"
+                            class="{{ Route::is('global.allocations.*') || Route::is('global.seasons.allocations.*') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
+                            <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                            Season Allocations
+                        </a>
+                    </li>
+
+                    <!-- Global Market Prices -->
+                    {{-- <li>
+                        <a href="{{ route('global.commodity-market-prices.index') }}"
+                            class="{{ Route::is('global.commodity-market-prices.*') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">
+                            <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Market Prices
+                        </a>
+                    </li> --}}
+
+                    <li class="border-t border-gray-200 dark:border-gray-700 my-2"></li>
+
+                    <!-- System Logs -->
                     <li>
                         <a href="{{ route('superadmin.logs.index') }}"
                             class="{{ Route::is('superadmin.logs.*') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center px-4 py-2 rounded-lg">

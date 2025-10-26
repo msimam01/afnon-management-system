@@ -77,10 +77,10 @@ class SeasonController extends Controller
         // Determine status based on start date
         $startDate = \Carbon\Carbon::parse($data['start_date']);
         $isStartingToday = $startDate->isToday();
-        
+
         // Set status based on start date
         $data['status'] = $isStartingToday ? 'open' : 'closed';
-        
+
         // Only close other open seasons if we're creating a new open season
         if ($isStartingToday) {
             $openSeasons = Season::where('status', 'open')->get();
@@ -145,6 +145,82 @@ class SeasonController extends Controller
         $totalDistributed = $commodities->sum('distributed');
         $totalRemaining = $commodities->sum('remaining');
 
+        // Season progress calculations
+        $collectionStart = \Carbon\Carbon::parse($season->collection_start_date);
+        $collectionEnd = \Carbon\Carbon::parse($season->collection_end_date);
+        $now = \Carbon\Carbon::now();
+
+        $totalCollectionDays = $collectionEnd->diffInDays($collectionStart);
+        $elapsedDays = $collectionStart->diffInDays($now, false); // false for signed
+        $collectionProgress = $totalCollectionDays > 0 ? min(100, max(0, ($elapsedDays / $totalCollectionDays) * 100)) : 0;
+        $daysRemainingInCollection = $collectionEnd->isPast() ? 0 : $now->diffInDays($collectionEnd);
+
+        $distributionProgress = $totalAllocated > 0 ? round(($totalDistributed / $totalAllocated) * 100, 1) : 0;
+
+        $daysUntilReturn = $season->loan_type === 'complete-loan' && $season->return_deadline
+            ? (\Carbon\Carbon::parse($season->return_deadline)->isPast()
+                ? 0
+                : $now->diffInDays(\Carbon\Carbon::parse($season->return_deadline)))
+            : null;
+
+        // Financial summary
+        $seasonApplications = $season->applications()->with('applicationCommodities.commodity')->get();
+        $totalLoanAmount = $seasonApplications->sum(function ($app) {
+            return $app->total_loan ?? 0;
+        });
+        $coFundedPayments = $seasonApplications->where('equity', '>', 0)->sum('equity');
+        $disbursedTotal = $seasonApplications->sum('disbursed_amount');
+        $outstandingBalance = $totalLoanAmount - $disbursedTotal;
+
+        $insuranceContributions = $seasonApplications->sum(function ($app) {
+            return ($app->insurance_amount ?? 0) + ($app->equity ?? 0);
+        });
+
+        // Application trends (last 8 weeks)
+        $weeksAgo = \Carbon\Carbon::now()->subWeeks(8);
+        $applicationTrend = DB::table('applications')
+            ->where('season_id', $season->id)
+            ->where('created_at', '>=', $weeksAgo)
+            ->select(
+                DB::raw('DATE(created_at) as date'),
+                DB::raw('COUNT(*) as count')
+            )
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
+
+        // Group by weeks
+        $applicationTrendLabels = [];
+        $applicationTrendData = [];
+        $currentWeekStart = $weeksAgo->copy()->startOfWeek();
+
+        for ($i = 0; $i < 8; $i++) {
+            $weekStart = $currentWeekStart->copy()->addWeeks($i);
+            $weekEnd = $weekStart->copy()->endOfWeek();
+
+            $count = $applicationTrend->whereBetween('date', [$weekStart->toDateString(), $weekEnd->toDateString()])->sum('count');
+
+            $applicationTrendLabels[] = 'Week ' . ($i + 1);
+            $applicationTrendData[] = $count;
+        }
+
+        // Alerts
+        $pendingCollections = \App\Models\Application::where('season_id', $season->id)
+            ->where('status', 'approved')
+            ->whereDoesntHave('collectionVerification')
+            ->count();
+
+        $overdueReturns = 0;
+        // TODO: Implement overdue returns check when return system is complete
+        // For now, assume no overdue returns
+        // if ($season->loan_type === 'complete-loan' && $season->return_deadline) {
+        //     $overdueReturns = \App\Models\Application::where('season_id', $season->id)
+        //         ->where('status', 'distributed')
+        //         ->whereDoesntHave('returnVerification')
+        //         ->where('return_date', '<', $now)
+        //         ->count();
+        // }
+
         return view('admin.seasons.show', compact(
             'season',
             'commodities',
@@ -156,11 +232,21 @@ class SeasonController extends Controller
             'totalFarmers',
             'totalAllocated',
             'totalDistributed',
-            'totalRemaining'
+            'totalRemaining',
+            'collectionProgress',
+            'daysRemainingInCollection',
+            'distributionProgress',
+            'daysUntilReturn',
+            'totalLoanAmount',
+            'coFundedPayments',
+            'outstandingBalance',
+            'insuranceContributions',
+            'applicationTrendLabels',
+            'applicationTrendData',
+            'pendingCollections',
+            'overdueReturns'
         ));
     }
-
-
 
     public function edit(Season $season)
     {
@@ -233,8 +319,6 @@ class SeasonController extends Controller
         ToastMagic::success('Season updated successfully.');
         return redirect()->route('admin.seasons.index');
     }
-
-
 
     public function destroy(Season $season)
     {

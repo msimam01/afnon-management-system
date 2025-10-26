@@ -117,14 +117,14 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4">
-                                        <button x-show="app.return_status === 'pending'"
-                                            @click="openReturnModal(app)"
+                                        <a x-show="app.return_status === 'pending'"
+                                           :href="`/agent/returns/${app.encrypted_id}/verify`"
                                             class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200">
                                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                             </svg>
-                                            Verify Return
-                                        </button>
+                                            Verify
+                                        </a>
                                         <span x-show="app.return_status === 'verified'" class="inline-flex items-center px-3 py-2 text-sm text-green-600 dark:text-green-400">
                                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
@@ -184,9 +184,10 @@
         </div>
 
         <!-- Enhanced Return Modal -->
-        <div x-show="showModal" x-cloak class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center overflow-y-auto p-4">
-            <div @click.away="closeReturnModal()"
-                class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-7xl my-8 p-6 sm:p-8 relative max-h-[95vh] overflow-y-auto border border-gray-200 dark:border-gray-700">
+        <div x-show="showModal" x-cloak class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4">
+            <div class="relative w-full max-w-2xl sm:max-w-4xl lg:max-w-6xl xl:max-w-7xl max-h-[95vh] flex flex-col">
+                <div @click.away="closeReturnModal()" class="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-2xl flex flex-col h-full overflow-hidden">
+                    <div class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
                 <!-- Enhanced Modal Header -->
                 <div class="flex items-center justify-between mb-8 border-b border-gray-200 dark:border-gray-600 pb-6">
                     <div class="flex items-center space-x-4">
@@ -207,7 +208,10 @@
                     </button>
                 </div>
                 <form id="returnForm" class="space-y-8" enctype="multipart/form-data" @submit.prevent="submitReturn">
+                    @csrf
                     <input type="hidden" name="application_id" x-model="form.application_id" />
+                    <input type="hidden" name="location_lat" id="location_lat" />
+                    <input type="hidden" name="location_lng" id="location_lng" />
 
                     <!-- Enhanced Information Cards -->
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -414,6 +418,69 @@
 
                     </div>
 
+                    <!-- Return Details Section -->
+                    <div class="mb-8">
+                        <div class="flex items-center mb-6">
+                            <div class="w-10 h-10 bg-indigo-500 rounded-lg flex items-center justify-center mr-3">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
+                                </svg>
+                            </div>
+                            <h4 class="text-xl font-semibold text-gray-900 dark:text-white">Return Details</h4>
+                        </div>
+
+                        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- Returned Quantity -->
+                                <div>
+                                    <label for="returned_quantity" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                        Returned Quantity *
+                                    </label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                                            </svg>
+                                        </div>
+                                        <input type="number" id="returned_quantity" name="returned_quantity" min="0" step="0.01" required
+                                            class="w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                                            placeholder="Enter quantity returned" />
+                                    </div>
+                                </div>
+
+                                <!-- Shortfall Reason -->
+                                <div class="md:col-span-1">
+                                    <label for="shortfall_reason" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                        Shortfall Reason
+                                    </label>
+                                    <textarea id="shortfall_reason" name="shortfall_reason" rows="4"
+                                        class="w-full px-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                                        placeholder="Explain why the returned quantity is less than expected..."></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Display Expected Return Info -->
+                            <div class="mt-6 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-200 dark:border-indigo-700">
+                                <div class="flex items-center mb-2">
+                                    <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <span class="text-sm font-medium text-indigo-800 dark:text-indigo-200">Expected Return Information</span>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <span class="text-gray-600 dark:text-gray-400">Expected Quantity:</span>
+                                        <span class="font-semibold text-indigo-600 dark:text-indigo-400 ml-2" x-text="modalData.expected_return && modalData.expected_return.quantity ? `${modalData.expected_return.quantity} ${modalData.expected_return.unit || ''}` : '—'"></span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-600 dark:text-gray-400">Commodity:</span>
+                                        <span class="font-semibold text-gray-900 dark:text-white ml-2" x-text="modalData.expected_return && modalData.expected_return.commodity ? modalData.expected_return.commodity : '—'"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Enhanced File Upload Section -->
                     <div class="grid grid-cols-1 gap-8">
                         <!-- Single Verification Photo Upload -->
@@ -446,6 +513,73 @@
                                 <i class="fas fa-camera mr-2"></i>
                                 Capture Photo
                             </button>
+                        </div>
+                    </div>
+
+                    <!-- Farmer Signature Section -->
+                    <div class="mb-8">
+                        <div class="flex items-center mb-6">
+                            <div class="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center mr-3">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path>
+                                </svg>
+                            </div>
+                            <h4 class="text-xl font-semibold text-gray-900 dark:text-white">Farmer's Signature</h4>
+                        </div>
+
+                        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6">
+                            <div class="space-y-6">
+                                <!-- Signature Pad -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                        Draw Signature *
+                                    </label>
+                                    <div class="border-2 border-gray-300 dark:border-gray-600 rounded-lg p-2 bg-gray-50 dark:bg-gray-700">
+                                        <canvas id="signatureCanvas" class="w-full h-40 bg-white border border-gray-200 dark:border-gray-600 rounded cursor-crosshair touch-none" style="touch-action: none;"></canvas>
+                                        <div class="flex justify-between items-center mt-2">
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">Use mouse, touch, or stylus to sign</p>
+                                            <button type="button" id="clearSignatureBtn" class="text-xs text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 underline">
+                                                Clear
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Alternative: Upload Signature Image -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                        Or Upload Signature Image *
+                                    </label>
+                                    <div class="relative border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-all duration-200">
+                                        <input type="file" name="signature_image" id="signatureImageInput" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                                        <div class="flex flex-col items-center">
+                                            <div class="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-2">
+                                                <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                                </svg>
+                                            </div>
+                                            <p class="text-sm text-gray-600 dark:text-gray-400">Click to upload signed image</p>
+                                            <p class="text-xs text-gray-500 dark:text-gray-500">PNG, JPG, PDF up to 2MB</p>
+                                            <img id="signatureImagePreview" class="mt-2 max-w-full h-20 object-contain hidden border border-gray-300 dark:border-gray-600 rounded" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Hidden Signature Data -->
+                                <input type="hidden" name="signature_data" id="signatureDataInput" />
+                                <input type="hidden" name="signature_type" id="signatureTypeInput" />
+
+                                <!-- Validation Message -->
+                                <div id="signatureValidationMessage" class="hidden bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
+                                    <div class="flex items-center">
+                                        <svg class="w-4 h-4 text-red-600 dark:text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        <p class="text-sm text-red-700 dark:text-red-300">Please provide a signature before completing verification.</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -559,52 +693,116 @@
                 },
 
                 submitReturn() {
-                    const form = document.getElementById('returnForm');
-                    const formData = new FormData(form);
                     const submitBtn = document.getElementById('submitReturnBtn');
                     const submitText = document.getElementById('submitReturnText');
 
                     // Add loading state
                     submitBtn.disabled = true;
-                    submitText.textContent = 'Processing...';
+                    submitText.textContent = 'Getting location...';
                     submitBtn.innerHTML = `
                         <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                        Processing...
+                        Getting location...
                     `;
 
-                    fetch('{{ route('agent.verify.return.submit') }}', {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                        },
-                        body: formData
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.message) {
-                            showToast(data.message, 'success');
-                            this.closeReturnModal();
-                            this.fetchAssignedReturns();
-                        } else {
-                            showToast('Verification failed!', 'error');
+                    // Get location first
+                    this.getCurrentPosition()
+                        .then(position => {
+                            // Update form with location data
+                            document.getElementById('location_lat').value = position.coords.latitude;
+                            document.getElementById('location_lng').value = position.coords.longitude;
+
+                            submitText.textContent = 'Processing...';
+                            submitBtn.innerHTML = `
+                                <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Processing...
+                            `;
+
+                            const form = document.getElementById('returnForm');
+                            const formData = new FormData(form);
+
+                            // Debug: Check if CSRF token exists
+                            const csrfToken = document.querySelector('meta[name="csrf-token"]');
+                            const csrfValue = csrfToken ? csrfToken.content : 'NOT_FOUND';
+                            console.log('CSRF Token:', csrfValue);
+                            console.log('Route URL:', '{{ route("agent.verify.return.submit") }}');
+
+                            return fetch('{{ route('agent.verify.return.submit') }}', {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': csrfValue,
+                                    'Accept': 'application/json',
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                },
+                                body: formData
+                            });
+                        })
+                        .then(res => {
+                            console.log('Response status:', res.status);
+                            console.log('Response headers:', res.headers.get('content-type'));
+                            if (!res.ok) {
+                                return res.text().then(text => {
+                                    console.error('Error response:', text);
+                                    throw new Error(`HTTP ${res.status}: ${text}`);
+                                });
+                            }
+                            return res.json();
+                        })
+                        .then(data => {
+                            console.log('Success response:', data);
+                            if (data.message) {
+                                showToast(data.message, 'success');
+                                this.closeReturnModal();
+                                this.fetchAssignedReturns();
+                            } else {
+                                showToast('Verification failed!', 'error');
+                            }
+                        })
+                        .catch(err => {
+                            console.error('Network/Catch error:', err);
+                            if (err.message === 'User denied geolocation') {
+                                showToast('Location access is required for verification', 'error');
+                            } else {
+                                showToast('Network error occurred: ' + err.message, 'error');
+                            }
+                        })
+                        .finally(() => {
+                            // Reset button state
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = `
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
+                                </svg>
+                                <span>Submit Verification</span>
+                            `;
+                        });
+                },
+
+                getCurrentPosition() {
+                    return new Promise((resolve, reject) => {
+                        if (!navigator.geolocation) {
+                            reject(new Error('Geolocation is not supported by this browser'));
+                            return;
                         }
-                    })
-                    .catch(err => {
-                        showToast('Network error occurred', 'error');
-                        console.error('Error:', err);
-                    })
-                    .finally(() => {
-                        // Reset button state
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = `
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
-                            </svg>
-                            <span>Submit Verification</span>
-                        `;
+
+                        navigator.geolocation.getCurrentPosition(
+                            (position) => {
+                                resolve(position);
+                            },
+                            (error) => {
+                                reject(new Error('User denied geolocation'));
+                            },
+                            {
+                                enableHighAccuracy: true,
+                                timeout: 10000,
+                                maximumAge: 300000 // Cache location for 5 minutes
+                            }
+                        );
                     });
                 },
 
@@ -802,6 +1000,202 @@
                         alert('Camera not supported on this device. Please use file upload instead.');
                     }
                 });
+            }
+        });
+
+        // Signature pad functionality for return verification
+        document.addEventListener('DOMContentLoaded', function() {
+            const canvas = document.getElementById('signatureCanvas');
+            const clearBtn = document.getElementById('clearSignatureBtn');
+            const signatureDataInput = document.getElementById('signatureDataInput');
+            const signatureTypeInput = document.getElementById('signatureTypeInput');
+            const signatureImageInput = document.getElementById('signatureImageInput');
+            const signatureImagePreview = document.getElementById('signatureImagePreview');
+            const validationMessage = document.getElementById('signatureValidationMessage');
+            const submitBtn = document.getElementById('submitReturnBtn');
+
+            if (canvas && clearBtn) {
+                const ctx = canvas.getContext('2d');
+                let isDrawing = false;
+                let hasSignature = false;
+
+                // Set canvas size for crisp rendering
+                function resizeCanvas() {
+                    const rect = canvas.getBoundingClientRect();
+                    const dpr = window.devicePixelRatio || 1;
+                    canvas.width = rect.width * dpr;
+                    canvas.height = rect.height * dpr;
+                    ctx.scale(dpr, dpr);
+                    canvas.style.width = rect.width + 'px';
+                    canvas.style.height = rect.height + 'px';
+                }
+
+                // Initialize canvas
+                resizeCanvas();
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 2;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+
+                // Drawing functions
+                function startDrawing(e) {
+                    isDrawing = true;
+                    ctx.beginPath();
+                    const rect = canvas.getBoundingClientRect();
+                    const scaleX = canvas.width / rect.width;
+                    const scaleY = canvas.height / rect.height;
+                    const x = (e.clientX - rect.left) * scaleX;
+                    const y = (e.clientY - rect.top) * scaleY;
+                    ctx.moveTo(x, y);
+                    hasSignature = true;
+                }
+
+                function draw(e) {
+                    if (!isDrawing) return;
+                    e.preventDefault();
+                    const rect = canvas.getBoundingClientRect();
+                    const scaleX = canvas.width / rect.width;
+                    const scaleY = canvas.height / rect.height;
+                    const x = (e.clientX - rect.left) * scaleX;
+                    const y = (e.clientY - rect.top) * scaleY;
+                    ctx.lineTo(x, y);
+                    ctx.stroke();
+                }
+
+                function stopDrawing() {
+                    isDrawing = false;
+                }
+
+                // Touch events for mobile
+                function handleTouchStart(e) {
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    const mouseEvent = new MouseEvent('mousedown', {
+                        clientX: touch.clientX,
+                        clientY: touch.clientY
+                    });
+                    canvas.dispatchEvent(mouseEvent);
+                }
+
+                function handleTouchMove(e) {
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    const mouseEvent = new MouseEvent('mousemove', {
+                        clientX: touch.clientX,
+                        clientY: touch.clientY
+                    });
+                    canvas.dispatchEvent(mouseEvent);
+                }
+
+                function handleTouchEnd(e) {
+                    e.preventDefault();
+                    const mouseEvent = new MouseEvent('mouseup');
+                    canvas.dispatchEvent(mouseEvent);
+                }
+
+                // Event listeners
+                canvas.addEventListener('mousedown', startDrawing);
+                canvas.addEventListener('mousemove', draw);
+                canvas.addEventListener('mouseup', stopDrawing);
+                canvas.addEventListener('mouseout', stopDrawing);
+
+                canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+                canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+                canvas.addEventListener('touchend', handleTouchEnd);
+
+                // Clear signature
+                clearBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    hasSignature = false;
+                    signatureDataInput.value = '';
+                    signatureTypeInput.value = '';
+                });
+
+                // Handle signature image upload
+                if (signatureImageInput && signatureImagePreview) {
+                    signatureImageInput.addEventListener('change', function(e) {
+                        const file = e.target.files[0];
+                        if (file) {
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                signatureImagePreview.src = e.target.result;
+                                signatureImagePreview.classList.remove('hidden');
+                                hasSignature = true;
+                            };
+                            reader.readAsDataURL(file);
+                        } else {
+                            signatureImagePreview.src = '';
+                            signatureImagePreview.classList.add('hidden');
+                        }
+                    });
+                }
+
+                // Form submission validation
+                if (submitBtn) {
+                    submitBtn.addEventListener('click', function(e) {
+                        // Check if at least one signature method is provided
+                        if (!hasSignature && (!signatureImageInput || !signatureImageInput.files.length)) {
+                            e.preventDefault();
+                            validationMessage.classList.remove('hidden');
+                            // Scroll to signature section
+                            const signatureSection = document.querySelectorAll('.mb-8')[3]; // The signature section is the 4th .mb-8
+                            if (signatureSection) {
+                                signatureSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            }
+                            return false;
+                        }
+
+                        // Hide validation message
+                        validationMessage.classList.add('hidden');
+
+                        // Convert canvas signature to base64 if canvas has signature
+                        if (hasSignature && !signatureImageInput.files.length) {
+                            const signatureDataURL = canvas.toDataURL('image/png');
+                            signatureDataInput.value = signatureDataURL;
+                            signatureTypeInput.value = 'canvas';
+                        } else if (signatureImageInput.files.length > 0) {
+                            signatureTypeInput.value = 'upload';
+                        }
+                    });
+                }
+
+                // Reset when modal opens
+                const modal = canvas.closest('[x-show="showModal"]');
+                if (modal) {
+                    const observer = new MutationObserver(function(mutations) {
+                        mutations.forEach(function(mutation) {
+                            if (mutation.attributeName === 'style') {
+                                const display = window.getComputedStyle(modal).display;
+                                if (display !== 'none') {
+                                    // Modal opened, reset signature
+                                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                                    ctx.fillStyle = 'white';
+                                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                                    hasSignature = false;
+                                    signatureDataInput.value = '';
+                                    signatureTypeInput.value = '';
+                                    validationMessage.classList.add('hidden');
+                                    if (signatureImagePreview) {
+                                        signatureImagePreview.src = '';
+                                        signatureImagePreview.classList.add('hidden');
+                                    }
+                                    if (signatureImageInput) {
+                                        signatureImageInput.value = '';
+                                    }
+                                }
+                            }
+                        });
+                    });
+                    observer.observe(modal, { attributes: true, attributeFilter: ['style'] });
+                }
+
+                // Handle window resize
+                window.addEventListener('resize', resizeCanvas);
             }
         });
     </script>

@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('season_id')->constrained()->onDelete('cascade');
             $table->foreignId('commodity_id')->constrained()->onDelete('cascade');
+            $table->integer('stock')->default(0);
             $table->unique(['season_id', 'commodity_id']);
             $table->timestamps();
         });

@@ -237,7 +237,7 @@ class ApplicationController extends Controller
 
         try {
             $season = Season::findOrFail($validated['season_id']);
-            
+
             // Create Farmer
             $registrationNumber = $this->generateRegistrationNumber($season->type, now()->year);
             $farmer = Farmer::create([
@@ -513,7 +513,8 @@ class ApplicationController extends Controller
                 'farm:id,size',
                 'season:id,collection_start_date,collection_end_date,return_deadline,loan_type',
                 'farmer:id,full_name,phone,registration_number',
-                'commodities:id,name,quantity_per_hectare,price_per_unit'
+                'commodities:id,name,quantity_per_hectare,price_per_unit',
+                'applicationCommodities:id,application_id,commodity_id,quantity'
             ])
             ->where('uuid', $uuid)
             ->firstOrFail();
@@ -521,6 +522,22 @@ class ApplicationController extends Controller
         if ($application->status === 'approved') {
             ToastMagic::info('Application already approved.');
             return back();
+        }
+
+        // Check stock allocations before approval
+        $commodityQuantities = $application->applicationCommodities->groupBy('commodity_id')->map(function ($group) {
+            return $group->sum('quantity');
+        });
+
+        foreach ($commodityQuantities as $commodityId => $totalQuantity) {
+            $allocation = \App\Models\Allocation::where('season_id', $application->season_id)
+                ->where('commodity_id', $commodityId)
+                ->first();
+
+            if (!$allocation || $allocation->allocated_stock < $totalQuantity) {
+                ToastMagic::error("Insufficient stock for commodity ID {$commodityId}. Available: " . ($allocation->allocated_stock ?? 0) . ", Required: {$totalQuantity}");
+                return back();
+            }
         }
 
         // Optimize date generation
@@ -561,7 +578,14 @@ class ApplicationController extends Controller
             ];
         })->toArray();
 
-        DB::transaction(function () use ($application, $allocations, $collectionDate, $returnDate, $request) {
+        DB::transaction(function () use ($application, $allocations, $collectionDate, $returnDate, $request, $commodityQuantities) {
+            // Deduct from allocations
+            foreach ($commodityQuantities as $commodityId => $totalQuantity) {
+                \App\Models\Allocation::where('season_id', $application->season_id)
+                    ->where('commodity_id', $commodityId)
+                    ->decrement('allocated_stock', $totalQuantity);
+            }
+
             // Insert or update ApplicationCenter
             \App\Models\ApplicationCenter::updateOrInsert(
                 ['application_id' => $application->id],
@@ -629,7 +653,8 @@ class ApplicationController extends Controller
                 'farm:id,size',
                 'season:id,collection_start_date,collection_end_date,return_deadline,loan_type',
                 'farmer:id,full_name,phone,registration_number',
-                'commodities:id,name,quantity_per_hectare,price_per_unit'
+                'commodities:id,name,quantity_per_hectare,price_per_unit',
+                'applicationCommodities:id,application_id,commodity_id,quantity'
             ])
             ->whereIn('id', $applicationIds)
             ->where('status', 'pending') // Only get pending applications
@@ -639,6 +664,33 @@ class ApplicationController extends Controller
         if ($applications->isEmpty()) {
             ToastMagic::info('No eligible applications found for bulk approval.');
             return back();
+        }
+
+        // Aggregate commodity quantities for all applications
+        $commodityQuantities = [];
+        foreach ($applications as $application) {
+            $seasonId = $application->season_id;
+            foreach ($application->applicationCommodities->groupBy('commodity_id') as $commodityId => $group) {
+                $total = $group->sum('quantity');
+                if (!isset($commodityQuantities[$seasonId])) {
+                    $commodityQuantities[$seasonId] = [];
+                }
+                $commodityQuantities[$seasonId][$commodityId] = ($commodityQuantities[$seasonId][$commodityId] ?? 0) + $total;
+            }
+        }
+
+        // Check stock allocations before bulk approval
+        foreach ($commodityQuantities as $seasonId => $qtys) {
+            foreach ($qtys as $commodityId => $totalQuantity) {
+                $allocation = \App\Models\Allocation::where('season_id', $seasonId)
+                    ->where('commodity_id', $commodityId)
+                    ->first();
+
+                if (!$allocation || $allocation->allocated_stock < $totalQuantity) {
+                    ToastMagic::error("Insufficient stock for commodity ID {$commodityId} in season {$seasonId}. Available: " . ($allocation->allocated_stock ?? 0) . ", Required: {$totalQuantity}");
+                    return back();
+                }
+            }
         }
 
         $bulkAllocations = [];
@@ -702,7 +754,16 @@ class ApplicationController extends Controller
         });
 
         // Optimize: Use single transaction with chunked inserts
-        DB::transaction(function () use ($bulkCenters, $bulkAllocations, $bulkUpdates, $now) {
+        DB::transaction(function () use ($bulkCenters, $bulkAllocations, $bulkUpdates, $now, $commodityQuantities) {
+            // Deduct from allocations
+            foreach ($commodityQuantities as $seasonId => $qtys) {
+                foreach ($qtys as $commodityId => $totalQuantity) {
+                    \App\Models\Allocation::where('season_id', $seasonId)
+                        ->where('commodity_id', $commodityId)
+                        ->decrement('allocated_stock', $totalQuantity);
+                }
+            }
+
             // Insert centers in chunks
             if (!empty($bulkCenters)) {
                 collect($bulkCenters)->chunk(500)->each(function ($chunk) {

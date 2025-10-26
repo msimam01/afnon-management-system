@@ -3,7 +3,7 @@
 @section('content')
 <div class="p-4 md:p-6 space-y-6">
 
-    {{-- Application Stats --}}
+    {{-- Top Summary Cards --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
         <div class="bg-blue-100 dark:bg-blue-900 p-4 rounded-xl shadow text-center">
             <p class="text-sm text-blue-700 dark:text-blue-300 font-semibold">Total Applications</p>
@@ -31,6 +31,29 @@
         </div>
     </div>
 
+    {{-- Season Progress and Status --}}
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="bg-white dark:bg-gray-800 shadow rounded-xl p-4">
+            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Season Progress</h3>
+            <div class="text-sm text-gray-600 dark:text-gray-400">
+                <p>Collection Period Elapsed: {{ $collectionProgress }}%</p>
+                <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+                    <div class="bg-blue-600 h-2.5 rounded-full" style="width: {{ $collectionProgress }}%"></div>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white dark:bg-gray-800 shadow rounded-xl p-4">
+            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Distribution Status</h3>
+            <div class="flex items-center justify-center">
+                @if($totalRemaining == 0)
+                    <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">✅ Fully Distributed</span>
+                @else
+                    <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium">⏳ In Progress</span>
+                @endif
+            </div>
+        </div>
+    </div>
+
     {{-- Commodity Allocation Stats --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <div class="bg-cyan-100 dark:bg-cyan-900 p-4 rounded-xl shadow text-center">
@@ -44,6 +67,135 @@
         <div class="bg-orange-100 dark:bg-orange-900 p-4 rounded-xl shadow text-center">
             <p class="text-sm text-orange-700 dark:text-orange-300 font-semibold">Remaining</p>
             <p class="text-2xl font-bold text-orange-900 dark:text-white">{{ number_format($totalRemaining) }}</p>
+        </div>
+    </div>
+
+    {{-- Season Snapshot Card --}}
+    <div class="bg-white dark:bg-gray-800 shadow rounded-xl p-4 sm:p-6">
+        <h2 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-6">📊 Season Snapshot</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+                <h3 class="text-lg font-semibold mb-2 text-gray-900 dark:text-white">Days Remaining</h3>
+                <div class="text-3xl font-bold text-blue-600">{{ $daysRemainingInCollection }}</div>
+                <p class="text-sm text-gray-600 dark:text-gray-400">until collection ends</p>
+            </div>
+
+            <div>
+                <h3 class="text-lg font-semibold mb-2 text-gray-900 dark:text-white">Distribution Progress</h3>
+                <div class="relative w-24 h-24 mx-auto">
+                    <svg class="w-24 h-24 transform -rotate-90" viewBox="0 0 36 36">
+                        <path d="M18 2.0845
+                                a 15.9155 15.9155 0 0 1 0 31.831
+                                a 15.9155 15.9155 0 0 1 0 -31.831"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              stroke-dasharray="100, 100"
+                              class="text-gray-200 dark:text-gray-700" />
+                        <path d="M18 2.0845
+                                a 15.9155 15.9155 0 0 1 0 31.831
+                                a 15.9155 15.9155 0 0 1 0 -31.831"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              stroke-dasharray="{{ $distributionProgress }}, 100"
+                              class="text-green-500" />
+                    </svg>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-sm font-bold text-gray-900 dark:text-white">{{ $distributionProgress }}%</span>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-600 dark:text-gray-400 text-center">Distributed</p>
+            </div>
+
+            <div>
+                <h3 class="text-lg font-semibold mb-2 text-gray-900 dark:text-white">Alerts</h3>
+                <ul class="space-y-2 text-sm">
+                    @if($daysRemainingInCollection <= 7)
+                        <li class="text-red-600">⚠️ Collection ends in {{ $daysRemainingInCollection }} days</li>
+                    @endif
+                    @if($season->loan_type === 'complete-loan' && $daysUntilReturn <= 14)
+                        <li class="text-yellow-600">🔄 Return deadline in {{ $daysUntilReturn }} days</li>
+                    @endif
+                    @if($totalRemaining > 0)
+                        <li class="text-blue-600">📦 {{ $totalRemaining }} units remaining to distribute</li>
+                    @endif
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    {{-- Financial Summary --}}
+    <div class="bg-white dark:bg-gray-800 shadow rounded-xl p-4 sm:p-6">
+        <h2 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-6">💰 Financial Summary</h2>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                <p class="text-sm text-gray-600 dark:text-gray-400">Total Loan Amount</p>
+                <p class="text-2xl font-bold text-gray-900 dark:text-white">₦{{ number_format($totalLoanAmount) }}</p>
+            </div>
+            <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                <p class="text-sm text-gray-600 dark:text-gray-400">Co-funded Payments</p>
+                <p class="text-2xl font-bold text-gray-900 dark:text-white">₦{{ number_format($coFundedPayments) }}</p>
+            </div>
+            <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                <p class="text-sm text-gray-600 dark:text-gray-400">Outstanding Balance</p>
+                <p class="text-2xl font-bold text-gray-900 dark:text-white">₦{{ number_format($outstandingBalance) }}</p>
+            </div>
+            <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                <p class="text-sm text-gray-600 dark:text-gray-400">Insurance Contributions</p>
+                <p class="text-2xl font-bold text-gray-900 dark:text-white">₦{{ number_format($insuranceContributions) }}</p>
+            </div>
+        </div>
+    </div>
+
+    {{-- Farmers & Applications Section --}}
+    <div class="bg-white dark:bg-gray-800 shadow rounded-xl p-4 sm:p-6">
+        <h2 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-6">👥 Farmers & Applications</h2>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div>
+                <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Applications by Status</h3>
+                <table class="min-w-full text-sm">
+                    <thead>
+                        <tr class="text-left">
+                            <th class="pb-2">Status</th>
+                            <th class="pb-2">Count</th>
+                            <th class="pb-2">Percentage</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                        <tr>
+                            <td class="py-2 text-yellow-600">Pending</td>
+                            <td class="py-2">{{ number_format($pendingApplications) }}</td>
+                            <td class="py-2">{{ $totalApplications > 0 ? round(($pendingApplications / $totalApplications) * 100, 1) : 0 }}%</td>
+                        </tr>
+                        <tr>
+                            <td class="py-2 text-green-600">Approved</td>
+                            <td class="py-2">{{ number_format($approvedApplications) }}</td>
+                            <td class="py-2">{{ $totalApplications > 0 ? round(($approvedApplications / $totalApplications) * 100, 1) : 0 }}%</td>
+                        </tr>
+                        <tr>
+                            <td class="py-2 text-blue-600">Distributed</td>
+                            <td class="py-2">{{ number_format($distributedApplications) }}</td>
+                            <td class="py-2">{{ $totalApplications > 0 ? round(($distributedApplications / $totalApplications) * 100, 1) : 0 }}%</td>
+                        </tr>
+                        <tr>
+                            <td class="py-2 text-red-600">Rejected</td>
+                            <td class="py-2">{{ number_format($rejectedApplications) }}</td>
+                            <td class="py-2">{{ $totalApplications > 0 ? round(($rejectedApplications / $totalApplications) * 100, 1) : 0 }}%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div>
+                <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Applications Trend</h3>
+                <div class="w-full h-[250px]">
+                    <canvas id="applicationsTrendChart"></canvas>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -92,64 +244,130 @@
         <hr class="my-6 border-gray-300 dark:border-gray-700">
 
         {{-- Commodity Distribution Table --}}
-        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-3">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">🧺 Commodities Distribution</h3>
-            {{-- <div class="flex flex-wrap gap-2">
-                <a href="{{ route('admin.seasons.export', $season->uuid) }}"
-                   class="text-sm bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700">
-                   Export Excel
-                </a>
-            </div> --}}
-        </div>
-
         @if ($commodities->isEmpty())
             <p class="text-sm text-gray-500">No commodities associated to this season yet.</p>
         @else
+            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">🧺 Commodities Distribution</h3>
+            </div>
+
             <div class="overflow-x-auto border border-gray-200 dark:border-gray-700 rounded-lg">
                 <table class="min-w-full text-sm divide-y divide-gray-200 dark:divide-gray-600">
                     <thead class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200">
                         <tr>
-                            <th>Commodity</th>
-                            <th>Category</th>
-                            <th>Unit</th>
-                            <th>Allocated</th>
-                            <th class="text-green-600">Distributed</th>
-                            <th class="text-yellow-600">Remaining</th>
+                            <th class="px-4 py-3">Commodity</th>
+                            <th class="px-4 py-3">Category</th>
+                            <th class="px-4 py-3">Unit</th>
+                            <th class="px-4 py-3">Allocated</th>
+                            <th class="px-4 py-3 text-green-600">Distributed</th>
+                            <th class="px-4 py-3 text-yellow-600">Remaining</th>
+                            <th class="px-4 py-3">Distributed %</th>
+                            <th class="px-4 py-3">Remaining %</th>
+                            <th class="px-4 py-3">Progress</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-gray-700 text-gray-700 dark:text-gray-300">
                         @foreach ($commodities as $item)
                             <tr>
-                                <td class="px-4 py-2 font-medium">{{ $item->name }}</td>
-                                <td class="px-4 py-2">{{ $item->category }}</td>
-                                <td class="px-4 py-2">{{ $item->unit }}</td>
-                                <td class="px-4 py-2">{{ number_format($item->allocated ?? 0) }}</td>
-                                <td class="px-4 py-2 text-green-600 font-medium">{{ number_format($item->distributed ?? 0) }}</td>
-                                <td class="px-4 py-2 text-yellow-600">{{ number_format($item->remaining ?? 0) }}</td>
+                                <td class="px-4 py-3 font-medium">{{ $item->name }}</td>
+                                <td class="px-4 py-3">{{ $item->category }}</td>
+                                <td class="px-4 py-3">{{ $item->unit }}</td>
+                                <td class="px-4 py-3">{{ number_format($item->allocated ?? 0) }}</td>
+                                <td class="px-4 py-3 text-green-600 font-medium">{{ number_format($item->distributed ?? 0) }}</td>
+                                <td class="px-4 py-3 text-yellow-600">{{ number_format($item->remaining ?? 0) }}</td>
+                                <td class="px-4 py-3">{{ $item->allocated > 0 ? round(($item->distributed / $item->allocated) * 100, 1) : 0 }}%</td>
+                                <td class="px-4 py-3">{{ $item->allocated > 0 ? round(($item->remaining / $item->allocated) * 100, 1) : 0 }}%</td>
+                                <td class="px-4 py-3">
+                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                        <div class="bg-green-500 h-2 rounded-full" style="width: {{ $item->allocated > 0 ? (($item->distributed / $item->allocated) * 100) : 0 }}%"></div>
+                                    </div>
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
             </div>
-
-            {{-- Chart Container --}}
-            <h3 class="text-lg font-semibold mt-8 mb-2 text-gray-800 dark:text-white">Distribution Overview</h3>
-            <div class="w-full h-[300px] sm:h-[400px]">
-                <canvas id="appStatusChart"></canvas>
-            </div>
         @endif
+    </div>
+
+    {{-- Alerts Panel --}}
+    <div class="bg-white dark:bg-gray-800 shadow rounded-xl p-4 sm:p-6">
+        <h2 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-6">🚨 Alerts & Reminders</h2>
+
+        <div class="space-y-3">
+            @if($pendingCollections > 0)
+                <div class="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-triangle text-yellow-400"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-yellow-700 dark:text-yellow-200">
+                                <strong>{{ $pendingCollections }}</strong> farmers yet to collect their inputs. Send reminders.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            @if($season->loan_type === 'complete-loan' && $daysUntilReturn <= 10)
+                <div class="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-400 p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-calendar-times text-red-400"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-red-700 dark:text-red-200">
+                                Return deadline approaching in <strong>{{ $daysUntilReturn }}</strong> days. Remind farmers.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            @if($totalRemaining == 0 && $season->status === 'open')
+                <div class="bg-green-50 dark:bg-green-900/20 border-l-4 border-green-400 p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-check-circle text-green-400"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-green-700 dark:text-green-200">
+                                All commodities have been distributed. Consider closing the season.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            @if($overdueReturns > 0)
+                <div class="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-400 p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-times-circle text-red-400"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-red-700 dark:text-red-200">
+                                <strong>{{ $overdueReturns }}</strong> overdue returns. Take action.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+        </div>
     </div>
 </div>
 
-{{-- Chart Script --}}
+{{-- Chart Scripts --}}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 <script>
+    // Distribution Chart
     const labels = @json($commodities->pluck('name'));
     const allocatedData = @json($commodities->pluck('allocated'));
     const distributedData = @json($commodities->pluck('distributed'));
 
-    new Chart(document.getElementById('appStatusChart'), {
+    const ctx1 = document.getElementById('appStatusChart').getContext('2d');
+    new Chart(ctx1, {
         type: 'bar',
         data: {
             labels: labels,
@@ -175,21 +393,36 @@
             maintainAspectRatio: false,
             plugins: {
                 legend: { position: 'top' },
-                title: { display: true, text: 'Commodity Distribution Comparison' },
-                datalabels: {
-                    anchor: 'end',
-                    align: 'top',
-                    color: '#fff',
-                    font: { weight: 'bold', size: 12 },
-                    formatter: (value, context) => {
-                        let sum = context.dataset.data.reduce((a, b) => a + b, 0);
-                        let percentage = (value * 100 / sum).toFixed(1) + "%";
-                        return value + " (" + percentage + ")";
-                    }
-                }
+                title: { display: true, text: 'Commodity Distribution Comparison' }
             }
+        }
+    });
+
+    // Applications Trend Chart
+    const trendLabels = @json($applicationTrendLabels); // e.g., ['Week 1', 'Week 2', ...]
+    const trendData = @json($applicationTrendData); // counts per period
+
+    const ctx2 = document.getElementById('applicationsTrendChart').getContext('2d');
+    new Chart(ctx2, {
+        type: 'line',
+        data: {
+            labels: trendLabels,
+            datasets: [{
+                label: 'Applications',
+                data: trendData,
+                borderColor: 'rgba(59, 130, 246, 1)',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                tension: 0.1
+            }]
         },
-        plugins: [ChartDataLabels]
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top' },
+                title: { display: true, text: 'Applications Trend' }
+            }
+        }
     });
 </script>
 @endsection

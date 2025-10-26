@@ -8,45 +8,46 @@
             font-family: Arial, sans-serif;
             font-size: 12px;
             line-height: 1.4;
-            color: #333;
+            color: #000;
             margin: 0;
             padding: 20px;
         }
         .header {
             text-align: center;
             margin-bottom: 30px;
-            border-bottom: 2px solid #4F46E5;
+            border-bottom: 2px solid #000;
             padding-bottom: 20px;
         }
         .header h1 {
-            color: #4F46E5;
+            color: #000;
             margin: 0;
             font-size: 24px;
+            font-weight: bold;
         }
         .header p {
             margin: 5px 0 0 0;
-            color: #666;
+            color: #333;
         }
         .receipt-info {
-            background-color: #F0F9FF;
+            background-color: #f0f0f0;
             padding: 15px;
-            border-radius: 8px;
+            border: 1px solid #333;
             margin-bottom: 25px;
-            border-left: 4px solid #3B82F6;
         }
         .receipt-info h3 {
             margin: 0 0 10px 0;
-            color: #1E40AF;
+            color: #000;
+            font-weight: bold;
         }
         .section {
             margin-bottom: 25px;
         }
         .section-title {
-            background-color: #F3F4F6;
+            background-color: #e0e0e0;
             padding: 8px 12px;
             font-weight: bold;
-            color: #374151;
-            border-left: 4px solid #4F46E5;
+            color: #000;
+            border-left: 4px solid #000;
             margin-bottom: 15px;
         }
         .info-grid {
@@ -62,21 +63,22 @@
             width: 30%;
             padding: 8px;
             font-weight: bold;
-            color: #6B7280;
-            border-bottom: 1px solid #E5E7EB;
+            color: #000;
+            border-bottom: 1px solid #333;
         }
         .info-value {
             display: table-cell;
             padding: 8px;
-            border-bottom: 1px solid #E5E7EB;
+            border-bottom: 1px solid #333;
         }
         .table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 10px;
+            border: 1px solid #000;
         }
         .table th {
-            background-color: #4F46E5;
+            background-color: #333;
             color: white;
             padding: 10px;
             text-align: left;
@@ -84,46 +86,42 @@
         }
         .table td {
             padding: 10px;
-            border: 1px solid #E5E7EB;
+            border: 1px solid #333;
         }
         .table tr:nth-child(even) {
-            background-color: #F9FAFB;
+            background-color: #f0f0f0;
         }
         .amount {
             font-weight: bold;
-            color: #059669;
+            color: #000;
             font-size: 16px;
         }
         .status-paid {
-            background-color: #D1FAE5;
-            color: #065F46;
+            background-color: #e0e0e0;
+            color: #000;
             padding: 4px 8px;
-            border-radius: 4px;
+            border: 1px solid #333;
             font-size: 10px;
+            font-weight: bold;
         }
         .total-section {
-            background-color: #F0FDF4;
+            background-color: #f9f9f9;
             padding: 15px;
-            border-radius: 8px;
-            border: 2px solid #10B981;
+            border: 2px solid #333;
             margin-top: 20px;
         }
         .total-section h3 {
             margin: 0 0 10px 0;
-            color: #065F46;
+            color: #000;
+            font-weight: bold;
         }
         .footer {
             margin-top: 40px;
             text-align: center;
             font-size: 10px;
-            color: #6B7280;
-            border-top: 1px solid #E5E7EB;
+            color: #333;
+            border-top: 1px solid #000;
             padding-top: 20px;
-        }
-        .success-icon {
-            color: #10B981;
-            font-size: 48px;
-            margin-bottom: 10px;
         }
     </style>
 </head>

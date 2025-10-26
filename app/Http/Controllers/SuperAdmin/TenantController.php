@@ -64,7 +64,7 @@ class TenantController extends Controller
                     'description' => $request->description,
                     'created_by' => auth()->id(),
                 ],
-                'status' => Tenant::STATUS_PENDING,
+                'status' => 'active',
             ]);
 
             // Create domain association
