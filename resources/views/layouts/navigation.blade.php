@@ -19,11 +19,12 @@
             </div>
 
             <!-- Settings Dropdown -->
+            @auth
             <div class="hidden sm:flex sm:items-center sm:ms-6">
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
-                            <div>{{ Auth::user()->name }}</div>
+                            <div>{{ Auth::user()->name ?? 'User' }}</div>
 
                             <div class="ms-1">
                                 <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -53,6 +54,15 @@
                     </x-slot>
                 </x-dropdown>
             </div>
+            @else
+            <div class="hidden sm:flex sm:items-center sm:ms-6">
+                <a href="{{ route('login') }}" class="text-sm text-gray-700 underline">Log in</a>
+
+                @if (Route::has('register'))
+                    <a href="{{ route('register') }}" class="ml-4 text-sm text-gray-700 underline">Register</a>
+                @endif
+            </div>
+            @endauth
 
             <!-- Hamburger -->
             <div class="-me-2 flex items-center sm:hidden">
@@ -69,36 +79,51 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ __('Dashboard') }}
-            </x-responsive-nav-link>
+            @auth
+                <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                    {{ __('Dashboard') }}
+                </x-responsive-nav-link>
+            @endauth
         </div>
 
         <!-- Responsive Settings Options -->
+        @auth
         <div class="pt-4 pb-1 border-t border-gray-200">
             <div class="px-4">
-                <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
-                <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
+                <div class="font-medium text-base text-gray-800">{{ Auth::user()->name ?? 'User' }}</div>
+                <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email ?? '' }}</div>
             </div>
 
             <div class="mt-3 space-y-1">
+                @if(Route::has('profile.edit'))
                 <x-responsive-nav-link :href="route('profile.edit')">
                     {{ __('Profile') }}
                 </x-responsive-nav-link>
+                @endif
 
                 <!-- Authentication -->
-                <!-- Authentication -->
-<form method="POST" action="{{ route('central.logout') }}">
-    @csrf
+                <form method="POST" action="{{ route('central.logout') }}">
+                    @csrf
 
-    <x-dropdown-link :href="route('central.logout')"
-            onclick="event.preventDefault();
-                        this.closest('form').submit();">
-        {{ __('Log Out') }}
-    </x-dropdown-link>
-</form>
-
+                    <x-responsive-nav-link :href="route('central.logout')"
+                            onclick="event.preventDefault();
+                                        this.closest('form').submit();">
+                        {{ __('Log Out') }}
+                    </x-responsive-nav-link>
+                </form>
             </div>
         </div>
+        @else
+        <div class="pt-2 pb-3 space-y-1">
+            <a href="{{ route('login') }}" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300 focus:outline-none focus:text-gray-800 focus:bg-gray-50 focus:border-gray-300 transition duration-150 ease-in-out">
+                {{ __('Login') }}
+            </a>
+            @if (Route::has('register'))
+            <a href="{{ route('register') }}" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300 focus:outline-none focus:text-gray-800 focus:bg-gray-50 focus:border-gray-300 transition duration-150 ease-in-out">
+                {{ __('Register') }}
+            </a>
+            @endif
+        </div>
+        @endauth
     </div>
 </nav>

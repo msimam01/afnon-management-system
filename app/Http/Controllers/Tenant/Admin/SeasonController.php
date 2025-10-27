@@ -10,6 +10,10 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Devrabiul\ToastMagic\Facades\ToastMagic;
 use Illuminate\Validation\ValidationException;
+use App\Services\SeasonReportService;
+use App\Exports\EnhancedSeasonReportExport;
+use App\Exports\SeasonReportPdfExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class SeasonController extends Controller
 {
@@ -326,9 +330,90 @@ class SeasonController extends Controller
         return back()->with('success', 'Season deleted');
     }
 
+    /**
+     * Export season report as Excel
+     */
+    public function exportExcel(Season $season)
+    {
+        try {
+            $reportService = new SeasonReportService($season);
+            $data = $reportService->generateReportData();
+            $summary = $reportService->getSummary();
+            
+            $fileName = 'season_report_' . now()->format('Y-m-d') . '.xlsx';
+            
+            return Excel::download(
+                new EnhancedSeasonReportExport($data, $summary),
+                $fileName
+            );
+            
+        } catch (\Exception $e) {
+            \Log::error('Excel export failed: ' . $e->getMessage());
+            return back()->with('error', 'Failed to generate Excel export: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Export season report as PDF
+     */
+    public function exportPdf(Season $season)
+    {
+        try {
+            $reportService = new SeasonReportService($season);
+            $data = $reportService->generateReportData();
+            $summary = $reportService->getSummary();
+            
+            // Log the export attempt
+            \Log::info("Starting PDF export for season: {$season->name} with " . count($data) . " records");
+            
+            $pdfExporter = new SeasonReportPdfExport($data, $summary);
+            $fileName = 'season_report_' . $season->name . '_' . now()->format('Y-m-d') . '.pdf';
+            
+            // For large datasets, show a message to the user
+            if (count($data) > 50) {
+                return back()
+                    ->with('info', 'Generating PDF for a large dataset. This may take a moment. The download will start automatically.')
+                    ->with('auto_download', route('admin.seasons.export.pdf.direct', $season->uuid));
+            }
+            
+            return $pdfExporter->download($fileName);
+            
+        } catch (\Exception $e) {
+            \Log::error('PDF export failed: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
+            return back()->with('error', 'Failed to generate PDF export. Please try again or contact support if the problem persists.');
+        }
+    }
+    
+    /**
+     * Direct download endpoint for large exports
+     */
+    public function exportPdfDirect($uuid)
+    {
+        try {
+            $season = Season::where('uuid', $uuid)->firstOrFail();
+            $reportService = new SeasonReportService($season);
+            $data = $reportService->generateReportData();
+            $summary = $reportService->getSummary();
+            
+            $pdfExporter = new SeasonReportPdfExport($data, $summary);
+            $fileName = 'season_report_' . $season->name . '_' . now()->format('Y-m-d') . '.pdf';
+            
+            return $pdfExporter->download($fileName);
+            
+        } catch (\Exception $e) {
+            \Log::error('Direct PDF export failed: ' . $e->getMessage());
+            return response()->json([
+                'error' => 'Failed to generate PDF. Please try again.',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+    
+    // Keeping this for backward compatibility
     public function export($uuid)
     {
-        // Placeholder for Excel export (if needed later)
+        $season = Season::where('uuid', $uuid)->firstOrFail();
+        return $this->exportExcel($season);
     }
     public function close(Season $season)
     {

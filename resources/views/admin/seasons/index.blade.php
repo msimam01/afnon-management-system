@@ -41,11 +41,11 @@
                             <div class="mt-4 flex justify-between items-center">
                                 <a href="{{ route('admin.seasons.show', $season->uuid) }}"
                                     class="text-sm text-emerald-600 hover:underline">🔍 View Details</a>
-                                <a href="{{ route('admin.seasons.edit', $season->uuid) }}"
+                                <!-- <a href="{{ route('admin.seasons.edit', $season->uuid) }}"
                                     class="text-sm text-emerald-600 hover:underline">🔄
-                                    Edit</a>
+                                    Edit</a> -->
                                 <!-- Close/Reopen Button -->
-                                @if ($season->status === 'open')
+                                <!-- @if ($season->status === 'open')
                                     <form method="POST" action="{{ route('admin.seasons.close', $season->uuid) }}"
                                         onsubmit="return confirm('Are you sure you want to close this season?');">
                                         @csrf
@@ -63,7 +63,7 @@
                                             class="text-xs text-green-600 hover:underline dark:text-green-400">✅
                                             Reopen</button>
                                     </form>
-                                @endif
+                                @endif -->
                             </div>
                         </div>
                     @endforeach

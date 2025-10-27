@@ -10,6 +10,7 @@ class ReturnVerification extends Model
     use HasFactory;
     protected $fillable = [
         'application_id',
+        'commodity_id',
         'agent_id',
         'id_card_photo',
         'returned_commodity_photo',
@@ -22,11 +23,18 @@ class ReturnVerification extends Model
         'location_lat',
         'location_lng',
         'signature',
-        'fraud_flag'
+        'fraud_flag',
+        'verification_notes',
+        'approved_by'
     ];
     public function application()
     {
         return $this->belongsTo(Application::class);
+    }
+    
+    public function commodity()
+    {
+        return $this->belongsTo(Commodity::class);
     }
 
     public function agent()
@@ -37,5 +45,13 @@ class ReturnVerification extends Model
     public function center()
     {
         return $this->belongsTo(Center::class, 'center_id');
+    }
+
+    /**
+     * Get the admin user who approved this verification
+     */
+    public function approvedBy()
+    {
+        return $this->belongsTo(User::class, 'approved_by');
     }
 }

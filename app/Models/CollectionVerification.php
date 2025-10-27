@@ -10,7 +10,8 @@ class CollectionVerification extends Model
     use HasFactory;
     protected $fillable = [
         'application_id', 'agent_id', 'commodity_id', 'id_card_photo', 'commodity_photo', 'status',
-        'collected_quantity', 'collection_notes', 'location_lat', 'location_lng', 'signature', 'fraud_flag'
+        'collected_quantity', 'collection_notes', 'location_lat', 'location_lng', 'signature', 'fraud_flag',
+        'verification_notes', 'approved_by'
     ];
     public function application()
     {
@@ -30,5 +31,13 @@ class CollectionVerification extends Model
     public function commodity()
     {
         return $this->belongsTo(Commodity::class);
+    }
+
+    /**
+     * Get the admin user who approved this verification
+     */
+    public function approvedBy()
+    {
+        return $this->belongsTo(User::class, 'approved_by');
     }
 }

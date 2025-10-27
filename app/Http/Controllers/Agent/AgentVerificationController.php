@@ -487,7 +487,7 @@ public function assignedReturns(Request $request)
 }
 
 
-    public function showCollectionVerification($applicationId)
+    public function showCollectionVerification($uuid)
     {
         $agent = optional(Auth::guard('tenant')->user())->agent;
         $application = Application::with([
@@ -500,7 +500,7 @@ public function assignedReturns(Request $request)
             'monetaryReturn'
         ])
         ->select(['id', 'uuid', 'reference_number', 'farmer_id', 'farm_id', 'season_id', 'status', 'payment_status', 'total_loan', 'insurance_rate', 'insurance_amount', 'equity', 'disbursed_amount'])
-        ->findOrFail($applicationId);
+        ->whereUuid($uuid)->first();
 
         if (!$agent || empty($agent->center_id) || $application->applicationCenter->collection_center_id !== $agent->center_id) {
             abort(403, 'Not authorized for this application');

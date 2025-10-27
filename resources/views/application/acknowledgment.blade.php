@@ -8,6 +8,9 @@
     foreach ($application->commodities as $commodity) {
         $totalValue += $commodity->pivot->quantity * $commodity->price_per_unit;
     }
+    
+    // Current date
+    $currentDate = now()->format('d F, Y');
 @endphp
 
 <!DOCTYPE html>
@@ -15,118 +18,235 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acknowledgement Slip - {{ $application->reference_number }}</title>
+    <title>ACKNOWLEDGMENT SLIP - {{ $application->reference_number }}</title>
     <style>
         @page {
             size: A4;
-            margin: 0;
+            margin: 15mm 20mm 15mm 20mm;
+            
+            @bottom-right {
+                content: "Page " counter(page) " of " counter(pages);
+                font-size: 9px;
+                color: #999;
+            }
         }
+        
         body {
-            font-family: Arial, sans-serif;
-            line-height: 1.4;
-            margin: 0;
+            font-family: 'Arial', sans-serif;
+            line-height: 1.5;
+            color: #333;
+            margin: 0 auto;
             padding: 20px;
-            color: #000;
+            position: relative;
+            font-size: 12px;
+            max-width: 210mm;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+            background: white;
         }
+        
+        /* Watermark */
+        .watermark {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 80px;
+            opacity: 0.05;
+            pointer-events: none;
+            white-space: nowrap;
+            z-index: -1;
+            font-weight: bold;
+            color: #999;
+        }
+        
+        /* Header */
         .header {
             text-align: center;
             margin-bottom: 20px;
-            border-bottom: 2px solid #000;
-            padding-bottom: 10px;
+            position: relative;
+            padding-bottom: 15px;
         }
+        
         .header h1 {
             margin: 0;
             font-size: 18px;
             font-weight: bold;
             text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #1a365d;
         }
+        
         .header p {
             margin: 5px 0 0;
-            font-size: 14px;
+            font-size: 13px;
+            color: #4a5568;
         }
+        
         .reference {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: #1a365d;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 4px;
+            font-size: 11px;
             font-weight: bold;
-            margin-top: 10px;
-            font-size: 14px;
-            padding: 5px 10px;
-            border: 1px solid #000;
-            display: inline-block;
         }
+        
+        .date {
+            position: absolute;
+            top: 0;
+            left: 0;
+            font-size: 11px;
+            color: #4a5568;
+        }
+        
+        /* Tables */
         table {
             width: 100%;
             border-collapse: collapse;
-            margin: 15px 0;
-            font-size: 12px;
-            page-break-inside: auto;
+            margin: 15px 0 25px;
+            font-size: 11px;
+            page-break-inside: avoid;
+            border: 1px solid #e2e8f0;
         }
-        th, td {
-            border: 1px solid #000;
-            padding: 8px;
+        
+        th {
+            background-color: #1a365d;
+            color: white;
+            font-weight: 600;
+            padding: 8px 10px;
             text-align: left;
+            text-transform: uppercase;
+            font-size: 10px;
+            letter-spacing: 0.5px;
+        }
+        
+        td {
+            padding: 8px 10px;
+            border: 1px solid #e2e8f0;
             vertical-align: top;
         }
-        th {
-            background-color: #f2f2f2;
-            font-weight: bold;
-            text-align: center;
+        
+        tr:nth-child(even) {
+            background-color: #f8fafc;
         }
-        .signature {
-            margin-top: 30px;
-            border-top: 1px solid #000;
-            padding-top: 10px;
-            width: 100%;
+        
+        /* Sections */
+        .section-title {
+            background-color: #edf2f7;
+            padding: 6px 10px;
+            font-weight: 600;
+            color: #2d3748;
+            margin: 20px 0 10px;
+            border-left: 4px solid #4299e1;
+            font-size: 13px;
         }
+        
+        /* Footer */
         .footer {
-            margin-top: 30px;
-            font-size: 10px;
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            padding: 10px 15mm;
+            font-size: 9px;
+            color: #718096;
+            background-color: white;
+            border-top: 1px solid #e2e8f0;
             text-align: center;
-            border-top: 1px solid #000;
-            padding-top: 10px;
         }
+        
+        /* Utilities */
         .text-right {
             text-align: right;
         }
+        
         .text-center {
             text-align: center;
         }
+        
         .text-bold {
             font-weight: bold;
         }
-        .no-border {
-            border: none !important;
+        
+        .mb-4 {
+            margin-bottom: 1rem;
         }
+        
+        .mt-6 {
+            margin-top: 1.5rem;
+        }
+        
+        .signature-line {
+            border-top: 1px solid #cbd5e0;
+            margin: 30px 0 10px;
+            padding-top: 5px;
+            font-size: 11px;
+            color: #4a5568;
+        }
+        
+        /* Print specific styles */
         @media print {
             body {
-                padding: 0;
-                font-size: 12px;
+                padding: 20px;
+                font-size: 11px;
+                margin: 0 auto;
+                border: none;
+                box-shadow: none;
             }
+            
             .no-print {
                 display: none;
             }
+            
+            .footer {
+                position: fixed;
+                bottom: 0;
+            }
+            
             table {
                 page-break-inside: avoid;
             }
+            
             .page-break {
                 page-break-before: always;
             }
+        }
+    </style>
+    <style>
+        /* Additional styles for better printing */
+        @media print {
+            @page { margin: 20mm 15mm 20mm 15mm; }
+            body { -webkit-print-color-adjust: exact; }
         }
     </style>
     {!! ToastMagic::styles() !!}
 </head>
 
 <body>
+    <!-- Watermark -->
+    <div class="watermark">{{ strtoupper($tenantDisplayName) }} STATE</div>
+    
     <div class="header">
-        <h1>ACKNOWLEDGEMENT SLIP</h1>
+        <div class="date">Date: {{ $currentDate }}</div>
+        <h1>ACKNOWLEDGMENT SLIP</h1>
         <p>AGRICULTURAL INPUT SUPPORT PROGRAM</p>
-        <p>{{ strtoupper($tenantDisplayName) }} STATE CHAPTER</p>
+        <p style="font-weight: 600; color: #1a365d;">{{ strtoupper($tenantDisplayName) }} STATE CHAPTER</p>
         <div class="reference">REF: {{ $application->reference_number }}</div>
     </div>
 
     <!-- Application Information -->
+    <div class="section-title">1. APPLICANT INFORMATION</div>
     <table>
-        <tr>
-            <th colspan="4">APPLICANT INFORMATION</th>
-        </tr>
+        <colgroup>
+            <col style="width: 20%;">
+            <col style="width: 30%;">
+            <col style="width: 20%;">
+            <col style="width: 30%;">
+        </colgroup>
         <tr>
             <td width="20%"><strong>Name:</strong></td>
             <td width="30%">{{ $application->farmer->full_name ?? 'N/A' }}</td>
@@ -156,16 +276,22 @@
     </table>
 
     <!-- Commodities Allocation -->
+    <div class="section-title">2. COMMODITIES ALLOCATION</div>
     <table>
-        <tr>
-            <th colspan="5">COMMODITIES ALLOCATION</th>
-        </tr>
-        <tr>
-            <th width="40%">Commodity</th>
-            <th width="15%" class="text-center">Quantity</th>
-            <th width="15%" class="text-right">Unit Price (₦)</th>
-            <th width="30%" class="text-right">Total (₦)</th>
-        </tr>
+        <colgroup>
+            <col style="width: 45%;">
+            <col style="width: 15%;">
+            <col style="width: 20%;">
+            <col style="width: 20%;">
+        </colgroup>
+        <thead>
+            <tr>
+                <th>Commodity</th>
+                <th class="text-center">Quantity</th>
+                <th class="text-right">Unit Price (₦)</th>
+                <th class="text-right">Total (₦)</th>
+            </tr>
+        </thead>
         @foreach ($application->commodities as $commodity)
         <tr>
             <td>{{ $commodity->name }} ({{ $commodity->unit }})</td>
@@ -182,10 +308,14 @@
     </table>
 
     <!-- Financial Summary -->
+    <div class="section-title">3. FINANCIAL TERMS AND CONDITIONS</div>
     <table>
-        <tr>
-            <th colspan="4">FINANCIAL TERMS AND CONDITIONS</th>
-        </tr>
+        <colgroup>
+            <col style="width: 40%;">
+            <col style="width: 20%;">
+            <col style="width: 20%;">
+            <col style="width: 20%;">
+        </colgroup>
         @if($application->insurance_amount)
         <tr>
             <td width="25%"><strong>Insurance ({{ $application->insurance_rate }}%):</strong></td>
@@ -210,6 +340,26 @@
         @endif
     </table>
 
+    <!-- Signatures -->
+    <div style="margin-top: 40px; display: flex; justify-content: space-between;">
+        <div style="width: 45%;">
+            <div style="border-top: 1px solid #cbd5e0; width: 80%; margin: 30px 0 10px;"></div>
+            <div style="font-weight: 600; font-size: 11px;">APPLICANT'S SIGNATURE</div>
+            <div style="margin-top: 5px; font-size: 10px; color: #4a5568;">
+                Name: {{ $application->farmer->full_name ?? 'N/A' }}<br>
+                Date: _________________
+            </div>
+        </div>
+        <div style="width: 45%;">
+            <div style="border-top: 1px solid #cbd5e0; width: 80%; margin: 30px 0 10px; margin-left: auto;"></div>
+            <div style="font-weight: 600; text-align: right; font-size: 11px;">FOR: {{ strtoupper($tenantDisplayName) }} STATE CHAPTER</div>
+            <div style="margin-top: 5px; font-size: 10px; text-align: right; color: #4a5568;">
+                Authorized Signatory<br>
+                Date: _________________
+            </div>
+        </div>
+    </div>
+
     <!-- Verification Section -->
     <table>
         <tr>
@@ -228,10 +378,25 @@
         </tr>
     </table>
 
+    <!-- Footer -->
+    <div class="footer">
+        <div style="margin: 0 auto; max-width: 80%; border-top: 1px solid #e2e8f0; padding-top: 10px;">
+            <div style="margin-bottom: 5px; font-weight: 500; color: #4a5568; font-size: 10px;">
+                {{ strtoupper($tenantDisplayName) }} STATE AGRICULTURAL INPUT SUPPORT PROGRAM
+            </div>
+            <div style="font-size: 8px; color: #a0aec0; letter-spacing: 0.5px;">
+                This is an official document. Any unauthorized duplication is prohibited.
+                <div style="margin-top: 3px;">
+                    Document ID: {{ $application->reference_number }} | Generated on: {{ now()->format('d/m/Y H:i:s') }}
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Action Buttons -->
-    <div style="margin: 2rem 0; text-align: center;">
-        <div style="display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center;">
-            <button onclick="window.print()" class="action-btn print-btn">
+    <div class="no-print" style="margin: 4rem 0 2rem; text-align: center;">
+        <div style="display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin-bottom: 2rem;">
+            <button onclick="window.print()" class="action-btn print-btn" style="background: #1a365d; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: 500; display: inline-flex; align-items: center;">
                 <i class="fas fa-print" style="margin-right: 8px;"></i>Print Acknowledgment
             </button>
             <a href="{{ route('applications.slip.pdf', $application->uuid) }}" class="action-btn download-btn">

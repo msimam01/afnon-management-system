@@ -81,6 +81,24 @@ Route::middleware([
         // Unified dashboard route - redirects based on user role
         Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
     });
+
+    // Agent Routes
+    Route::middleware(['auth:tenant', 'tenant.user.active', 'tenant-activity-log', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+        // Agent routes will be defined here
+        Route::prefix('verifications')->name('verifications.')->group(function () {
+            Route::get('/', [AgentVerificationController::class, 'index'])
+                ->name('index');
+            Route::post('/bulk-approve', [AgentVerificationController::class, 'bulkApprove'])
+                ->name('bulk-approve');
+            Route::post('/verify', [AgentVerificationController::class, 'verifySingle'])
+                ->name('verify');
+            Route::get('/{type}/{id}/download', [AgentVerificationController::class, 'downloadPDF'])
+                ->name('download');
+            Route::get('/export', [AgentVerificationController::class, 'export'])
+                ->name('export');
+        });
+    });
+
     // Admin routes inside tenant with role check only
     Route::middleware(['auth:tenant', 'tenant.user.active', 'tenant-activity-log', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
 
@@ -112,12 +130,18 @@ Route::middleware([
                 ->name('bulk-approve');
             Route::post('/verify', [AdminVerificationController::class, 'verifySingle'])
                 ->name('verify');
+            Route::get('/{type}/{id}/download', [AdminVerificationController::class, 'downloadPDF'])
+                ->name('download');
+            Route::get('/export', [AdminVerificationController::class, 'export'])
+                ->name('export');
         });
 
         // API routes for verifications (separate from main verifications routes)
         Route::prefix('api')->name('api.')->group(function () {
             Route::get('/verifications', [AdminVerificationController::class, 'getVerifications'])
                 ->name('verifications');
+            Route::get('/verifications/summary', [AdminVerificationController::class, 'getVerificationSummary'])
+                ->name('verifications.summary');
         });
 
         // User Management - High Priority
@@ -205,6 +229,12 @@ Route::middleware([
                 ->name('destroy');
             Route::get('/{season}/export', [\App\Http\Controllers\Tenant\Admin\SeasonController::class, 'export'])
                 ->name('export');
+            Route::get('/{season}/export/excel', [\App\Http\Controllers\Tenant\Admin\SeasonController::class, 'exportExcel'])
+                ->name('export.excel');
+            Route::get('/{season}/export/pdf', [\App\Http\Controllers\Tenant\Admin\SeasonController::class, 'exportPdf'])
+                ->name('export.pdf');
+            Route::get('/{uuid}/export/pdf/direct', [\App\Http\Controllers\Tenant\Admin\SeasonController::class, 'exportPdfDirect'])
+                ->name('export.pdf.direct');
             Route::put('/{season}/close', [\App\Http\Controllers\Tenant\Admin\SeasonController::class, 'close'])
                 ->name('close');
             Route::put('/{season}/reopen', [\App\Http\Controllers\Tenant\Admin\SeasonController::class, 'reopen'])
@@ -322,8 +352,6 @@ Route::middleware([
                 ->name('destroy');
         });
     });
-
-
     Route::get('apply', [ApplicationController::class, 'create'])->name('applications.create');
     Route::post('applications/store', [ApplicationController::class, 'store'])->name('applications.store');
     Route::get('applications/{uuid}/slip', [ApplicationController::class, 'acknowledgment'])->name('applications.slip');
@@ -346,8 +374,7 @@ Route::middleware([
     });
 
     // Agent routes with comprehensive permission checks
-    Route::middleware(['auth:tenant', 'tenant.user.active', 'role:agent'])->prefix('agent')->name('agent.')->group(function () {
-
+    Route::middleware(['auth:tenant', 'tenant.user.active', 'tenant-activity-log', 'role:agent'])->prefix('agent')->name('agent.')->group(function () {
         // Dashboard - Most Important
         Route::get('dashboard', [AgentDashboardController::class, 'index'])
             ->name('dashboard');
@@ -358,9 +385,13 @@ Route::middleware([
         Route::post('verify-collection', [AgentVerificationController::class, 'storeCollection'])
             ->name('verify.collection.submit');
 
-        // Collection Verification Show Page - using encrypted IDs
-        Route::get('collections/{id}/verify', [AgentVerificationController::class, 'showCollectionVerification'])
+        // Collection Verification Show Page - direct URL with UUID
+        Route::get('verify-collection/{uuid}', [AgentVerificationController::class, 'showCollectionVerification'])
             ->name('collections.verify');
+
+        // Collection Verification via token (for QR codes and secure links)
+        Route::get('collections/{token}/verify', [AgentVerificationController::class, 'verifyCollection'])
+            ->name('collections.verify.token');
 
         // Verify Return - High Priority (Primary Function)
         Route::get('verify-return', [AgentVerificationController::class, 'assignedReturns'])
@@ -377,11 +408,7 @@ Route::middleware([
             ->name('collections.pdf');
         Route::get('returns/{application}/pdf', [AgentVerificationController::class, 'downloadReturnPDF'])
             ->name('returns.pdf');
-// In your web.php
-Route::get('/test-pdf', function() {
-    $pdf = Pdf::loadHTML('<html><body><h1>Test PDF</h1><p>No JavaScript here</p></body></html>');
-    return $pdf->stream();
-});
+
         // Transactions - Medium Priority
         Route::get('transactions', [MonetaryReturnController::class, 'index'])
             ->name('monetary-return');

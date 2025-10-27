@@ -23,7 +23,7 @@
         </div>
         <div class="bg-indigo-100 dark:bg-indigo-900 p-4 rounded-xl shadow text-center">
             <p class="text-sm text-indigo-700 dark:text-indigo-300 font-semibold">Distributed</p>
-            <p class="text-2xl font-bold text-indigo-900 dark:text-white">{{ number_format($distributedApplications) }}</p>
+            <p class="text-2xl font-bold text-indigo-900 dark:text-white">{{ number_format($totalDistributed) }}</p>
         </div>
         <div class="bg-red-100 dark:bg-red-900 p-4 rounded-xl shadow text-center">
             <p class="text-sm text-red-700 dark:text-red-300 font-semibold">Rejected</p>
@@ -143,10 +143,10 @@
                 <p class="text-sm text-gray-600 dark:text-gray-400">Outstanding Balance</p>
                 <p class="text-2xl font-bold text-gray-900 dark:text-white">₦{{ number_format($outstandingBalance) }}</p>
             </div>
-            <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+            <!-- <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                 <p class="text-sm text-gray-600 dark:text-gray-400">Insurance Contributions</p>
                 <p class="text-2xl font-bold text-gray-900 dark:text-white">₦{{ number_format($insuranceContributions) }}</p>
-            </div>
+            </div> -->
         </div>
     </div>
 
@@ -178,8 +178,8 @@
                         </tr>
                         <tr>
                             <td class="py-2 text-blue-600">Distributed</td>
-                            <td class="py-2">{{ number_format($distributedApplications) }}</td>
-                            <td class="py-2">{{ $totalApplications > 0 ? round(($distributedApplications / $totalApplications) * 100, 1) : 0 }}%</td>
+                            <td class="py-2">{{ number_format($totalDistributed) }}</td>
+                            <td class="py-2">{{ $totalApplications > 0 ? round(($totalDistributed / $totalApplications) * 100, 1) : 0 }}%</td>
                         </tr>
                         <tr>
                             <td class="py-2 text-red-600">Rejected</td>
@@ -203,14 +203,33 @@
     <div class="bg-white dark:bg-gray-800 shadow rounded-xl p-4 sm:p-6">
         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
             <h2 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">🌾 {{ $season->name }} Overview</h2>
-            <form method="POST"
-                action="{{ $season->status === 'open' ? route('admin.seasons.close', $season->uuid) : route('admin.seasons.reopen', $season->uuid) }}">
-                @csrf @method('PUT')
-                <input type="hidden" name="status" value="{{ $season->status === 'open' ? 'closed' : 'open' }}">
-                <button type="submit" class="text-sm px-3 py-1 rounded bg-blue-100 text-blue-700 hover:bg-blue-200">
-                    {{ $season->status === 'open' ? '🔒 Close Season' : '🔓 Reopen Season' }}
-                </button>
-            </form>
+            <div class="flex flex-wrap items-center gap-2">
+                <!-- Export Buttons -->
+                <!-- <a href="{{ route('admin.seasons.export.excel', $season->uuid) }}" 
+                   class="inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    Export Excel
+                </a> -->
+                <a href="{{ route('admin.seasons.export.pdf', $season->uuid) }}" 
+                   target="_blank"
+                   class="inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    Export PDF
+                </a>
+                <!-- Toggle Season Status Button -->
+                <!-- <form method="POST"
+                    action="{{ $season->status === 'open' ? route('admin.seasons.close', $season->uuid) : route('admin.seasons.reopen', $season->uuid) }}">
+                    @csrf @method('PUT')
+                    <input type="hidden" name="status" value="{{ $season->status === 'open' ? 'closed' : 'open' }}">
+                    <button type="submit" class="inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md text-white {{ $season->status === 'open' ? 'bg-red-600 hover:bg-red-700 focus:ring-red-500' : 'bg-green-600 hover:bg-green-700 focus:ring-green-500' }} focus:outline-none focus:ring-2 focus:ring-offset-2">
+                        {{ $season->status === 'open' ? '🔒 Close Season' : '🔓 Reopen Season' }}
+                    </button>
+                </form> -->
+            </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-800 dark:text-gray-300">

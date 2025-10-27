@@ -6,25 +6,7 @@
             <!-- Header -->
             <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200 dark:border-gray-700">
                 <h3 class="text-lg font-medium text-gray-900 dark:text-white">Available Commodities</h3>
-                <div class="flex space-x-2">
-                    <!-- Existing Add Commodity -->
-                    <a href="{{ route('admin.commodities.create') }}"
-                        class="bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500">
-                        + Add Commodity
-                    </a>
-
-                    <!-- Trigger Commodity Categories Modal -->
-                    <button onclick="openModal('categoryModal')"
-                        class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500">
-                        + Categories
-                    </button>
-
-                    <!-- Trigger Commodity Market Prices Modal -->
-                    <button onclick="openModal('marketPriceModal')"
-                        class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500">
-                        + Market Prices
-                    </button>
-                </div>
+               
             </div>
 
             {{-- Search + Table remains the same --}}
@@ -103,15 +85,15 @@
                                     <!-- Actions -->
                                     <td class="px-4 py-4">
                                         <div class="flex items-center space-x-2">
-                                            <a href="{{ route('admin.commodities.edit', $item->uuid) }}"
-                                                class="text-blue-600 dark:text-blue-400 hover:underline text-xs">Edit</a>
+                                            <!-- <a href="{{ route('admin.commodities.edit', $item->uuid) }}"
+                                                class="text-blue-600 dark:text-blue-400 hover:underline text-xs">Edit</a> -->
 
 
                                             <form action="{{ route('admin.commodities.destroy', $item->uuid) }}"
                                                 method="post">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit"
+                                                <button disabled="disabled" type="submit"
                                                     class="text-red-600 dark:text-red-400 hover:underline text-xs">Delete</button>
                                             </form>
 

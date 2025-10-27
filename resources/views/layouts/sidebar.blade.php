@@ -290,7 +290,7 @@
                     </li>
 
                     {{-- Reports - Medium Priority --}}
-                    <li>
+                    <!-- <li>
                         <div x-data="{ open: false }" class="relative">
                             <button @click="open = !open"
                                 class="{{ Route::is('admin.reports.*') ? 'bg-emerald-700 text-emerald-50' : 'text-gray-700 dark:text-gray-300' }} sidebar-link flex items-center justify-between w-full px-4 py-2 rounded-lg hover:bg-emerald-600 hover:text-white transition-colors">
@@ -330,7 +330,7 @@
                                 </a>
                             </div>
                         </div>
-                    </li>
+                    </li> -->
 
                     {{-- Roles & Permissions - Low Priority --}}
                     {{-- <li>

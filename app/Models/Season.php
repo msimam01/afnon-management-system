@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Allocation;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
@@ -46,6 +47,11 @@ class Season extends Model
         return $this->loan_type === 'complete-loan';
     }
     // App\Models\Season.php
+
+    public function allocations()
+    {
+        return $this->hasMany(Allocation::class);
+    }
 
     public function applications()
     {
