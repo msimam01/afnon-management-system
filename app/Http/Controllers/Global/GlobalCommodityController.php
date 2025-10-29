@@ -8,6 +8,7 @@ use App\Services\TenantSyncService;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class GlobalCommodityController extends Controller
 {
@@ -24,7 +25,7 @@ class GlobalCommodityController extends Controller
     public function index()
     {
         $search = request('search');
-        
+
         $commodities = GlobalCommodity::with('category')
             ->when($search, function($query) use ($search) {
                 $query->where('name', 'like', "%{$search}%")
@@ -62,10 +63,10 @@ class GlobalCommodityController extends Controller
             'price' => 'required|numeric|min:0',
             'qtyPerHectare' => 'required|numeric|min:0.01',
         ]);
-        
+
         try {
             DB::beginTransaction();
-            
+
             $commodity = GlobalCommodity::create([
                 'name' => $validated['name'],
                 'category_id' => $validated['category_id'],
@@ -75,10 +76,10 @@ class GlobalCommodityController extends Controller
             ]);
 
             DB::commit();
-            
+
             return redirect()->route('global.commodities.index')
                 ->with('success', 'Commodity created successfully.');
-                
+
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Error creating commodity: ' . $e->getMessage());
@@ -92,12 +93,12 @@ class GlobalCommodityController extends Controller
     {
         $commodity = GlobalCommodity::where('uuid', $uuid)->firstOrFail();
         $categories = GlobalCommodityCategory::orderBy('name')->get();
-        
+
         // Check if commodity is allocated to any tenants
         $hasAllocations = $commodity->seasons()
             ->whereHas('tenantAllocations')
             ->exists();
-        
+
         return view('global.commodities.edit', compact('commodity', 'categories', 'hasAllocations'));
     }
 
@@ -107,7 +108,7 @@ class GlobalCommodityController extends Controller
     public function update(Request $request, $uuid)
     {
         $commodity = GlobalCommodity::where('uuid', $uuid)->firstOrFail();
-        
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'category_id' => 'required|exists:global_commodity_categories,id',
@@ -120,31 +121,33 @@ class GlobalCommodityController extends Controller
 
         try {
             DB::beginTransaction();
-            
+
+            // Convert name to lowercase before updating
+            // $validated['name'] = $validated['name'];
             $commodity->update($validated);
-            
+
             // If sync_to_tenants is true, sync the updates to all tenants
             if ($request->input('sync_to_tenants', false)) {
                 $syncResults = $this->syncService->syncCommodityUpdate($commodity);
-                
+
                 $successCount = collect($syncResults)->where('success', true)->count();
                 $totalCount = count($syncResults);
-                
+
                 DB::commit();
-                
+
                 $message = "Commodity updated successfully and synced to {$successCount} of {$totalCount} tenants.";
                 return redirect()->route('global.commodities.index')
                     ->with('success', $message);
             }
-            
+
             DB::commit();
-            
+
             return redirect()->route('global.commodities.index')
                 ->with('success', 'Commodity updated successfully. Remember to sync to tenants if needed.');
-                
+
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Error updating commodity: ' . $e->getMessage());
+            Log::error('Error updating commodity: ' . $e->getMessage());
             return back()->with('error', 'Error updating commodity: ' . $e->getMessage());
         }
     }
@@ -155,7 +158,7 @@ class GlobalCommodityController extends Controller
     public function destroy($uuid)
     {
         $commodity = GlobalCommodity::where('uuid', $uuid)->firstOrFail();
-        
+
         try {
             // Prevent deletion if commodity is in use
             if ($commodity->seasons()->exists()) {
@@ -163,10 +166,10 @@ class GlobalCommodityController extends Controller
             }
 
             $commodity->delete();
-            
+
             return redirect()->route('global.commodities.index')
                 ->with('success', 'Commodity deleted successfully');
-                
+
         } catch (\Exception $e) {
             return back()->with('error', 'Error deleting commodity: ' . $e->getMessage());
         }

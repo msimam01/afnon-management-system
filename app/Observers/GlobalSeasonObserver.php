@@ -4,6 +4,8 @@ namespace App\Observers;
 
 use App\Models\GlobalSeason;
 use App\Services\TenantSyncService;
+use App\Jobs\SyncSeasonUpdateJob;
+use App\Jobs\SyncSeasonDeletionJob;
 use Illuminate\Support\Facades\Log;
 
 class GlobalSeasonObserver

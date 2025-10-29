@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Global;
 
 use App\Models\GlobalCommodityCategory;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Str;
 
@@ -36,6 +37,8 @@ class GlobalCommodityCategoryController extends Controller
             'description' => 'nullable|string',
         ]);
 
+        $validated['name'] = strtolower($validated['name']);
+
         GlobalCommodityCategory::create($validated);
 
         return redirect()->route('global.commodity-categories.index')
@@ -60,8 +63,10 @@ class GlobalCommodityCategoryController extends Controller
             'description' => 'nullable|string',
         ]);
 
+        $validated['name'] = strtolower($validated['name']);
+
         $category->update($validated);
-        
+
         return redirect()->route('global.commodity-categories.index')
             ->with('success', 'Category updated successfully.');
     }
@@ -79,7 +84,7 @@ class GlobalCommodityCategoryController extends Controller
         }
 
         $category->delete();
-        
+
         return response()->json([
             'message' => 'Category deleted successfully'
         ]);

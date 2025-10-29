@@ -38,6 +38,9 @@ class TenantSyncService
             // Begin transaction on tenant database
             DB::connection('tenant')->beginTransaction();
 
+            // Close all open seasons before syncing the new season
+            $this->closeOpenSeasonsForTenant($tenant);
+
             // Sync season
             $this->syncSeason($season);
 
@@ -143,7 +146,7 @@ class TenantSyncService
                         ['uuid' => $seasonCommodityUuid],
                         [
                             'name' => $fullCommodityName,
-                            'category' => $commodity->category_id,
+                            'category' => $commodity->category->name,
                             'unit' => $commodity->unit,
                             'stock' => 0,
                             'price_per_unit' => $commodity->price_per_unit,
@@ -412,6 +415,52 @@ class TenantSyncService
     }
 
     /**
+     * Close all open seasons in the current tenant database before syncing new season.
+     *
+     * @param Tenant $tenant
+     * @return void
+     */
+    protected function closeOpenSeasonsForTenant(Tenant $tenant): void
+    {
+        // Find all seasons with status 'open'
+        $openSeasons = DB::connection('tenant')
+            ->table('seasons')
+            ->where('status', 'open')
+            ->get();
+
+        if ($openSeasons->isEmpty()) {
+            Log::info("No open seasons found to close for tenant {$tenant->name}");
+            return;
+        }
+
+        // Update all open seasons to 'closed'
+        $updatedCount = DB::connection('tenant')
+            ->table('seasons')
+            ->where('status', 'open')
+            ->update([
+                'status' => 'closed',
+                'updated_at' => now()
+            ]);
+
+        Log::info("Closed {$updatedCount} open seasons for tenant {$tenant->name}", [
+            'tenant_id' => $tenant->id,
+            'tenant_name' => $tenant->name,
+            'seasons_closed' => $openSeasons->pluck('name')->toArray()
+        ]);
+
+        // Log each closed season
+        foreach ($openSeasons as $season) {
+            Log::info("Season closed during sync", [
+                'tenant_id' => $tenant->id,
+                'tenant_name' => $tenant->name,
+                'season_uuid' => $season->uuid,
+                'season_name' => $season->name,
+                'action' => 'automatically_closed_before_new_season_sync'
+            ]);
+        }
+    }
+
+    /**
      * Close a season across all allocated tenants.
      *
      * @param GlobalSeason $season
@@ -559,7 +608,7 @@ class TenantSyncService
                 $commodityId = DB::connection('tenant')->table('commodities')->insertGetId([
                     'uuid' => $seasonCommodityUuid,
                     'name' => $commodity->name . ' - ' . $season->name,
-                    'category' => $commodity->category_id,
+                    'category' => $commodity->category->name,
                     'unit' => $commodity->unit,
                     'price_per_unit' => $commodity->price_per_unit,
                     'quantity_per_hectare' => $commodity->quantity_per_hectare,

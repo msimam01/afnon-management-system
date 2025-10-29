@@ -25,6 +25,11 @@ Route::middleware(['api', 'auth:api', 'central.user.active', 'role:super-admin']
     ->group(function () {
         // Global Seasons API
         Route::apiResource('seasons', GlobalSeasonController::class);
+
+        // Reports API
+        Route::post('reports/season-allocation', [App\Http\Controllers\ReportController::class, 'seasonAllocationReport'])->name('reports.season-allocation');
+        Route::post('reports/tenant-distribution', [App\Http\Controllers\ReportController::class, 'tenantDistributionReport'])->name('reports.tenant-distribution');
+        Route::post('reports/return-compliance', [App\Http\Controllers\ReportController::class, 'returnComplianceReport'])->name('reports.return-compliance');
     });
 
 // Web Routes
@@ -73,7 +78,19 @@ Route::middleware(['web', 'auth', 'central.user.active', 'central-activity-log',
         // Global Commodity Market Prices
         Route::resource('commodity-market-prices', GlobalCommodityMarketPriceController::class)->names('commodity-market-prices');
 
+        // Reports Web Routes
+        Route::prefix('reports')->name('reports.')->group(function () {
+            Route::get('/', [App\Http\Controllers\Global\ReportsController::class, 'index'])->name('index');
+            Route::get('/season-allocation', [App\Http\Controllers\Global\ReportsController::class, 'seasonAllocation'])->name('season-allocation');
+            Route::get('/tenant-distribution', [App\Http\Controllers\Global\ReportsController::class, 'tenantDistribution'])->name('tenant-distribution');
+            Route::get('/return-compliance', [App\Http\Controllers\Global\ReportsController::class, 'returnCompliance'])->name('return-compliance');
 
+            // Export routes
+            Route::post('/season-allocation/export', [App\Http\Controllers\Global\ReportsController::class, 'exportSeasonAllocation'])->name('season-allocation.export');
+            Route::post('/tenant-distribution/export', [App\Http\Controllers\Global\ReportsController::class, 'exportTenantDistribution'])->name('tenant-distribution.export');
+            Route::post('/return-compliance/export', [App\Http\Controllers\Global\ReportsController::class, 'exportReturnCompliance'])->name('return-compliance.export');
+            Route::post('/farmers-export', [App\Http\Controllers\Global\ReportsController::class, 'exportFarmers'])->name('farmers-export');
+        });
 
         // Sync routes
         Route::prefix('sync')->group(function () {

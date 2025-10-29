@@ -127,7 +127,10 @@ class SeasonController extends Controller
         $commodities = DB::table('commodities')
             ->join('commodity_allocations', 'commodities.name', '=', 'commodity_allocations.commodity_name')
             ->join('applications', 'commodity_allocations.application_id', '=', 'applications.id')
-            ->leftJoin('collection_verifications', 'commodity_allocations.application_id', '=', 'collection_verifications.application_id')
+            ->leftJoin('collection_verifications', function($join) {
+                $join->on('commodity_allocations.application_id', '=', 'collection_verifications.application_id')
+                     ->on('commodities.id', '=', 'collection_verifications.commodity_id');
+            })
             ->where('applications.season_id', $season->id)
             ->select(
                 'commodities.id',
@@ -135,7 +138,7 @@ class SeasonController extends Controller
                 'commodities.category',
                 'commodities.unit',
                 DB::raw('SUM(commodity_allocations.allocated_quantity) as allocated'),
-                DB::raw('SUM(CASE WHEN collection_verifications.id IS NOT NULL THEN commodity_allocations.allocated_quantity ELSE 0 END) as distributed')
+                DB::raw('COALESCE(SUM(collection_verifications.collected_quantity), 0) as distributed')
             )
             ->groupBy('commodities.id', 'commodities.name', 'commodities.category', 'commodities.unit')
             ->get()
@@ -339,14 +342,14 @@ class SeasonController extends Controller
             $reportService = new SeasonReportService($season);
             $data = $reportService->generateReportData();
             $summary = $reportService->getSummary();
-            
+
             $fileName = 'season_report_' . now()->format('Y-m-d') . '.xlsx';
-            
+
             return Excel::download(
                 new EnhancedSeasonReportExport($data, $summary),
                 $fileName
             );
-            
+
         } catch (\Exception $e) {
             \Log::error('Excel export failed: ' . $e->getMessage());
             return back()->with('error', 'Failed to generate Excel export: ' . $e->getMessage());
@@ -362,28 +365,28 @@ class SeasonController extends Controller
             $reportService = new SeasonReportService($season);
             $data = $reportService->generateReportData();
             $summary = $reportService->getSummary();
-            
+
             // Log the export attempt
             \Log::info("Starting PDF export for season: {$season->name} with " . count($data) . " records");
-            
+
             $pdfExporter = new SeasonReportPdfExport($data, $summary);
             $fileName = 'season_report_' . $season->name . '_' . now()->format('Y-m-d') . '.pdf';
-            
+
             // For large datasets, show a message to the user
             if (count($data) > 50) {
                 return back()
                     ->with('info', 'Generating PDF for a large dataset. This may take a moment. The download will start automatically.')
                     ->with('auto_download', route('admin.seasons.export.pdf.direct', $season->uuid));
             }
-            
+
             return $pdfExporter->download($fileName);
-            
+
         } catch (\Exception $e) {
             \Log::error('PDF export failed: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
             return back()->with('error', 'Failed to generate PDF export. Please try again or contact support if the problem persists.');
         }
     }
-    
+
     /**
      * Direct download endpoint for large exports
      */
@@ -394,12 +397,12 @@ class SeasonController extends Controller
             $reportService = new SeasonReportService($season);
             $data = $reportService->generateReportData();
             $summary = $reportService->getSummary();
-            
+
             $pdfExporter = new SeasonReportPdfExport($data, $summary);
             $fileName = 'season_report_' . $season->name . '_' . now()->format('Y-m-d') . '.pdf';
-            
+
             return $pdfExporter->download($fileName);
-            
+
         } catch (\Exception $e) {
             \Log::error('Direct PDF export failed: ' . $e->getMessage());
             return response()->json([
@@ -408,7 +411,7 @@ class SeasonController extends Controller
             ], 500);
         }
     }
-    
+
     // Keeping this for backward compatibility
     public function export($uuid)
     {

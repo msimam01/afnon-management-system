@@ -390,7 +390,7 @@ Route::middleware([
             ->name('collections.verify');
 
         // Collection Verification via token (for QR codes and secure links)
-        Route::get('collections/{token}/verify', [AgentVerificationController::class, 'verifyCollection'])
+        Route::get('collections/{token}/verify', [AgentVerificationController::class, 'showCollectionVerification'])
             ->name('collections.verify.token');
 
         // Verify Return - High Priority (Primary Function)

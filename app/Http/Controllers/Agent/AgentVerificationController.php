@@ -187,10 +187,10 @@ class AgentVerificationController extends Controller
         // TEMPORARILY REMOVE TRANSACTION TO TEST IF DATA SAVES WITHOUT IT
         // Comment out the DB::transaction wrapper below and uncomment the block inside to test without transaction
 
-    
+
         try {
             DB::transaction(function () use ($application, $agent, $request) {
-        
+
                 Log::info('DEBUG: Inside transaction block');
 
                 // Step 1: Store the collection photo (shared for all verifications in this batch)
@@ -335,7 +335,7 @@ class AgentVerificationController extends Controller
                     })),
                 ]);
 
-        
+
             });
         } catch (\Exception $transactionException) {
             Log::error('DEBUG: Transaction exception', [
@@ -344,7 +344,7 @@ class AgentVerificationController extends Controller
             ]);
             return response()->json(['message' => 'Failed to process collection verification: ' . $transactionException->getMessage()], 500);
         }
-        
+
 
         // After transaction (or without), check if records exist
         $verificationCount = CollectionVerification::where('application_id', $application->id)->count();
@@ -490,19 +490,37 @@ public function assignedReturns(Request $request)
     public function showCollectionVerification($uuid)
     {
         $agent = optional(Auth::guard('tenant')->user())->agent;
-        $application = Application::with([
-            'farmer:id,full_name,registration_number,phone,bvn,nin,address',
-            'farm:id,size,location',
-            'season:id,name,status,loan_type',
-            'commodity_allocations',
-            'applicationCenter',
-            'collectionVerification',
-            'monetaryReturn'
-        ])
-        ->select(['id', 'uuid', 'reference_number', 'farmer_id', 'farm_id', 'season_id', 'status', 'payment_status', 'total_loan', 'insurance_rate', 'insurance_amount', 'equity', 'disbursed_amount'])
-        ->whereUuid($uuid)->first();
 
-        if (!$agent || empty($agent->center_id) || $application->applicationCenter->collection_center_id !== $agent->center_id) {
+        // Check if the parameter is an encrypted ID (token) or UUID
+        try {
+            $applicationId = Crypt::decryptString($uuid);
+            $application = Application::with([
+                'farmer:id,full_name,registration_number,phone,bvn,nin,address',
+                'farm:id,size,location',
+                'season:id,name,status,loan_type',
+                'commodity_allocations',
+                'applicationCenter',
+                'collectionVerification',
+                'monetaryReturn'
+            ])
+            ->select(['id', 'uuid', 'reference_number', 'farmer_id', 'farm_id', 'season_id', 'status', 'payment_status', 'total_loan', 'insurance_rate', 'insurance_amount', 'equity', 'disbursed_amount'])
+            ->findOrFail($applicationId);
+        } catch (\Exception $e) {
+            // If decryption fails, treat it as UUID
+            $application = Application::with([
+                'farmer:id,full_name,registration_number,phone,bvn,nin,address',
+                'farm:id,size,location',
+                'season:id,name,status,loan_type',
+                'commodity_allocations',
+                'applicationCenter',
+                'collectionVerification',
+                'monetaryReturn'
+            ])
+            ->select(['id', 'uuid', 'reference_number', 'farmer_id', 'farm_id', 'season_id', 'status', 'payment_status', 'total_loan', 'insurance_rate', 'insurance_amount', 'equity', 'disbursed_amount'])
+            ->whereUuid($uuid)->firstOrFail();
+        }
+
+        if (!$application || !$agent || empty($agent->center_id) || !$application->applicationCenter || $application->applicationCenter->collection_center_id !== $agent->center_id) {
             abort(403, 'Not authorized for this application');
         }
 
@@ -754,7 +772,7 @@ public function assignedReturns(Request $request)
                 'commodity_allocations:id,commodity_name,allocated_quantity,allocated_quantity',
                 'applicationCommodities.commodity:id,name,unit',
                 'collectionVerification.agent.user:id,name',
-                'tenant:id,name,domain'
+                'tenant:id'
             ])->findOrFail($applicationId);
 
             // Validate relationships and authorization
@@ -832,7 +850,7 @@ public function assignedReturns(Request $request)
                 'applicationCommodities.commodity:id,name,unit',
                 'returnVerification.agent.user:id,name',
                 'collectionVerification:id,application_id', // For checking collection exists
-                'tenant:id,name,domain'
+                'tenant:id'
             ])->findOrFail($applicationId);
 
             // Validate relationships and authorization
