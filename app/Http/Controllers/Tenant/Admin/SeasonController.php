@@ -2,17 +2,18 @@
 
 namespace App\Http\Controllers\Tenant\Admin;
 
-use App\Models\Season;
-use App\Models\Commodity;
-use Illuminate\Http\Request;
-use App\Models\CommoditySeason;
-use Illuminate\Support\Facades\DB;
-use App\Http\Controllers\Controller;
-use Devrabiul\ToastMagic\Facades\ToastMagic;
-use Illuminate\Validation\ValidationException;
-use App\Services\SeasonReportService;
 use App\Exports\EnhancedSeasonReportExport;
 use App\Exports\SeasonReportPdfExport;
+use App\Http\Controllers\Controller;
+use App\Models\Commodity;
+use App\Models\CommoditySeason;
+use App\Models\Season;
+use App\Services\SeasonReportService;
+use Devrabiul\ToastMagic\Facades\ToastMagic;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 
 class SeasonController extends Controller
@@ -367,7 +368,7 @@ class SeasonController extends Controller
             $summary = $reportService->getSummary();
 
             // Log the export attempt
-            \Log::info("Starting PDF export for season: {$season->name} with " . count($data) . " records");
+            Log::info("Starting PDF export for season: {$season->name} with " . count($data) . " records");
 
             $pdfExporter = new SeasonReportPdfExport($data, $summary);
             $fileName = 'season_report_' . $season->name . '_' . now()->format('Y-m-d') . '.pdf';
@@ -382,7 +383,7 @@ class SeasonController extends Controller
             return $pdfExporter->download($fileName);
 
         } catch (\Exception $e) {
-            \Log::error('PDF export failed: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
+            Log::error('PDF export failed: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
             return back()->with('error', 'Failed to generate PDF export. Please try again or contact support if the problem persists.');
         }
     }

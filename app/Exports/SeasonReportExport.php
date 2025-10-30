@@ -2,50 +2,76 @@
 
 namespace App\Exports;
 
-use App\Models\Season;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithTitle;
-use Illuminate\Support\Collection;
+use Maatwebsite\Excel\Concerns\WithMultipleSheets;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
-class SeasonReportExport implements FromCollection, WithHeadings, WithTitle
+class EnhancedSeasonReportExport implements WithMultipleSheets
 {
-    protected $season;
-    protected $farmerDetails;
+    protected $data;
+    protected $summary;
 
-    public function __construct(Season $season, $farmerDetails = null)
+    public function __construct(array $data, array $summary)
     {
-        $this->season = $season;
-        $this->farmerDetails = $farmerDetails;
+        $this->data = $data;
+        $this->summary = $summary;
+    }
+
+    public function sheets(): array
+    {
+        return [
+            new SummarySheet($this->summary),
+            new FarmerDetailsSheet($this->data, $this->summary['is_complete_loan']),
+            new CommodityBreakdownSheet($this->summary['commodity_summary'], $this->summary['is_complete_loan']),
+        ];
+    }
+}
+
+class SummarySheet implements FromCollection, WithHeadings, WithStyles, WithTitle
+{
+    protected $summary;
+
+    public function __construct(array $summary)
+    {
+        $this->summary = $summary;
     }
 
     public function collection()
     {
-        $data = collect();
+        $data = collect([
+            ['Season Name', $this->summary['season_name']],
+            ['Season Type', ucfirst($this->summary['season_type'])],
+            ['Loan Type', $this->summary['loan_type'] === 'complete-loan' ? 'Complete Loan' : 'Co-Funded'],
+            ['Start Date', $this->summary['start_date']],
+            ['End Date', $this->summary['end_date']],
+            ['Insurance Rate', $this->summary['insurance_rate'] . '%'],
+            [],
+            ['FINANCIAL SUMMARY', ''],
+            ['Total Farmers', $this->summary['total_farmers']],
+            ['Total Allocated Value', '₦' . number_format($this->summary['total_allocated_value'], 2)],
+            ['Total Disbursed', '₦' . number_format($this->summary['total_disbursed'], 2)],
+            ['Total Equity', '₦' . number_format($this->summary['total_equity'], 2)],
+            ['Total Insurance', '₦' . number_format($this->summary['total_insurance'], 2)],
+            [],
+            ['DISTRIBUTION SUMMARY', ''],
+            ['Total Allocated Quantity', number_format($this->summary['total_allocated_qty'], 2)],
+            ['Total Collected', number_format($this->summary['total_collected'], 2)],
+            ['Collection Rate', $this->summary['collection_rate'] . '%'],
+        ]);
 
-        if (!$this->farmerDetails || !is_array($this->farmerDetails) || count($this->farmerDetails) === 0) {
-            $data->push([
-                'No Data',
-                'No Data',
-                'No Data',
-                'No Data',
-                '0.00',
-                '0.00',
-                '0 units'
-            ]);
-            return $data;
-        }
-
-        foreach ($this->farmerDetails as $farmer) {
-            $data->push([
-                $farmer['farmer_name'] ?? 'No Name',
-                $farmer['phone'] ?? 'No Phone',
-                $farmer['bvn'] ?: 'N/A',
-                $farmer['nin'] ?: 'N/A',
-                isset($farmer['total_loan']) ? number_format($farmer['total_loan'], 2) : '0.00',
-                isset($farmer['disbursed_amount']) ? number_format($farmer['disbursed_amount'], 2) : '0.00',
-                isset($farmer['total_commodity_allocated']) ? number_format($farmer['total_commodity_allocated'], 2) . ' ' . ($farmer['commodity_units'] ?: 'units') : '0 units'
-            ]);
+        if ($this->summary['is_complete_loan']) {
+            $data->push(['']);
+            $data->push(['RETURN SUMMARY', '']);
+            $data->push(['Total Expected', number_format($this->summary['total_expected'], 2)]);
+            $data->push(['Total Returned', number_format($this->summary['total_returned'], 2)]);
+            $data->push(['Total Variance', number_format($this->summary['total_variance'], 2)]);
+            $data->push(['Completion Rate', $this->summary['completion_rate'] . '%']);
         }
 
         return $data;
@@ -53,274 +79,113 @@ class SeasonReportExport implements FromCollection, WithHeadings, WithTitle
 
     public function headings(): array
     {
+        return ['Metric', 'Value'];
+    }
+
+    public function styles(Worksheet $sheet)
+    {
         return [
+            1 => ['font' => ['bold' => true, 'size' => 12], 'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '4a6da7']], 'font' => ['color' => ['rgb' => 'FFFFFF']]],
+            'A8' => ['font' => ['bold' => true, 'size' => 11]],
+            'A15' => ['font' => ['bold' => true, 'size' => 11]],
+        ];
+    }
+
+    public function title(): string
+    {
+        return 'Summary';
+    }
+}
+
+class FarmerDetailsSheet implements FromCollection, WithHeadings, WithStyles, WithTitle
+{
+    protected $data;
+    protected $isCompleteLoan;
+
+    public function __construct(array $data, bool $isCompleteLoan)
+    {
+        $this->data = $data;
+        $this->isCompleteLoan = $isCompleteLoan;
+    }
+
+    public function collection()
+    {
+        $rows = collect();
+
+        foreach ($this->data as $farmer) {
+            foreach ($farmer['commodities'] as $commodity) {
+                $row = [
+                    $farmer['farmer_name'],
+                    $farmer['registration_number'],
+                    $farmer['farmer_phone'],
+                    $farmer['reference_number'],
+                    $farmer['application_date'],
+                    $farmer['farm_size'],
+                    $commodity['name'],
+                    $commodity['unit'],
+                    $commodity['allocated'],
+                    $commodity['collected'],
+                ];
+
+                if ($this->isCompleteLoan) {
+                    $row[] = $commodity['expected'];
+                    $row[] = $commodity['returned'];
+                    $row[] = $commodity['variance'];
+                }
+
+                $row[] = $commodity['unit_price'];
+                $row[] = $commodity['total_value'];
+                $row[] = $farmer['collection_date'] ?? 'Pending';
+
+                if ($this->isCompleteLoan) {
+                    $row[] = $farmer['return_date'] ?? 'Pending';
+                    $row[] = $farmer['shortfall_reason'];
+                }
+
+                $rows->push($row);
+            }
+        }
+
+        return $rows;
+    }
+
+    public function headings(): array
+    {
+        $headings = [
             'Farmer Name',
+            'Registration Number',
             'Phone',
-            'BVN',
-            'NIN',
-            'Total Loan (₦)',
-            'Disbursed Amount (₦)',
-            'Total Commodity Allocated'
+            'Reference Number',
+            'Application Date',
+            'Farm Size (Ha)',
+            'Commodity',
+            'Unit',
+            'Allocated Qty',
+            'Collected Qty',
         ];
+
+        if ($this->isCompleteLoan) {
+            $headings[] = 'Expected Return';
+            $headings[] = 'Returned Qty';
+            $headings[] = 'Variance';
+        }
+
+        $headings[] = 'Unit Price';
+        $headings[] = 'Total Value';
+        $headings[] = 'Collection Date';
+
+        if ($this->isCompleteLoan) {
+            $headings[] = 'Return Date';
+            $headings[] = 'Shortfall Reason';
+        }
+
+        return $headings;
     }
 
-    public function title(): string
-    {
-        return $this->season->name . ' - Farmer Details';
-    }
-}
-
-class SeasonOverviewSheet implements FromCollection, WithHeadings, WithTitle
-{
-    protected $season;
-    protected $statistics;
-
-    public function __construct(Season $season, $statistics)
-    {
-        $this->season = $season;
-        $this->statistics = $statistics;
-    }
-
-    public function collection()
-    {
-        return collect([
-            [
-                'Season Name' => $this->season->name,
-                'Season Type' => ucfirst($this->season->type),
-                'Loan Type' => ucfirst(str_replace('-', ' ', $this->season->loan_type)),
-                'Status' => ucfirst($this->season->status),
-                'Start Date' => $this->season->start_date,
-                'End Date' => $this->season->end_date,
-                'Collection Start' => $this->season->collection_start_date,
-                'Collection End' => $this->season->collection_end_date,
-                'Return Deadline' => $this->season->return_deadline ?? 'N/A',
-                'Budget' => $this->season->budget,
-                'Insurance Rate' => $this->season->insurance_rate . '%',
-            ],
-            [], // Empty row
-            [
-                'Metric' => 'Total Applications',
-                'Value' => $this->statistics['total_applications'],
-            ],
-            [
-                'Metric' => 'Approved Applications',
-                'Value' => $this->statistics['approved_applications'],
-            ],
-            [
-                'Metric' => 'Collected Applications',
-                'Value' => $this->statistics['collected_applications'],
-            ],
-            [
-                'Metric' => 'Collection Rate',
-                'Value' => number_format($this->statistics['collection_rate'], 2) . '%',
-            ],
-        ]);
-    }
-
-    public function headings(): array
+    public function styles(Worksheet $sheet)
     {
         return [
-            'Season Information',
-            'Value',
-        ];
-    }
-
-    public function title(): string
-    {
-        return 'Season Overview';
-    }
-}
-
-class CommodityCollectionsSheet implements FromCollection, WithHeadings, WithTitle
-{
-    protected $collectionInsights;
-
-    public function __construct($collectionInsights)
-    {
-        $this->collectionInsights = $collectionInsights;
-    }
-
-    public function collection()
-    {
-        $data = collect();
-
-        // Add farmers collected summary
-        $data->push([
-            'Summary',
-            'Farmers Collected Count: ' . $this->collectionInsights['farmers_collected_count'],
-        ]);
-        $data->push([]); // Empty row
-
-        // Add commodity collections header
-        $data->push([
-            'Commodity Name',
-            'Total Collected (Bags)',
-            'Number of Farmers',
-        ]);
-
-        // Add commodity collections data
-        foreach ($this->collectionInsights['commodity_collections'] as $commodity) {
-            $data->push([
-                $commodity->commodity_name,
-                number_format($commodity->total_collected),
-                number_format($commodity->farmers_count),
-            ]);
-        }
-
-        $data->push([]); // Empty row
-        $data->push(['Farmers Who Collected']);
-        $data->push(['Farmer Name', 'Registration Number']);
-
-        // Add farmers list
-        foreach ($this->collectionInsights['farmers_collected'] as $farmer) {
-            $data->push([
-                $farmer->full_name,
-                $farmer->registration_number,
-            ]);
-        }
-
-        return $data;
-    }
-
-    public function headings(): array
-    {
-        return [
-            'Commodity Collections Summary',
-            '',
-            '',
-        ];
-    }
-
-    public function title(): string
-    {
-        return 'Commodity Collections';
-    }
-}
-
-class FinancialInsightsSheet implements FromCollection, WithHeadings, WithTitle
-{
-    protected $financialInsights;
-
-    public function __construct($financialInsights)
-    {
-        $this->financialInsights = $financialInsights;
-    }
-
-    public function collection()
-    {
-        $data = collect();
-
-        if ($this->financialInsights['type'] === 'co-funded') {
-            $data->push(['Financial Insights - Co-funded Season']);
-            $data->push(['Metric', 'Value']);
-            $data->push(['Total Loan Amount', '₦' . number_format($this->financialInsights['total_loan_amount'], 2)]);
-            $data->push(['Disbursed Amount (50%)', '₦' . number_format($this->financialInsights['total_disbursed'], 2)]);
-            $data->push(['Equity Held (50%)', '₦' . number_format($this->financialInsights['equity_held'], 2)]);
-            $data->push(['Expected Payments', '₦' . number_format($this->financialInsights['expected_payments'], 2)]);
-            $data->push(['Actual Payments', '₦' . number_format($this->financialInsights['actual_payments'], 2)]);
-            $data->push(['Payment Rate', number_format($this->financialInsights['payment_rate'], 2) . '%']);
-            $data->push(['Outstanding Amount', '₦' . number_format($this->financialInsights['outstanding_amount'], 2)]);
-            $data->push([]);
-            $data->push(['Application Status', 'Count']);
-            $data->push(['Paid Applications', $this->financialInsights['paid_applications']]);
-            $data->push(['Pending Applications', $this->financialInsights['pending_applications']]);
-            $data->push(['Total Approved', $this->financialInsights['approved_applications']]);
-        } else {
-            $data->push(['Financial Insights - Complete Loan Season']);
-            $data->push(['Metric', 'Value']);
-            $data->push(['Total Loan Amount', '₦' . number_format($this->financialInsights['total_loan_amount'], 2)]);
-            $data->push(['Collected Applications', $this->financialInsights['collected_applications']]);
-            $data->push(['Returned Applications', $this->financialInsights['returned_applications']]);
-            $data->push(['Pending Collections', $this->financialInsights['pending_collections']]);
-            $data->push(['Pending Returns', $this->financialInsights['pending_returns']]);
-            $data->push(['Collection Rate', number_format($this->financialInsights['collection_rate'], 2) . '%']);
-            $data->push(['Return Rate', number_format($this->financialInsights['return_rate'], 2) . '%']);
-            $data->push(['Payment Required', 'No']);
-        }
-
-        return $data;
-    }
-
-    public function headings(): array
-    {
-        return [
-            'Financial Insights',
-            '',
-        ];
-    }
-
-    public function title(): string
-    {
-        return 'Financial Insights';
-    }
-}
-
-class FarmerDetailsSheet implements FromCollection, WithHeadings, WithTitle
-{
-    protected $season;
-    protected $farmerDetails;
-
-    public function __construct(Season $season, $farmerDetails)
-    {
-        $this->season = $season;
-        $this->farmerDetails = $farmerDetails;
-    }
-
-    public function collection()
-    {
-        $data = collect();
-
-        // Debug information
-        $data->push(['Debug - Farmer Details Count: ' . (is_array($this->farmerDetails) ? count($this->farmerDetails) : 'Not an array')]);
-        $data->push(['Debug - Farmer Details: ' . (is_array($this->farmerDetails) ? 'Array' : gettype($this->farmerDetails))]);
-
-        if (!$this->farmerDetails || !is_array($this->farmerDetails) || count($this->farmerDetails) === 0) {
-            $data->push(['No farmer details available for this season']);
-            $data->push(['This might indicate no approved applications exist for this season']);
-            return $data;
-        }
-
-        $data->push(['Season: ' . $this->season->name . ' (' . ucfirst(str_replace('-', ' ', $this->season->loan_type)) . ')']);
-        $data->push(['Total Farmers: ' . count($this->farmerDetails)]);
-        $data->push([]); // Empty row
-
-        // Headers - Only the requested fields
-        $data->push([
-            'Farmer Name',
-            'Phone',
-            'BVN',
-            'NIN',
-            'Total Loan (₦)',
-            'Disbursed Amount (₦)',
-            'Total Commodity Allocated'
-        ]);
-
-        // Farmer data - Only the requested fields
-        foreach ($this->farmerDetails as $farmer) {
-            $data->push([
-                $farmer['farmer_name'] ?? 'No Name',
-                $farmer['phone'] ?? 'No Phone',
-                $farmer['bvn'] ?: 'N/A',
-                $farmer['nin'] ?: 'N/A',
-                isset($farmer['total_loan']) ? number_format($farmer['total_loan'], 2) : '0.00',
-                isset($farmer['disbursed_amount']) ? number_format($farmer['disbursed_amount'], 2) : '0.00',
-                isset($farmer['total_commodity_allocated']) ? number_format($farmer['total_commodity_allocated'], 2) . ' ' . ($farmer['commodity_units'] ?: 'units') : '0 units'
-            ]);
-        }
-
-        return $data;
-    }
-
-    public function headings(): array
-    {
-        return [
-            'Farmer Name',
-            'Phone',
-            'BVN',
-            'NIN',
-            'Total Loan (₦)',
-            'Disbursed Amount (₦)',
-            'Total Commodity Allocated'
+            1 => ['font' => ['bold' => true], 'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'E8F4F8']]],
         ];
     }
 
@@ -330,64 +195,78 @@ class FarmerDetailsSheet implements FromCollection, WithHeadings, WithTitle
     }
 }
 
-class CommodityReturnsSheet implements FromCollection, WithHeadings, WithTitle
+class CommodityBreakdownSheet implements FromCollection, WithHeadings, WithStyles, WithTitle
 {
-    protected $commodityInsights;
+    protected $commoditySummary;
+    protected $isCompleteLoan;
 
-    public function __construct($commodityInsights)
+    public function __construct(array $commoditySummary, bool $isCompleteLoan)
     {
-        $this->commodityInsights = $commodityInsights;
+        $this->commoditySummary = $commoditySummary;
+        $this->isCompleteLoan = $isCompleteLoan;
     }
 
     public function collection()
     {
-        $data = collect();
+        $rows = collect();
 
-        $data->push(['Expected Commodity Returns - Complete Loan Applications Only']);
-        $data->push(['Note: Only farmers who collected without upfront payment are included']);
-        $data->push([]);
+        foreach ($this->commoditySummary as $commodity) {
+            $row = [
+                $commodity['name'],
+                $commodity['unit'],
+                $commodity['total_allocated'],
+                $commodity['total_distributed'],
+                $commodity['total_collected'],
+                $commodity['collection_rate'] . '%',
+            ];
 
-        foreach ($this->commodityInsights as $commodity) {
-            $data->push([
-                'Commodity: ' . $commodity['commodity_name'],
-                'Current Price: ₦' . number_format($commodity['current_price'], 2) . '/' . $commodity['unit'],
-            ]);
-            $data->push([]);
-            $data->push(['Summary']);
-            $data->push(['Expected Quantity', number_format($commodity['total_expected_quantity'], 2) . ' ' . $commodity['unit']]);
-            $data->push(['Total Loan Value', '₦' . number_format($commodity['total_loan_value'], 2)]);
-            $data->push(['Farmers Count', number_format($commodity['farmers_count'])]);
-            $data->push(['Average per Farmer', number_format($commodity['total_expected_quantity'] / $commodity['farmers_count'], 2) . ' ' . $commodity['unit']]);
-            $data->push([]);
-            $data->push(['Farmer Details']);
-            $data->push(['Farmer Name', 'Application Reference', 'Loan Amount', 'Expected Return']);
-
-            foreach ($commodity['applications'] as $app) {
-                $data->push([
-                    $app['farmer_name'],
-                    $app['reference_number'],
-                    '₦' . number_format($app['total_loan'], 2),
-                    number_format($app['expected_quantity'], 2) . ' ' . $commodity['unit'],
-                ]);
+            if ($this->isCompleteLoan) {
+                $row[] = $commodity['total_expected'];
+                $row[] = $commodity['total_returned'];
+                $row[] = $commodity['variance'];
+                $row[] = ($commodity['completion_rate'] ?? 0) . '%';
             }
-            $data->push([]);
+
+            $row[] = '₦' . number_format($commodity['total_value'], 2);
+
+            $rows->push($row);
         }
 
-        return $data;
+        return $rows;
     }
 
     public function headings(): array
     {
+        $headings = [
+            'Commodity',
+            'Unit',
+            'Total Allocated',
+            'Total Distributed',
+            'Total Collected',
+            'Collection Rate',
+        ];
+
+        if ($this->isCompleteLoan) {
+            $headings[] = 'Total Expected';
+            $headings[] = 'Total Returned';
+            $headings[] = 'Variance';
+            $headings[] = 'Return Rate';
+        }
+
+        $headings[] = 'Total Value';
+
+        return $headings;
+    }
+
+    public function styles(Worksheet $sheet)
+    {
         return [
-            'Expected Commodity Returns',
-            '',
-            '',
-            '',
+            1 => ['font' => ['bold' => true], 'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'D4EDDA']]],
         ];
     }
 
     public function title(): string
     {
-        return 'Commodity Returns';
+        return 'Commodity Breakdown';
     }
 }

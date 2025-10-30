@@ -372,6 +372,7 @@ Route::middleware([
         Route::get('/callback', [\App\Http\Controllers\FarmerPaymentController::class, 'paymentCallback'])->name('callback');
         Route::get('/receipt/{txRef}', [\App\Http\Controllers\FarmerPaymentController::class, 'receipt'])->name('receipt');
     });
+    
 
     // Agent routes with comprehensive permission checks
     Route::middleware(['auth:tenant', 'tenant.user.active', 'tenant-activity-log', 'role:agent'])->prefix('agent')->name('agent.')->group(function () {
