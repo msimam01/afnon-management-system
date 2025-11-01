@@ -32,18 +32,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Payment Receipt - AFNEN</title>
-    
+
     <!-- Vite Assets -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
+
     <style>
         /* Print Styles */
         @media print {
@@ -68,13 +68,13 @@
                 margin: 0;
             }
         }
-        
+
         /* Custom Animations */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        
+
         .animate-fade-in { animation: fadeIn 0.5s ease-out; }
     </style>
 
@@ -274,7 +274,7 @@
                         </div>
                         <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-6">
                             <div class="flex justify-between items-center text-lg">
-                                <span class="font-semibold text-gray-700 dark:text-gray-200">Monetary Return Payment:</span>
+                                <span class="font-semibold text-gray-700 dark:text-gray-200">Farmer Contribution:</span>
                                 <span class="text-3xl font-bold text-green-600 dark:text-green-400">₦{{ number_format($monetaryReturn->amount, 2) }}</span>
                             </div>
                             <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">

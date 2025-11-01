@@ -1,0 +1,29 @@
+{
+  "Adamawa": [
+    "Demsa", "Fufore", "Ganye", "Girei", "Guyuk", "Hong", "Jada", "Lamurde", "Madagali", "Maiha",
+    "Mayo-Belwa", "Michika", "Mubi North", "Mubi South", "Numan", "Shelleng", "Song", "Toungo",
+    "Yola North", "Yola South"
+  ],
+  "Bauchi": [
+    "Alkaleri", "Bauchi", "Bogoro", "Damban", "Darazo", "Dass", "Gamawa", "Ganjuwa", "Giade",
+    "Itas/Gadau", "Jama'are", "Katagum", "Kirfi", "Misau", "Ningi", "Shira", "Tafawa Balewa",
+    "Toro", "Warji", "Zaki"
+  ],
+  "Borno": [
+    "Abadam", "Askira/Uba", "Bama", "Bayo", "Biu", "Chibok", "Damboa", "Dikwa", "Gubio", "Guzamala",
+    "Gwoza", "Hawul", "Jere", "Kaga", "Kala/Balge", "Konduga", "Kukawa", "Kwaya Kusar", "Mafa",
+    "Magumeri", "Maiduguri", "Marte", "Mobbar", "Monguno", "Ngala", "Nganzai", "Shani"
+  ],
+  "Gombe": [
+    "Akko", "Balanga", "Billiri", "Dukku", "Funakaye", "Gombe", "Kaltungo", "Kwami", "Nafada",
+    "Shongom", "Yamaltu/Deba"
+  ],
+  "Taraba": [
+    "Ardo Kola", "Bali", "Donga", "Gashaka", "Gassol", "Ibi", "Jalingo", "Karim Lamido", "Kurmi",
+    "Lau", "Sardauna", "Takum", "Ussa", "Wukari", "Yorro", "Zing"
+  ],
+  "Yobe": [
+    "Bade", "Bursari", "Damaturu", "Fika", "Fune", "Geidam", "Gujba", "Gulani", "Jakusko",
+    "Karasuwa", "Machina", "Nangere", "Nguru", "Potiskum", "Tarmua", "Yunusari", "Yusufari"
+  ]
+}

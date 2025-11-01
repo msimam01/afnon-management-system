@@ -1,4 +1,3 @@
-
 @php
     $centralDomains = ['localhost', '127.0.0.1', 'afnen.com'];
     $host = request()->getHost();
@@ -251,12 +250,14 @@
     </style>
 </head>
 
-<body class="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+<body
+    class="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
     <!-- Optimized Background -->
     <div class="floating-bg"></div>
 
     <!-- Navigation -->
-    <nav class="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg shadow-lg border-b border-emerald-100 dark:border-gray-700 fixed top-0 left-0 right-0 z-50">
+    <nav
+        class="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg shadow-lg border-b border-emerald-100 dark:border-gray-700 fixed top-0 left-0 right-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center py-4">
                 <div class="flex items-center">
@@ -268,14 +269,19 @@
                         <img src="{{ asset('logo.png') }}" alt="AFNEN Logo" class="w-6 h-6 object-contain">
                     </div>
                     <div class="ml-3">
-                        <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ $isCentral ? 'AFNEN' : ($tenant->short_name ?? strtoupper($tenant->id)) . ' STATE CHAPTER' }}</h1>
-                        <p class="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Association Of Farmers In The Northeast Of Nigeria</p>
+                        <h1 class="text-xl font-bold text-gray-900 dark:text-white">
+                            {{ $isCentral ? 'AFNEN' : ($tenant->short_name ?? strtoupper($tenant->id)) . ' STATE CHAPTER' }}
+                        </h1>
+                        <p class="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Association Of Farmers In
+                            The Northeast Of Nigeria</p>
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <div class="hidden sm:flex items-center bg-emerald-100 dark:bg-emerald-900/30 px-3 py-1 rounded-full">
+                    <div
+                        class="hidden sm:flex items-center bg-emerald-100 dark:bg-emerald-900/30 px-3 py-1 rounded-full">
                         <i class="fas fa-calendar-alt text-emerald-600 dark:text-emerald-400 mr-2"></i>
-                        <span class="text-sm font-medium text-emerald-800 dark:text-emerald-300">{{ $season->name ?? 'Season' }}</span>
+                        <span
+                            class="text-sm font-medium text-emerald-800 dark:text-emerald-300">{{ $season->name ?? 'Season' }}</span>
                     </div>
                     <button id="darkModeToggle" aria-label="Toggle dark mode"
                         class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-emerald-100 dark:hover:bg-gray-600 hover:text-emerald-600 dark:hover:text-emerald-400">
@@ -292,23 +298,29 @@
         <div class="max-w-4xl mx-auto">
             <!-- Header -->
             <div class="text-center mb-8">
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl shadow-lg mb-6">
+                <div
+                    class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl shadow-lg mb-6">
                     <i class="fas fa-file-contract text-white text-2xl"></i>
                 </div>
                 <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                    Apply for <span class="text-emerald-600 dark:text-emerald-400">{{ $season->name ?? 'Season' }}</span> Loan
+                    Apply for <span
+                        class="text-emerald-600 dark:text-emerald-400">{{ $season->name ?? 'Season' }}</span> Loan
                 </h1>
                 <p class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                    Get access to quality agricultural inputs based on your farm size. Complete the application in simple steps.
+                    Get access to quality agricultural inputs based on your farm size. Complete the application in
+                    simple steps.
                 </p>
             </div>
 
             <!-- Enhanced Form Container -->
-            <div class="bg-white/95 dark:bg-gray-800/95 backdrop-blur-lg shadow-2xl rounded-3xl overflow-hidden border border-emerald-100 dark:border-gray-700">
-                <form id="application-form" method="POST" action="{{ route('applications.store') }}" class="p-6 sm:p-8">
+            <div
+                class="bg-white/95 dark:bg-gray-800/95 backdrop-blur-lg shadow-2xl rounded-3xl overflow-hidden border border-emerald-100 dark:border-gray-700">
+                <form id="application-form" method="POST" action="{{ route('applications.store') }}"
+                    class="p-6 sm:p-8">
                     @csrf
                     @if ($errors->any())
-                        <div id="error-summary" class="mb-6 p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 dark:bg-red-900/20 dark:text-red-300 dark:border-red-700">
+                        <div id="error-summary"
+                            class="mb-6 p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 dark:bg-red-900/20 dark:text-red-300 dark:border-red-700">
                             <p class="text-sm font-semibold mb-2">Please review the following issues:</p>
                             <ul class="list-disc pl-5 text-sm space-y-1">
                                 @foreach ($errors->all() as $error)
@@ -352,55 +364,68 @@
                     <div class="form-step active" id="step-1">
                         <div class="form-section">
                             <div class="mb-6 text-center">
-                                <div class="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl shadow-lg mb-4">
+                                <div
+                                    class="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl shadow-lg mb-4">
                                     <i class="fas fa-user-circle text-white text-xl"></i>
                                 </div>
-                                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Personal Information</h2>
-                                <p class="text-gray-600 dark:text-gray-300">Please provide your personal details for verification</p>
+                                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Personal Information
+                                </h2>
+                                <p class="text-gray-600 dark:text-gray-300">Please provide your personal details for
+                                    verification</p>
                             </div>
 
                             <div class="grid md:grid-cols-2 gap-6">
                                 <div>
-                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">Full Name *</label>
+                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">Full
+                                        Name *</label>
                                     <input type="text" name="full_name" required value="{{ old('full_name') }}"
                                         placeholder="Enter your full name"
                                         class="form-input w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500" />
                                 </div>
                                 <div>
-                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">Phone Number *</label>
+                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">Phone
+                                        Number *</label>
                                     <input type="tel" name="phone" required value="{{ old('phone') }}"
                                         placeholder="+234 xxx xxx xxxx"
                                         class="form-input w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500" />
                                 </div>
                                 <div>
-                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">NIN *</label>
-                                    <input type="text" name="nin" maxlength="11" required value="{{ old('nin') }}"
-                                        pattern="[0-9]{11}" placeholder="Enter your NIN"
+                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">NIN
+                                        *</label>
+                                    <input type="text" name="nin" maxlength="11" required
+                                        value="{{ old('nin') }}" pattern="[0-9]{11}" placeholder="Enter your NIN"
                                         class="form-input w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500" />
                                 </div>
                                 <div>
-                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">BVN *</label>
-                                    <input type="text" id="bvn-input" name="bvn" maxlength="11" required value="{{ old('bvn') }}"
-                                        pattern="[0-9]{11}" placeholder="Enter your BVN"
+                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">BVN
+                                        *</label>
+                                    <input type="text" id="bvn-input" name="bvn" maxlength="11" required
+                                        value="{{ old('bvn') }}" pattern="[0-9]{11}" placeholder="Enter your BVN"
                                         class="form-input w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500" />
-                                    <div id="bvn-status" class="mt-2 text-sm hidden" role="status" aria-live="polite"></div>
+                                    <div id="bvn-status" class="mt-2 text-sm hidden" role="status"
+                                        aria-live="polite"></div>
                                 </div>
                                 <div>
-                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">State *</label>
+                                    <label
+                                        class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">State
+                                        *</label>
                                     <select name="state" id="state" required
                                         class="form-input w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
                                         <option value="">Select State</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">LGA *</label>
+                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">LGA
+                                        *</label>
                                     <select name="lga" id="lga" required
                                         class="form-input w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
                                         <option value="">Select LGA</option>
                                     </select>
                                 </div>
                                 <div class="md:col-span-2">
-                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">Address *</label>
+                                    <label
+                                        class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">Address
+                                        *</label>
                                     <textarea name="address" required rows="3"
                                         class="form-input w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
                                         placeholder="Enter your full address">{{ old('address') }}</textarea>
@@ -410,7 +435,8 @@
 
                         <!-- Step 1 Navigation -->
                         <div class="flex justify-end mt-6">
-                            <button type="button" id="next-step-1" class="btn-primary px-8 py-3 text-white font-semibold rounded-lg">
+                            <button type="button" id="next-step-1"
+                                class="btn-primary px-8 py-3 text-white font-semibold rounded-lg">
                                 Next: Farm Information
                                 <i class="fas fa-arrow-right ml-2"></i>
                             </button>
@@ -421,7 +447,8 @@
                     <div class="form-step" id="step-2">
                         <div class="form-section">
                             <div class="mb-6 text-center">
-                                <div class="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl shadow-lg mb-4">
+                                <div
+                                    class="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl shadow-lg mb-4">
                                     <i class="fas fa-tractor text-white text-xl"></i>
                                 </div>
                                 <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Farm Information</h2>
@@ -430,21 +457,26 @@
 
                             <div class="grid md:grid-cols-2 gap-6">
                                 <div>
-                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">Farm Location *</label>
-                                    <input type="text" name="farm_location" required value="{{ old('farm_location') }}"
-                                        placeholder="Village/Town"
+                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">Farm
+                                        Location *</label>
+                                    <input type="text" name="farm_location" required
+                                        value="{{ old('farm_location') }}" placeholder="Village/Town"
                                         class="form-input w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500" />
                                 </div>
                                 <div>
-                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">Farm Size (Hectares) *</label>
-                                    <input type="number" name="farm_size" id="farm-size" step="0.1" min="0.1" required value="{{ old('farm_size') }}"
+                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">Farm
+                                        Size (Hectares) *</label>
+                                    <input type="number" name="farm_size" id="farm-size" step="0.1"
+                                        min="0.1" required value="{{ old('farm_size') }}"
                                         placeholder="e.g. 2.5"
                                         class="form-input w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500" />
                                 </div>
                                 <div class="md:col-span-2">
-                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">Cluster Farm Location</label>
-                                    <input type="text" name="cluster_location" value="{{ old('cluster_location') }}"
-                                        placeholder="e.g., Igabi West"
+                                    <label
+                                        class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">Cluster
+                                        Farm Location</label>
+                                    <input type="text" name="cluster_location"
+                                        value="{{ old('cluster_location') }}" placeholder="e.g., Igabi West"
                                         class="form-input w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500" />
                                 </div>
                             </div>
@@ -452,11 +484,13 @@
 
                         <!-- Step 2 Navigation -->
                         <div class="flex justify-between mt-6">
-                            <button type="button" id="prev-step-2" class="px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg">
+                            <button type="button" id="prev-step-2"
+                                class="px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg">
                                 <i class="fas fa-arrow-left mr-2"></i>
                                 Previous
                             </button>
-                            <button type="button" id="next-step-2" class="btn-primary px-8 py-3 text-white font-semibold rounded-lg">
+                            <button type="button" id="next-step-2"
+                                class="btn-primary px-8 py-3 text-white font-semibold rounded-lg">
                                 Next: Complete Application
                                 <i class="fas fa-arrow-right ml-2"></i>
                             </button>
@@ -467,44 +501,59 @@
                     <div class="form-step" id="step-3">
                         <div class="form-section">
                             <div class="mb-6 text-center">
-                                <div class="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl shadow-lg mb-4">
+                                <div
+                                    class="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl shadow-lg mb-4">
                                     <i class="fas fa-check-circle text-white text-xl"></i>
                                 </div>
-                                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Complete Your Application</h2>
-                                <p class="text-gray-600 dark:text-gray-300">Select your seed and review your loan details</p>
+                                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Complete Your
+                                    Application</h2>
+                                <p class="text-gray-600 dark:text-gray-300">Select your seed and review your loan
+                                    details</p>
                             </div>
 
                             <!-- Seed Selection -->
                             <div class="mb-6">
                                 <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center">
-                                    <img src="{{ asset('logo.png') }}" alt="AFNEN Logo" class="w-5 h-5 object-contain mr-3">
+                                    <img src="{{ asset('logo.png') }}" alt="AFNEN Logo"
+                                        class="w-5 h-5 object-contain mr-3">
                                     Choose Your Seed
                                 </h3>
                                 <div class="grid md:grid-cols-2 gap-4" id="seed-options">
                                     @forelse(($seeds ?? []) as $seed)
-                                        <label class="seed-option block border-2 border-gray-200 dark:border-gray-700 rounded-xl p-4 cursor-pointer hover:border-emerald-500"
-                                               tabindex="0" role="radio" aria-label="Select {{ $seed->name }}">
-                                            <input type="radio" name="selected_seed" value="{{ $seed->id }}" class="hidden"
-                                                   data-qty-per-hectare="{{ $seed->quantity_per_hectare }}"
-                                                   data-price-per-unit="{{ $seed->price_per_unit }}"
-                                                   data-unit="{{ $seed->unit ?? 'unit' }}"
-                                                   {{ old('selected_seed') == $seed->id ? 'checked' : '' }}>
+                                        <label
+                                            class="seed-option block border-2 border-gray-200 dark:border-gray-700 rounded-xl p-4 cursor-pointer hover:border-emerald-500"
+                                            tabindex="0" role="radio" aria-label="Select {{ $seed->name }}">
+                                            <input type="radio" name="selected_seed" value="{{ $seed->id }}"
+                                                class="hidden"
+                                                data-qty-per-hectare="{{ $seed->quantity_per_hectare }}"
+                                                data-price-per-unit="{{ $seed->price_per_unit }}"
+                                                data-unit="{{ $seed->unit ?? 'unit' }}"
+                                                {{ old('selected_seed') == $seed->id ? 'checked' : '' }}>
                                             <div class="flex justify-between items-center">
                                                 <div class="flex-1">
                                                     <div class="flex items-center mb-2">
-                                                        <img src="{{ asset('logo.png') }}" alt="AFNEN Logo" class="w-4 h-4 object-contain mr-2">
-                                                        <h4 class="font-bold text-gray-900 dark:text-white">{{ $seed->name }}</h4>
+                                                        <img src="{{ asset('logo.png') }}" alt="AFNEN Logo"
+                                                            class="w-4 h-4 object-contain mr-2">
+                                                        <h4 class="font-bold text-gray-900 dark:text-white">
+                                                            {{ $seed->name }}</h4>
                                                     </div>
-                                                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">{{ $seed->quantity_per_hectare }} {{ $seed->unit ?? 'unit' }}/hectare</p>
-                                                    <p class="text-sm font-semibold text-emerald-600 dark:text-emerald-400">₦{{ number_format($seed->price_per_unit) }} per {{ $seed->unit ?? 'unit' }}</p>
+                                                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                                                        {{ $seed->quantity_per_hectare }}
+                                                        {{ $seed->unit ?? 'unit' }}/hectare</p>
+                                                    <p
+                                                        class="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+                                                        ₦{{ number_format($seed->price_per_unit) }} per
+                                                        {{ $seed->unit ?? 'unit' }}</p>
                                                 </div>
-                                                <div class="w-6 h-6 border-2 border-gray-300 rounded-full flex items-center justify-center">
+                                                <div
+                                                    class="w-6 h-6 border-2 border-gray-300 rounded-full flex items-center justify-center">
                                                     <div class="w-3 h-3 bg-emerald-500 rounded-full hidden"></div>
                                                 </div>
                                             </div>
                                         </label>
                                     @empty
-                                        <p class="text-sm text-gray-600 dark:text-gray-400 col-span-2">No seed options available for this season.</p>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 col-span-2">No seed options
+                                            available for this season.</p>
                                     @endforelse
                                 </div>
                             </div>
@@ -515,13 +564,16 @@
                                     <i class="fas fa-boxes text-emerald-600 mr-3"></i>
                                     Additional Commodities (Auto-allocated)
                                 </h3>
-                                <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-xl p-4 mb-4">
+                                <div
+                                    class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-xl p-4 mb-4">
                                     <div class="flex items-start">
                                         <i class="fas fa-info-circle text-blue-600 mr-3 mt-1"></i>
                                         <div>
-                                            <p class="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-1">Automatic Allocation</p>
+                                            <p class="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-1">
+                                                Automatic Allocation</p>
                                             <p class="text-sm text-blue-700 dark:text-blue-300">
-                                                The following commodities will be automatically allocated based on your farm size. These are included in your loan calculation.
+                                                The following commodities will be automatically allocated based on your
+                                                farm size. These are included in your loan calculation.
                                             </p>
                                         </div>
                                     </div>
@@ -537,46 +589,64 @@
                                     <i class="fas fa-calculator text-emerald-600 mr-3"></i>
                                     Loan Summary
                                 </h3>
-                                <div class="grid md:grid-cols-{{ $season->loan_type === 'co-funded' ? '3' : '2' }} gap-4">
-                                    <div class="p-4 bg-emerald-50 dark:bg-emerald-900/20 border-2 border-emerald-200 dark:border-emerald-700 rounded-xl">
+                                <div
+                                    class="grid md:grid-cols-{{ $season->loan_type === 'co-funded' ? '3' : '2' }} gap-4">
+                                    <div
+                                        class="p-4 bg-emerald-50 dark:bg-emerald-900/20 border-2 border-emerald-200 dark:border-emerald-700 rounded-xl">
                                         <div class="flex items-center mb-2">
                                             <i class="fas fa-money-bill-wave text-emerald-600 mr-2"></i>
-                                            <span class="text-sm font-medium text-emerald-800 dark:text-emerald-200">Total Loan</span>
+                                            <span
+                                                class="text-sm font-medium text-emerald-800 dark:text-emerald-200">Total
+                                                Loan</span>
                                         </div>
-                                        <p id="total-loan" class="text-2xl font-bold text-emerald-900 dark:text-emerald-100">₦0</p>
+                                        <p id="total-loan"
+                                            class="text-2xl font-bold text-emerald-900 dark:text-emerald-100">₦0</p>
                                     </div>
                                     @if ($season->loan_type === 'co-funded')
-                                    <div class="p-4 bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-200 dark:border-yellow-700 rounded-xl">
-                                        <div class="flex items-center mb-2">
-                                            <i class="fas fa-piggy-bank text-yellow-600 mr-2"></i>
-                                            <span class="text-sm font-medium text-yellow-800 dark:text-yellow-200">Equity Held</span>
+                                        <div
+                                            class="p-4 bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-200 dark:border-yellow-700 rounded-xl">
+                                            <div class="flex items-center mb-2">
+                                                <i class="fas fa-piggy-bank text-yellow-600 mr-2"></i>
+                                                <span
+                                                    class="text-sm font-medium text-yellow-800 dark:text-yellow-200">Organization
+                                                    Contribution</span>
+                                            </div>
+                                            <p id="equity-held"
+                                                class="text-2xl font-bold text-yellow-900 dark:text-yellow-100">₦0</p>
                                         </div>
-                                        <p id="equity-held" class="text-2xl font-bold text-yellow-900 dark:text-yellow-100">₦0</p>
-                                    </div>
                                     @endif
-                                    <div class="p-4 bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-700 rounded-xl">
+                                    <div
+                                        class="p-4 bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-700 rounded-xl">
                                         <div class="flex items-center mb-2">
                                             <i class="fas fa-hand-holding-usd text-blue-600 mr-2"></i>
-                                            <span class="text-sm font-medium text-blue-800 dark:text-blue-200">You Receive</span>
+                                            <span class="text-sm font-medium text-blue-800 dark:text-blue-200">Farmer
+                                                Contribution</span>
                                         </div>
-                                        <p id="you-receive" class="text-2xl font-bold text-blue-900 dark:text-blue-100">₦0</p>
+                                        <p id="you-receive"
+                                            class="text-2xl font-bold text-blue-900 dark:text-blue-100">₦0</p>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Important Note -->
-                            <div class="mb-6 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 border-l-4 border-yellow-400 rounded-lg">
+                            <div
+                                class="mb-6 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 border-l-4 border-yellow-400 rounded-lg">
                                 <div class="flex items-start">
                                     <i class="fas fa-info-circle text-yellow-600 mr-3 mt-1"></i>
                                     <div>
-                                        <p class="text-sm font-semibold text-yellow-800 dark:text-yellow-200 mb-1">Important Information</p>
+                                        <p class="text-sm font-semibold text-yellow-800 dark:text-yellow-200 mb-1">
+                                            Important Information</p>
                                         @if ($season->loan_type === 'co-funded')
                                             <p class="text-sm text-yellow-700 dark:text-yellow-300">
-                                                You will receive 50% of the total loan value as disbursed amount. The remaining 50% is held as equity by AFNEN to ensure program sustainability. Payment is required before collection.
+                                                AFNEN will cover half of your loan amount, and you will pay the other half. Please make your payment before collecting your inputs.
                                             </p>
                                         @else
                                             <p class="text-sm text-yellow-700 dark:text-yellow-300">
-                                                This is a complete loan season. No upfront payment is required before collection. After harvest, you are required to return an expected quantity of your selected seed to the assigned return center. The quantity equals Total Loan Value divided by the current market price of the seed at return time.
+                                                This is a complete loan season. No upfront payment is required before
+                                                collection. After harvest, you are required to return an expected
+                                                quantity of your selected seed to the assigned return center. The
+                                                quantity equals Total Loan Value divided by the current market price of
+                                                the seed at return time.
                                             </p>
                                         @endif
                                     </div>
@@ -588,34 +658,42 @@
                                 <div class="flex items-start gap-3">
                                     <input type="checkbox" required id="terms-agreement"
                                         class="mt-1 h-5 w-5 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded">
-                                    <label for="terms-agreement" class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                                        I agree to the <a href="#" class="text-emerald-600 hover:text-emerald-800 underline font-medium">Terms and Conditions</a>
+                                    <label for="terms-agreement"
+                                        class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                                        I agree to the <a href="#"
+                                            class="text-emerald-600 hover:text-emerald-800 underline font-medium">Terms
+                                            and Conditions</a>
                                         and confirm that all provided information is accurate and complete.
                                     </label>
                                 </div>
                                 @if ($season->loan_type === 'co-funded')
-                                <div class="flex items-start gap-3">
-                                    <input type="checkbox" required id="equity-agreement"
-                                        class="mt-1 h-5 w-5 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded">
-                                    <label for="equity-agreement" class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                                        I understand and accept that 50% of the loan value will be held as equity by AFNEN and payment is required before collection.
-                                    </label>
-                                </div>
+                                    <div class="flex items-start gap-3">
+                                        <input type="checkbox" required id="equity-agreement"
+                                            class="mt-1 h-5 w-5 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded">
+                                        <label for="equity-agreement"
+                                            class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                                            I understand and accept that 50% of the loan value will be held as equity by
+                                            AFNEN and payment is required before collection.
+                                        </label>
+                                    </div>
                                 @else
-                                <div class="flex items-start gap-3">
-                                    <input type="checkbox" required id="return-agreement"
-                                        class="mt-1 h-5 w-5 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded">
-                                    <label for="return-agreement" class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                                        I understand and agree to return the expected quantity of my selected seed after harvest to the assigned return center.
-                                    </label>
-                                </div>
+                                    <div class="flex items-start gap-3">
+                                        <input type="checkbox" required id="return-agreement"
+                                            class="mt-1 h-5 w-5 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded">
+                                        <label for="return-agreement"
+                                            class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                                            I understand and agree to return the expected quantity of my selected seed
+                                            after harvest to the assigned return center.
+                                        </label>
+                                    </div>
                                 @endif
                             </div>
                         </div>
 
                         <!-- Step 3 Navigation -->
                         <div class="flex justify-between items-center mt-6">
-                            <button type="button" id="prev-step-3" class="px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg">
+                            <button type="button" id="prev-step-3"
+                                class="px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg">
                                 <i class="fas fa-arrow-left mr-2"></i>
                                 Previous
                             </button>
@@ -638,366 +716,322 @@
     </div>
 
     <script>
-        // Optimized JavaScript functionality
-        let currentStep = 1;
-        const totalSteps = 3;
-        let statesCache = null;
-        let lgaCache = {};
+    // ================================================
+    // COMPLETE AFNEN LOAN APPLICATION SCRIPT
+    // Northeast Nigeria States/LGAs HARDCODED
+    // No API, No timeouts, Instant load, Works offline
+    // ================================================
 
-        // Dark Mode Toggle
-        const darkModeToggle = document.getElementById('darkModeToggle');
-        const html = document.documentElement;
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        if (savedTheme === 'dark') html.classList.add('dark');
+    // === GLOBAL VARIABLES ===
+    let currentStep = 1;
+    const totalSteps = 3;
+    let statesCache = [];
+    let lgaCache = {};
 
-        if (darkModeToggle) {
-            darkModeToggle.addEventListener('click', () => {
-                html.classList.toggle('dark');
-                localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
-            });
+    // === HARDCODED NORTHEAST STATES & LGAs ===
+    const NORTHEAST_DATA = {
+        "Adamawa": ["Demsa", "Fufore", "Ganye", "Guyuk", "Hong", "Jada", "Lamurde", "Madagali", "Maiha", "Mayo-Belwa", "Michika", "Mubi North", "Mubi South", "Numan", "Shelleng", "Song", "Toungo", "Yola North", "Yola South"],
+        "Bauchi": ["Alkaleri", "Bauchi", "Bogoro", "Damban", "Darazo", "Dass", "Gamawa", "Ganjuwa", "Giade", "Itas/Gadau", "Jama'are", "Katagum", "Kirfi", "Misau", "Ningi", "Shira", "Tafawa Balewa", "Toro", "Warji", "Zaki"],
+        "Borno": ["Abadam", "Askira/Uba", "Bama", "Bayo", "Biu", "Chibok", "Damboa", "Dikwa", "Gubio", "Guzamala", "Gwoza", "Hawul", "Jere", "Kaga", "Kala/Balge", "Konduga", "Kukawa", "Kwaya Kusar", "Mafa", "Magumeri", "Maiduguri", "Marte", "Mobbar", "Monguno", "Ngala", "Nganzai", "Shani"],
+        "Gombe": ["Akko", "Balanga", "Billiri", "Dukku", "Funakaye", "Gombe", "Kaltungo", "Kwami", "Nafada", "Shongom", "Yamaltu/Deba"],
+        "Taraba": ["Ardo Kola", "Bali", "Donga", "Gashaka", "Gassol", "Ibi", "Jalingo", "Karim Lamido", "Kurmi", "Lau", "Sardauna", "Takum", "Ussa", "Wukari", "Yorro", "Zing"],
+        "Yobe": ["Bade", "Bursari", "Damaturu", "Fika", "Fune", "Geidam", "Gujba", "Gulani", "Jakusko", "Karasuwa", "Machina", "Nangere", "Nguru", "Potiskum", "Tarmua", "Yunusari", "Yusufari"]
+    };
+
+    // Initialize cache
+    statesCache = Object.keys(NORTHEAST_DATA);
+    lgaCache = NORTHEAST_DATA;
+
+    // Dark Mode Toggle
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    const html = document.documentElement;
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    if (savedTheme === 'dark') html.classList.add('dark');
+
+    if (darkModeToggle) {
+        darkModeToggle.addEventListener('click', () => {
+            html.classList.toggle('dark');
+            localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
+        });
+    }
+
+    // === STATE/LGA FUNCTIONS ===
+    function populateStates() {
+        const stateSelect = document.getElementById('state');
+        if (!stateSelect) return;
+
+        stateSelect.innerHTML = '<option value="">Select State</option>';
+        statesCache.forEach(state => {
+            const option = document.createElement('option');
+            option.text = state;
+            option.value = state;
+            stateSelect.appendChild(option);
+        });
+    }
+
+    function populateLGAs(state) {
+        const lgaSelect = document.getElementById('lga');
+        if (!lgaSelect || !state) return;
+
+        lgaSelect.innerHTML = '<option value="">Select LGA</option>';
+        const lgas = lgaCache[state] || [];
+        lgas.forEach(lga => {
+            const option = document.createElement('option');
+            option.text = lga;
+            option.value = lga;
+            lgaSelect.appendChild(option);
+        });
+    }
+
+    // === LOAN CALCULATION ===
+    const otherCommodities = @json($others ?? []);
+    const insuranceRate = {{ $season->insurance_rate ?? 0 }};
+    const seasonLoanType = "{{ $season->loan_type ?? 'co-funded' }}";
+
+    function parseNumber(n) {
+        const x = parseFloat(n);
+        return isNaN(x) ? 0 : x;
+    }
+
+    function formatNaira(n) {
+        return new Intl.NumberFormat('en-NG', {
+            style: 'currency',
+            currency: 'NGN',
+            maximumFractionDigits: 0
+        }).format(n);
+    }
+
+    function calculateLoanSummary() {
+        const totalLoanEl = document.getElementById('total-loan');
+        const equityEl = document.getElementById('equity-held');
+        const receiveEl = document.getElementById('you-receive');
+        const farmSize = parseNumber(document.getElementById('farm-size')?.value);
+        const selectedSeed = document.querySelector('input[name="selected_seed"]:checked');
+
+        if (!selectedSeed || farmSize <= 0) {
+            if (totalLoanEl) totalLoanEl.textContent = '—';
+            if (equityEl) equityEl.textContent = '—';
+            if (receiveEl) receiveEl.textContent = '—';
+            return;
         }
 
-        // Optimized State/LGA Management with timeout
-        async function fetchStates() {
-            if (statesCache) {
-                populateStates(statesCache);
-                return;
+        const qtyPerHectare = parseNumber(selectedSeed.dataset.qtyPerHectare);
+        const pricePerUnit = parseNumber(selectedSeed.dataset.pricePerUnit);
+        const seedQty = qtyPerHectare * farmSize;
+        const seedVal = seedQty * pricePerUnit;
+
+        let othersTotal = 0;
+        if (Array.isArray(otherCommodities)) {
+            for (const item of otherCommodities) {
+                const qty = parseNumber(item.quantity_per_hectare) * farmSize;
+                const val = qty * parseNumber(item.price_per_unit);
+                othersTotal += val;
             }
+        }
 
-            const stateSelect = document.getElementById('state');
-            if (!stateSelect) return;
+        const baseTotal = seedVal + othersTotal;
+        const insuranceAmount = baseTotal * (parseNumber(insuranceRate) / 100);
+        const finalTotal = baseTotal + insuranceAmount;
+        let equity = 0;
+        let youReceive = finalTotal;
+        if (seasonLoanType === 'co-funded') {
+            equity = finalTotal / 2;
+            youReceive = finalTotal - equity;
+        }
 
-            try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+        if (totalLoanEl) totalLoanEl.textContent = formatNaira(finalTotal);
+        if (equityEl) equityEl.textContent = equity > 0 ? formatNaira(equity) : '—';
+        if (receiveEl) receiveEl.textContent = formatNaira(youReceive);
+    }
 
-                const response = await fetch('https://nga-states-lga.onrender.com/fetch', {
-                    signal: controller.signal
-                });
-                clearTimeout(timeoutId);
+    // === STEPPER FUNCTIONS ===
+    function updateStepperProgress() {
+        const progressBar = document.getElementById('stepper-progress');
+        const progressPercentage = ((currentStep - 1) / (totalSteps - 1)) * 100;
+        if (progressBar) {
+            progressBar.style.width = progressPercentage + '%';
+        }
+    }
 
-                const data = await response.json();
-                statesCache = data;
-                populateStates(data);
-            } catch (error) {
-                if (error.name === 'AbortError') {
-                    showNotification('Request timeout. Please check your connection.', 'error');
-                } else {
-                    showNotification('Failed to load states. Please refresh the page.', 'error');
+    function showStep(stepNumber) {
+        document.querySelectorAll('.form-step').forEach(step => {
+            step.classList.remove('active');
+        });
+
+        const currentStepEl = document.getElementById(`step-${stepNumber}`);
+        if (currentStepEl) {
+            currentStepEl.classList.add('active');
+        }
+
+        document.querySelectorAll('.step-item').forEach((step, index) => {
+            const stepIndex = index + 1;
+            step.classList.remove('active', 'completed');
+
+            if (stepIndex < stepNumber) {
+                step.classList.add('completed');
+                const circle = step.querySelector('.step-circle');
+                if (circle) circle.innerHTML = '<i class="fas fa-check"></i>';
+            } else if (stepIndex === stepNumber) {
+                step.classList.add('active');
+                const circle = step.querySelector('.step-circle');
+                if (circle) {
+                    if (stepNumber === 1) circle.innerHTML = '<i class="fas fa-user-circle"></i>';
+                    else if (stepNumber === 2) circle.innerHTML = '<i class="fas fa-tractor"></i>';
+                    else if (stepNumber === 3) circle.innerHTML = '<i class="fas fa-check-circle"></i>';
                 }
-            }
-        }
-
-        function populateStates(data) {
-            const stateSelect = document.getElementById('state');
-            if (!stateSelect) return;
-
-            // Clear existing options except placeholder
-            stateSelect.innerHTML = '<option value="">Select State</option>';
-
-            Object.values(data).forEach(state => {
-                const option = document.createElement('option');
-                option.text = state;
-                option.value = state;
-                stateSelect.appendChild(option);
-            });
-        }
-
-        async function selectLGA(target) {
-            const state = target.value;
-            const lgaSelect = document.getElementById('lga');
-            if (!lgaSelect || !state) return;
-
-            // Check cache first
-            if (lgaCache[state]) {
-                populateLGAs(lgaCache[state]);
-                return;
-            }
-
-            try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 5000);
-
-                const response = await fetch(`https://nga-states-lga.onrender.com/?state=${encodeURIComponent(state)}`, {
-                    signal: controller.signal
-                });
-                clearTimeout(timeoutId);
-
-                const data = await response.json();
-                lgaCache[state] = data;
-                populateLGAs(data);
-            } catch (error) {
-                if (error.name === 'AbortError') {
-                    showNotification(`Request timeout for ${state} LGAs.`, 'error');
-                } else {
-                    showNotification(`Failed to load LGAs for ${state}.`, 'error');
-                }
-            }
-        }
-
-        function populateLGAs(data) {
-            const lgaSelect = document.getElementById('lga');
-            if (!lgaSelect) return;
-
-            lgaSelect.innerHTML = '<option value="">Select LGA</option>';
-
-            Object.values(data).forEach(lga => {
-                const option = document.createElement('option');
-                option.text = lga;
-                option.value = lga;
-                lgaSelect.appendChild(option);
-            });
-        }
-
-        // Optimized Loan Summary Calculation
-        const otherCommodities = @json($others ?? []);
-        const insuranceRate = {{ $season->insurance_rate ?? 0 }};
-        const seasonId = {{ $season->id ?? 0 }};
-        const seasonLoanType = "{{ $season->loan_type ?? 'co-funded' }}";
-
-        function parseNumber(n) {
-            const x = parseFloat(n);
-            return isNaN(x) ? 0 : x;
-        }
-
-        function formatNaira(n) {
-            return new Intl.NumberFormat('en-NG', {
-                style: 'currency',
-                currency: 'NGN',
-                maximumFractionDigits: 0
-            }).format(n);
-        }
-
-        function calculateLoanSummary() {
-            const totalLoanEl = document.getElementById('total-loan');
-            const equityEl = document.getElementById('equity-held');
-            const receiveEl = document.getElementById('you-receive');
-            const farmSize = parseNumber(document.getElementById('farm-size')?.value);
-            const selectedSeed = document.querySelector('input[name="selected_seed"]:checked');
-
-            if (!selectedSeed || farmSize <= 0) {
-                if (totalLoanEl) totalLoanEl.textContent = '—';
-                if (equityEl) equityEl.textContent = '—';
-                if (receiveEl) receiveEl.textContent = '—';
-                return;
-            }
-
-            const qtyPerHectare = parseNumber(selectedSeed.dataset.qtyPerHectare);
-            const pricePerUnit = parseNumber(selectedSeed.dataset.pricePerUnit);
-            const seedQty = qtyPerHectare * farmSize;
-            const seedVal = seedQty * pricePerUnit;
-
-            let othersTotal = 0;
-            if (Array.isArray(otherCommodities)) {
-                for (const item of otherCommodities) {
-                    const qty = parseNumber(item.quantity_per_hectare) * farmSize;
-                    const val = qty * parseNumber(item.price_per_unit);
-                    othersTotal += val;
-                }
-            }
-
-            const baseTotal = seedVal + othersTotal;
-            const insuranceAmount = baseTotal * (parseNumber(insuranceRate) / 100);
-            const finalTotal = baseTotal + insuranceAmount;
-            let equity = 0;
-            let youReceive = finalTotal;
-            if (seasonLoanType === 'co-funded') {
-                equity = finalTotal / 2;
-                youReceive = finalTotal - equity;
-            }
-
-            if (totalLoanEl) totalLoanEl.textContent = formatNaira(finalTotal);
-            if (equityEl) equityEl.textContent = equity > 0 ? formatNaira(equity) : '—';
-            if (receiveEl) receiveEl.textContent = formatNaira(youReceive);
-        }
-
-        // Enhanced Stepper Functions
-        function updateStepperProgress() {
-            const progressBar = document.getElementById('stepper-progress');
-            const progressPercentage = ((currentStep - 1) / (totalSteps - 1)) * 100;
-            if (progressBar) {
-                progressBar.style.width = progressPercentage + '%';
-            }
-        }
-
-        function showStep(stepNumber) {
-            // Hide all steps
-            document.querySelectorAll('.form-step').forEach(step => {
-                step.classList.remove('active');
-            });
-
-            // Show current step
-            const currentStepEl = document.getElementById(`step-${stepNumber}`);
-            if (currentStepEl) {
-                currentStepEl.classList.add('active');
-            }
-
-            // Update stepper visual state
-            document.querySelectorAll('.step-item').forEach((step, index) => {
-                const stepIndex = index + 1;
-                step.classList.remove('active', 'completed');
-
-                if (stepIndex < stepNumber) {
-                    step.classList.add('completed');
-                    const circle = step.querySelector('.step-circle');
-                    if (circle) circle.innerHTML = '<i class="fas fa-check"></i>';
-                } else if (stepIndex === stepNumber) {
-                    step.classList.add('active');
-                    const circle = step.querySelector('.step-circle');
-                    if (circle) {
-                        if (stepNumber === 1) circle.innerHTML = '<i class="fas fa-user-circle"></i>';
-                        else if (stepNumber === 2) circle.innerHTML = '<i class="fas fa-tractor"></i>';
-                        else if (stepNumber === 3) circle.innerHTML = '<i class="fas fa-check-circle"></i>';
-                    }
-                } else {
-                    const circle = step.querySelector('.step-circle');
-                    if (circle) {
-                        if (stepIndex === 1) circle.innerHTML = '<i class="fas fa-user-circle"></i>';
-                        else if (stepIndex === 2) circle.innerHTML = '<i class="fas fa-tractor"></i>';
-                        else if (stepIndex === 3) circle.innerHTML = '<i class="fas fa-check-circle"></i>';
-                    }
-                }
-            });
-
-            currentStep = stepNumber;
-            updateStepperProgress();
-        }
-
-        function validateStep(stepNumber) {
-            const step = document.getElementById(`step-${stepNumber}`);
-            if (!step) return false;
-
-            const requiredFields = step.querySelectorAll('input[required], select[required], textarea[required]');
-            let isValid = true;
-
-            requiredFields.forEach(field => {
-                field.classList.remove('field-error');
-                if (!field.value.trim()) {
-                    field.classList.add('field-error');
-                    isValid = false;
-                } else {
-                    field.classList.add('field-success');
-                    setTimeout(() => field.classList.remove('field-success'), 2000);
-                }
-            });
-
-            return isValid;
-        }
-
-        // Display Other Commodities
-        function displayOtherCommodities() {
-            const otherCommoditiesSection = document.getElementById('other-commodities-section');
-            const otherCommoditiesList = document.getElementById('other-commodities-list');
-            const farmSize = parseNumber(document.getElementById('farm-size')?.value);
-
-            if (!otherCommoditiesSection || !otherCommoditiesList) return;
-
-            // Show section if there are other commodities
-            if (Array.isArray(otherCommodities) && otherCommodities.length > 0) {
-                otherCommoditiesSection.style.display = 'block';
-
-                // Clear existing content
-                otherCommoditiesList.innerHTML = '';
-
-                // Add each commodity
-                otherCommodities.forEach(commodity => {
-                    const qtyPerHectare = parseNumber(commodity.quantity_per_hectare);
-                    const pricePerUnit = parseNumber(commodity.price_per_unit);
-                    const totalQty = farmSize > 0 ? qtyPerHectare * farmSize : 0;
-                    const totalValue = totalQty * pricePerUnit;
-                    const unit = commodity.unit || 'unit';
-                    const category = commodity.category || 'commodity';
-
-                    const commodityCard = document.createElement('div');
-                    commodityCard.className = 'commodity-card bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4';
-                    commodityCard.innerHTML = `
-                        <div class="flex items-center justify-between mb-3">
-                            <div class="flex items-center">
-                                <i class="fas fa-box text-blue-600 mr-2"></i>
-                                <h4 class="font-bold text-gray-900 dark:text-white">${commodity.name || 'Unknown Commodity'}</h4>
-                            </div>
-                            <span class="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full">
-                                ${category}
-                            </span>
-                        </div>
-                        <div class="space-y-2 text-sm">
-                            <div class="flex justify-between">
-                                <span class="text-gray-600 dark:text-gray-400">Rate per hectare:</span>
-                                <span class="font-medium text-gray-900 dark:text-white">${qtyPerHectare} ${unit}</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-gray-600 dark:text-gray-400">Your allocation:</span>
-                                <span class="font-medium text-gray-900 dark:text-white">${totalQty.toFixed(1)} ${unit}</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-gray-600 dark:text-gray-400">Unit price:</span>
-                                <span class="font-medium text-gray-900 dark:text-white">₦${formatNaira(pricePerUnit).replace('₦', '')}</span>
-                            </div>
-                            <div class="flex justify-between border-t border-gray-200 dark:border-gray-700 pt-2">
-                                <span class="text-gray-600 dark:text-gray-400">Total value:</span>
-                                <span class="font-bold text-emerald-600 dark:text-emerald-400">₦${formatNaira(totalValue).replace('₦', '')}</span>
-                            </div>
-                        </div>
-                    `;
-                    otherCommoditiesList.appendChild(commodityCard);
-                });
             } else {
-                // Show message when no other commodities
-                otherCommoditiesList.innerHTML = `
-                    <div class="col-span-2 text-center py-8">
-                        <i class="fas fa-info-circle text-gray-400 text-3xl mb-3"></i>
-                        <p class="text-gray-600 dark:text-gray-400">No additional commodities are allocated for this season.</p>
+                const circle = step.querySelector('.step-circle');
+                if (circle) {
+                    if (stepIndex === 1) circle.innerHTML = '<i class="fas fa-user-circle"></i>';
+                    else if (stepIndex === 2) circle.innerHTML = '<i class="fas fa-tractor"></i>';
+                    else if (stepIndex === 3) circle.innerHTML = '<i class="fas fa-check-circle"></i>';
+                }
+            }
+        });
+
+        currentStep = stepNumber;
+        updateStepperProgress();
+    }
+
+    function validateStep(stepNumber) {
+        const step = document.getElementById(`step-${stepNumber}`);
+        if (!step) return false;
+
+        const requiredFields = step.querySelectorAll('input[required], select[required], textarea[required]');
+        let isValid = true;
+
+        requiredFields.forEach(field => {
+            field.classList.remove('field-error', 'field-success');
+            if (!field.value.trim()) {
+                field.classList.add('field-error');
+                isValid = false;
+            } else {
+                field.classList.add('field-success');
+                setTimeout(() => field.classList.remove('field-success'), 2000);
+            }
+        });
+
+        return isValid;
+    }
+
+    // === COMMODITIES DISPLAY ===
+    function displayOtherCommodities() {
+        const otherCommoditiesSection = document.getElementById('other-commodities-section');
+        const otherCommoditiesList = document.getElementById('other-commodities-list');
+        const farmSize = parseNumber(document.getElementById('farm-size')?.value);
+
+        if (!otherCommoditiesSection || !otherCommoditiesList) return;
+
+        if (Array.isArray(otherCommodities) && otherCommodities.length > 0) {
+            otherCommoditiesSection.style.display = 'block';
+            otherCommoditiesList.innerHTML = '';
+
+            otherCommodities.forEach(commodity => {
+                const qtyPerHectare = parseNumber(commodity.quantity_per_hectare);
+                const pricePerUnit = parseNumber(commodity.price_per_unit);
+                const totalQty = farmSize > 0 ? qtyPerHectare * farmSize : 0;
+                const totalValue = totalQty * pricePerUnit;
+                const unit = commodity.unit || 'unit';
+                const category = commodity.category || 'commodity';
+
+                const commodityCard = document.createElement('div');
+                commodityCard.className = 'commodity-card bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4';
+                commodityCard.innerHTML = `
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center">
+                            <i class="fas fa-box text-blue-600 mr-2"></i>
+                            <h4 class="font-bold text-gray-900 dark:text-white">${commodity.name || 'Unknown Commodity'}</h4>
+                        </div>
+                        <span class="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full">${category}</span>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between"><span class="text-gray-600 dark:text-gray-400">Rate per hectare:</span><span class="font-medium text-gray-900 dark:text-white">${qtyPerHectare} ${unit}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-600 dark:text-gray-400">Your allocation:</span><span class="font-medium text-gray-900 dark:text-white">${totalQty.toFixed(1)} ${unit}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-600 dark:text-gray-400">Unit price:</span><span class="font-medium text-gray-900 dark:text-white">₦${formatNaira(pricePerUnit).replace('₦', '')}</span></div>
+                        <div class="flex justify-between border-t border-gray-200 dark:border-gray-700 pt-2"><span class="text-gray-600 dark:text-gray-400">Total value:</span><span class="font-bold text-emerald-600 dark:text-emerald-400">₦${formatNaira(totalValue).replace('₦', '')}</span></div>
                     </div>
                 `;
-                otherCommoditiesSection.style.display = 'block';
-            }
-        }
-
-        // Optimized Seed Selection
-        function setupSeedSelection() {
-            document.querySelectorAll('.seed-option').forEach(option => {
-                option.addEventListener('click', function() {
-                    // Clear all selections
-                    document.querySelectorAll('.seed-option').forEach(opt => {
-                        opt.classList.remove('selected');
-                        const dot = opt.querySelector('.w-3');
-                        const circle = opt.querySelector('.w-6');
-                        if (dot) dot.classList.add('hidden');
-                        if (circle) circle.classList.remove('border-emerald-500');
-                    });
-
-                    // Select current option
-                    this.classList.add('selected');
-                    const dot = this.querySelector('.w-3');
-                    const circle = this.querySelector('.w-6');
-                    const radio = this.querySelector('input[type="radio"]');
-
-                    if (dot) dot.classList.remove('hidden');
-                    if (circle) circle.classList.add('border-emerald-500');
-                    if (radio) radio.checked = true;
-
-                    // Display other commodities and calculate loan summary
-                    displayOtherCommodities();
-                    calculateLoanSummary();
-                });
-
-                // Keyboard support
-                option.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        option.click();
-                    }
-                });
+                otherCommoditiesList.appendChild(commodityCard);
             });
+        } else {
+            otherCommoditiesList.innerHTML = `
+                <div class="col-span-2 text-center py-8">
+                    <i class="fas fa-info-circle text-gray-400 text-3xl mb-3"></i>
+                    <p class="text-gray-600 dark:text-gray-400">No additional commodities are allocated for this season.</p>
+                </div>
+            `;
+            otherCommoditiesSection.style.display = 'block';
         }
+    }
 
-        // Step Navigation
-        document.getElementById('next-step-1')?.addEventListener('click', () => {
-            if (validateStep(1)) {
-                showStep(2);
-            } else {
-                showNotification('Please fill in all required fields before proceeding.', 'error');
+    // === SEED SELECTION ===
+    function setupSeedSelection() {
+        document.querySelectorAll('.seed-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.seed-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                    const dot = opt.querySelector('.w-3');
+                    if (dot) dot.classList.add('hidden');
+                });
+
+                this.classList.add('selected');
+                const dot = this.querySelector('.w-3');
+                const radio = this.querySelector('input[type="radio"]');
+                if (dot) dot.classList.remove('hidden');
+                if (radio) radio.checked = true;
+
+                displayOtherCommodities();
+                calculateLoanSummary();
+            });
+
+            option.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    option.click();
+                }
+            });
+        });
+    }
+
+    // === NOTIFICATION ===
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        const bgColor = type === 'error' ? 'bg-red-500' : type === 'success' ? 'bg-green-500' : 'bg-blue-500';
+        const icon = type === 'error' ? 'exclamation-circle' : type === 'success' ? 'check-circle' : 'info-circle';
+
+        notification.className = `fixed top-24 right-4 z-50 p-4 rounded-lg shadow-lg ${bgColor} text-white`;
+        notification.innerHTML = `<div class="flex items-center"><i class="fas fa-${icon} mr-2"></i>${message}</div>`;
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            if (document.body.contains(notification)) {
+                document.body.removeChild(notification);
             }
+        }, 5000);
+    }
+
+    // === INITIALIZATION ===
+    document.addEventListener('DOMContentLoaded', () => {
+        // Load states instantly
+        populateStates();
+
+        // Setup everything
+        setupSeedSelection();
+        updateStepperProgress();
+
+        // Event listeners
+        document.getElementById('state')?.addEventListener('change', (e) => populateLGAs(e.target.value));
+
+        document.getElementById('farm-size')?.addEventListener('input', () => {
+            const selectedSeed = document.querySelector('input[name="selected_seed"]:checked');
+            if (selectedSeed) displayOtherCommodities();
+            calculateLoanSummary();
+        });
+
+        // Step navigation
+        document.getElementById('next-step-1')?.addEventListener('click', () => {
+            if (validateStep(1)) showStep(2);
+            else showNotification('Please fill in all required fields before proceeding.', 'error');
         });
 
         document.getElementById('prev-step-2')?.addEventListener('click', () => showStep(1));
@@ -1005,7 +1039,7 @@
         document.getElementById('next-step-2')?.addEventListener('click', () => {
             if (validateStep(2)) {
                 showStep(3);
-                calculateLoanSummary(); // Recalculate when entering final step
+                calculateLoanSummary();
             } else {
                 showNotification('Please fill in all required fields before proceeding.', 'error');
             }
@@ -1013,7 +1047,7 @@
 
         document.getElementById('prev-step-3')?.addEventListener('click', () => showStep(2));
 
-        // Form Submission
+        // Form submission
         document.getElementById('application-form')?.addEventListener('submit', (e) => {
             if (!validateStep(3)) {
                 e.preventDefault();
@@ -1032,70 +1066,17 @@
             }
         });
 
-        // Utility Functions
-        function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
-            const bgColor = type === 'error' ? 'bg-red-500' : type === 'success' ? 'bg-green-500' : 'bg-blue-500';
-            const icon = type === 'error' ? 'exclamation-circle' : type === 'success' ? 'check-circle' : 'info-circle';
+        // Hide commodities by default
+        document.getElementById('other-commodities-section')?.style.setProperty('display', 'none');
 
-            notification.className = `fixed top-24 right-4 z-50 p-4 rounded-lg shadow-lg ${bgColor} text-white`;
-            notification.innerHTML = `
-                <div class="flex items-center">
-                    <i class="fas fa-${icon} mr-2"></i>
-                    ${message}
-                </div>
-            `;
+        // Restore selected seed
+        const checkedSeed = document.querySelector('input[name="selected_seed"]:checked');
+        if (checkedSeed) checkedSeed.closest('.seed-option').click();
 
-            document.body.appendChild(notification);
-
-            // Remove after 5 seconds
-            setTimeout(() => {
-                if (document.body.contains(notification)) {
-                    document.body.removeChild(notification);
-                }
-            }, 5000);
-        }
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            setupSeedSelection();
-            updateStepperProgress();
-            fetchStates();
-
-            // Set up event listeners
-            const stateSelect = document.getElementById('state');
-            if (stateSelect) {
-                stateSelect.addEventListener('change', (e) => selectLGA(e.target));
-            }
-
-            const farmSizeInput = document.getElementById('farm-size');
-            if (farmSizeInput) {
-                farmSizeInput.addEventListener('input', () => {
-                    // Only display commodities if a seed is selected
-                    const selectedSeed = document.querySelector('input[name="selected_seed"]:checked');
-                    if (selectedSeed) {
-                        displayOtherCommodities();
-                    }
-                    calculateLoanSummary();
-                });
-            }
-
-            // Hide commodity breakdown by default
-            const otherCommoditiesSection = document.getElementById('other-commodities-section');
-            if (otherCommoditiesSection) {
-                otherCommoditiesSection.style.display = 'none';
-            }
-
-            // Restore selected seed if any
-            const checkedSeed = document.querySelector('input[name="selected_seed"]:checked');
-            if (checkedSeed) {
-                checkedSeed.closest('.seed-option').click();
-            }
-
-            // Initialize loan summary
-            calculateLoanSummary();
-        });
-    </script>
+        // Initial calculations
+        calculateLoanSummary();
+    });
+</script>
     <script>
         // Initialize Tailwind configuration
         if (typeof tailwind !== 'undefined') {
@@ -1113,4 +1094,5 @@
         }
     </script>
 </body>
+
 </html>

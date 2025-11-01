@@ -2,13 +2,13 @@
     // Tenant information
     $tenantName = tenant()->id ?? 'Tenant';
     $tenantDisplayName = ucfirst($tenantName);
-    
+
     // Calculate total value of commodities
     $totalValue = 0;
     foreach ($application->commodities as $commodity) {
         $totalValue += $commodity->pivot->quantity * $commodity->price_per_unit;
     }
-    
+
     // Current date
     $currentDate = now()->format('d F, Y');
 @endphp
@@ -23,14 +23,14 @@
         @page {
             size: A4;
             margin: 15mm 20mm 15mm 20mm;
-            
+
             @bottom-right {
                 content: "Page " counter(page) " of " counter(pages);
                 font-size: 9px;
                 color: #999;
             }
         }
-        
+
         body {
             font-family: 'Arial', sans-serif;
             line-height: 1.5;
@@ -44,7 +44,7 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
             background: white;
         }
-        
+
         /* Watermark */
         .watermark {
             position: fixed;
@@ -59,7 +59,7 @@
             font-weight: bold;
             color: #999;
         }
-        
+
         /* Header */
         .header {
             text-align: center;
@@ -67,7 +67,7 @@
             position: relative;
             padding-bottom: 15px;
         }
-        
+
         .header h1 {
             margin: 0;
             font-size: 18px;
@@ -76,13 +76,13 @@
             letter-spacing: 1px;
             color: #1a365d;
         }
-        
+
         .header p {
             margin: 5px 0 0;
             font-size: 13px;
             color: #4a5568;
         }
-        
+
         .reference {
             position: absolute;
             top: 0;
@@ -94,7 +94,7 @@
             font-size: 11px;
             font-weight: bold;
         }
-        
+
         .date {
             position: absolute;
             top: 0;
@@ -102,7 +102,7 @@
             font-size: 11px;
             color: #4a5568;
         }
-        
+
         /* Tables */
         table {
             width: 100%;
@@ -112,7 +112,7 @@
             page-break-inside: avoid;
             border: 1px solid #e2e8f0;
         }
-        
+
         th {
             background-color: #1a365d;
             color: white;
@@ -123,17 +123,17 @@
             font-size: 10px;
             letter-spacing: 0.5px;
         }
-        
+
         td {
             padding: 8px 10px;
             border: 1px solid #e2e8f0;
             vertical-align: top;
         }
-        
+
         tr:nth-child(even) {
             background-color: #f8fafc;
         }
-        
+
         /* Sections */
         .section-title {
             background-color: #edf2f7;
@@ -144,7 +144,7 @@
             border-left: 4px solid #4299e1;
             font-size: 13px;
         }
-        
+
         /* Footer */
         .footer {
             position: fixed;
@@ -158,28 +158,28 @@
             border-top: 1px solid #e2e8f0;
             text-align: center;
         }
-        
+
         /* Utilities */
         .text-right {
             text-align: right;
         }
-        
+
         .text-center {
             text-align: center;
         }
-        
+
         .text-bold {
             font-weight: bold;
         }
-        
+
         .mb-4 {
             margin-bottom: 1rem;
         }
-        
+
         .mt-6 {
             margin-top: 1.5rem;
         }
-        
+
         .signature-line {
             border-top: 1px solid #cbd5e0;
             margin: 30px 0 10px;
@@ -187,7 +187,7 @@
             font-size: 11px;
             color: #4a5568;
         }
-        
+
         /* Print specific styles */
         @media print {
             body {
@@ -197,20 +197,20 @@
                 border: none;
                 box-shadow: none;
             }
-            
+
             .no-print {
                 display: none;
             }
-            
+
             .footer {
                 position: fixed;
                 bottom: 0;
             }
-            
+
             table {
                 page-break-inside: avoid;
             }
-            
+
             .page-break {
                 page-break-before: always;
             }
@@ -229,7 +229,7 @@
 <body>
     <!-- Watermark -->
     <div class="watermark">{{ strtoupper($tenantDisplayName) }} STATE</div>
-    
+
     <div class="header">
         <div class="date">Date: {{ $currentDate }}</div>
         <h1>ACKNOWLEDGMENT SLIP</h1>
@@ -326,9 +326,9 @@
         @endif
         @if($application->equity)
         <tr>
-            <td><strong>Equity Held ({{ $application->equity_rate ?? 0 }}%):</strong></td>
+            <td><strong>Organization Contribution ({{ $application->equity_rate ?? 50 }}%):</strong></td>
             <td>₦{{ number_format($application->equity, 2) }}</td>
-            <td><strong>You Receive:</strong></td>
+            <td><strong>Farmer Contribution:</strong></td>
             <td>₦{{ number_format($application->disbursed_amount, 2) }}</td>
         </tr>
         @endif
@@ -407,7 +407,7 @@
             </a>
         </div>
     </div>
-    
+
     <style>
         .action-btn {
             display: inline-flex;
@@ -501,8 +501,8 @@
         <p>This is a computer-generated document. No signature is required.</p>
         <p>For verification, please visit our website or scan the QR code above.</p>
         <p style="margin-top: 10px;">
-            <strong>Document ID:</strong> {{ $application->uuid }} | 
-            <strong>Generated:</strong> {{ now()->format('M d, Y H:i A') }} | 
+            <strong>Document ID:</strong> {{ $application->uuid }} |
+            <strong>Generated:</strong> {{ now()->format('M d, Y H:i A') }} |
             <strong>Page:</strong> 1 of 1
         </p>
     </div>
@@ -511,27 +511,27 @@
         window.onload = function() {
             window.print();
         };
-        
+
         // Add copy functionality for reference number
         document.addEventListener('DOMContentLoaded', function() {
             const referenceElement = document.querySelector('.reference');
             if (referenceElement) {
                 referenceElement.style.cursor = 'pointer';
                 referenceElement.title = 'Click to copy reference number';
-                
+
                 referenceElement.addEventListener('click', function() {
                     const refNumber = '{{ $application->reference_number }}';
                     navigator.clipboard.writeText(refNumber).then(function() {
                         const originalText = referenceElement.textContent;
                         referenceElement.textContent = 'Copied!';
-                        
+
                         setTimeout(() => {
                             referenceElement.textContent = originalText;
                         }, 2000);
                     });
                 });
             }
-            
+
             // Add smooth scroll for anchor links
             document.querySelectorAll('a[href^="#"]').forEach(anchor => {
                 anchor.addEventListener('click', function (e) {
