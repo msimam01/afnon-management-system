@@ -89,14 +89,14 @@ class TenantSyncService
 
         // Also sync to tenants that just have the season (fallback)
         if ($tenantIds->isEmpty()) {
-            $tenantIds = GlobalTenantAllocation::where('global_season_id', $seasonIds)
+            $tenantIds = GlobalTenantAllocation::whereIn('global_season_id', $seasonIds)
                 ->distinct()
                 ->pluck('tenant_id');
         }
 
         // If still no tenants, include ALL active tenants (commodity might be synced broadly)
         if ($tenantIds->isEmpty()) {
-            $tenantIds = \App\Models\SuperAdmin\Tenant::where('is_active', true)->pluck('id');
+            $tenantIds = \App\Models\SuperAdmin\Tenant::active()->pluck('id');
         }
 
         \Log::info("Syncing commodity update to tenants", [
@@ -203,7 +203,7 @@ class TenantSyncService
 
         // If still no tenants found, check if there are ANY active tenants - market prices might sync to all
         if ($tenantIds->isEmpty()) {
-            $tenantIds = \App\Models\SuperAdmin\Tenant::where('is_active', true)->pluck('id');
+            $tenantIds = \App\Models\SuperAdmin\Tenant::active()->pluck('id');
         }
 
         \Log::info("Syncing market price deletion to tenants", [
@@ -1185,7 +1185,7 @@ class TenantSyncService
 
         // As a final fallback, check ALL active tenants since commodities might be synced broadly
         if ($tenantIds->isEmpty()) {
-            $tenantIds = \App\Models\SuperAdmin\Tenant::where('is_active', true)->pluck('id');
+            $tenantIds = \App\Models\SuperAdmin\Tenant::active()->pluck('id');
         }
 
         \Log::info("Syncing commodity deletion to tenants", [

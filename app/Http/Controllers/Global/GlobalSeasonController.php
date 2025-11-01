@@ -35,11 +35,11 @@ class GlobalSeasonController extends Controller
         $seasons->getCollection()->transform(function ($season) {
             $totalAllocated = $season->tenantAllocations->sum('allocated_stock');
             $totalStock = $season->commodities->sum('pivot.stock');
-            
+
             $season->allocated_percentage = $totalStock > 0 ? min(round(($totalAllocated / $totalStock) * 100, 2), 100) : 0;
             $season->total_tenants = $season->tenantAllocations->groupBy('tenant_id')->count();
             $season->total_commodities = $season->commodities->count();
-            
+
             return $season;
         });
 
@@ -87,7 +87,7 @@ class GlobalSeasonController extends Controller
                         ->where('type', $request->type)
                         ->whereYear('start_date', $year)
                         ->exists();
-                    
+
                     if ($exists) {
                         $fail('A ' . $request->type . ' season with this name already exists for year ' . $year . '.');
                     }
@@ -147,7 +147,7 @@ class GlobalSeasonController extends Controller
                     'data' => $season->load('commodities')
                 ], 201);
             }
-
+            ToastMagic::success('Season created successfully. You can now allocate it to tenants.');
             return redirect()->route('global.seasons.show', $season->uuid)
                 ->with('success', 'Season created successfully. You can now allocate it to tenants.');
 
@@ -252,7 +252,7 @@ class GlobalSeasonController extends Controller
     public function update(Request $request, $uuid)
     {
         $season = GlobalSeason::where('uuid', $uuid)->firstOrFail();
-        
+
         $validated = $request->validate([
             'name' => [
                 'sometimes',
@@ -265,7 +265,7 @@ class GlobalSeasonController extends Controller
                         ->where('type', $request->type ?? $season->type)
                         ->whereYear('start_date', $year)
                         ->where('id', '!=', $season->id);
-                    
+
                     if ($query->exists()) {
                         $fail('A ' . ($request->type ?? $season->type) . ' season with this name already exists for year ' . $year . '.');
                     }
@@ -332,7 +332,7 @@ class GlobalSeasonController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Error updating season: ' . $e->getMessage());
-            
+
             if ($request->wantsJson()) {
                 return response()->json([
                     'message' => 'Failed to update season',
@@ -359,10 +359,10 @@ class GlobalSeasonController extends Controller
 
         try {
             DB::beginTransaction();
-            
+
             $season->commodities()->detach();
             $season->delete();
-            
+
             DB::commit();
 
             if (request()->wantsJson()) {
@@ -370,6 +370,7 @@ class GlobalSeasonController extends Controller
                     'message' => 'Season deleted successfully'
                 ]);
             }
+            ToastMagic::success('Season deleted successfully.');
 
             return redirect()->route('global.seasons.index')
                 ->with('success', 'Season deleted successfully.');
@@ -377,7 +378,7 @@ class GlobalSeasonController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Error deleting season: ' . $e->getMessage());
-            
+
             return response()->json([
                 'message' => 'Failed to delete season',
                 'error' => $e->getMessage()
@@ -391,7 +392,7 @@ class GlobalSeasonController extends Controller
     public function addCommodity(Request $request, $uuid)
     {
         $season = GlobalSeason::where('uuid', $uuid)->firstOrFail();
-        
+
         $validated = $request->validate([
             'commodity_id' => 'required|exists:global_commodities,id',
             'stock' => 'required|numeric|min:0',
@@ -416,19 +417,19 @@ class GlobalSeasonController extends Controller
                     'message' => 'Commodity added to season successfully.'
                 ]);
             }
-
+            ToastMagic::success('Commodity added to season successfully.');
             return back()->with('success', 'Commodity added to season successfully.');
 
         } catch (\Exception $e) {
             \Log::error('Error adding commodity to season: ' . $e->getMessage());
-            
+
             if ($request->wantsJson()) {
                 return response()->json([
                     'message' => 'Failed to add commodity to season.',
                     'error' => $e->getMessage()
                 ], 500);
             }
-            
+
             return back()->with('error', 'Failed to add commodity to season.');
         }
     }
@@ -440,7 +441,7 @@ class GlobalSeasonController extends Controller
     {
         $season = GlobalSeason::where('uuid', $seasonUuid)->firstOrFail();
         $commodity = GlobalCommodity::where('uuid', $commodityUuid)->firstOrFail();
-        
+
         $validated = $request->validate([
             'stock' => 'required|numeric|min:0',
         ]);
@@ -455,19 +456,19 @@ class GlobalSeasonController extends Controller
                     'message' => 'Commodity updated successfully.'
                 ]);
             }
-
+            ToastMagic::success('Commodity updated successfully.');
             return back()->with('success', 'Commodity updated successfully.');
 
         } catch (\Exception $e) {
             \Log::error('Error updating commodity: ' . $e->getMessage());
-            
+
             if ($request->wantsJson()) {
                 return response()->json([
                     'message' => 'Failed to update commodity.',
                     'error' => $e->getMessage()
                 ], 500);
             }
-            
+
             return back()->with('error', 'Failed to update commodity.');
         }
     }
@@ -479,28 +480,28 @@ class GlobalSeasonController extends Controller
     {
         $season = GlobalSeason::where('uuid', $seasonUuid)->firstOrFail();
         $commodity = GlobalCommodity::where('uuid', $commodityUuid)->firstOrFail();
-        
+
         try {
             $season->commodities()->detach($commodity->id);
-            
+
             if (request()->wantsJson()) {
                 return response()->json([
                     'message' => 'Commodity removed from season successfully.'
                 ]);
             }
-            
+            ToastMagic::success('Commodity removed from season successfully.');
             return back()->with('success', 'Commodity removed from season successfully.');
 
         } catch (\Exception $e) {
             \Log::error('Error removing commodity from season: ' . $e->getMessage());
-            
+
             if (request()->wantsJson()) {
                 return response()->json([
                     'message' => 'Failed to remove commodity from season.',
                     'error' => $e->getMessage()
                 ], 500);
             }
-            
+
             return back()->with('error', 'Failed to remove commodity from season.');
         }
     }
@@ -511,42 +512,42 @@ class GlobalSeasonController extends Controller
     public function close($uuid)
     {
         $season = GlobalSeason::where('uuid', $uuid)->firstOrFail();
-        
+
         try {
             DB::beginTransaction();
-            
+
             $season->update(['status' => 'closed']);
-            
+
             // Sync status to all allocated tenants
             $syncResults = $this->syncService->closeSeasonGlobally($season);
-            
+
             DB::commit();
-            
+
             $successCount = collect($syncResults)->where('success', true)->count();
             $totalCount = count($syncResults);
-            
+
             $message = "Season closed successfully. Synced to {$successCount} of {$totalCount} tenants.";
-            
+
             if (request()->wantsJson()) {
                 return response()->json([
                     'message' => $message,
                     'sync_results' => $syncResults
                 ]);
             }
-            
+            ToastMagic::success($message);
             return back()->with('success', $message);
 
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Error closing season: ' . $e->getMessage());
-            
+
             if (request()->wantsJson()) {
                 return response()->json([
                     'message' => 'Failed to close season.',
                     'error' => $e->getMessage()
                 ], 500);
             }
-            
+
             return back()->with('error', 'Failed to close season.');
         }
     }
@@ -557,28 +558,28 @@ class GlobalSeasonController extends Controller
     public function reopen($uuid)
     {
         $season = GlobalSeason::where('uuid', $uuid)->firstOrFail();
-        
+
         try {
             $season->update(['status' => 'open']);
-            
+
             if (request()->wantsJson()) {
                 return response()->json([
                     'message' => 'Season has been reopened successfully.'
                 ]);
             }
-            
+            ToastMagic::success('Season has been reopened successfully. You may need to sync this change to tenants.');
             return back()->with('success', 'Season has been reopened successfully. You may need to sync this change to tenants.');
 
         } catch (\Exception $e) {
             \Log::error('Error reopening season: ' . $e->getMessage());
-            
+
             if (request()->wantsJson()) {
                 return response()->json([
                     'message' => 'Failed to reopen season.',
                     'error' => $e->getMessage()
                 ], 500);
             }
-            
+
             return back()->with('error', 'Failed to reopen season.');
         }
     }

@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Global;
 
+use App\Http\Controllers\Controller;
 use App\Models\GlobalCommodity;
 use App\Models\GlobalCommodityCategory;
 use App\Services\TenantSyncService;
+use Devrabiul\ToastMagic\Facades\ToastMagic;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -76,7 +77,7 @@ class GlobalCommodityController extends Controller
             ]);
 
             DB::commit();
-
+            ToastMagic::success('Commodity created successfully.');
             return redirect()->route('global.commodities.index')
                 ->with('success', 'Commodity created successfully.');
 
@@ -141,7 +142,7 @@ class GlobalCommodityController extends Controller
             }
 
             DB::commit();
-
+            ToastMagic::success('Commodity updated successfully.');
             return redirect()->route('global.commodities.index')
                 ->with('success', 'Commodity updated successfully. Remember to sync to tenants if needed.');
 
@@ -166,7 +167,7 @@ class GlobalCommodityController extends Controller
             }
 
             $commodity->delete();
-
+            ToastMagic::success('Commodity deleted successfully.');
             return redirect()->route('global.commodities.index')
                 ->with('success', 'Commodity deleted successfully');
 
