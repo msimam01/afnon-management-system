@@ -46,24 +46,24 @@ class AdminVerificationController extends Controller
 
         // Apply filters
         if ($filter) {
-            $collectionQuery->whereHas('application.farmer', function($q) use ($filter) {
+            $collectionQuery->whereHas('application.farmer', function ($q) use ($filter) {
                 $q->where('name', 'like', '%' . $filter . '%')
-                  ->orWhere('phone', 'like', '%' . $filter . '%')
-                  ->orWhere('bvn', 'like', '%' . $filter . '%');
+                    ->orWhere('phone', 'like', '%' . $filter . '%')
+                    ->orWhere('bvn', 'like', '%' . $filter . '%');
             });
 
-            $returnQuery->whereHas('application.farmer', function($q) use ($filter) {
+            $returnQuery->whereHas('application.farmer', function ($q) use ($filter) {
                 $q->where('name', 'like', '%' . $filter . '%')
-                  ->orWhere('phone', 'like', '%' . $filter . '%')
-                  ->orWhere('bvn', 'like', '%' . $filter . '%');
+                    ->orWhere('phone', 'like', '%' . $filter . '%')
+                    ->orWhere('bvn', 'like', '%' . $filter . '%');
             });
         }
 
         if ($seasonName) {
-            $collectionQuery->whereHas('application.season', function($q) use ($seasonName) {
+            $collectionQuery->whereHas('application.season', function ($q) use ($seasonName) {
                 $q->where('name', $seasonName);
             });
-            $returnQuery->whereHas('application.season', function($q) use ($seasonName) {
+            $returnQuery->whereHas('application.season', function ($q) use ($seasonName) {
                 $q->where('name', $seasonName);
             });
         }
@@ -176,29 +176,39 @@ class AdminVerificationController extends Controller
 
             // Transform media paths to public URLs
             $collectionData = $collectionQuery->get()->transform(function ($item) {
-    $item->type = 'collection';
-    $imagePaths = [];
-    foreach ([$item->id_card_photo, $item->commodity_photo] as $path) {
-        if ($path) {
-            // Use the path directly
-            $imagePaths[] = asset('storage/' . $path);
-        }
-    }
-    $item->image_paths = $imagePaths;
-    return $item;
-});
+                $item->type = 'collection';
+                $imagePaths = [];
+                foreach ([$item->id_card_photo, $item->commodity_photo, $item->signature] as $path) {
+                    if ($path) {
+                        // Use tenant-specific storage URL
+                        $imagePaths[] = asset('storage/tenant' . tenant('id') . '/app/public/' . $path);
+                    }
+                }
+                $item->image_paths = $imagePaths;
 
-$returnData = $returnQuery->get()->transform(function ($item) {
-    $item->type = 'return';
-    $imagePaths = [];
-    foreach ([$item->id_card_photo, $item->returned_commodity_photo] as $path) {
-        if ($path) {
-            $imagePaths[] = asset('storage/' . $path);
-        }
-    }
-    $item->image_paths = $imagePaths;
-    return $item;
-});
+                // Extract collected quantities from JSON field (already cast to array by model)
+                $collectedQuantities = $item->collected_quantities ?? [];
+                $item->total_collected = array_sum(array_column($collectedQuantities, 'collected_quantity'));
+                $item->collected_details = $collectedQuantities;
+
+                // Calculate variance (collected vs allocated)
+                $totalAllocated = $item->application->commodity_allocations->sum('allocated_quantity');
+                $item->variance = $item->total_collected - $totalAllocated;
+
+                return $item;
+            });
+
+            $returnData = $returnQuery->get()->transform(function ($item) {
+                $item->type = 'return';
+                $imagePaths = [];
+                foreach ([$item->id_card_photo, $item->returned_commodity_photo] as $path) {
+                    if ($path) {
+                        $imagePaths[] = asset('storage/' . $path);
+                    }
+                }
+                $item->image_paths = $imagePaths;
+                return $item;
+            });
 
             $allData = $collectionData->merge($returnData);
             $total = $allData->count();
@@ -237,24 +247,24 @@ $returnData = $returnQuery->get()->transform(function ($item) {
 
         // Normalize the type and image URLs for the single type query.
         $pagedData->getCollection()->transform(function ($item) use ($type) {
-    $item->type = $type;
-    $imagePaths = [];
-    if ($type === 'collection') {
-        foreach ([$item->id_card_photo, $item->commodity_photo] as $path) {
-            if ($path) {
-                $imagePaths[] = asset('storage/' . $path);
+            $item->type = $type;
+            $imagePaths = [];
+            if ($type === 'collection') {
+                foreach ([$item->id_card_photo, $item->commodity_photo, $item->signature] as $path) {
+                    if ($path) {
+                        $imagePaths[] = asset('storage/tenant' . tenant('id') . '/app/public/' . $path);
+                    }
+                }
+            } elseif ($type === 'return') {
+                foreach ([$item->id_card_photo, $item->returned_commodity_photo] as $path) {
+                    if ($path) {
+                        $imagePaths[] = asset('storage/tenant' . tenant('id') . '/app/public/' . $path);
+                    }
+                }
             }
-        }
-    } elseif ($type === 'return') {
-        foreach ([$item->id_card_photo, $item->returned_commodity_photo] as $path) {
-            if ($path) {
-                $imagePaths[] = asset('storage/' . $path);
-            }
-        }
-    }
-    $item->image_paths = $imagePaths;
-    return $item;
-});
+            $item->image_paths = $imagePaths;
+            return $item;
+        });
 
         return response()->json($pagedData);
     }
@@ -284,26 +294,26 @@ $returnData = $returnQuery->get()->transform(function ($item) {
 
                 $verification->status = $validated['status'];
                 $verification->verification_notes = $validated['remarks'] ?? null;
-                
+
                 // Only set approved_by if the status is being changed to approved
                 if ($validated['status'] === 'approved') {
                     $verification->approved_by = auth()->id();
                 }
-                
+
                 $verification->save();
-                
+
                 // Clear any cached data related to this verification
                 if (class_exists(PerformanceOptimizationService::class)) {
                     PerformanceOptimizationService::clearCaches();
                 }
             });
 
-            $message = $validated['status'] === 'approved' 
-                ? 'Verification approved successfully.' 
+            $message = $validated['status'] === 'approved'
+                ? 'Verification approved successfully.'
                 : 'Verification rejected successfully.';
 
             return response()->json([
-                'message' => $message, 
+                'message' => $message,
                 'success' => true,
                 'verification' => [
                     'status' => $validated['status'],
@@ -312,10 +322,9 @@ $returnData = $returnQuery->get()->transform(function ($item) {
                     'remarks' => $validated['remarks'] ?? null
                 ]
             ]);
-            
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Failed to update verification: ' . $e->getMessage(), 
+                'message' => 'Failed to update verification: ' . $e->getMessage(),
                 'success' => false
             ], 422);
         }
@@ -340,7 +349,7 @@ $returnData = $returnQuery->get()->transform(function ($item) {
 
         try {
             DB::beginTransaction();
-            
+
             // If type is specified, use that model
             if ($type === 'collection') {
                 $verifications = CollectionVerification::whereIn('id', $validated['ids'])->get();
@@ -378,7 +387,7 @@ $returnData = $returnQuery->get()->transform(function ($item) {
                     continue;
                 }
             }
-            
+
             DB::commit();
 
             // Clear performance caches after bulk operations
@@ -396,24 +405,23 @@ $returnData = $returnQuery->get()->transform(function ($item) {
                     'failed' => count($failedIds),
                 ]
             ];
-            
+
             if ($skippedCount > 0) {
                 $response['message'] .= ", {$skippedCount} skipped (already approved or not pending)";
             }
-            
+
             if (!empty($failedIds)) {
                 $response['message'] .= ", " . count($failedIds) . " failed";
                 $response['failed_items'] = $failedIds;
             }
-            
+
             $response['message'] .= ".";
-            
+
             return response()->json($response);
-            
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
-                'message' => 'Failed to process bulk approval: ' . $e->getMessage(), 
+                'message' => 'Failed to process bulk approval: ' . $e->getMessage(),
                 'success' => false
             ], 422);
         }
@@ -447,7 +455,7 @@ $returnData = $returnQuery->get()->transform(function ($item) {
             'application.commodity_allocations.commodity',
             'agent.user',
             'center',
-            'application.commodity_allocations' => function($query) {
+            'application.commodity_allocations' => function ($query) {
                 $query->with('commodity');
             }
         ]);
@@ -459,7 +467,7 @@ $returnData = $returnQuery->get()->transform(function ($item) {
             'application.commodity_allocations.commodity',
             'agent.user',
             'center',
-            'application.commodity_allocations' => function($query) {
+            'application.commodity_allocations' => function ($query) {
                 $query->with('commodity');
             }
         ]);
@@ -477,18 +485,18 @@ $returnData = $returnQuery->get()->transform(function ($item) {
         foreach ([$collectionQuery, $returnQuery] as $query) {
             // Filter by search term
             if ($filter) {
-                $query->whereHas('application.farmer', function($q) use ($filter) {
+                $query->whereHas('application.farmer', function ($q) use ($filter) {
                     $q->where('full_name', 'like', "%{$filter}%")
-                      ->orWhere('registration_number', 'like', "%{$filter}%")
-                      ->orWhere('phone', 'like', "%{$filter}%");
-                })->orWhereHas('application', function($q) use ($filter) {
+                        ->orWhere('registration_number', 'like', "%{$filter}%")
+                        ->orWhere('phone', 'like', "%{$filter}%");
+                })->orWhereHas('application', function ($q) use ($filter) {
                     $q->where('reference_number', 'like', "%{$filter}%");
                 });
             }
 
             // Filter by season
             if ($seasonName) {
-                $query->whereHas('application.season', function($q) use ($seasonName) {
+                $query->whereHas('application.season', function ($q) use ($seasonName) {
                     $q->where('name', $seasonName);
                 });
             }
@@ -505,7 +513,11 @@ $returnData = $returnQuery->get()->transform(function ($item) {
 
         // Combine and transform the data
         $verifications = collect()
-            ->merge($collectionVerifications->map(function($item) {
+            ->merge($collectionVerifications->map(function ($item) {
+                // Extract collected quantities from JSON field (already cast to array by model)
+                $collectedQuantities = $item->collected_quantities ?? [];
+                $totalCollected = array_sum(array_column($collectedQuantities, 'collected_quantity'));
+
                 return [
                     'type' => 'Collection',
                     'farmer_name' => $item->application?->farmer?->full_name ?? 'N/A',
@@ -517,7 +529,7 @@ $returnData = $returnQuery->get()->transform(function ($item) {
                         ->unique()
                         ->implode(', ') ?: 'N/A',
                     'allocated_qty' => $item->application?->commodity_allocations?->sum('allocated_quantity') ?? 0,
-                    'collected_qty' => $item->collected_quantity ?? 0,
+                    'collected_qty' => $totalCollected,
                     'returned_qty' => 0,
                     'status' => ucfirst($item->status),
                     'agent' => $item->agent?->user?->name ?? 'N/A',
@@ -525,7 +537,7 @@ $returnData = $returnQuery->get()->transform(function ($item) {
                     'center' => $item->application?->center?->name ?? 'N/A'
                 ];
             }))
-            ->merge($returnVerifications->map(function($item) {
+            ->merge($returnVerifications->map(function ($item) {
                 return [
                     'type' => 'Return',
                     'farmer_name' => $item->application?->farmer?->full_name ?? 'N/A',
@@ -562,7 +574,7 @@ $returnData = $returnQuery->get()->transform(function ($item) {
             'Center'
         ];
 
-        $data = $verifications->map(function($item) {
+        $data = $verifications->map(function ($item) {
             return [
                 $item['farmer_name'],
                 $item['phone'],
@@ -600,16 +612,16 @@ $returnData = $returnQuery->get()->transform(function ($item) {
      */
     protected function exportToCsv($data, $filename)
     {
-        $callback = function() use ($data) {
+        $callback = function () use ($data) {
             $file = fopen('php://output', 'w');
-            
+
             // Add UTF-8 BOM for proper encoding in Excel
-            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
-            
+            fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
             foreach ($data as $row) {
                 fputcsv($file, $row);
             }
-            
+
             fclose($file);
         };
 
@@ -629,21 +641,21 @@ $returnData = $returnQuery->get()->transform(function ($item) {
     protected function exportToExcel($data, $filename)
     {
         $tempPath = storage_path('app/temp/' . $filename);
-        
+
         // Ensure the directory exists
         if (!file_exists(dirname($tempPath))) {
             mkdir(dirname($tempPath), 0755, true);
         }
 
         $file = fopen($tempPath, 'w');
-        
+
         // Add UTF-8 BOM for proper encoding in Excel
-        fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
-        
+        fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
         foreach ($data as $row) {
             fputcsv($file, $row);
         }
-        
+
         fclose($file);
 
         // Return the file as a download response
@@ -657,7 +669,7 @@ $returnData = $returnQuery->get()->transform(function ($item) {
         try {
             // Determine the model based on the type
             $model = ($type === 'collection') ? CollectionVerification::class : ReturnVerification::class;
-            
+
             // Eager load all necessary relationships
             $verification = $model::with([
                 'application.farmer',
@@ -671,22 +683,33 @@ $returnData = $returnQuery->get()->transform(function ($item) {
             $farmer = $verification->application->farmer ?? (object)['full_name' => 'N/A', 'registration_number' => 'N/A'];
             $season = $verification->application->season ?? (object)['name' => 'N/A', 'loan_type' => 'N/A'];
             $center = $verification->center ?? (object)['name' => 'N/A'];
-            
+
             // Process commodities with null checks
             $commodities = collect([]);
             if (isset($verification->application->commodity_allocations)) {
-                $commodities = $verification->application->commodity_allocations->map(function($allocation) use ($verification, $type) {
+                $commodities = $verification->application->commodity_allocations->map(function ($allocation) use ($verification, $type) {
                     $commodity = $allocation->commodity_name ?? (object)['name' => 'Unknown', 'unit' => 'bags'];
-                    $quantityCollected = $type === 'collection' ? ($verification->collected_quantity ?? 0) : 0;
-                    $quantityReturned = $type === 'return' ? ($verification->returned_quantity ?? 0) : 0;
-                    
+
+                    // For collection verifications, get quantity from JSON field
+                    if ($type === 'collection') {
+                        $collectedQuantities = $verification->collected_quantities ?? [];
+                        $quantityCollected = isset($collectedQuantities[$allocation->id])
+                            ? ($collectedQuantities[$allocation->id]['collected_quantity'] ?? 0)
+                            : 0;
+                        $quantityReturned = 0;
+                    } else {
+                        // For return verifications
+                        $quantityCollected = 0;
+                        $quantityReturned = $verification->returned_quantity ?? 0;
+                    }
+
                     return [
                         'name' => $commodity,
                         'allocated' => $allocation->allocated_quantity ?? 0,
                         'actual' => $type === 'collection' ? $quantityCollected : $quantityReturned,
                         'unit' => $commodity->unit ?? 'bags',
                         'difference' => $type === 'collection'
-                            ? ($allocation->allocated_quantity ?? 0) - $quantityCollected
+                            ? $quantityCollected - ($allocation->allocated_quantity ?? 0)
                             : $quantityReturned - ($allocation->allocated_quantity ?? 0)
                     ];
                 });
@@ -696,7 +719,7 @@ $returnData = $returnQuery->get()->transform(function ($item) {
             $data = [
                 'verification' => $verification,
                 'type' => $type,
-                'verificationDate' => $verification->created_at 
+                'verificationDate' => $verification->created_at
                     ? Carbon::parse($verification->created_at)->format('d M Y, h:i A')
                     : 'N/A',
                 'currentDate' => Carbon::now()->format('d M Y, h:i A'),
@@ -711,23 +734,22 @@ $returnData = $returnQuery->get()->transform(function ($item) {
 
             // Generate the PDF
             $pdf = Pdf::loadView('admin.verifications.pdf.verification', $data);
-            
+
             // Create the directory if it doesn't exist
             $directory = storage_path('app/public/verifications');
             if (!file_exists($directory)) {
                 mkdir($directory, 0777, true);
             }
-            
+
             // Save the PDF temporarily
             $filename = 'verification_' . $type . '_' . $id . '_' . time() . '.pdf';
             $filePath = $directory . '/' . $filename;
             $pdf->save($filePath);
-            
+
             // Return the file for download
             return response()->download($filePath, $filename, [
                 'Content-Type' => 'application/pdf',
             ])->deleteFileAfterSend(true);
-            
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Failed to generate PDF: ' . $e->getMessage(),

@@ -138,7 +138,7 @@
                             <span x-text="selectedItems.length"></span> item(s) selected
                         </span>
                     </div>
-                    
+
                     <div class="relative inline-block text-left" x-data="{ open: false }">
                         <button @click="open = !open" type="button" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500">
                             <svg class="-ml-1 mr-2 h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -274,7 +274,7 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white space-x-2">
                                         <!-- PDF Download Button -->
-                                        <a :href="`/admin/verifications/download/${item.type}/${item.id}`"
+                                        <a :href="`/admin/verifications/${item.type}/${item.id}/download`"
                                            class="inline-flex items-center px-2.5 py-1.5 text-xs font-medium rounded text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                                            title="Download PDF">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -282,7 +282,7 @@
                                             </svg>
                                             PDF
                                         </a>
-                                        
+
                                         <!-- View & Verify Button (only for pending) -->
                                         <button @click="openModal(item)" x-show="item.status === 'pending'"
                                             class="inline-flex items-center px-2.5 py-1.5 text-xs font-medium rounded text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500">
@@ -292,7 +292,7 @@
                                             </svg>
                                             Verify
                                         </button>
-                                        
+
                                         <span x-show="item.status !== 'pending' && !selectedItems.includes(item.id)" class="text-gray-500 text-xs">
                                             Verified
                                         </span>
@@ -319,7 +319,7 @@
                         Showing <span x-text="from"></span> to <span x-text="to"></span> of <span x-text="total"></span> results
                     </div>
                     <div class="flex items-center space-x-1">
-                        <button @click="goToPage(current_page - 1)" 
+                        <button @click="goToPage(current_page - 1)"
                                 :disabled="current_page === 1"
                                 class="px-3 py-1 rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50">
                             Previous
@@ -334,7 +334,7 @@
                                 <span x-text="page"></span>
                             </button>
                         </template>
-                        <button @click="goToPage(current_page + 1)" 
+                        <button @click="goToPage(current_page + 1)"
                                 :disabled="current_page === last_page"
                                 class="px-3 py-1 rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50">
                             Next
@@ -345,20 +345,20 @@
 
                 <!-- Modal -->
                 <!-- Enhanced Verification Modal -->
-                <div x-show="modalOpen" x-cloak x-transition:enter="ease-out duration-300" 
+                <div x-show="modalOpen" x-cloak x-transition:enter="ease-out duration-300"
                     x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
                     x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
                     class="fixed inset-0 bg-gray-600/50 backdrop-blur-sm overflow-y-auto h-full w-full flex items-center justify-center z-50 p-4">
-                    
+
                     <div @click.away="closeModal"
                         class="relative mx-auto w-full max-w-5xl bg-white dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden transform transition-all">
-                        
+
                         <!-- Modal Header -->
                         <div class="bg-gray-50 dark:bg-gray-700 px-6 py-4 border-b border-gray-200 dark:border-gray-600 flex justify-between items-center">
                             <div>
                                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
                                     <span x-text="selectedItem?.type === 'collection' ? 'Collection' : 'Return' + ' Verification'"></span>
-                                    <span class="ml-2 text-sm px-2.5 py-0.5 rounded-full" 
+                                    <span class="ml-2 text-sm px-2.5 py-0.5 rounded-full"
                                           :class="{
                                               'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200': selectedItem?.status === 'approved',
                                               'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200': selectedItem?.status === 'rejected',
@@ -434,8 +434,8 @@
                                             </p>
                                             <p class="flex items-center">
                                                 <span class="text-gray-500 dark:text-gray-400 w-24">Period:</span>
-                                                <span class="font-medium" x-text="selectedItem?.application?.season?.start_date ? 
-                                                    new Date(selectedItem.application.season.start_date).toLocaleDateString() + ' - ' + 
+                                                <span class="font-medium" x-text="selectedItem?.application?.season?.start_date ?
+                                                    new Date(selectedItem.application.season.start_date).toLocaleDateString() + ' - ' +
                                                     (selectedItem.application.season.end_date ? new Date(selectedItem.application.season.end_date).toLocaleDateString() : 'Present') : 'N/A'">
                                                 </span>
                                             </p>
@@ -443,7 +443,7 @@
                                     </div>
 
                                     <!-- Payment Status Card (Conditional) -->
-                                    <div x-show="selectedItem && selectedItem.application && selectedItem.application.season && selectedItem.application.season.loan_type === 'co-funded' && selectedItem.type === 'collection'" 
+                                    <div x-show="selectedItem && selectedItem.application && selectedItem.application.season && selectedItem.application.season.loan_type === 'co-funded' && selectedItem.type === 'collection'"
                                          class="bg-white dark:bg-gray-700 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-600">
                                         <h4 class="text-base font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
                                             <svg class="w-5 h-5 mr-2 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -465,7 +465,7 @@
                                             </p>
                                             <p x-show="selectedItem?.application?.monetary_return" class="flex items-center justify-between">
                                                 <span class="text-gray-500 dark:text-gray-400">Amount:</span>
-                                                <span class="font-semibold" 
+                                                <span class="font-semibold"
                                                       x-text="selectedItem?.application?.monetary_return?.amount ? '₦' + new Intl.NumberFormat().format(selectedItem.application.monetary_return.amount) : 'N/A'">
                                                 </span>
                                             </p>
@@ -520,7 +520,7 @@
                                                                 </td>
                                                                 <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 text-right">
                                                                     <template x-if="selectedItem?.type === 'collection'">
-                                                                        <span x-text="selectedItem?.collected_quantity ? selectedItem.collected_quantity + ' bags' : 'N/A'"></span>
+                                                                        <span x-text="selectedItem?.collected_details && selectedItem.collected_details[c.id] ? selectedItem.collected_details[c.id].collected_quantity + ' bags' : '0 bags'"></span>
                                                                     </template>
                                                                     <template x-if="selectedItem?.type === 'return' && selectedItem?.returned_quantity !== undefined">
                                                                         <span x-text="selectedItem.returned_quantity + ' bags'"></span>
@@ -529,16 +529,16 @@
                                                                         <span>0 bags</span>
                                                                     </template>
                                                                 </td>
-                                                                <td class="px-4 py-2 whitespace-nowrap text-sm font-medium text-right" 
+                                                                <td class="px-4 py-2 whitespace-nowrap text-sm font-medium text-right"
                                                                     :class="{
-                                                                        'text-green-600': (selectedItem?.type === 'collection' ? selectedItem?.collected_quantity : (selectedItem?.returned_quantity || 0)) - c.allocated_quantity > 0,
-                                                                        'text-red-600': (selectedItem?.type === 'collection' ? selectedItem?.collected_quantity : (selectedItem?.returned_quantity || 0)) - c.allocated_quantity < 0,
-                                                                        'text-gray-600': (selectedItem?.type === 'collection' ? selectedItem?.collected_quantity : (selectedItem?.returned_quantity || 0)) - c.allocated_quantity === 0
+                                                                        'text-green-600': (selectedItem?.type === 'collection' ? (selectedItem?.collected_details && selectedItem.collected_details[c.id] ? selectedItem.collected_details[c.id].collected_quantity : 0) : (selectedItem?.returned_quantity || 0)) - c.allocated_quantity > 0,
+                                                                        'text-red-600': (selectedItem?.type === 'collection' ? (selectedItem?.collected_details && selectedItem.collected_details[c.id] ? selectedItem.collected_details[c.id].collected_quantity : 0) : (selectedItem?.returned_quantity || 0)) - c.allocated_quantity < 0,
+                                                                        'text-gray-600': (selectedItem?.type === 'collection' ? (selectedItem?.collected_details && selectedItem.collected_details[c.id] ? selectedItem.collected_details[c.id].collected_quantity : 0) : (selectedItem?.returned_quantity || 0)) - c.allocated_quantity === 0
                                                                     }">
-                                                                    <template x-if="selectedItem?.type === 'collection' && selectedItem?.collected_quantity !== undefined">
+                                                                    <template x-if="selectedItem?.type === 'collection'">
                                                                         <span>
-                                                                            <span x-text="(selectedItem.collected_quantity - c.allocated_quantity) > 0 ? '+' : ''"></span>
-                                                                            <span x-text="selectedItem.collected_quantity - c.allocated_quantity"></span> bags
+                                                                            <span x-text="((selectedItem?.collected_details && selectedItem.collected_details[c.id] ? selectedItem.collected_details[c.id].collected_quantity : 0) - c.allocated_quantity) > 0 ? '+' : ''"></span>
+                                                                            <span x-text="(selectedItem?.collected_details && selectedItem.collected_details[c.id] ? selectedItem.collected_details[c.id].collected_quantity : 0) - c.allocated_quantity"></span> bags
                                                                         </span>
                                                                     </template>
                                                                     <template x-if="selectedItem?.type === 'return' && selectedItem?.returned_quantity !== undefined">
@@ -553,7 +553,6 @@
                                                                             <span x-text="c.allocated_quantity"></span> bags
                                                                         </span>
                                                                     </template>
-                                                                    <span x-show="selectedItem?.type === 'collection' && selectedItem?.collected_quantity === undefined">N/A</span>
                                                                 </td>
                                                             </tr>
                                                         </template>
@@ -576,7 +575,7 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                                 </svg>
                                                 Verification Photos
-                                                <span class="ml-2 text-xs bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-100 px-2 py-0.5 rounded-full" 
+                                                <span class="ml-2 text-xs bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-100 px-2 py-0.5 rounded-full"
                                                       x-text="selectedItem?.image_paths?.length ? selectedItem.image_paths.length + ' photos' : 'No photos'">
                                                 </span>
                                             </h4>
@@ -595,7 +594,7 @@
                                                         </div>
                                                     </div>
                                                 </template>
-                                                <div x-show="!selectedItem?.image_paths?.length" 
+                                                <div x-show="!selectedItem?.image_paths?.length"
                                                      class="col-span-3 py-8 text-center">
                                                     <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -618,7 +617,7 @@
                                         </div>
                                         <div class="p-4">
                                             <div x-show="selectedItem?.status === 'pending'">
-                                                <textarea x-model="adminRemarks" 
+                                                <textarea x-model="adminRemarks"
                                                     placeholder="Enter verification notes or remarks..."
                                                     rows="3"
                                                     class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-600 dark:text-white dark:placeholder-gray-400"></textarea>
@@ -629,7 +628,7 @@
                                             <div x-show="selectedItem && selectedItem.status !== 'pending' && selectedItem.verification_notes" class="p-3 bg-gray-50 dark:bg-gray-600 rounded-md">
                                                 <p class="text-sm text-gray-700 dark:text-gray-200 whitespace-pre-line" x-text="selectedItem?.verification_notes || 'No notes available'"></p>
                                                 <div class="mt-2 pt-2 border-t border-gray-200 dark:border-gray-500 text-xs text-gray-500 dark:text-gray-400">
-                                                    Verified by <span class="font-medium" x-text="selectedItem && selectedItem.approved_by_name ? selectedItem.approved_by_name : 'System'"></span> 
+                                                    Verified by <span class="font-medium" x-text="selectedItem && selectedItem.approved_by_name ? selectedItem.approved_by_name : 'System'"></span>
                                                     on <span x-text="selectedItem && selectedItem.verified_date ? new Date(selectedItem.verified_date).toLocaleString() : 'N/A'"></span>
                                                 </div>
                                             </div>
@@ -751,7 +750,7 @@
                         this.from = data.from;
                         this.to = data.to;
                         this.current_page = data.current_page;
-                        
+
                         // Update summary data
                         this.summary = {
                             approved: summaryData.approved || 0,
@@ -841,7 +840,7 @@
                     this.adminRemarks = item.verification_notes || '';
                     this.modalOpen = true;
                 },
-                
+
                 openImageInModal(src, alt) {
                     this.imageModal = {
                         open: true,
@@ -849,7 +848,7 @@
                         alt: alt
                     };
                 },
-                
+
                 closeImageModal() {
                     this.imageModal = {
                         open: false,
@@ -902,7 +901,7 @@
                                 }
                                 this.selectedItem = this.verifications[index];
                             }
-                            
+
                             this.showToast(data.message, 'success');
                             this.closeModal();
                         } else {
@@ -949,11 +948,11 @@
                         }, 300);
                     }, 4000);
                 },
-                
+
                 async exportData(format) {
                     try {
                         this.showToast('Preparing export, please wait...', 'info');
-                        
+
                         const params = new URLSearchParams({
                             format: format,
                             type: this.type,
@@ -971,7 +970,7 @@
                         // Get the filename from the Content-Disposition header
                         const contentDisposition = response.headers.get('Content-Disposition');
                         let filename = `verifications_${new Date().toISOString().split('T')[0]}.${format}`;
-                        
+
                         if (contentDisposition) {
                             const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
                             if (filenameMatch && filenameMatch[1]) {
@@ -1004,14 +1003,14 @@
     <div x-show="imageModal.open" x-cloak class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <!-- Background overlay -->
-            <div x-show="imageModal.open" 
-                 x-transition:enter="ease-out duration-300" 
-                 x-transition:enter-start="opacity-0" 
+            <div x-show="imageModal.open"
+                 x-transition:enter="ease-out duration-300"
+                 x-transition:enter-start="opacity-0"
                  x-transition:enter-end="opacity-100"
                  x-transition:leave="ease-in duration-200"
                  x-transition:leave-start="opacity-100"
                  x-transition:leave-end="opacity-0"
-                 class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" 
+                 class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
                  @click="closeImageModal()"
                  aria-hidden="true">
             </div>

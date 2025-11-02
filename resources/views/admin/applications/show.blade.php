@@ -321,7 +321,7 @@
                                     <div>
                                         <p
                                             class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                                            Equity Held</p>
+                                            Oragnization Contribution</p>
                                         <p class="text-lg font-bold text-purple-600 dark:text-purple-400">
                                             ₦{{ number_format($equity_held, 2) }}</p>
                                     </div>
@@ -343,7 +343,7 @@
                                     <div>
                                         <p
                                             class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                                            Disbursed Amount</p>
+                                            Farmer Contribution</p>
                                         <p class="text-lg font-bold text-emerald-600 dark:text-emerald-400">
                                             ₦{{ number_format($disbursed_amount, 2) }}</p>
                                     </div>

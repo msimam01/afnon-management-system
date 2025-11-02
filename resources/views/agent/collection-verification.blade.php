@@ -80,11 +80,11 @@
                                 <dd class="text-sm font-semibold text-orange-900">{{ $application->insurance_rate }}% (₦{{ number_format($application->insurance_amount, 0) }})</dd>
                             </div>
                             <div class="flex justify-between items-center p-3 bg-green-50 rounded-lg">
-                                <dt class="text-sm font-medium text-green-700">Equity Held</dt>
+                                <dt class="text-sm font-medium text-green-700">Organization Contribution</dt>
                                 <dd class="text-lg font-bold text-green-900">₦{{ number_format($application->equity, 0) }}</dd>
                             </div>
                             <div class="flex justify-between items-center p-3 bg-emerald-50 rounded-lg">
-                                <dt class="text-sm font-medium text-emerald-700">Disbursed</dt>
+                                <dt class="text-sm font-medium text-emerald-700">Farmer Contribution</dt>
                                 <dd class="text-lg font-bold text-emerald-900">₦{{ number_format($application->disbursed_amount, 0) }}</dd>
                             </div>
                         </dl>

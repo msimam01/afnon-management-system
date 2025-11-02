@@ -176,13 +176,21 @@ class ReportService
                         ->where('commodity_allocations.commodity_name', $commodityName)
                         ->sum('commodity_allocations.allocated_quantity');
 
-                    // Get collected quantities from collection_verifications
+                    // Get collected quantities from collection_verifications JSON field
                     $collectedQuantity = DB::connection('tenant')
                         ->table('collection_verifications')
                         ->join('applications', 'collection_verifications.application_id', '=', 'applications.id')
                         ->where('applications.season_id', $tenantSeason->id)
-                        ->where('collection_verifications.commodity_id', $tenantCommodity->id)
-                        ->sum('collection_verifications.collected_quantity');
+                        ->get()
+                        ->sum(function ($verification) use ($tenantCommodity) {
+                            $quantities = json_decode($verification->collected_quantities, true);
+                            foreach ($quantities as $allocationId => $data) {
+                                if ($data['commodity_id'] == $tenantCommodity->id) {
+                                    return $data['collected_quantity'];
+                                }
+                            }
+                            return 0;
+                        });
 
                     // Get remaining stock from allocations table
                     $remainingStock = $tenantAllocations->get($tenantCommodity->id)?->remaining_stock ?? 0;
@@ -437,21 +445,26 @@ private function getFarmerDistributions(int $tenantSeasonId, string $loanType): 
                 ->select('commodity_name', 'allocated_quantity', 'unit_price')
                 ->get();
 
-            // Get collected quantities
-            $collections = DB::connection('tenant')
+            // Get collected quantities from JSON field
+            $collectionVerification = DB::connection('tenant')
                 ->table('collection_verifications')
-                ->join('commodities', 'collection_verifications.commodity_id', '=', 'commodities.id')
-                ->where('collection_verifications.application_id', $farmer->application_id)
-                ->select('commodities.name as commodity_name', 'collection_verifications.collected_quantity')
-                ->get()
-                ->keyBy('commodity_name');
+                ->where('application_id', $farmer->application_id)
+                ->first();
+
+            $collectedQuantities = [];
+            if ($collectionVerification) {
+                $quantities = json_decode($collectionVerification->collected_quantities, true);
+                foreach ($quantities as $allocationId => $data) {
+                    $collectedQuantities[$data['commodity_name']] = $data['collected_quantity'];
+                }
+            }
 
             // Get returned quantities for complete-loan
             $returns = collect([]);
             // Note: return_verifications does not store per-commodity data, only aggregates
 
-            $commodities = $allocations->map(function ($alloc) use ($collections, $returns, $loanType) {
-                $collected = $collections->get($alloc->commodity_name)?->collected_quantity ?? 0;
+            $commodities = $allocations->map(function ($alloc) use ($collectedQuantities, $returns, $loanType) {
+                $collected = $collectedQuantities[$alloc->commodity_name] ?? 0;
 
                 $commodity = [
                     'name' => $alloc->commodity_name,

@@ -128,24 +128,35 @@ class SeasonController extends Controller
         $commodities = DB::table('commodities')
             ->join('commodity_allocations', 'commodities.name', '=', 'commodity_allocations.commodity_name')
             ->join('applications', 'commodity_allocations.application_id', '=', 'applications.id')
-            ->leftJoin('collection_verifications', function($join) {
-                $join->on('commodity_allocations.application_id', '=', 'collection_verifications.application_id')
-                     ->on('commodities.id', '=', 'collection_verifications.commodity_id');
-            })
             ->where('applications.season_id', $season->id)
             ->select(
                 'commodities.id',
                 'commodities.name',
                 'commodities.category',
                 'commodities.unit',
-                DB::raw('SUM(commodity_allocations.allocated_quantity) as allocated'),
-                DB::raw('COALESCE(SUM(collection_verifications.collected_quantity), 0) as distributed')
+                DB::raw('SUM(commodity_allocations.allocated_quantity) as allocated')
             )
             ->groupBy('commodities.id', 'commodities.name', 'commodities.category', 'commodities.unit')
             ->get()
-            ->map(function ($item) {
-                $item->remaining = ($item->allocated ?? 0) - ($item->distributed ?? 0);
-                return $item;
+            ->map(function ($commodity) use ($season) {
+                // Get distributed quantity from collection_verifications JSON field
+                $distributed = DB::table('collection_verifications')
+                    ->join('applications', 'collection_verifications.application_id', '=', 'applications.id')
+                    ->where('applications.season_id', $season->id)
+                    ->get()
+                    ->sum(function ($verification) use ($commodity) {
+                        $quantities = json_decode($verification->collected_quantities, true);
+                        foreach ($quantities as $allocationId => $data) {
+                            if ($data['commodity_id'] == $commodity->id) {
+                                return $data['collected_quantity'];
+                            }
+                        }
+                        return 0;
+                    });
+
+                $commodity->distributed = $distributed;
+                $commodity->remaining = ($commodity->allocated ?? 0) - $distributed;
+                return $commodity;
             });
 
         // Totals
@@ -352,7 +363,7 @@ class SeasonController extends Controller
             );
 
         } catch (\Exception $e) {
-            \Log::error('Excel export failed: ' . $e->getMessage());
+            Log::error('Excel export failed: ' . $e->getMessage());
             return back()->with('error', 'Failed to generate Excel export: ' . $e->getMessage());
         }
     }
@@ -405,7 +416,7 @@ class SeasonController extends Controller
             return $pdfExporter->download($fileName);
 
         } catch (\Exception $e) {
-            \Log::error('Direct PDF export failed: ' . $e->getMessage());
+            Log::error('Direct PDF export failed: ' . $e->getMessage());
             return response()->json([
                 'error' => 'Failed to generate PDF. Please try again.',
                 'message' => $e->getMessage()

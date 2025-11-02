@@ -8,10 +8,18 @@ use Illuminate\Database\Eloquent\Model;
 class CollectionVerification extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'application_id', 'agent_id', 'commodity_id', 'id_card_photo', 'commodity_photo', 'status',
-        'collected_quantity', 'collection_notes', 'location_lat', 'location_lng', 'signature', 'fraud_flag',
+        'collected_quantities', 'collection_notes', 'location_lat', 'location_lng', 'signature', 'fraud_flag',
         'verification_notes', 'approved_by'
+    ];
+
+    protected $casts = [
+        'collected_quantities' => 'array',
+        'location_lat' => 'decimal:7',
+        'location_lng' => 'decimal:7',
+        'fraud_flag' => 'boolean',
     ];
     public function application()
     {

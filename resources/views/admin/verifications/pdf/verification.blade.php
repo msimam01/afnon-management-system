@@ -156,11 +156,11 @@
     <div class="section">
         <div class="section-title">
             {{ $type === 'collection' ? 'Commodity Collection' : 'Commodity Return' }} Details
-            <span style="float: right;">Status: 
+            <span style="float: right;">Status:
                 <strong class="text-uppercase">{{ $status }}</strong>
             </span>
         </div>
-        
+
         <table class="data-table">
             <thead>
                 <tr>
@@ -168,7 +168,7 @@
                     <th>Commodity</th>
                     <th class="text-right">Allocated ({{ $commodities[0]['unit'] ?? 'KG' }})</th>
                     <th class="text-right">{{ $type === 'collection' ? 'Collected' : 'Returned' }} ({{ $commodities[0]['unit'] ?? 'KG' }})</th>
-                    <th class="text-right">Variance ({{ $commodities[0]['unit'] ?? 'KG' }})</th>
+                    <th class="text-right">Variance</th>
                 </tr>
             </thead>
             <tbody>
@@ -220,10 +220,17 @@
             <div><strong>{{ $approvedBy }}</strong></div>
             <div>{{ $verificationDate }}</div>
         </div>
-        
+
         <div class="signature-box" style="float: right;">
+            <div style="margin: 10px 0;">
+                <img src="{{ asset('storage/tenant' . tenant('id') . '/app/public/' . $verification->signature) }}"
+                     alt="Farmer Signature"
+                     style="max-width: 150px; max-height: 60px; border: 1px solid #ccc;">
+            </div>
             <div class="signature-line"></div>
             <div>Farmer's Signature</div>
+            @if($verification->signature)
+            @endif
             <div><strong>{{ $farmer->full_name }}</strong></div>
             <div>{{ $currentDate }}</div>
         </div>

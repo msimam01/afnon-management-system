@@ -2,11 +2,13 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\SuperAdmin\Tenant;
-use Spatie\Permission\Models\Role;
+use App\Models\Tenant\User;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Spatie\Permission\Models\Permission;
-use App\Models\User;
+use Spatie\Permission\Models\Role;
 
 class TenantSeeder extends Seeder
 {
@@ -34,7 +36,30 @@ class TenantSeeder extends Seeder
                 $createdRoles[$roleName] = Role::where('name', $roleName)->where('guard_name', 'tenant')->first();
             }
         }
+        // / Create Super Admin (System Admin for Central Domain)
+        $superAdmin = User::firstOrCreate(
+            ['email' => 'admin@gombe.afnen.com'],
+            [
+                'uuid' => Str::uuid(),
+                'name' => 'Mubarak Salisu Imam',
+                'password' => Hash::make('admin123'),
+                'status' => 'active',
+                'email_verified_at' => now(),
+            ]
+        );
+        $superAdmin->assignRole('admin');
 
+        $agent = User::firstOrCreate(
+            ['email' => 'agent@gombe.afnen.com'],
+            [
+                'uuid' => Str::uuid(),
+                'name' => 'Imam Mubarak Salisu',
+                'password' => Hash::make('admin123'),
+                'status' => 'active',
+                'email_verified_at' => now(),
+            ]
+        );
+        $agent->assignRole('agent');
         // Create comprehensive permissions for tenant domain
         $permissions = [
             // Dashboard permissions

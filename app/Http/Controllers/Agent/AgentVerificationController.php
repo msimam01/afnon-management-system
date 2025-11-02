@@ -209,32 +209,31 @@ class AgentVerificationController extends Controller
                     'longitude' => $request->location_lng,
                 ]);
 
-                // Step 4: Create independent collection verification records for each commodity
-                $verifications = [];
-                Log::info('DEBUG: Starting loop over commodity_allocations', ['count' => count($application->commodity_allocations)]);
-                foreach ($application->commodity_allocations as $index => $allocation) {
-                    Log::info('DEBUG: Processing allocation index', [
-                        'index' => $index,
-                        'allocation_id' => $allocation->id,
-                        'commodity_name' => $allocation->commodity_name,
-                        'allocated_quantity' => $allocation->allocated_quantity,
-                    ]);
+                // Step 4: Prepare collected quantities data for all commodities
+                $collectedQuantities = [];
+                $fraudFlag = false;
 
-                    // Step 4a: Get collected quantity for this commodity
+                Log::info('DEBUG: Processing commodity allocations for JSON storage', ['count' => count($application->commodity_allocations)]);
+                foreach ($application->commodity_allocations as $allocation) {
+                    // Get collected quantity for this commodity
                     $collectedQuantity = $request->collected_quantities[$allocation->id] ?? 0;
-                    Log::info('DEBUG: Collected quantity for allocation', ['collected_quantity' => $collectedQuantity]);
 
-                    // Step 4b: Find commodity by name
+                    // Find commodity by name
                     $commodity = \App\Models\Commodity::where('name', $allocation->commodity_name)->first();
                     if (!$commodity) {
                         Log::warning('DEBUG: Commodity not found', ['commodity_name' => $allocation->commodity_name]);
                         continue; // Skip if commodity not found (should not happen)
                     }
-                    Log::info('DEBUG: Commodity found', ['commodity_id' => $commodity->id]);
 
-                    // Check for fraud indicators
-                    $fraudFlag = false;
+                    // Store collected quantity with commodity info
+                    $collectedQuantities[$allocation->id] = [
+                        'commodity_id' => $commodity->id,
+                        'commodity_name' => $allocation->commodity_name,
+                        'allocated_quantity' => $allocation->allocated_quantity,
+                        'collected_quantity' => $collectedQuantity,
+                    ];
 
+                    // Check for fraud indicators (set flag if any commodity has issues)
                     // Distance check: if agent location and farmer location available, check if >10km
                     if ($request->location_lat && $request->location_lng && $application->farm && $application->farm->location_lat && $application->farm->location_lng) {
                         $distance = $this->calculateDistance($request->location_lat, $request->location_lng, $application->farm->location_lat, $application->farm->location_lng);
@@ -249,89 +248,67 @@ class AgentVerificationController extends Controller
                         $fraudFlag = true;
                         Log::info('DEBUG: Fraud flag set due to excess collection', ['collected' => $collectedQuantity, 'allocated' => $allocation->allocated_quantity]);
                     }
+                }
 
-                    // Step 4c: Create verification record for this commodity
-                    Log::info('DEBUG: Preparing to create CollectionVerification', [
-                        'data' => [
-                            'application_id' => $application->id,
-                            'agent_id' => $agent->id,
-                            'commodity_id' => $commodity->id,
-                            'commodity_photo' => $photoPath,
-                            'collected_quantity' => $collectedQuantity,
-                            'collection_notes' => $request->collection_notes,
-                            'location_lat' => $request->location_lat,
-                            'location_lng' => $request->location_lng,
-                            'signature' => $signaturePath,
-                            'fraud_flag' => $fraudFlag,
-                        ]
-                    ]);
+                // Step 4b: Create single collection verification record for the application
+                Log::info('DEBUG: Preparing to create single CollectionVerification', [
+                    'data' => [
+                        'application_id' => $application->id,
+                        'agent_id' => $agent->id,
+                        'commodity_photo' => $photoPath,
+                        'collected_quantities' => $collectedQuantities,
+                        'collection_notes' => $request->collection_notes,
+                        'location_lat' => $request->location_lat,
+                        'location_lng' => $request->location_lng,
+                        'signature' => $signaturePath,
+                        'fraud_flag' => $fraudFlag,
+                    ]
+                ]);
 
-                    try {
-                        $verification = CollectionVerification::create([
-                            'application_id' => $application->id,
-                            'agent_id' => $agent->id,
-                            'commodity_id' => $commodity->id,
-                            'commodity_photo' => $photoPath,
-                            'collected_quantity' => $collectedQuantity,
-                            'collection_notes' => $request->collection_notes,
-                            'location_lat' => $request->location_lat,
-                            'location_lng' => $request->location_lng,
-                            'signature' => $signaturePath,
-                            'fraud_flag' => $fraudFlag,
+                $verification = CollectionVerification::create([
+                    'application_id' => $application->id,
+                    'agent_id' => $agent->id,
+                    'commodity_photo' => $photoPath,
+                    'collected_quantities' => $collectedQuantities,
+                    'collection_notes' => $request->collection_notes,
+                    'location_lat' => $request->location_lat,
+                    'location_lng' => $request->location_lng,
+                    'signature' => $signaturePath,
+                    'fraud_flag' => $fraudFlag,
+                ]);
+
+                Log::info('DEBUG: CollectionVerification created successfully', ['verification_id' => $verification->id]);
+
+                // Step 5: Process stock adjustments for each commodity
+                foreach ($collectedQuantities as $allocationId => $quantityData) {
+                    $shortage = $quantityData['allocated_quantity'] - $quantityData['collected_quantity'];
+                    Log::info('DEBUG: Calculated shortage', ['allocation_id' => $allocationId, 'shortage' => $shortage]);
+
+                    if ($shortage > 0) {
+                        Log::info('DEBUG: Incrementing allocation stock', ['shortage' => $shortage]);
+                        // Add the shortage back to tenant stock in allocations table
+                        $affected = \App\Models\Allocation::where('season_id', $application->season_id)
+                            ->where('commodity_id', $quantityData['commodity_id'])
+                            ->increment('allocated_stock', $shortage);
+                        Log::info('DEBUG: Allocation updated', ['affected_rows' => $affected]);
+
+                        // Log this adjustment in stock_adjustments table for audit
+                        $stockAdjustment = StockAdjustment::create([
+                            'commodity_id' => $quantityData['commodity_id'],
+                            'season_id' => $application->season_id,
+                            'quantity' => $shortage,
+                            'type' => 'increase',
+                            'reason' => 'Farmer collected less than approved',
+                            'verified_by' => $agent->id,
                         ]);
-
-                        Log::info('DEBUG: CollectionVerification created successfully', ['verification_id' => $verification->id]);
-
-                        // Immediately dump the model to confirm
-                        Log::info('DEBUG: Verification model dump', [
-                            'id' => $verification->id,
-                            'application_id' => $verification->application_id,
-                            'agent_id' => $verification->agent_id,
-                            'commodity_id' => $verification->commodity_id,
-                            'collected_quantity' => $verification->collected_quantity,
-                            'exists_in_db' => $verification->exists,
-                            'toArray' => $verification->toArray(),
-                        ]);
-
-                        $verifications[] = $verification;
-
-                        // Step 5: Check and adjust stock independently for each commodity
-                        // Step 5a: Calculate shortage = allocated - collected
-                        $shortage = $allocation->allocated_quantity - $collectedQuantity;
-                        Log::info('DEBUG: Calculated shortage', ['shortage' => $shortage]);
-
-                        if ($shortage > 0) {
-                            Log::info('DEBUG: Incrementing allocation stock', ['shortage' => $shortage]);
-                            // Step 5b: Add the shortage back to tenant stock in allocations table
-                            $affected = \App\Models\Allocation::where('season_id', $application->season_id)
-                                ->where('commodity_id', $commodity->id)
-                                ->increment('allocated_stock', $shortage);
-                            Log::info('DEBUG: Allocation updated', ['affected_rows' => $affected]);
-
-                            // Step 5c: Log this adjustment in stock_adjustments table for audit
-                            $stockAdjustment = StockAdjustment::create([
-                                'commodity_id' => $commodity->id,
-                                'season_id' => $application->season_id,
-                                'quantity' => $shortage,
-                                'type' => 'increase',
-                                'reason' => 'Farmer collected less than approved',
-                                'verified_by' => $agent->id,
-                            ]);
-                            Log::info('DEBUG: StockAdjustment created', ['stock_adjustment_id' => $stockAdjustment->id]);
-                        }
-                    } catch (\Exception $createException) {
-                        Log::error('DEBUG: Exception during CollectionVerification::create', [
-                            'message' => $createException->getMessage(),
-                            'trace' => $createException->getTraceAsString()
-                        ]);
-                        // Continue to next allocation but log the error
+                        Log::info('DEBUG: StockAdjustment created', ['stock_adjustment_id' => $stockAdjustment->id]);
                     }
                 }
 
-                Log::info('DEBUG: Loop completed, transaction about to complete', [
-                    'verifications_created' => count($verifications),
-                    'stock_adjustments_attempted' => count($application->commodity_allocations->filter(function($alloc) use ($request) {
-                        return ($alloc->allocated_quantity - ($request->collected_quantities[$alloc->id] ?? 0)) > 0;
+                Log::info('DEBUG: Transaction about to complete', [
+                    'verification_created' => true,
+                    'stock_adjustments_attempted' => count(array_filter($collectedQuantities, function($data) {
+                        return ($data['allocated_quantity'] - $data['collected_quantity']) > 0;
                     })),
                 ]);
 
@@ -359,7 +336,7 @@ class AgentVerificationController extends Controller
 
         Log::info('DEBUG: Method completed successfully', [
             'application_id' => $application->id,
-            'verifications_created_in_method' => count($verifications ?? []),
+            'verification_created' => true,
             'verifications_in_db' => $verificationCount,
         ]);
 
