@@ -749,7 +749,35 @@ class TenantSyncService
             }
 
             try {
-                // Update or create the allocation
+                // Fetch existing tenant allocation to calculate proper available_stock
+                $existingAllocation = DB::connection('tenant')
+                    ->table('allocations')
+                    ->where('season_id', $tenantSeason->id)
+                    ->where('commodity_id', $tenantCommodity->id)
+                    ->first();
+
+                $oldAllocatedStock = $existingAllocation ? $existingAllocation->allocated_stock : 0;
+                $oldAvailableStock = $existingAllocation ? $existingAllocation->available_stock : 0;
+                $distributed = $oldAllocatedStock - $oldAvailableStock;
+
+                // Calculate new available stock: new_allocation - distributed, but never below 0
+                $newAvailableStock = max(0, $allocation->allocated_stock - $distributed);
+
+                // Prevent updates that would make total distributed > new allocation
+                if ($distributed > $allocation->allocated_stock) {
+                    $error = "Cannot update allocation: distributed amount ({$distributed}) exceeds new allocation ({$allocation->allocated_stock}) for commodity {$commodityUuid}";
+                    \Log::error($error, [
+                        'allocation_id' => $allocation->id,
+                        'old_allocated' => $oldAllocatedStock,
+                        'old_available' => $oldAvailableStock,
+                        'distributed' => $distributed,
+                        'new_allocation' => $allocation->allocated_stock
+                    ]);
+                    $syncResults[] = ['success' => false, 'message' => $error];
+                    continue;
+                }
+
+                // Update or create the allocation with proper available_stock calculation
                 DB::connection('tenant')->table('allocations')->updateOrInsert(
                     [
                         'season_id' => $tenantSeason->id,
@@ -757,10 +785,25 @@ class TenantSyncService
                     ],
                     [
                         'allocated_stock' => $allocation->allocated_stock,
+                        'available_stock' => $newAvailableStock,
                         'created_at' => $allocation->created_at ?? now(),
                         'updated_at' => now(),
                     ]
                 );
+
+                // Log the allocation change
+                \Log::info('Allocation updated', [
+                    'tenant_id' => $tenantId,
+                    'season_id' => $tenantSeason->id,
+                    'commodity_id' => $tenantCommodity->id,
+                    'commodity_uuid' => $commodityUuid,
+                    'old_allocated_stock' => $oldAllocatedStock,
+                    'old_available_stock' => $oldAvailableStock,
+                    'distributed' => $distributed,
+                    'new_allocated_stock' => $allocation->allocated_stock,
+                    'new_available_stock' => $newAvailableStock,
+                    'change_type' => $allocation->allocated_stock > $oldAllocatedStock ? 'increase' : ($allocation->allocated_stock < $oldAllocatedStock ? 'decrease' : 'no_change')
+                ]);
 
                 // Track that we've processed this commodity
                 $processedCommodityIds[] = $tenantCommodity->id;
@@ -768,13 +811,15 @@ class TenantSyncService
                     'success' => true,
                     'commodity_id' => $tenantCommodity->id,
                     'commodity_uuid' => $commodityUuid,
-                    'stock' => $allocation->allocated_stock
+                    'stock' => $allocation->allocated_stock,
+                    'available_stock' => $newAvailableStock
                 ];
 
                 \Log::debug('Synced allocation', [
                     'season_id' => $tenantSeason->id,
                     'commodity_id' => $tenantCommodity->id,
-                    'stock' => $allocation->allocated_stock
+                    'allocated_stock' => $allocation->allocated_stock,
+                    'available_stock' => $newAvailableStock
                 ]);
 
             } catch (\Exception $e) {

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\GlobalSeason;
 use App\Models\SuperAdmin\Tenant;
 use App\Services\ReportService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -56,9 +57,12 @@ class ReportsController extends Controller
 
         $season = GlobalSeason::where('uuid', $request->season_uuid)->first();
         $tenant = Tenant::find($request->tenant_id);
+
+        // Get comprehensive allocation summary
+        $allocationSummary = $this->getTenantAllocationSummary($season, $tenant);
         $reportData = $this->reportService->generateTenantDistributionReport($request->season_uuid, $request->tenant_id);
 
-        return view('global.reports.tenant-distribution', compact('season', 'tenant', 'reportData'));
+        return view('global.reports.tenant-distribution', compact('season', 'tenant', 'allocationSummary', 'reportData'));
     }
 
     /**
@@ -195,11 +199,15 @@ class ReportsController extends Controller
         $season = GlobalSeason::where('uuid', $request->season_uuid)->first();
         $tenant = Tenant::find($request->tenant_id);
 
+        // Get comprehensive allocation summary
+        $allocationSummary = $this->getTenantAllocationSummary($season, $tenant);
+
         if ($request->format === 'csv') {
             return $this->exportTenantDistributionCSV($reportData, $season, $tenant);
         }
 
-        return back()->with('error', 'PDF export not implemented yet');
+        // PDF export
+        return $this->exportTenantDistributionPDF($allocationSummary, $reportData, $season, $tenant);
     }
 
     /**
@@ -207,7 +215,7 @@ class ReportsController extends Controller
      */
     protected function exportTenantDistributionCSV($reportData, $season, $tenant)
     {
-        $filename = "tenant_distribution_{$tenant->name}_{$season->name}_" . date('Y-m-d') . ".csv";
+        $filename = "tenant_distribution_{$tenant->id}_{$season->name}_" . date('Y-m-d') . ".csv";
 
         $headers = [
             'Content-Type' => 'text/csv',
@@ -223,7 +231,7 @@ class ReportsController extends Controller
             // Header information
             fputcsv($file, ['Tenant Distribution Report']);
             fputcsv($file, ['Season', $season->name]);
-            fputcsv($file, ['Tenant', $tenant->name]);
+            fputcsv($file, ['Tenant', $tenant->id]);
             fputcsv($file, ['Loan Type', ucfirst(str_replace('-', ' ', $reportData['loan_type']))]);
             fputcsv($file, ['Generated', now()->toDateTimeString()]);
             fputcsv($file, []);
@@ -538,5 +546,289 @@ class ReportsController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Export tenant distribution as comprehensive PDF
+     */
+    protected function exportTenantDistributionPDF($allocationSummary, $reportData, $season, $tenant)
+    {
+        $filename = "tenant_distribution_{$tenant->id}_{$season->name}_" . date('Y-m-d') . ".pdf";
+
+        // Debug: Check if data exists
+        $hasAllocationData = !empty($allocationSummary['tenant_allocations']);
+        $hasReportData = !empty($reportData) && isset($reportData['summary']);
+
+        $html = "
+        <html>
+        <head>
+            <title>Tenant Distribution Report</title>
+            <style>
+                body { font-family: Arial, sans-serif; font-size: 12px; }
+                .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 20px; }
+                .section { margin-bottom: 20px; }
+                table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+                th, td { border: 1px solid #ddd; padding: 6px; text-align: left; }
+                th { background-color: #f2f2f2; font-weight: bold; }
+                .summary { background-color: #e8f4f8; padding: 15px; border-radius: 5px; border: 1px solid #bee3f8; }
+                .summary p { margin: 5px 0; }
+                .no-data { background-color: #fed7d7; padding: 15px; border-radius: 5px; border: 1px solid #fc8181; color: #c53030; }
+                h1 { color: #2d3748; margin-bottom: 10px; }
+                h2 { color: #4a5568; margin-bottom: 5px; }
+                h3 { color: #2d3748; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; }
+                .footer { margin-top: 40px; text-align: center; font-size: 10px; color: #718096; }
+            </style>
+        </head>
+        <body>
+            <div class='header'>
+                <h1>Tenant Distribution Report</h1>
+                <h2>{$season->name} - {$tenant->id}</h2>
+                <p><strong>Season Type:</strong> " . ucfirst($season->type ?? 'Unknown') . " | <strong>Loan Type:</strong> " . ucfirst(str_replace('-', ' ', $season->loan_type ?? 'Unknown')) . "</p>
+                <p><strong>Generated on:</strong> " . now()->toDateTimeString() . "</p>
+            </div>";
+
+        // Check if we have allocation summary data
+        if ($hasAllocationData && !empty($allocationSummary['summary'])) {
+            $html .= "
+            <div class='section summary'>
+                <h3>Allocation Summary</h3>
+                <p><strong>Total Allocated:</strong> " . number_format($allocationSummary['summary']['total_allocated'] ?? 0) . " units</p>
+                <p><strong>Total Distributed:</strong> " . number_format($allocationSummary['summary']['total_distributed'] ?? 0) . " units</p>
+                <p><strong>Total Remaining:</strong> " . number_format($allocationSummary['summary']['total_remaining'] ?? 0) . " units</p>
+                <p><strong>Distribution Percentage:</strong> " . ($allocationSummary['summary']['distribution_percentage'] ?? 0) . "%</p>
+            </div>
+
+            <div class='section'>
+                <h3>Commodity Distribution</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Commodity</th>
+                            <th>Unit</th>
+                            <th>Original Allocated</th>
+                            <th>Distributed</th>
+                            <th>Remaining Stock</th>
+                        </tr>
+                    </thead>
+                    <tbody>";
+
+            $allocationCount = 0;
+            foreach ($allocationSummary['tenant_allocations'] as $key => $allocation) {
+                if (is_object($allocation) && isset($allocation->commodity_name)) {
+                    $html .= "
+                        <tr>
+                            <td>{$allocation->commodity_name}</td>
+                            <td>{$allocation->unit}</td>
+                            <td>" . number_format($allocation->original_allocated ?? 0) . "</td>
+                            <td>" . number_format($allocation->distributed ?? 0) . "</td>
+                            <td>" . number_format($allocation->remaining_stock ?? 0) . "</td>
+                        </tr>";
+                    $allocationCount++;
+                }
+            }
+
+            if ($allocationCount === 0) {
+                $html .= "<tr><td colspan='5' class='no-data'>No allocation data found for this tenant and season.</td></tr>";
+            }
+
+            $html .= "
+                    </tbody>
+                </table>
+            </div>";
+        } else {
+            $html .= "
+            <div class='section no-data'>
+                <h3>No Allocation Data Found</h3>
+                <p>No allocation data was found for tenant '{$tenant->id}' in season '{$season->name}'.</p>
+                <p>This could mean:</p>
+                <ul>
+                    <li>The tenant has not been allocated any commodities for this season</li>
+                    <li>The season data is not properly synced to the tenant database</li>
+                    <li>There was an error retrieving the allocation data</li>
+                </ul>
+            </div>";
+        }
+
+        // Farmers Summary Section
+        $html .= "
+            <div class='section'>
+                <h3>Farmers Summary</h3>";
+
+        if ($hasReportData) {
+            $html .= "
+                <p><strong>Total Farmers:</strong> " . ($reportData['summary']['total_farmers'] ?? 0) . "</p>
+                <p><strong>Farmers Collected:</strong> " . ($reportData['summary']['farmers_collected'] ?? 0) . "</p>";
+
+            if (($season->loan_type ?? '') === 'complete-loan') {
+                $html .= "<p><strong>Farmers Returned:</strong> " . ($reportData['summary']['farmers_returned'] ?? 0) . "</p>";
+            }
+        } else {
+            $html .= "<p class='no-data'>No farmer distribution data available.</p>";
+        }
+
+        $html .= "
+            </div>";
+
+        // Detailed Commodity Distribution
+        if ($hasReportData && !empty($reportData['commodity_distribution'])) {
+            $html .= "
+            <div class='section'>
+                <h3>Detailed Commodity Distribution</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Commodity</th>
+                            <th>Unit</th>
+                            <th>Original Allocated</th>
+                            <th>Approved Qty</th>
+                            <th>Distributed Qty</th>
+                            <th>Collected Qty</th>
+                            <th>Variance</th>
+                            <th>Remaining Stock</th>
+                        </tr>
+                    </thead>
+                    <tbody>";
+
+            foreach ($reportData['commodity_distribution'] as $commodity) {
+                $html .= "
+                        <tr>
+                            <td>" . ($commodity['commodity_name'] ?? 'N/A') . "</td>
+                            <td>" . ($commodity['unit'] ?? 'N/A') . "</td>
+                            <td>" . number_format($commodity['original_allocated'] ?? 0) . "</td>
+                            <td>" . number_format($commodity['approved_quantity'] ?? 0) . "</td>
+                            <td>" . number_format($commodity['distributed_quantity'] ?? 0) . "</td>
+                            <td>" . number_format($commodity['collected_quantity'] ?? 0) . "</td>
+                            <td>" . number_format($commodity['collection_variance'] ?? 0) . "</td>
+                            <td>" . number_format($commodity['remaining_stock'] ?? 0) . "</td>
+                        </tr>";
+            }
+
+            $html .= "
+                    </tbody>
+                </table>
+            </div>";
+        }
+
+        $html .= "
+            <div class='footer'>
+                <p>This report was generated by the AFNON Management System</p>
+                <p>Confidential - For internal use only</p>
+            </div>
+        </body>
+        </html>";
+
+        // Generate PDF using DomPDF
+        $pdf = Pdf::loadHTML($html);
+        $pdf->setPaper('a4', 'portrait');
+
+        return $pdf->download($filename);
+    }
+
+    /**
+     * Get comprehensive tenant allocation summary
+     */
+    protected function getTenantAllocationSummary(GlobalSeason $season, Tenant $tenant): array
+    {
+        // Get allocations from global_tenant_allocations table
+        $globalAllocations = \App\Models\GlobalTenantAllocation::with('commodity')
+            ->where('global_season_id', $season->id)
+            ->where('tenant_id', $tenant->id)
+            ->get()
+            ->keyBy('global_commodity_id');
+
+        // Switch to tenant database to get current allocation status
+        $this->setTenantConnection($tenant);
+
+        $tenantSeason = \Illuminate\Support\Facades\DB::connection('tenant')
+            ->table('seasons')
+            ->where('uuid', $season->uuid)
+            ->first();
+
+        $processedAllocations = [];
+        $totalAllocated = 0;
+        $totalDistributed = 0;
+        $totalRemaining = 0;
+        $totalAvailableStock = 0;
+
+        if ($tenantSeason) {
+            // Get current allocation status from tenant DB
+            $tenantAllocations = \Illuminate\Support\Facades\DB::connection('tenant')
+                ->table('allocations')
+                ->join('commodities', 'allocations.commodity_id', '=', 'commodities.id')
+                ->where('allocations.season_id', $tenantSeason->id)
+                ->select(
+                    'commodities.id as commodity_id',
+                    'commodities.name as commodity_name',
+                    'commodities.unit',
+                    'allocations.allocated_stock as remaining_stock'
+                )
+                ->get()
+                ->keyBy('commodity_id');
+
+            // Calculate distributed amounts (original allocated - remaining)
+            foreach ($globalAllocations as $globalCommodityId => $globalAlloc) {
+                $commodityName = $globalAlloc->commodity->name;
+                $originalAllocated = $globalAlloc->allocated_stock;
+
+                // Find matching tenant commodity
+                $tenantCommodity = \Illuminate\Support\Facades\DB::connection('tenant')
+                    ->table('commodities')
+                    ->where('name', $commodityName)
+                    ->first();
+
+                if ($tenantCommodity) {
+                    $remainingStock = $tenantAllocations->get($tenantCommodity->id)?->remaining_stock ?? 0;
+                    $distributed = max(0, $originalAllocated - $remainingStock);
+
+                    $processedAllocations[] = (object) [
+                        'commodity_name' => $commodityName,
+                        'unit' => $globalAlloc->commodity->unit,
+                        'original_allocated' => $originalAllocated,
+                        'distributed' => $distributed,
+                        'remaining_stock' => $remainingStock,
+                        'available_stock' => $remainingStock,
+                    ];
+
+                    $totalAllocated += $originalAllocated;
+                    $totalDistributed += $distributed;
+                    $totalRemaining += $remainingStock;
+                    $totalAvailableStock += $remainingStock;
+                }
+            }
+        }
+
+        return [
+            'global_allocations' => $globalAllocations,
+            'tenant_allocations' => $processedAllocations,
+            'summary' => [
+                'total_allocated' => $totalAllocated,
+                'total_distributed' => $totalDistributed,
+                'total_remaining' => $totalRemaining,
+                'total_available_stock' => $totalAvailableStock,
+                'distribution_percentage' => $totalAllocated > 0 ? round(($totalDistributed / $totalAllocated) * 100, 1) : 0,
+            ]
+        ];
+    }
+
+    /**
+     * Set up tenant database connection
+     */
+    protected function setTenantConnection(Tenant $tenant): void
+    {
+        $databaseName = $tenant->database()->getName();
+
+        \Illuminate\Support\Facades\Config::set('database.connections.tenant', [
+            'driver' => 'mysql',
+            'host' => env('DB_HOST', '127.0.0.1'),
+            'port' => env('DB_PORT', '3306'),
+            'database' => $databaseName,
+            'username' => env('DB_USERNAME', 'root'),
+            'password' => env('DB_PASSWORD', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+        ]);
+
+        \Illuminate\Support\Facades\DB::purge('tenant');
+        \Illuminate\Support\Facades\DB::reconnect('tenant');
     }
 }

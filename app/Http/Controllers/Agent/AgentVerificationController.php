@@ -285,11 +285,11 @@ class AgentVerificationController extends Controller
                     Log::info('DEBUG: Calculated shortage', ['allocation_id' => $allocationId, 'shortage' => $shortage]);
 
                     if ($shortage > 0) {
-                        Log::info('DEBUG: Incrementing allocation stock', ['shortage' => $shortage]);
+                        Log::info('DEBUG: Incrementing available stock', ['shortage' => $shortage]);
                         // Add the shortage back to tenant stock in allocations table
                         $affected = \App\Models\Allocation::where('season_id', $application->season_id)
                             ->where('commodity_id', $quantityData['commodity_id'])
-                            ->increment('allocated_stock', $shortage);
+                            ->increment('available_stock', $shortage);
                         Log::info('DEBUG: Allocation updated', ['affected_rows' => $affected]);
 
                         // Log this adjustment in stock_adjustments table for audit

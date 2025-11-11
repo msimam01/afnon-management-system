@@ -68,6 +68,10 @@
             <p class="text-sm text-orange-700 dark:text-orange-300 font-semibold">Remaining</p>
             <p class="text-2xl font-bold text-orange-900 dark:text-white">{{ number_format($totalRemaining) }}</p>
         </div>
+        <div class="bg-purple-100 dark:bg-purple-900 p-4 rounded-xl shadow text-center">
+            <p class="text-sm text-purple-700 dark:text-purple-300 font-semibold">Available Stock</p>
+            <p class="text-2xl font-bold text-purple-900 dark:text-white">{{ number_format($totalAvailableStock) }}</p>
+        </div>
     </div>
 
     {{-- Season Snapshot Card --}}
@@ -191,11 +195,112 @@
             </div>
 
             <div>
-                <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Applications Trend</h3>
-                <div class="w-full h-[250px]">
-                    <canvas id="applicationsTrendChart"></canvas>
+                <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Collection & Payment Status</h3>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Pending Collections</span>
+                        <span class="text-lg font-bold text-yellow-600">{{ number_format($pendingCollections) }}</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Completed Collections</span>
+                        <span class="text-lg font-bold text-green-600">{{ number_format($completedCollections) }}</span>
+                    </div>
+                    @if($season->loan_type === 'co-funded')
+                        <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Pending Payments</span>
+                            <span class="text-lg font-bold text-orange-600">{{ number_format($pendingPayments) }}</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Completed Payments</span>
+                            <span class="text-lg font-bold text-blue-600">{{ number_format($completedPayments) }}</span>
+                        </div>
+                    @endif
                 </div>
             </div>
+        </div>
+    </div>
+
+    {{-- Detailed Farmer Allocations --}}
+    <div class="bg-white dark:bg-gray-800 shadow rounded-xl p-4 sm:p-6">
+        <h2 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-6">📋 Farmer Allocations & Collections</h2>
+
+        @if($farmerAllocations->isEmpty())
+            <p class="text-gray-500 dark:text-gray-400">No farmer allocations found for this season.</p>
+        @else
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-sm divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead class="bg-gray-50 dark:bg-gray-700">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Farmer</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Farm Size</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Allocations</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Collection</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Payment</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                        @foreach($farmerAllocations as $farmer)
+                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                <td class="px-4 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900 dark:text-white">{{ $farmer['farmer_name'] }}</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">{{ $farmer['registration_number'] }}</div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    {{ number_format($farmer['farm_size'], 2) }} ha
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+                                        @if($farmer['status'] === 'approved') bg-green-100 text-green-800
+                                        @elseif($farmer['status'] === 'pending') bg-yellow-100 text-yellow-800
+                                        @elseif($farmer['status'] === 'rejected') bg-red-100 text-red-800
+                                        @else bg-gray-100 text-gray-800 @endif">
+                                        {{ ucfirst($farmer['status']) }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="text-sm text-gray-900 dark:text-white">
+                                        <div class="font-medium">Total: {{ number_format($farmer['total_allocated']) }}</div>
+                                        @foreach($farmer['allocations'] as $allocation)
+                                            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                                {{ $allocation['commodity_name'] }}: {{ number_format($allocation['allocated_quantity']) }}
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+                                        @if($farmer['collection_status'] === 'collected') bg-green-100 text-green-800
+                                        @else bg-gray-100 text-gray-800 @endif">
+                                        {{ ucfirst($farmer['collection_status']) }}
+                                    </span>
+                                    @if($farmer['total_collected'] > 0)
+                                        <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                            Collected: {{ number_format($farmer['total_collected']) }}
+                                        </div>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+                                        @if($farmer['payment_status'] === 'paid') bg-green-100 text-green-800
+                                        @elseif($farmer['payment_status'] === 'pending') bg-yellow-100 text-yellow-800
+                                        @else bg-gray-100 text-gray-800 @endif">
+                                        {{ ucfirst($farmer['payment_status']) }}
+                                    </span>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
+    </div>
+
+    {{-- Applications Trend Chart --}}
+    <div class="bg-white dark:bg-gray-800 shadow rounded-xl p-4 sm:p-6">
+        <h2 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-6">📈 Applications Trend</h2>
+        <div class="w-full h-[300px]">
+            <canvas id="applicationsTrendChart"></canvas>
         </div>
     </div>
 
@@ -205,14 +310,14 @@
             <h2 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">🌾 {{ $season->name }} Overview</h2>
             <div class="flex flex-wrap items-center gap-2">
                 <!-- Export Buttons -->
-                <!-- <a href="{{ route('admin.seasons.export.excel', $season->uuid) }}" 
+                <!-- <a href="{{ route('admin.seasons.export.excel', $season->uuid) }}"
                    class="inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
                     Export Excel
                 </a> -->
-                <a href="{{ route('admin.seasons.export.pdf', $season->uuid) }}" 
+                <a href="{{ route('admin.seasons.export.pdf', $season->uuid) }}"
                    target="_blank"
                    class="inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -277,6 +382,7 @@
                             <th class="px-4 py-3">Commodity</th>
                             <th class="px-4 py-3">Category</th>
                             <th class="px-4 py-3">Unit</th>
+                            <th class="px-4 py-3">Available Stock</th>
                             <th class="px-4 py-3">Allocated</th>
                             <th class="px-4 py-3 text-green-600">Distributed</th>
                             <th class="px-4 py-3 text-yellow-600">Remaining</th>
@@ -291,6 +397,7 @@
                                 <td class="px-4 py-3 font-medium">{{ $item->name }}</td>
                                 <td class="px-4 py-3">{{ $item->category }}</td>
                                 <td class="px-4 py-3">{{ $item->unit }}</td>
+                                <td class="px-4 py-3 text-purple-600 font-medium">{{ number_format($item->available_stock ?? 0) }}</td>
                                 <td class="px-4 py-3">{{ number_format($item->allocated ?? 0) }}</td>
                                 <td class="px-4 py-3 text-green-600 font-medium">{{ number_format($item->distributed ?? 0) }}</td>
                                 <td class="px-4 py-3 text-yellow-600">{{ number_format($item->remaining ?? 0) }}</td>
@@ -380,67 +487,35 @@
 {{-- Chart Scripts --}}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Distribution Chart
-    const labels = @json($commodities->pluck('name'));
-    const allocatedData = @json($commodities->pluck('allocated'));
-    const distributedData = @json($commodities->pluck('distributed'));
+    document.addEventListener('DOMContentLoaded', function() {
+        // Applications Trend Chart
+        const trendLabels = @json($applicationTrendLabels); // e.g., ['Week 1', 'Week 2', ...]
+        const trendData = @json($applicationTrendData); // counts per period
 
-    const ctx1 = document.getElementById('appStatusChart').getContext('2d');
-    new Chart(ctx1, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [
-                {
-                    label: 'Allocated',
-                    data: allocatedData,
-                    backgroundColor: 'rgba(59, 130, 246, 0.6)',
-                    borderColor: 'rgba(59, 130, 246, 1)',
-                    borderWidth: 1
+        const trendChartCanvas = document.getElementById('applicationsTrendChart');
+        if (trendChartCanvas) {
+            const ctx2 = trendChartCanvas.getContext('2d');
+            new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: trendLabels,
+                    datasets: [{
+                        label: 'Applications',
+                        data: trendData,
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.1
+                    }]
                 },
-                {
-                    label: 'Distributed',
-                    data: distributedData,
-                    backgroundColor: 'rgba(16, 185, 129, 0.6)',
-                    borderColor: 'rgba(16, 185, 129, 1)',
-                    borderWidth: 1
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' },
+                        title: { display: true, text: 'Applications Trend' }
+                    }
                 }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { position: 'top' },
-                title: { display: true, text: 'Commodity Distribution Comparison' }
-            }
-        }
-    });
-
-    // Applications Trend Chart
-    const trendLabels = @json($applicationTrendLabels); // e.g., ['Week 1', 'Week 2', ...]
-    const trendData = @json($applicationTrendData); // counts per period
-
-    const ctx2 = document.getElementById('applicationsTrendChart').getContext('2d');
-    new Chart(ctx2, {
-        type: 'line',
-        data: {
-            labels: trendLabels,
-            datasets: [{
-                label: 'Applications',
-                data: trendData,
-                borderColor: 'rgba(59, 130, 246, 1)',
-                backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                tension: 0.1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { position: 'top' },
-                title: { display: true, text: 'Applications Trend' }
-            }
+            });
         }
     });
 </script>

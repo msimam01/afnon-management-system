@@ -20,13 +20,14 @@ use App\Models\Center;
 use App\Services\ApplicationCacheService;
 use App\Services\CommodityDisbursementService;
 use App\Services\PerformanceOptimizationService;
-use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Str;
-use Illuminate\Http\Request;
-use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Support\Facades\App;
 use Illuminate\Validation\Rule;
 
 class ApplicationController extends Controller
@@ -168,7 +169,7 @@ class ApplicationController extends Controller
     }
     public function store(Request $request)
     {
-        \Log::info('Application store request received', [
+        Log::info('Application store request received', [
             'url' => $request->fullUrl(),
             'method' => $request->method(),
             'input' => $request->except(['_token']),
@@ -191,7 +192,7 @@ class ApplicationController extends Controller
             'selected_seed' => 'required|exists:commodities,id',
         ]);
         // Debug: Log the phone number and season being checked
-        \Log::info('Checking for existing phone number', [
+        Log::info('Checking for existing phone number', [
             'phone' => $validated['phone'],
             'season_id' => $validated['season_id'],
             'request_data' => $request->all()
@@ -524,18 +525,23 @@ class ApplicationController extends Controller
             return back();
         }
 
-        // Check stock allocations before approval
-        $commodityQuantities = $application->applicationCommodities->groupBy('commodity_id')->map(function ($group) {
-            return $group->sum('quantity');
-        });
+        // Calculate quantities to allocate based on commodity requirements
+        $commodityQuantities = [];
+        $farmSize = $application->farm->size ?? 0;
+        foreach ($application->commodities as $commodity) {
+            $qtyPerHectare = $commodity->quantity_per_hectare ?? 0;
+            $calculatedQty = $qtyPerHectare * $farmSize;
+            $commodityQuantities[$commodity->id] = $calculatedQty;
+        }
 
+        // Check stock allocations before approval
         foreach ($commodityQuantities as $commodityId => $totalQuantity) {
             $allocation = \App\Models\Allocation::where('season_id', $application->season_id)
                 ->where('commodity_id', $commodityId)
                 ->first();
 
-            if (!$allocation || $allocation->allocated_stock < $totalQuantity) {
-                ToastMagic::error("Insufficient stock for commodity ID {$commodityId}. Available: " . ($allocation->allocated_stock ?? 0) . ", Required: {$totalQuantity}");
+            if (!$allocation || $allocation->available_stock < $totalQuantity) {
+                ToastMagic::error("Insufficient stock for commodity ID {$commodityId}. Available: " . ($allocation->available_stock ?? 0) . ", Required: {$totalQuantity}");
                 return back();
             }
         }
@@ -583,7 +589,7 @@ class ApplicationController extends Controller
             foreach ($commodityQuantities as $commodityId => $totalQuantity) {
                 \App\Models\Allocation::where('season_id', $application->season_id)
                     ->where('commodity_id', $commodityId)
-                    ->decrement('allocated_stock', $totalQuantity);
+                    ->decrement('available_stock', $totalQuantity);
             }
 
             // Insert or update ApplicationCenter
@@ -666,16 +672,18 @@ class ApplicationController extends Controller
             return back();
         }
 
-        // Aggregate commodity quantities for all applications
+        // Aggregate commodity quantities for all applications based on calculated allocations
         $commodityQuantities = [];
         foreach ($applications as $application) {
             $seasonId = $application->season_id;
-            foreach ($application->applicationCommodities->groupBy('commodity_id') as $commodityId => $group) {
-                $total = $group->sum('quantity');
+            $farmSize = $application->farm->size ?? 0;
+            foreach ($application->commodities as $commodity) {
+                $qtyPerHectare = $commodity->quantity_per_hectare ?? 0;
+                $calculatedQty = $qtyPerHectare * $farmSize;
                 if (!isset($commodityQuantities[$seasonId])) {
                     $commodityQuantities[$seasonId] = [];
                 }
-                $commodityQuantities[$seasonId][$commodityId] = ($commodityQuantities[$seasonId][$commodityId] ?? 0) + $total;
+                $commodityQuantities[$seasonId][$commodity->id] = ($commodityQuantities[$seasonId][$commodity->id] ?? 0) + $calculatedQty;
             }
         }
 
@@ -686,8 +694,8 @@ class ApplicationController extends Controller
                     ->where('commodity_id', $commodityId)
                     ->first();
 
-                if (!$allocation || $allocation->allocated_stock < $totalQuantity) {
-                    ToastMagic::error("Insufficient stock for commodity ID {$commodityId} in season {$seasonId}. Available: " . ($allocation->allocated_stock ?? 0) . ", Required: {$totalQuantity}");
+                if (!$allocation || $allocation->available_stock < $totalQuantity) {
+                    ToastMagic::error("Insufficient stock for commodity ID {$commodityId} in season {$seasonId}. Available: " . ($allocation->available_stock ?? 0) . ", Required: {$totalQuantity}");
                     return back();
                 }
             }
@@ -760,7 +768,7 @@ class ApplicationController extends Controller
                 foreach ($qtys as $commodityId => $totalQuantity) {
                     \App\Models\Allocation::where('season_id', $seasonId)
                         ->where('commodity_id', $commodityId)
-                        ->decrement('allocated_stock', $totalQuantity);
+                        ->decrement('available_stock', $totalQuantity);
                 }
             }
 

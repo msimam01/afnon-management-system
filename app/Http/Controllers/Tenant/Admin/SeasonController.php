@@ -124,7 +124,18 @@ class SeasonController extends Controller
         $rejectedApplications = $applications->clone()->where('status', 'rejected')->count();
         $totalFarmers = $applications->clone()->distinct('farmer_id')->count('farmer_id');
 
-        // Commodity distribution stats
+        // Get all applications with relationships for detailed analysis
+        $seasonApplications = $season->applications()
+            ->with([
+                'farmer:id,full_name,registration_number,phone',
+                'farm:id,size',
+                'commodity_allocations',
+                'collectionVerification',
+                'monetaryReturn'
+            ])
+            ->get();
+
+        // Commodity distribution stats with available stock from allocations table
         $commodities = DB::table('commodities')
             ->join('commodity_allocations', 'commodities.name', '=', 'commodity_allocations.commodity_name')
             ->join('applications', 'commodity_allocations.application_id', '=', 'applications.id')
@@ -139,13 +150,17 @@ class SeasonController extends Controller
             ->groupBy('commodities.id', 'commodities.name', 'commodities.category', 'commodities.unit')
             ->get()
             ->map(function ($commodity) use ($season) {
-                // Get distributed quantity from collection_verifications JSON field
+                // Get distributed quantity from collection_verifications array field
                 $distributed = DB::table('collection_verifications')
                     ->join('applications', 'collection_verifications.application_id', '=', 'applications.id')
                     ->where('applications.season_id', $season->id)
                     ->get()
                     ->sum(function ($verification) use ($commodity) {
-                        $quantities = json_decode($verification->collected_quantities, true);
+                        $quantities = $verification->collected_quantities;
+                        // Since it's stored as JSON in DB but cast to array in model, we need to decode it here
+                        if (is_string($quantities)) {
+                            $quantities = json_decode($quantities, true);
+                        }
                         foreach ($quantities as $allocationId => $data) {
                             if ($data['commodity_id'] == $commodity->id) {
                                 return $data['collected_quantity'];
@@ -154,8 +169,14 @@ class SeasonController extends Controller
                         return 0;
                     });
 
+                // Get available stock from allocations table
+                $availableStock = \App\Models\Allocation::where('season_id', $season->id)
+                    ->where('commodity_id', $commodity->id)
+                    ->sum('available_stock');
+
                 $commodity->distributed = $distributed;
                 $commodity->remaining = ($commodity->allocated ?? 0) - $distributed;
+                $commodity->available_stock = $availableStock;
                 return $commodity;
             });
 
@@ -163,6 +184,43 @@ class SeasonController extends Controller
         $totalAllocated = $commodities->sum('allocated');
         $totalDistributed = $commodities->sum('distributed');
         $totalRemaining = $commodities->sum('remaining');
+        $totalAvailableStock = $commodities->sum('available_stock');
+
+        // Detailed farmer allocations and collections
+        $farmerAllocations = $seasonApplications->map(function ($application) {
+            $allocations = $application->commodity_allocations->map(function ($allocation) {
+                return [
+                    'commodity_name' => $allocation->commodity_name,
+                    'allocated_quantity' => $allocation->allocated_quantity,
+                    'collected_quantity' => 0, // Will be filled below
+                ];
+            });
+
+            // Get collected quantities from collection verification
+            if ($application->collectionVerification) {
+                $collectedQuantities = $application->collectionVerification->collected_quantities;
+                foreach ($allocations as &$allocation) {
+                    foreach ($collectedQuantities as $allocationId => $data) {
+                        if ($data['commodity_name'] === $allocation['commodity_name']) {
+                            $allocation['collected_quantity'] = $data['collected_quantity'];
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return [
+                'farmer_name' => $application->farmer->full_name,
+                'registration_number' => $application->farmer->registration_number,
+                'farm_size' => $application->farm->size,
+                'status' => $application->status,
+                'allocations' => $allocations,
+                'total_allocated' => $allocations->sum('allocated_quantity'),
+                'total_collected' => $allocations->sum('collected_quantity'),
+                'collection_status' => $application->collectionVerification ? 'collected' : 'pending',
+                'payment_status' => $application->monetaryReturn ? $application->monetaryReturn->status : 'pending',
+            ];
+        });
 
         // Season progress calculations
         $collectionStart = \Carbon\Carbon::parse($season->collection_start_date);
@@ -183,7 +241,6 @@ class SeasonController extends Controller
             : null;
 
         // Financial summary
-        $seasonApplications = $season->applications()->with('applicationCommodities.commodity')->get();
         $totalLoanAmount = $seasonApplications->sum(function ($app) {
             return $app->total_loan ?? 0;
         });
@@ -195,11 +252,35 @@ class SeasonController extends Controller
             return ($app->insurance_amount ?? 0) + ($app->equity ?? 0);
         });
 
-        // Application trends (last 8 weeks)
-        $weeksAgo = \Carbon\Carbon::now()->subWeeks(8);
+        // Payment and collection status breakdown
+        $pendingCollections = $seasonApplications->where('status', 'approved')
+            ->where('collectionVerification', null)
+            ->count();
+
+        $completedCollections = $seasonApplications->where('status', 'approved')
+            ->where('collectionVerification', '!=', null)
+            ->count();
+
+        $pendingPayments = $seasonApplications->where('loan_type', 'co-funded')
+            ->filter(function ($app) {
+                return $app->monetaryReturn === null || $app->monetaryReturn->status !== 'paid';
+            })
+            ->count();
+
+        $completedPayments = $seasonApplications->where('loan_type', 'co-funded')
+            ->where('monetaryReturn', '!=', null)
+            ->filter(function ($app) {
+                return $app->monetaryReturn && $app->monetaryReturn->status === 'paid';
+            })
+            ->count();
+
+        // Application trends over the season period
+        $seasonStart = \Carbon\Carbon::parse($season->start_date);
+        $seasonEnd = \Carbon\Carbon::parse($season->end_date);
+
+        // Get all applications for this season, regardless of creation date
         $applicationTrend = DB::table('applications')
             ->where('season_id', $season->id)
-            ->where('created_at', '>=', $weeksAgo)
             ->select(
                 DB::raw('DATE(created_at) as date'),
                 DB::raw('COUNT(*) as count')
@@ -208,27 +289,35 @@ class SeasonController extends Controller
             ->orderBy('date')
             ->get();
 
-        // Group by weeks
+        // Group by weeks within the season
         $applicationTrendLabels = [];
         $applicationTrendData = [];
-        $currentWeekStart = $weeksAgo->copy()->startOfWeek();
+        $currentWeekStart = $seasonStart->copy()->startOfWeek();
+        $seasonEndWeek = $seasonEnd->copy()->endOfWeek();
 
-        for ($i = 0; $i < 8; $i++) {
-            $weekStart = $currentWeekStart->copy()->addWeeks($i);
-            $weekEnd = $weekStart->copy()->endOfWeek();
+        $weekIndex = 1;
+        while ($currentWeekStart->lte($seasonEndWeek)) {
+            $weekEnd = $currentWeekStart->copy()->endOfWeek();
 
-            $count = $applicationTrend->whereBetween('date', [$weekStart->toDateString(), $weekEnd->toDateString()])->sum('count');
+            $count = $applicationTrend->whereBetween('date', [$currentWeekStart->toDateString(), $weekEnd->toDateString()])->sum('count');
 
-            $applicationTrendLabels[] = 'Week ' . ($i + 1);
+            $applicationTrendLabels[] = 'Week ' . $weekIndex;
             $applicationTrendData[] = $count;
+
+            $currentWeekStart->addWeek();
+            $weekIndex++;
+
+            // Limit to reasonable number of weeks to prevent too many data points
+            if ($weekIndex > 20) break;
+        }
+
+        // If no data, provide some default data to show the chart
+        if (empty($applicationTrendData) || array_sum($applicationTrendData) === 0) {
+            $applicationTrendLabels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+            $applicationTrendData = [0, 0, 0, 0];
         }
 
         // Alerts
-        $pendingCollections = \App\Models\Application::where('season_id', $season->id)
-            ->where('status', 'approved')
-            ->whereDoesntHave('collectionVerification')
-            ->count();
-
         $overdueReturns = 0;
         // TODO: Implement overdue returns check when return system is complete
         // For now, assume no overdue returns
@@ -243,6 +332,7 @@ class SeasonController extends Controller
         return view('admin.seasons.show', compact(
             'season',
             'commodities',
+            'farmerAllocations',
             'totalApplications',
             'approvedApplications',
             'pendingApplications',
@@ -252,6 +342,7 @@ class SeasonController extends Controller
             'totalAllocated',
             'totalDistributed',
             'totalRemaining',
+            'totalAvailableStock',
             'collectionProgress',
             'daysRemainingInCollection',
             'distributionProgress',
@@ -260,9 +351,12 @@ class SeasonController extends Controller
             'coFundedPayments',
             'outstandingBalance',
             'insuranceContributions',
+            'pendingCollections',
+            'completedCollections',
+            'pendingPayments',
+            'completedPayments',
             'applicationTrendLabels',
             'applicationTrendData',
-            'pendingCollections',
             'overdueReturns'
         ));
     }

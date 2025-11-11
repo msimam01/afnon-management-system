@@ -75,10 +75,12 @@ class SeasonReportService
 
                 // Get collection data
                 $collectionVerification = CollectionVerification::where('application_id', $application->id)
-                    ->where('commodity_id', $commodity->commodity_id)
                     ->first();
 
-                $collectedQty = $collectionVerification->collected_quantity ?? 0;
+                $collectedQty = 0;
+                if ($collectionVerification && isset($collectionVerification->collected_quantities[$allocation->id])) {
+                    $collectedQty = $collectionVerification->collected_quantities[$allocation->id]['collected_quantity'] ?? 0;
+                }
 
                 if ($collectionVerification && !$farmerData['collection_date']) {
                     $farmerData['collection_date'] = $collectionVerification->created_at->format('Y-m-d');

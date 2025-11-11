@@ -778,7 +778,7 @@ class GlobalTenantAllocationController extends Controller
             DB::commit();
 
             return redirect()
-                ->route('global.allocations.edit', ['season' => $season->uuid, 'tenant' => $tenantId])
+                ->route('global.allocations.edit', ['seasonUuid' => $season->uuid, 'tenantId' => $tenantId])
                 ->with('success', 'Allocations updated and synced successfully');
 
         } catch (\Exception $e) {
